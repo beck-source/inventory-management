@@ -80,6 +80,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    source: Optional[str] = None  # "restocking" for orders placed via the Restocking tab
 
 class DemandForecast(BaseModel):
     id: str
@@ -119,6 +120,23 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    reorder_point: int
+    quantity_to_order: int
+    unit_cost: float
+    total_cost: float
+    trend: str
+    forecasted_demand: int
+
+class SubmitRestockingOrderRequest(BaseModel):
+    items: List[dict]
+    total_value: float
 
 # API endpoints
 @app.get("/")
@@ -303,6 +321,127 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(budget: float = 0):
+    """Recommend inventory items to restock within the given budget.
+    Prioritizes items with increasing demand trend, then by largest shortage gap."""
+    from datetime import datetime, timedelta
+
+    # Build demand forecast lookup by SKU
+    demand_by_sku = {f['item_sku']: f for f in demand_forecasts}
+
+    # Trend sort order: increasing is highest priority
+    trend_priority = {'increasing': 0, 'stable': 1, 'decreasing': 2}
+
+    candidates = []
+    seen_skus = set()
+
+    # Primary candidates: inventory items below their reorder point
+    for item in inventory_items:
+        qty_to_order = item['reorder_point'] - item['quantity_on_hand']
+        if qty_to_order <= 0:
+            continue
+
+        forecast = demand_by_sku.get(item['sku'])
+        trend = forecast['trend'] if forecast else 'stable'
+        forecasted_demand = forecast['forecasted_demand'] if forecast else item['reorder_point']
+
+        candidates.append({
+            'sku': item['sku'],
+            'name': item['name'],
+            'category': item['category'],
+            'warehouse': item['warehouse'],
+            'quantity_on_hand': item['quantity_on_hand'],
+            'reorder_point': item['reorder_point'],
+            'quantity_to_order': qty_to_order,
+            'unit_cost': item['unit_cost'],
+            'total_cost': round(qty_to_order * item['unit_cost'], 2),
+            'trend': trend,
+            'forecasted_demand': forecasted_demand,
+            '_priority': trend_priority.get(trend, 1),
+            '_shortage': qty_to_order,
+        })
+        seen_skus.add(item['sku'])
+
+    # Secondary candidates: demand forecast items with increasing trend not already captured
+    inventory_by_sku = {item['sku']: item for item in inventory_items}
+    for forecast in demand_forecasts:
+        if forecast['item_sku'] in seen_skus or forecast['trend'] != 'increasing':
+            continue
+        inv_item = inventory_by_sku.get(forecast['item_sku'])
+        if not inv_item:
+            continue
+        # Proactively restock to reorder_point level to meet rising demand
+        qty_to_order = inv_item['reorder_point']
+        if qty_to_order <= 0:
+            continue
+        candidates.append({
+            'sku': inv_item['sku'],
+            'name': inv_item['name'],
+            'category': inv_item['category'],
+            'warehouse': inv_item['warehouse'],
+            'quantity_on_hand': inv_item['quantity_on_hand'],
+            'reorder_point': inv_item['reorder_point'],
+            'quantity_to_order': qty_to_order,
+            'unit_cost': inv_item['unit_cost'],
+            'total_cost': round(qty_to_order * inv_item['unit_cost'], 2),
+            'trend': 'increasing',
+            'forecasted_demand': forecast['forecasted_demand'],
+            '_priority': 0,
+            '_shortage': qty_to_order,
+        })
+        seen_skus.add(inv_item['sku'])
+
+    # Sort by trend priority first, then largest shortage gap first
+    candidates.sort(key=lambda x: (x['_priority'], -x['_shortage']))
+
+    # Greedy selection: include each item only if it fits within remaining budget
+    result = []
+    remaining = budget
+    for c in candidates:
+        if c['total_cost'] <= remaining:
+            result.append({k: v for k, v in c.items() if not k.startswith('_')})
+            remaining -= c['total_cost']
+
+    return result
+
+
+@app.post("/api/restocking/orders", response_model=Order)
+def submit_restocking_order(request: SubmitRestockingOrderRequest):
+    """Submit a restocking order. Appended to the shared orders list so it appears in Orders tab."""
+    from datetime import datetime, timedelta
+
+    now = datetime.now()
+    # Use a prefix and running count to generate a collision-resistant order number
+    restocking_count = sum(1 for o in orders if o.get('source') == 'restocking')
+    order_number = f"RST-{now.year}-{str(restocking_count + 1).zfill(4)}"
+    order_id = f"rst-{now.strftime('%Y%m%d%H%M%S')}-{restocking_count + 1}"
+
+    new_order = {
+        'id': order_id,
+        'order_number': order_number,
+        'customer': 'Internal - Restocking',
+        'items': request.items,
+        'status': 'Processing',
+        'order_date': now.isoformat(),
+        'expected_delivery': (now + timedelta(days=14)).isoformat(),
+        'total_value': request.total_value,
+        'actual_delivery': None,
+        'warehouse': None,
+        'category': None,
+        'source': 'restocking',  # tag so the Orders tab can show a dedicated section
+    }
+
+    orders.append(new_order)
+    return new_order
+
+
+@app.get("/api/restocking/orders", response_model=List[Order])
+def get_restocking_orders():
+    """Return all submitted restocking orders (unfiltered, always current-date data)."""
+    return [o for o in orders if o.get('source') == 'restocking']
+
 
 if __name__ == "__main__":
     import uvicorn
