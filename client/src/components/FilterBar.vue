@@ -4,21 +4,11 @@
       <div class="filters-grid">
         <div class="filter-group">
           <label>{{ t('filters.timePeriod') }}</label>
-          <select v-model="selectedPeriod" class="filter-select">
-            <option value="all">{{ t('filters.allMonths') }}</option>
-            <option value="2025-01">{{ t('months.january') }}</option>
-            <option value="2025-02">{{ t('months.february') }}</option>
-            <option value="2025-03">{{ t('months.march') }}</option>
-            <option value="2025-04">{{ t('months.april') }}</option>
-            <option value="2025-05">{{ t('months.may') }}</option>
-            <option value="2025-06">{{ t('months.june') }}</option>
-            <option value="2025-07">{{ t('months.july') }}</option>
-            <option value="2025-08">{{ t('months.august') }}</option>
-            <option value="2025-09">{{ t('months.september') }}</option>
-            <option value="2025-10">{{ t('months.october') }}</option>
-            <option value="2025-11">{{ t('months.november') }}</option>
-            <option value="2025-12">{{ t('months.december') }}</option>
-          </select>
+          <div class="date-range-inputs">
+            <input type="month" v-model="startMonth" class="filter-input-month" placeholder="From" title="Start month" />
+            <span class="date-range-sep">–</span>
+            <input type="month" v-model="endMonth" class="filter-input-month" placeholder="To" title="End month" />
+          </div>
         </div>
 
         <div class="filter-group">
@@ -77,7 +67,8 @@ export default {
   name: 'FilterBar',
   setup() {
     const {
-      selectedPeriod,
+      startMonth,
+      endMonth,
       selectedLocation,
       selectedCategory,
       selectedStatus,
@@ -89,7 +80,8 @@ export default {
 
     return {
       t,
-      selectedPeriod,
+      startMonth,
+      endMonth,
       selectedLocation,
       selectedCategory,
       selectedStatus,
@@ -190,5 +182,40 @@ export default {
 .reset-filters-btn svg {
   width: 18px;
   height: 18px;
+}
+
+.date-range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.filter-input-month {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.813rem;
+  color: #0f172a;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  width: 130px;
+}
+
+.filter-input-month:hover {
+  border-color: #94a3b8;
+}
+
+.filter-input-month:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.date-range-sep {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 </style>

@@ -199,7 +199,7 @@ export default {
     const selectedCostData = ref(null)
 
     // Use shared filters
-    const { selectedPeriod, getCurrentFilters } = useFilters()
+    const { startMonth, endMonth, getCurrentFilters } = useFilters()
 
     // Monthly spending chart always shows all months (not filtered)
     const monthlySpending = computed(() => {
@@ -208,18 +208,20 @@ export default {
 
     // Filtered monthly spending for summary calculations only
     const filteredMonthlySpending = computed(() => {
-      if (selectedPeriod.value === 'all') {
+      if (!startMonth.value && !endMonth.value) {
         return allMonthlySpending.value
       }
-
-      // Extract month name from YYYY-MM format
-      const monthMap = {
-        '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
-        '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
-        '09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec'
+      const monthIndexMap = {
+        'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+        'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+        'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
       }
-      const selectedMonth = monthMap[selectedPeriod.value.split('-')[1]]
-      return allMonthlySpending.value.filter(m => m.month === selectedMonth)
+      return allMonthlySpending.value.filter(m => {
+        const ym = `2025-${monthIndexMap[m.month]}`
+        if (startMonth.value && ym < startMonth.value) return false
+        if (endMonth.value && ym > endMonth.value) return false
+        return true
+      })
     })
 
     const categorySpending = computed(() => {
@@ -227,13 +229,12 @@ export default {
     })
 
     const recentTransactions = computed(() => {
-      if (selectedPeriod.value === 'all') {
-        return allTransactions.value
-      }
-      // Filter transactions by selected month
+      if (!startMonth.value && !endMonth.value) return allTransactions.value
       return allTransactions.value.filter(t => {
         const transactionMonth = new Date(t.date).toISOString().slice(0, 7)
-        return transactionMonth === selectedPeriod.value
+        if (startMonth.value && transactionMonth < startMonth.value) return false
+        if (endMonth.value && transactionMonth > endMonth.value) return false
+        return true
       })
     })
 
@@ -264,14 +265,12 @@ export default {
 
     // Filtered orders based on selected period
     const filteredOrders = computed(() => {
-      if (selectedPeriod.value === 'all') {
-        return allOrders.value
-      }
-
-      // Filter orders by selected month
+      if (!startMonth.value && !endMonth.value) return allOrders.value
       return allOrders.value.filter(order => {
         const orderMonth = new Date(order.order_date).toISOString().slice(0, 7)
-        return orderMonth === selectedPeriod.value
+        if (startMonth.value && orderMonth < startMonth.value) return false
+        if (endMonth.value && orderMonth > endMonth.value) return false
+        return true
       })
     })
 
@@ -371,7 +370,7 @@ export default {
     }
 
     // Watch for period filter changes
-    watch([selectedPeriod], () => {
+    watch([startMonth, endMonth], () => {
       // Data will automatically update via computed properties
     })
 

@@ -46,7 +46,7 @@
 
           <div class="kpi-card">
             <div class="kpi-header">
-              <span class="kpi-label">{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboard.kpi.revenueMTD') }}</span>
+              <span class="kpi-label">{{ t(!startMonth && !endMonth ? 'dashboard.kpi.revenueYTD' : 'dashboard.kpi.revenueMTD') }}</span>
             </div>
             <div class="kpi-value">{{ formatCurrency(Math.round(summary.total_orders_value), selectedCurrency) }}</div>
             <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ formatCurrency(revenueGoal, selectedCurrency) }} ({{ summary.total_orders_value > revenueGoal ? '+' : '' }}{{ ((summary.total_orders_value / revenueGoal - 1) * 100).toFixed(1) }}%)</div>
@@ -330,7 +330,8 @@ export default {
 
     // Use shared filters
     const {
-      selectedPeriod,
+      startMonth,
+      endMonth,
       selectedLocation,
       selectedCategory,
       selectedStatus,
@@ -341,12 +342,17 @@ export default {
     const fillRate = ref(96.8)
 
     const revenueGoal = computed(() => {
-      // $800K per month, so if looking at all months (12 months), goal is 12 * 800K = 9.6M
       const monthlyGoal = 800000
-      if (selectedPeriod.value === 'all') {
+      if (!startMonth.value && !endMonth.value) {
         return monthlyGoal * 12 // $9,600,000 for the full year
       }
-      return monthlyGoal // $800,000 for a single month
+      if (startMonth.value && endMonth.value) {
+        const start = new Date(startMonth.value + '-01')
+        const end = new Date(endMonth.value + '-01')
+        const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1
+        return monthlyGoal * Math.max(1, months)
+      }
+      return monthlyGoal // single-sided bound = 1 month
     })
 
     const revenueGoalDisplay = computed(() => {
@@ -423,7 +429,7 @@ export default {
 
       // Only include inventory items that have orders in the selected period
       // If no period is selected (all), include all inventory items
-      const itemsToInclude = selectedPeriod.value === 'all'
+      const itemsToInclude = !startMonth.value && !endMonth.value
         ? inventoryItems.value
         : inventoryItems.value.filter(item => orderedSkus.has(item.sku))
 
@@ -673,7 +679,7 @@ export default {
     }
 
     // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
+    watch([startMonth, endMonth, selectedLocation, selectedCategory, selectedStatus], () => {
       loadData()
     })
 
@@ -709,7 +715,8 @@ export default {
       showBacklogModal,
       selectedBacklogItem,
       showBacklogDetail,
-      selectedPeriod,
+      startMonth,
+      endMonth,
       selectedCurrency: currentCurrency,
       formatCurrency,
       Math,

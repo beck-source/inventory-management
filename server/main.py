@@ -2,33 +2,28 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
-# Quarter mapping for date filtering
-QUARTER_MAP = {
-    'Q1-2025': ['2025-01', '2025-02', '2025-03'],
-    'Q2-2025': ['2025-04', '2025-05', '2025-06'],
-    'Q3-2025': ['2025-07', '2025-08', '2025-09'],
-    'Q4-2025': ['2025-10', '2025-11', '2025-12']
-}
-
-def filter_by_month(items: list, month: Optional[str]) -> list:
-    """Filter items by month/quarter based on order_date field"""
-    if not month or month == 'all':
+def filter_by_date_range(items: list, start_month: Optional[str], end_month: Optional[str]) -> list:
+    """Filter items where order_date falls within [start_month, end_month] (YYYY-MM format).
+    Either bound can be omitted (None/empty) to leave that side open-ended."""
+    if not start_month and not end_month:
         return items
-
-    if month.startswith('Q'):
-        # Handle quarters
-        if month in QUARTER_MAP:
-            months = QUARTER_MAP[month]
-            return [item for item in items if any(m in item.get('order_date', '') for m in months)]
-    else:
-        # Direct month match
-        return [item for item in items if month in item.get('order_date', '')]
-
-    return items
+    result = []
+    for item in items:
+        order_date = item.get('order_date', '')
+        if not order_date:
+            continue
+        item_month = order_date[:7]  # YYYY-MM
+        if start_month and item_month < start_month:
+            continue
+        if end_month and item_month > end_month:
+            continue
+        result.append(item)
+    return result
 
 def apply_filters(items: list, warehouse: Optional[str] = None, category: Optional[str] = None,
                  status: Optional[str] = None) -> list:
@@ -89,6 +84,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    restock_quantity: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -120,6 +117,30 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingOrderItem]
+    total_value: float
+    status: str = "Submitted"
+    submitted_date: str
+    expected_delivery: str
+    lead_time_days: int = 14
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    total_value: float
+
+# In-memory restocking orders store
+restocking_orders = []
+restocking_order_counter = 1
+
 # API endpoints
 @app.get("/")
 def root():
@@ -146,11 +167,12 @@ def get_orders(
     warehouse: Optional[str] = None,
     category: Optional[str] = None,
     status: Optional[str] = None,
-    month: Optional[str] = None
+    start_month: Optional[str] = None,
+    end_month: Optional[str] = None
 ):
     """Get all orders with optional filtering"""
     filtered_orders = apply_filters(orders, warehouse, category, status)
-    filtered_orders = filter_by_month(filtered_orders, month)
+    filtered_orders = filter_by_date_range(filtered_orders, start_month, end_month)
     return filtered_orders
 
 @app.get("/api/orders/{order_id}", response_model=Order)
@@ -184,7 +206,8 @@ def get_dashboard_summary(
     warehouse: Optional[str] = None,
     category: Optional[str] = None,
     status: Optional[str] = None,
-    month: Optional[str] = None
+    start_month: Optional[str] = None,
+    end_month: Optional[str] = None
 ):
     """Get summary statistics for dashboard with optional filtering"""
     # Filter inventory
@@ -192,7 +215,7 @@ def get_dashboard_summary(
 
     # Filter orders
     filtered_orders = apply_filters(orders, warehouse, category, status)
-    filtered_orders = filter_by_month(filtered_orders, month)
+    filtered_orders = filter_by_date_range(filtered_orders, start_month, end_month)
 
     total_inventory_value = sum(item["quantity_on_hand"] * item["unit_cost"] for item in filtered_inventory)
     low_stock_items = len([item for item in filtered_inventory if item["quantity_on_hand"] <= item["reorder_point"]])
@@ -303,6 +326,32 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder)
+def create_restocking_order(order_data: CreateRestockingOrderRequest):
+    """Submit a new restocking order"""
+    global restocking_order_counter
+
+    now = datetime.utcnow()
+    new_order = {
+        "id": str(restocking_order_counter),
+        "order_number": f"RST-{restocking_order_counter:04d}",
+        "items": [item.dict() for item in order_data.items],
+        "total_value": order_data.total_value,
+        "status": "Submitted",
+        "submitted_date": now.strftime("%Y-%m-%d"),
+        "expected_delivery": (now + timedelta(days=14)).strftime("%Y-%m-%d"),
+        "lead_time_days": 14
+    }
+
+    restocking_orders.append(new_order)
+    restocking_order_counter += 1
+    return new_order
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
