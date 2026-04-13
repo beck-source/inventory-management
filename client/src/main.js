@@ -11,12 +11,12 @@ import Reports from './views/Reports.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', component: Dashboard },
-    { path: '/inventory', component: Inventory },
-    { path: '/orders', component: Orders },
-    { path: '/demand', component: Demand },
-    { path: '/spending', component: Spending },
-    { path: '/reports', component: Reports }
+    { path: '/', name: 'Overview', component: Dashboard },
+    { path: '/inventory', name: 'Inventory', component: Inventory },
+    { path: '/orders', name: 'Orders', component: Orders },
+    { path: '/demand', name: 'Demand Forecast', component: Demand },
+    { path: '/spending', name: 'Finance', component: Spending },
+    { path: '/reports', name: 'Reports', component: Reports }
   ]
 })
 

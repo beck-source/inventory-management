@@ -1,0 +1,51 @@
+/* SaaS redesign tokens — copy into :root of client/src/App.vue global <style> */
+:root {
+  /* Layout */
+  --sidebar-w: 240px;
+  --topbar-h: 60px;
+
+  /* 8pt spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Surfaces (light neutral, slate-based to match project palette) */
+  --surface-0: #ffffff;   /* cards, topbar */
+  --surface-1: #f8fafc;   /* page background */
+  --surface-2: #f1f5f9;   /* sidebar */
+  --surface-3: #e2e8f0;   /* hover fill */
+  --border:    #e2e8f0;
+
+  /* Text */
+  --text-1: #0f172a;      /* primary */
+  --text-2: #64748b;      /* secondary / labels */
+  --text-3: #94a3b8;      /* muted / placeholders */
+
+  /* Accent + semantics */
+  --accent:      #3b82f6;
+  --accent-soft: #eff6ff;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger:  #ef4444;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+
+  /* Typography scale */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+}
