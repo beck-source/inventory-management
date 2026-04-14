@@ -6,13 +6,18 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System'
+    subtitle: 'Inventory Management System',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar'
   },
 
   // Dashboard
   dashboard: {
     title: 'Overview',
+    subtitle: 'Real-time inventory and order performance',
     kpi: {
       title: 'Key Performance Indicators',
       inventoryTurnover: 'Inventory Turnover Rate',
@@ -309,6 +314,34 @@ export default {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Recommend items to restock within your available budget',
+    budget: 'Available Budget',
+    budgetUsed: 'Budget Used',
+    budgetRemaining: 'Remaining',
+    recommendations: 'Recommended Items',
+    noRecommendations: 'Set a budget above $0 to see recommended restocking items.',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    orderSuccess: 'Restocking order placed successfully! Check the Orders tab to track delivery.',
+    removeItem: 'Remove',
+    total: 'Total',
+    leadTime: 'Lead Time',
+    days: 'days',
+    table: {
+      itemName: 'Item Name',
+      sku: 'SKU',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      quantity: 'Quantity',
+      subtotal: 'Subtotal'
+    },
+    submittedOrders: 'Submitted Restocking Orders',
+    noSubmittedOrders: 'No restocking orders have been placed yet.'
   },
 
   // Common

@@ -1,79 +1,68 @@
 <template>
   <div class="dashboard">
+    <!-- Page header with subtitle -->
     <div class="page-header">
       <h2>{{ t('dashboard.title') }}</h2>
+      <p>{{ t('dashboard.subtitle') }}</p>
     </div>
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
-      <!-- Key Performance Indicators -->
-      <div class="kpi-section">
-        <h3 class="section-title">{{ t('dashboard.kpi.title') }}</h3>
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">{{ t('dashboard.kpi.inventoryTurnover') }}</span>
-            </div>
-            <div class="kpi-value">4.2</div>
-            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 4.5 (-6.67%)</div>
-            <div class="kpi-progress-bar">
-              <div class="kpi-progress" style="width: 93.33%"></div>
-            </div>
+      <!-- KPI cards using global stats-grid / stat-card pattern -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">{{ t('dashboard.kpi.inventoryTurnover') }}</div>
+          <div class="stat-value">4.2</div>
+          <div class="kpi-meta">
+            <span class="kpi-goal-text">{{ t('dashboard.kpi.goal') }}: 4.5</span>
+            <span class="badge decreasing">-6.67%</span>
           </div>
+          <div class="kpi-progress-bar"><div class="kpi-progress" style="width: 93.33%"></div></div>
+        </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">{{ t('dashboard.kpi.ordersFulfilled') }}</span>
-            </div>
-            <div class="kpi-value">{{ ordersData.fulfilled }}</div>
-            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ ordersData.goal }} ({{ calculatePercentage(ordersData.fulfilled, ordersData.goal) }}%)</div>
-            <div class="kpi-progress-bar">
-              <div class="kpi-progress" :style="{ width: calculatePercentage(ordersData.fulfilled, ordersData.goal) + '%' }"></div>
-            </div>
+        <div class="stat-card">
+          <div class="stat-label">{{ t('dashboard.kpi.ordersFulfilled') }}</div>
+          <div class="stat-value">{{ ordersData.fulfilled }}</div>
+          <div class="kpi-meta">
+            <span class="kpi-goal-text">{{ t('dashboard.kpi.goal') }}: {{ ordersData.goal }}</span>
+            <span :class="['badge', ordersData.fulfilled >= ordersData.goal ? 'increasing' : 'decreasing']">{{ calculatePercentage(ordersData.fulfilled, ordersData.goal) }}%</span>
           </div>
+          <div class="kpi-progress-bar"><div class="kpi-progress" :style="{ width: calculatePercentage(ordersData.fulfilled, ordersData.goal) + '%' }"></div></div>
+        </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">{{ t('dashboard.kpi.orderFillRate') }}</span>
-            </div>
-            <div class="kpi-value">{{ fillRate }}%</div>
-            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 95% ({{ fillRate - 95 > 0 ? '+' : '' }}{{ (fillRate - 95).toFixed(2) }}%)</div>
-            <div class="kpi-progress-bar">
-              <div class="kpi-progress success" :style="{ width: (fillRate / 95 * 100) + '%' }"></div>
-            </div>
+        <div class="stat-card success">
+          <div class="stat-label">{{ t('dashboard.kpi.orderFillRate') }}</div>
+          <div class="stat-value">{{ fillRate }}%</div>
+          <div class="kpi-meta">
+            <span class="kpi-goal-text">{{ t('dashboard.kpi.goal') }}: 95%</span>
+            <span :class="['badge', fillRate >= 95 ? 'increasing' : 'decreasing']">{{ fillRate - 95 > 0 ? '+' : '' }}{{ (fillRate - 95).toFixed(2) }}%</span>
           </div>
+          <div class="kpi-progress-bar"><div class="kpi-progress success" :style="{ width: (fillRate / 95 * 100) + '%' }"></div></div>
+        </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboard.kpi.revenueMTD') }}</span>
-            </div>
-            <div class="kpi-value">{{ formatCurrency(Math.round(summary.total_orders_value), selectedCurrency) }}</div>
-            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ formatCurrency(revenueGoal, selectedCurrency) }} ({{ summary.total_orders_value > revenueGoal ? '+' : '' }}{{ ((summary.total_orders_value / revenueGoal - 1) * 100).toFixed(1) }}%)</div>
-            <div class="kpi-progress-bar">
-              <div class="kpi-progress" :style="{ width: Math.min((summary.total_orders_value / revenueGoal * 100), 100) + '%' }"></div>
-            </div>
+        <div class="stat-card">
+          <div class="stat-label">{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboard.kpi.revenueMTD') }}</div>
+          <div class="stat-value">{{ formatCurrency(Math.round(summary.total_orders_value), selectedCurrency) }}</div>
+          <div class="kpi-meta">
+            <span class="kpi-goal-text">{{ t('dashboard.kpi.goal') }}: {{ formatCurrency(revenueGoal, selectedCurrency) }}</span>
+            <span :class="['badge', summary.total_orders_value >= revenueGoal ? 'increasing' : 'stable']">{{ summary.total_orders_value > revenueGoal ? '+' : '' }}{{ ((summary.total_orders_value / revenueGoal - 1) * 100).toFixed(1) }}%</span>
           </div>
+          <div class="kpi-progress-bar"><div class="kpi-progress" :style="{ width: Math.min((summary.total_orders_value / revenueGoal * 100), 100) + '%' }"></div></div>
+        </div>
 
-          <div class="kpi-card">
-            <div class="kpi-header">
-              <span class="kpi-label">{{ t('dashboard.kpi.avgProcessingTime') }}</span>
-            </div>
-            <div class="kpi-value">2.8</div>
-            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 3.0 (-6.67%)</div>
-            <div class="kpi-progress-bar">
-              <div class="kpi-progress success" style="width: 93.33%"></div>
-            </div>
+        <div class="stat-card success">
+          <div class="stat-label">{{ t('dashboard.kpi.avgProcessingTime') }}</div>
+          <div class="stat-value">2.8</div>
+          <div class="kpi-meta">
+            <span class="kpi-goal-text">{{ t('dashboard.kpi.goal') }}: 3.0</span>
+            <span class="badge increasing">-6.67%</span>
           </div>
+          <div class="kpi-progress-bar"><div class="kpi-progress success" style="width: 93.33%"></div></div>
         </div>
       </div>
 
-      <!-- Summary Section -->
-      <div class="summary-section">
-        <h3 class="section-title">{{ t('dashboard.summary.title') }}</h3>
-      </div>
-
-      <!-- Charts Grid -->
+      <!-- Charts grid: 2 columns wide, single column below 900px -->
       <div class="charts-grid">
         <!-- Order Health Dashboard -->
         <div class="card chart-card">
@@ -84,20 +73,21 @@
             <div class="order-health-container">
               <!-- Left: Donut Chart -->
               <div class="order-health-chart">
+                <!-- Donut: uses CSS var colours so they respect design tokens -->
                 <svg viewBox="0 0 200 200" class="donut-svg-compact">
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#e2e8f0" stroke-width="25"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#10b981" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--surface-border)" stroke-width="25"/>
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--color-success)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.delivered)} 408`"
                     stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#3b82f6" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--sidebar-accent)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.shipped)} 408`"
                     :stroke-dashoffset="`-${getCircleSegment(statusData.delivered)}`"
                     transform="rotate(-90 100 100)"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#f59e0b" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--color-warning)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.processing)} 408`"
                     :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped)}`"
                     transform="rotate(-90 100 100)"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#ef4444" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--color-danger)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.backordered)} 408`"
                     :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped) + getCircleSegment(statusData.processing)}`"
                     transform="rotate(-90 100 100)"/>
@@ -105,10 +95,10 @@
                   <text x="100" y="120" text-anchor="middle" class="donut-center-value">{{ orderHealthMetrics.totalOrders }}</text>
                 </svg>
                 <div class="donut-legend-compact">
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #10b981"></span>{{ t('status.delivered') }}</div>
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #3b82f6"></span>{{ t('status.shipped') }}</div>
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #f59e0b"></span>{{ t('status.processing') }}</div>
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #ef4444"></span>{{ t('status.backordered') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot legend-success"></span>{{ t('status.delivered') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot legend-info"></span>{{ t('status.shipped') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot legend-warning"></span>{{ t('status.processing') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot legend-danger"></span>{{ t('status.backordered') }}</div>
                 </div>
               </div>
 
@@ -727,94 +717,54 @@ export default {
 </script>
 
 <style scoped>
-.page-header {
+/* kpi-meta row: goal text + delta badge side by side */
+.kpi-meta {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+  margin-bottom: 0.625rem;
 }
 
-.header-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+.kpi-goal-text {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
 }
 
-.kpi-section {
-  margin-bottom: 1.5rem;
-}
-
-.section-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.kpi-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem;
-}
-
-.kpi-header {
-  margin-bottom: 0.75rem;
-}
-
-.kpi-label {
-  font-size: 0.813rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.kpi-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
-}
-
-.kpi-goal {
-  font-size: 0.813rem;
-  color: #64748b;
-  margin-bottom: 0.75rem;
-}
-
+/* Progress bar inside stat-card */
 .kpi-progress-bar {
   width: 100%;
-  height: 6px;
-  background: #f1f5f9;
-  border-radius: 3px;
+  height: 4px;
+  background: var(--surface-hover);
+  border-radius: 2px;
   overflow: hidden;
+  margin-top: 0.25rem;
 }
 
 .kpi-progress {
   height: 100%;
-  background: #3b82f6;
-  border-radius: 3px;
+  background: var(--sidebar-accent);
+  border-radius: 2px;
   transition: width 0.6s ease;
 }
 
 .kpi-progress.success {
-  background: #10b981;
+  background: var(--color-success);
 }
 
+/* Charts grid: 2-col on wide screens, 1-col below 900px */
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-gap);
+  margin-bottom: var(--space-section);
+}
+
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .chart-card.full-width {
@@ -856,6 +806,12 @@ export default {
   height: 10px;
   border-radius: 2px;
 }
+
+/* Legend dot colours mapped to design tokens */
+.legend-success { background: var(--color-success); }
+.legend-info    { background: var(--sidebar-accent); }
+.legend-warning { background: var(--color-warning); }
+.legend-danger  { background: var(--color-danger); }
 
 /* Order Health Dashboard Styles */
 .order-health-container {
@@ -941,17 +897,9 @@ export default {
   letter-spacing: -0.025em;
 }
 
-.metric-good {
-  color: #10b981;
-}
-
-.metric-warning {
-  color: #f59e0b;
-}
-
-.metric-bad {
-  color: #ef4444;
-}
+.metric-good    { color: var(--color-success); }
+.metric-warning { color: var(--color-warning); }
+.metric-bad     { color: var(--color-danger);  }
 
 .horizontal-bar-chart {
   display: flex;
@@ -1010,8 +958,8 @@ export default {
   justify-content: space-between;
   padding-right: 1rem;
   font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
+  color: var(--text-muted);
+  border-right: 1px solid var(--surface-border);
 }
 
 .line-chart-area {
@@ -1044,26 +992,26 @@ export default {
   width: 100%;
   max-width: 60px;
   min-height: 8px;
-  background: #3b82f6;
+  background: var(--sidebar-accent);
   border-radius: 6px 6px 0 0;
   transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
 }
 
 .line-bar.empty-bar {
-  background: #e2e8f0;
+  background: var(--surface-border);
   box-shadow: none;
   min-height: 4px;
 }
 
 .line-bar:hover {
-  background: #2563eb;
+  background: var(--color-blue);
   transform: scaleY(1.05);
 }
 
 .line-bar.empty-bar:hover {
-  background: #cbd5e1;
+  background: var(--surface-border-strong);
   transform: none;
 }
 
@@ -1093,12 +1041,12 @@ export default {
 .success-icon {
   width: 48px;
   height: 48px;
-  color: #10b981;
+  color: var(--color-success);
 }
 
 .no-backlog-text {
   font-size: 1.125rem;
-  color: #10b981;
+  color: var(--color-success);
   font-weight: 600;
   margin: 0;
 }

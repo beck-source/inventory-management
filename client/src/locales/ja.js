@@ -6,13 +6,18 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再入荷',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
-    subtitle: '在庫管理システム'
+    subtitle: '在庫管理システム',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開'
   },
 
   // Dashboard
   dashboard: {
     title: '概要',
+    subtitle: 'リアルタイムの在庫・注文パフォーマンス',
     kpi: {
       title: '主要業績評価指標',
       inventoryTurnover: '在庫回転率',
@@ -309,6 +314,34 @@ export default {
     english: 'English',
     japanese: '日本語',
     selectLanguage: '言語を選択'
+  },
+
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '利用可能な予算内で再入荷する品目を推奨します',
+    budget: '利用可能な予算',
+    budgetUsed: '使用予算',
+    budgetRemaining: '残余',
+    recommendations: '推奨品目',
+    noRecommendations: '推奨品目を表示するには予算を$0以上に設定してください。',
+    placeOrder: '注文を行う',
+    placingOrder: '注文中...',
+    orderSuccess: '再入荷注文が正常に行われました。「注文」タブで配送状況を確認してください。',
+    removeItem: '削除',
+    total: '合計',
+    leadTime: 'リードタイム',
+    days: '日',
+    table: {
+      itemName: '品目名',
+      sku: 'SKU',
+      trend: 'トレンド',
+      unitCost: '単価',
+      quantity: '数量',
+      subtotal: '小計'
+    },
+    submittedOrders: '提出済み再入荷注文',
+    noSubmittedOrders: 'まだ再入荷注文は行われていません。'
   },
 
   // Common

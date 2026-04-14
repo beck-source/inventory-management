@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -120,6 +121,12 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class OrderCreate(BaseModel):
+    items: List[dict]
+    warehouse: str
+    category: str
+    customer: str
+
 # API endpoints
 @app.get("/")
 def root():
@@ -160,6 +167,43 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_order(order_data: OrderCreate):
+    """Create a new restocking order and append it to the in-memory orders list"""
+    # Find the highest existing numeric ID to avoid collisions
+    max_id = max((int(o["id"]) for o in orders if o["id"].isdigit()), default=0)
+    new_id = max_id + 1
+
+    # RST- prefix makes restocking orders easy to identify in the Orders tab
+    order_number = f"RST-2025-{new_id:04d}"
+
+    now = datetime.now()
+    order_date = now.isoformat(timespec="seconds")
+    expected_delivery = (now + timedelta(days=14)).isoformat(timespec="seconds")
+
+    total_value = round(
+        sum(item.get("quantity", 0) * item.get("unit_price", 0) for item in order_data.items),
+        2
+    )
+
+    new_order = {
+        "id": str(new_id),
+        "order_number": order_number,
+        "customer": order_data.customer,
+        "items": order_data.items,
+        "status": "Processing",
+        "warehouse": order_data.warehouse,
+        "category": order_data.category,
+        "order_date": order_date,
+        "expected_delivery": expected_delivery,
+        "total_value": total_value,
+        "actual_delivery": None
+    }
+
+    # Append to the shared in-memory list — visible in subsequent GET /api/orders calls
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
