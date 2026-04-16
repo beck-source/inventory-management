@@ -325,19 +325,28 @@ def get_monthly_trends():
 @app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
 def get_restocking_recommendations(budget: float = 0):
     """Recommend inventory items to restock within the given budget.
-    Prioritizes items with increasing demand trend, then by largest shortage gap."""
+
+    Algorithm:
+    1. Primary candidates: Items below reorder point (critical shortage)
+    2. Secondary candidates: Items with increasing demand trend not yet captured (proactive)
+    3. Prioritization: Items sorted by trend priority (increasing > stable > decreasing), then by shortage gap
+    4. Selection: Greedy algorithm - include items in priority order until budget exhausted
+
+    Returns: Recommended items sorted by priority, each fitting within remaining budget.
+    """
     from datetime import datetime, timedelta
 
-    # Build demand forecast lookup by SKU
+    # Build demand forecast lookup by SKU for O(1) access
     demand_by_sku = {f['item_sku']: f for f in demand_forecasts}
 
-    # Trend sort order: increasing is highest priority
+    # Trend sort order: increasing demand is highest priority, followed by stable, then decreasing
+    # This ensures we restock items with rising demand first (proactive planning)
     trend_priority = {'increasing': 0, 'stable': 1, 'decreasing': 2}
 
     candidates = []
     seen_skus = set()
 
-    # Primary candidates: inventory items below their reorder point
+    # PHASE 1: Primary candidates - inventory items currently below their reorder point (critical)
     for item in inventory_items:
         qty_to_order = item['reorder_point'] - item['quantity_on_hand']
         if qty_to_order <= 0:
@@ -364,9 +373,11 @@ def get_restocking_recommendations(budget: float = 0):
         })
         seen_skus.add(item['sku'])
 
-    # Secondary candidates: demand forecast items with increasing trend not already captured
+    # PHASE 2: Secondary candidates - items with increasing demand trend not already captured
+    # This enables proactive restocking to meet rising demand before stock falls below reorder point
     inventory_by_sku = {item['sku']: item for item in inventory_items}
     for forecast in demand_forecasts:
+        # Skip if already captured in phase 1 or trend is not increasing
         if forecast['item_sku'] in seen_skus or forecast['trend'] != 'increasing':
             continue
         inv_item = inventory_by_sku.get(forecast['item_sku'])
@@ -393,10 +404,12 @@ def get_restocking_recommendations(budget: float = 0):
         })
         seen_skus.add(inv_item['sku'])
 
-    # Sort by trend priority first, then largest shortage gap first
+    # Sort by trend priority first (increasing > stable > decreasing), then by largest shortage gap
+    # This ensures items with rising demand and critical shortages are recommended first
     candidates.sort(key=lambda x: (x['_priority'], -x['_shortage']))
 
-    # Greedy selection: include each item only if it fits within remaining budget
+    # PHASE 3: Greedy selection - include items in priority order until budget exhausted
+    # This maximizes impact by fitting as many high-priority items as possible within budget
     result = []
     remaining = budget
     for c in candidates:

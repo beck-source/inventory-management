@@ -6,7 +6,17 @@
 
       <!-- Brand -->
       <div class="sidebar-brand">
-        <div class="sidebar-brand-icon">F</div>
+        <div class="sidebar-brand-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <!-- Factory/Warehouse Icon -->
+            <rect x="3" y="8" width="18" height="10" rx="1" stroke="#fbbf24"/>
+            <path d="M8 8V4M16 8V4" stroke="#60a5fa"/>
+            <path d="M3 14H1M23 14H21" stroke="#34d399"/>
+            <rect x="5" y="10" width="3" height="4" fill="#f87171" opacity="0.6"/>
+            <rect x="11" y="10" width="3" height="4" fill="#818cf8" opacity="0.6"/>
+            <rect x="17" y="10" width="2" height="4" fill="#fbbf24" opacity="0.6"/>
+          </svg>
+        </div>
         <div v-if="!isCollapsed" class="sidebar-brand-text">
           <span class="sidebar-brand-name">{{ t('nav.companyName') }}</span>
           <span class="sidebar-brand-sub">{{ t('nav.subtitle') }}</span>
@@ -255,12 +265,13 @@ body {
   left: 0;
   width: 240px;
   height: 100vh;
-  background: #0f172a;
+  background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%);
   display: flex;
   flex-direction: column;
   z-index: 50;
   transition: width 0.2s ease;
   overflow: hidden;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.15);
 }
 
 .app.sidebar-collapsed .sidebar {
@@ -271,27 +282,45 @@ body {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 16px;
-  height: 64px;
-  border-bottom: 1px solid #1e293b;
+  gap: 12px;
+  padding: 16px 12px;
+  height: 72px;
+  border-bottom: 1px solid rgba(71, 85, 105, 0.2);
   flex-shrink: 0;
   overflow: hidden;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+  transition: all 0.3s ease;
+}
+
+.sidebar-brand:hover {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
 }
 
 .sidebar-brand-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #2563eb;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
   color: white;
-  font-size: 14px;
+  font-size: 18px;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   letter-spacing: -0.02em;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  transition: all 0.3s ease;
+}
+
+.sidebar-brand:hover .sidebar-brand-icon {
+  transform: scale(1.08);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+
+.sidebar-brand-icon svg {
+  width: 22px;
+  height: 22px;
 }
 
 .sidebar-brand-text {
@@ -302,56 +331,66 @@ body {
 }
 
 .sidebar-brand-name {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   color: #f1f5f9;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
 .sidebar-brand-sub {
-  font-size: 10.5px;
-  color: #64748b;
-  font-weight: 400;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
   white-space: nowrap;
-  margin-top: 1px;
+  margin-top: 2px;
+  letter-spacing: 0.01em;
 }
 
 /* Nav */
 .sidebar-nav {
   flex: 1;
-  padding: 10px 8px;
+  padding: 12px 8px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
-.sidebar-nav::-webkit-scrollbar { width: 0; }
+.sidebar-nav::-webkit-scrollbar { width: 4px; }
+.sidebar-nav::-webkit-scrollbar-track { background: transparent; }
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 2px;
+}
 
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 10px;
-  border-radius: 7px;
+  gap: 12px;
+  padding: 10px 11px;
+  border-radius: 8px;
   font-size: 13.5px;
   font-weight: 500;
-  color: #94a3b8;
+  color: #cbd5e1;
   text-decoration: none;
-  margin-bottom: 1px;
-  transition: background 0.15s, color 0.15s;
+  margin-bottom: 3px;
+  transition: all 0.2s ease;
   white-space: nowrap;
   overflow: hidden;
+  position: relative;
 }
 
 .sidebar-link:hover {
-  background: #1e293b;
+  background: rgba(59, 130, 246, 0.1);
   color: #e2e8f0;
+  padding-left: 13px;
 }
 
 .sidebar-link.active {
-  background: #1e3a5f;
-  color: #93c5fd;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.05) 100%);
+  color: #60a5fa;
   font-weight: 600;
+  border-left: 3px solid #3b82f6;
+  padding-left: 8px;
 }
 
 .sidebar-link.active .sidebar-icon {
@@ -360,17 +399,18 @@ body {
 
 .sidebar-icon {
   flex-shrink: 0;
-  opacity: 0.6;
-  transition: opacity 0.15s;
+  opacity: 0.5;
+  transition: all 0.2s ease;
 }
 
 .sidebar-link:hover .sidebar-icon {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .sidebar-label {
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 }
 
 /* Collapse toggle */
@@ -378,27 +418,32 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: 1px solid #1e293b;
-  background: transparent;
-  color: #64748b;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(59, 130, 246, 0.05);
+  color: #94a3b8;
   cursor: pointer;
-  margin: 0 auto 10px;
+  margin: 0 0 12px 11px;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s;
+  transition: all 0.2s ease;
 }
 
 .sidebar-toggle:hover {
-  background: #1e293b;
-  color: #e2e8f0;
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.sidebar-toggle:active {
+  transform: scale(0.96);
 }
 
 /* Footer */
 .sidebar-footer {
-  padding: 10px 8px 12px;
-  border-top: 1px solid #1e293b;
+  padding: 12px 8px 14px;
+  border-top: 1px solid rgba(71, 85, 105, 0.2);
   display: flex;
   flex-direction: column;
   gap: 4px;

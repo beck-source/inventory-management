@@ -55,6 +55,21 @@
       </div>
     </div>
 
+    <!-- Budget allocation progress bar -->
+    <div v-if="!loading && recommendations.length > 0" class="budget-progress-card">
+      <div class="progress-label">
+        <span>Budget Allocation</span>
+        <span class="progress-percentage">{{ Math.round((totalCost / budget) * 100) }}%</span>
+      </div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" :style="{ width: Math.min((totalCost / budget) * 100, 100) + '%' }"></div>
+      </div>
+      <div class="progress-details">
+        <span>Used: {{ formatCurrency(totalCost) }}</span>
+        <span>Remaining: {{ formatCurrency(remainingBudget) }}</span>
+      </div>
+    </div>
+
     <!-- Recommendations table -->
     <div class="card">
       <div class="card-header">
@@ -63,8 +78,11 @@
 
       <div v-if="loading" class="loading">Loading recommendations...</div>
       <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-else-if="budget === 0" class="empty-state">
+        Please set a budget above $0 to see restocking recommendations
+      </div>
       <div v-else-if="recommendations.length === 0" class="empty-state">
-        Adjust the budget slider to see restocking recommendations
+        Budget of {{ formatCurrency(budget) }} is too low for current recommendations. Try increasing the budget.
       </div>
       <div v-else class="table-container">
         <table class="restock-table">
@@ -156,6 +174,13 @@ export default {
     })
 
     const loadRecommendations = async () => {
+      // Validate budget before API call
+      if (budget.value <= 0) {
+        recommendations.value = []
+        error.value = null
+        return
+      }
+
       loading.value = true
       error.value = null
       try {
@@ -379,6 +404,51 @@ export default {
   font-size: 0.75rem;
   color: #64748b;
   margin-top: 0.125rem;
+}
+
+.budget-progress-card {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.progress-percentage {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.813rem;
+  color: #64748b;
 }
 
 .order-actions {
