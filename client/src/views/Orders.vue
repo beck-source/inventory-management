@@ -74,6 +74,55 @@
           </table>
         </div>
       </div>
+
+      <!-- Submitted Restocking Orders -->
+      <div v-if="restockingOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table restocking-orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order Number</th>
+                <th class="col-items">Items</th>
+                <th class="col-value">Total Value</th>
+                <th class="col-date">Order Date</th>
+                <th class="col-date">Expected Delivery</th>
+                <th class="col-lead">Lead Time</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.order_number">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku || item.name" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-lead">{{ getLeadTimeDays(order.order_date, order.expected_delivery) }}</td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ order.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +144,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -122,6 +172,25 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        const data = await api.getRestockingOrders()
+        restockingOrders.value = data
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    const getLeadTimeDays = (orderDate, expectedDelivery) => {
+      if (!orderDate || !expectedDelivery) return 'N/A'
+      const start = new Date(orderDate)
+      const end = new Date(expectedDelivery)
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return 'N/A'
+      const diffMs = end - start
+      const days = Math.round(diffMs / (1000 * 60 * 60 * 24))
+      return `${days} day${days !== 1 ? 's' : ''}`
     }
 
     // Watch for filter changes and reload data
@@ -153,16 +222,21 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      getLeadTimeDays,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -201,6 +275,14 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.col-lead {
+  width: 100px;
+}
+
+.restocking-orders-table .col-items {
+  width: 160px;
 }
 
 /* Items details styling */
