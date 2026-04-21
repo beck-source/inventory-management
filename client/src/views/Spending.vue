@@ -389,7 +389,7 @@ export default {
     }
 
     const getRevenueBarHeight = (value) => {
-      const maxValue = maxRevenueValue.value * 1000
+      const maxValue = Math.max(maxRevenueValue.value * 1000, 1)
       return (value / maxValue) * 100
     }
 

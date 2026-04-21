@@ -131,8 +131,7 @@
 </template>
 
 <script>
-import { ref, watch, onMounted, computed } from 'vue'
-import { api } from './api'
+import { ref, watch, computed } from 'vue'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
 import FilterBar from './components/FilterBar.vue'
@@ -155,7 +154,6 @@ export default {
     const { t } = useI18n()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
-    const apiTasks = ref([])
 
     // Sidebar collapse state persisted to localStorage
     const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
@@ -168,63 +166,30 @@ export default {
       sidebarCollapsed.value = !sidebarCollapsed.value
     }
 
-    // Merge mock tasks from currentUser with API tasks
-    const tasks = computed(() => {
-      return [...currentUser.value.tasks, ...apiTasks.value]
-    })
+    const tasks = computed(() => currentUser.value.tasks)
 
-    const loadTasks = async () => {
-      try {
-        apiTasks.value = await api.getTasks()
-      } catch (err) {
-        console.error('Failed to load tasks:', err)
+    const addTask = (taskData) => {
+      const newTask = {
+        id: `task-${Date.now()}`,
+        status: 'pending',
+        ...taskData
+      }
+      currentUser.value.tasks.unshift(newTask)
+    }
+
+    const deleteTask = (taskId) => {
+      const index = currentUser.value.tasks.findIndex(t => t.id === taskId)
+      if (index !== -1) {
+        currentUser.value.tasks.splice(index, 1)
       }
     }
 
-    const addTask = async (taskData) => {
-      try {
-        const newTask = await api.createTask(taskData)
-        apiTasks.value.unshift(newTask)
-      } catch (err) {
-        console.error('Failed to add task:', err)
+    const toggleTask = (taskId) => {
+      const task = currentUser.value.tasks.find(t => t.id === taskId)
+      if (task) {
+        task.status = task.status === 'pending' ? 'completed' : 'pending'
       }
     }
-
-    const deleteTask = async (taskId) => {
-      try {
-        const isMockTask = currentUser.value.tasks.some(t => t.id === taskId)
-        if (isMockTask) {
-          const index = currentUser.value.tasks.findIndex(t => t.id === taskId)
-          if (index !== -1) {
-            currentUser.value.tasks.splice(index, 1)
-          }
-        } else {
-          await api.deleteTask(taskId)
-          apiTasks.value = apiTasks.value.filter(t => t.id !== taskId)
-        }
-      } catch (err) {
-        console.error('Failed to delete task:', err)
-      }
-    }
-
-    const toggleTask = async (taskId) => {
-      try {
-        const mockTask = currentUser.value.tasks.find(t => t.id === taskId)
-        if (mockTask) {
-          mockTask.status = mockTask.status === 'pending' ? 'completed' : 'pending'
-        } else {
-          const updatedTask = await api.toggleTask(taskId)
-          const index = apiTasks.value.findIndex(t => t.id === taskId)
-          if (index !== -1) {
-            apiTasks.value[index] = updatedTask
-          }
-        }
-      } catch (err) {
-        console.error('Failed to toggle task:', err)
-      }
-    }
-
-    onMounted(loadTasks)
 
     return {
       t,
