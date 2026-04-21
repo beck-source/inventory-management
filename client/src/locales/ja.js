@@ -4,8 +4,11 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    restocking: '補充発注',
     finance: '財務',
     demandForecast: '需要予測',
+    backlog: 'バックログ',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,6 +115,18 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    restockingOrders: {
+      title: '補充発注履歴',
+      orderId: '注文ID',
+      items: '品目',
+      totalCost: '合計費用',
+      maxLeadTime: '最大リードタイム',
+      expectedDelivery: '予定配達日',
+      status: 'ステータス',
+      submitted: '提出済み',
+      itemsCount: '{count}件',
+      days: '日'
+    },
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -309,6 +324,87 @@ export default {
     english: 'English',
     japanese: '日本語',
     selectLanguage: '言語を選択'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期業績指標と月次傾向を表示',
+    quarterlyPerformance: '四半期業績',
+    monthlyRevenueTrend: '月次収益推移',
+    monthOverMonth: '前月比分析',
+    totalRevenueYTD: '総収益（年初来）',
+    avgMonthlyRevenue: '平均月次収益',
+    totalOrdersYTD: '総注文数（年初来）',
+    bestPerformingQuarter: '最高業績四半期',
+    loadError: 'レポートの読み込みに失敗しました',
+    table: {
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率',
+      month: '月',
+      orders: '注文',
+      revenue: '収益',
+      change: '変化',
+      growthRate: '成長率'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '需要予測と予算に基づいて補充品目を推薦します。',
+    loadingCandidates: '補充候補を読み込み中...',
+    candidates: '候補',
+    maxPossibleSpend: '最大可能支出',
+    selectedTotal: '選択合計',
+    budget: '予算',
+    overBudget: '予算超過：{amount}',
+    restockingCandidates: '補充候補',
+    resetAutoSelect: '自動選択にリセット',
+    noItems: '現在のフィルターで補充が必要な品目はありません。',
+    cancel: 'キャンセル',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    days: '日',
+    selectedOf: '{selected}（予算{budget}中）を選択',
+    table: {
+      item: '品目',
+      warehouse: '倉庫',
+      trend: 'トレンド',
+      current: '現在庫',
+      forecast: '予測',
+      shortfall: '不足',
+      qtyToOrder: '発注数量',
+      unitCost: '単価',
+      subtotal: '小計',
+      leadTime: 'リードタイム'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解決',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalBacklogItems: 'バックログ品目総数',
+    backlogItems: 'バックログ品目',
+    noBacklog: 'バックログなし - すべての注文を履行できます！',
+    loadError: 'バックログの読み込みに失敗しました',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    }
   },
 
   // Common

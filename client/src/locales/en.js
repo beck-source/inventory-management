@@ -4,8 +4,11 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    backlog: 'Backlog',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +115,18 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    restockingOrders: {
+      title: 'Submitted Restocking Orders',
+      orderId: 'Order ID',
+      items: 'Items',
+      totalCost: 'Total Cost',
+      maxLeadTime: 'Max Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      status: 'Status',
+      submitted: 'Submitted',
+      itemsCount: '{count} items',
+      days: 'days'
+    },
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -309,6 +324,87 @@ export default {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthOverMonth: 'Month-over-Month Analysis',
+    totalRevenueYTD: 'Total Revenue (YTD)',
+    avgMonthlyRevenue: 'Avg Monthly Revenue',
+    totalOrdersYTD: 'Total Orders (YTD)',
+    bestPerformingQuarter: 'Best Performing Quarter',
+    loadError: 'Failed to load reports',
+    table: {
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Recommend items to restock based on demand forecasts and your available budget.',
+    loadingCandidates: 'Loading restocking candidates...',
+    candidates: 'Candidates',
+    maxPossibleSpend: 'Max Possible Spend',
+    selectedTotal: 'Selected Total',
+    budget: 'Budget',
+    overBudget: 'Over budget by {amount}',
+    restockingCandidates: 'Restocking Candidates',
+    resetAutoSelect: 'Reset to auto-select',
+    noItems: 'No items need restocking with current filters.',
+    cancel: 'Cancel',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    days: 'days',
+    selectedOf: 'Selected {selected} of {budget} budget',
+    table: {
+      item: 'Item',
+      warehouse: 'Warehouse',
+      trend: 'Trend',
+      current: 'Current',
+      forecast: 'Forecast',
+      shortfall: 'Shortfall',
+      qtyToOrder: 'Qty to Order',
+      unitCost: 'Unit Cost',
+      subtotal: 'Subtotal',
+      leadTime: 'Lead Time'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalBacklogItems: 'Total Backlog Items',
+    backlogItems: 'Backlog Items',
+    noBacklog: 'No backlog items - all orders can be fulfilled!',
+    loadError: 'Failed to load backlog',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    }
   },
 
   // Common

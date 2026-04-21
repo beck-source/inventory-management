@@ -74,33 +74,31 @@ export const api = {
     return response.data
   },
 
-  async getTasks() {
-    const response = await axios.get(`${API_BASE_URL}/tasks`)
+  async getQuarterlyReports() {
+    const response = await axios.get(`${API_BASE_URL}/reports/quarterly`)
     return response.data
   },
 
-  async createTask(taskData) {
-    const response = await axios.post(`${API_BASE_URL}/tasks`, taskData)
+  async getMonthlyTrends() {
+    const response = await axios.get(`${API_BASE_URL}/reports/monthly-trends`)
     return response.data
   },
 
-  async deleteTask(taskId) {
-    const response = await axios.delete(`${API_BASE_URL}/tasks/${taskId}`)
+  async getRestockingCandidates(filters = {}) {
+    const params = new URLSearchParams()
+    if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category)
+    const response = await axios.get(`${API_BASE_URL}/restocking/candidates?${params.toString()}`)
     return response.data
   },
 
-  async toggleTask(taskId) {
-    const response = await axios.patch(`${API_BASE_URL}/tasks/${taskId}`)
+  async submitRestockingOrder(orderData) {
+    const response = await axios.post(`${API_BASE_URL}/restocking/orders`, orderData)
     return response.data
   },
 
-  async createPurchaseOrder(purchaseOrderData) {
-    const response = await axios.post(`${API_BASE_URL}/purchase-orders`, purchaseOrderData)
-    return response.data
-  },
-
-  async getPurchaseOrderByBacklogItem(backlogItemId) {
-    const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
+  async getRestockingOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/orders`)
     return response.data
   }
 }

@@ -8,6 +8,49 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted Restocking Orders -->
+      <div v-if="restockingOrders.length > 0" class="card restocking-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.restockingOrders.title') }}</h3>
+          <span class="badge info">{{ t('orders.restockingOrders.itemsCount', { count: restockingOrders.length }) }}</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.restockingOrders.orderId') }}</th>
+                <th>{{ t('orders.restockingOrders.items') }}</th>
+                <th>{{ t('orders.restockingOrders.totalCost') }}</th>
+                <th>{{ t('orders.restockingOrders.maxLeadTime') }}</th>
+                <th>{{ t('orders.restockingOrders.expectedDelivery') }}</th>
+                <th>{{ t('orders.restockingOrders.status') }}</th>
+                <th>{{ t('orders.restockingOrders.submitted') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockingOrders" :key="ro.id">
+                <td><strong>{{ ro.id }}</strong></td>
+                <td>
+                  <details>
+                    <summary class="items-summary">{{ t('orders.restockingOrders.itemsCount', { count: ro.items.length }) }}</summary>
+                    <div class="restock-items-list">
+                      <div v-for="item in ro.items" :key="item.sku" class="restock-item-row">
+                        {{ item.sku }} &times; {{ item.quantity }}
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td>{{ formatCurrency(ro.total_cost) }}</td>
+                <td>{{ ro.max_lead_time_days }} {{ t('orders.restockingOrders.days') }}</td>
+                <td>{{ formatDateStr(ro.expected_delivery_date) }}</td>
+                <td><span class="badge info">{{ t('orders.restockingOrders.submitted') }}</span></td>
+                <td>{{ formatDateStr(ro.submitted_date) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +138,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -122,6 +166,28 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    const formatCurrency = (value) => {
+      return Number(value).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+      })
+    }
+
+    const formatDateStr = (dateString) => {
+      const d = new Date(dateString)
+      if (isNaN(d.getTime())) return dateString
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     }
 
     // Watch for filter changes and reload data
@@ -153,7 +219,10 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
@@ -165,13 +234,37 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders,
+      formatCurrency,
+      formatDateStr
     }
   }
 }
 </script>
 
 <style scoped>
+/* Restocking card accent */
+.restocking-card {
+  background: var(--color-accent-bg);
+  border-color: var(--color-info-bg);
+}
+
+.restock-items-list {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  min-width: 180px;
+}
+
+.restock-item-row {
+  font-size: 0.813rem;
+  color: var(--color-text-muted);
+  padding: 2px 0;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
@@ -210,7 +303,7 @@ export default {
 
 .items-summary {
   cursor: pointer;
-  color: #3b82f6;
+  color: var(--color-accent);
   font-weight: 500;
   list-style: none;
   user-select: none;
@@ -234,7 +327,8 @@ export default {
 }
 
 .items-summary:hover {
-  color: #2563eb;
+  color: var(--color-accent);
+  opacity: 0.8;
   text-decoration: underline;
 }
 
@@ -244,10 +338,10 @@ export default {
   top: 100%;
   left: 0;
   margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
   padding: 0.75rem;
   z-index: 10;
   min-width: 300px;
@@ -259,7 +353,7 @@ export default {
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-surface-alt);
 }
 
 .item-entry:last-child {
@@ -269,11 +363,11 @@ export default {
 .item-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .item-meta {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 </style>
