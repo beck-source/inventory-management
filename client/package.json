@@ -5,15 +5,30 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext .vue,.js",
+    "lint:fix": "eslint src --ext .vue,.js --fix",
+    "format": "prettier --write \"src/**/*.{js,vue,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,vue,css,json}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "axios": "^1.6.7",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
-    "axios": "^1.6.7"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.2.0"
+    "@vitest/coverage-v8": "^4.1.5",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "@vue/test-utils": "^2.4.6",
+    "eslint": "^10.2.1",
+    "eslint-plugin-vue": "^10.8.0",
+    "happy-dom": "^20.9.0",
+    "prettier": "^3.8.3",
+    "vite": "^5.2.0",
+    "vitest": "^4.1.5"
   }
 }
