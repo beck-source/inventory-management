@@ -58,9 +58,7 @@ export default {
       daysDelayed: '遅延日数',
       priority: '優先度',
       unitsShort: '単位不足',
-      days: '日',
-      createPO: '発注作成',
-      viewPO: '発注を表示'
+      days: '日'
     },
     topProducts: {
       title: '収益別トップ製品',
@@ -421,8 +419,7 @@ export default {
     search: '検索',
     filter: 'フィルター',
     export: 'エクスポート',
-    items: '件',
-    actions: 'アクション'
+    items: '件'
   },
 
   // Product Names

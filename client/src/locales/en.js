@@ -58,9 +58,7 @@ export default {
       daysDelayed: 'Days Delayed',
       priority: 'Priority',
       unitsShort: 'units short',
-      days: 'days',
-      createPO: 'Create PO',
-      viewPO: 'View PO'
+      days: 'days'
     },
     topProducts: {
       title: 'Top Products by Revenue',
@@ -421,7 +419,6 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items',
-    actions: 'Actions'
+    items: 'items'
   }
 }
