@@ -7,6 +7,8 @@ export default {
     restocking: '補充発注',
     finance: '財務',
     demandForecast: '需要予測',
+    backlog: 'バックログ',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -310,6 +312,55 @@ export default {
     english: 'English',
     japanese: '日本語',
     selectLanguage: '言語を選択'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期業績指標と月次傾向を表示',
+    quarterlyPerformance: '四半期業績',
+    monthlyRevenueTrend: '月次収益推移',
+    monthOverMonth: '前月比分析',
+    totalRevenueYTD: '総収益（年初来）',
+    avgMonthlyRevenue: '平均月次収益',
+    totalOrdersYTD: '総注文数（年初来）',
+    bestPerformingQuarter: '最高業績四半期',
+    loadError: 'レポートの読み込みに失敗しました',
+    table: {
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率',
+      month: '月',
+      orders: '注文',
+      revenue: '収益',
+      change: '変化',
+      growthRate: '成長率'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解決',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalBacklogItems: 'バックログ品目総数',
+    backlogItems: 'バックログ品目',
+    noBacklog: 'バックログなし - すべての注文を履行できます！',
+    loadError: 'バックログの読み込みに失敗しました',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    }
   },
 
   // Common

@@ -73,6 +73,15 @@
           <span class="nav-label">{{ t('nav.demandForecast') }}</span>
         </router-link>
 
+        <router-link to="/backlog" class="nav-item" :class="{ active: $route.path === '/backlog' }">
+          <!-- Backlog: hourglass (delayed queue) -->
+          <svg class="nav-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 3h10M5 17h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M6 3c0 4 3 5 4 7-1 2-4 3-4 7M14 3c0 4-3 5-4 7 1 2 4 3 4 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.backlog') }}</span>
+        </router-link>
+
         <router-link to="/reports" class="nav-item" :class="{ active: $route.path === '/reports' }">
           <!-- Reports: bar chart -->
           <svg class="nav-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -80,7 +89,7 @@
             <rect x="8.25" y="7" width="3.5" height="10" rx="1" fill="currentColor"/>
             <rect x="13.5" y="3" width="3.5" height="14" rx="1" fill="currentColor"/>
           </svg>
-          <span class="nav-label">Reports</span>
+          <span class="nav-label">{{ t('nav.reports') }}</span>
         </router-link>
       </nav>
 
