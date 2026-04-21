@@ -8,6 +8,38 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted restocking orders — only visible after orders are placed from the Restocking tab -->
+      <div v-if="restockingOrders.length > 0" class="card restocking-section">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedSection') }} ({{ restockingOrders.length }})</h3>
+          <span class="restocking-lead-time">{{ t('restocking.leadTime') }}</span>
+        </div>
+        <div class="table-container">
+          <table class="restocking-orders-table">
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.orderDate') }}</th>
+                <th>{{ t('orders.table.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('restocking.totalCost') }}</th>
+                <th>{{ t('orders.table.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td>{{ order.items.length }} {{ t('common.items') }}</td>
+                <td><strong>${{ order.total_cost.toLocaleString() }}</strong></td>
+                <td><span class="badge info">{{ order.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +127,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -121,6 +154,14 @@ export default {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
         loading.value = false
+      }
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
       }
     }
 
@@ -153,7 +194,7 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => { loadOrders(); loadRestockingOrders() })
 
     return {
       t,
@@ -165,7 +206,8 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders
     }
   }
 }
@@ -275,5 +317,21 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-section {
+  border-left: 4px solid #3b82f6;
+  margin-bottom: 1.25rem;
+}
+
+.restocking-lead-time {
+  font-size: 0.813rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.restocking-orders-table {
+  table-layout: fixed;
+  width: 100%;
 }
 </style>

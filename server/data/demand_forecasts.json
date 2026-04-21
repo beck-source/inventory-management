@@ -79,5 +79,59 @@
     "forecasted_demand": 96,
     "trend": "stable",
     "period": "Next 30 days"
+  },
+  {
+    "id": "10",
+    "item_sku": "TMP-201",
+    "item_name": "Temperature Sensor Module",
+    "current_demand": 125,
+    "forecasted_demand": 400,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "11",
+    "item_sku": "PSU-508",
+    "item_name": "Battery Backup Power Supply",
+    "current_demand": 75,
+    "forecasted_demand": 300,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "12",
+    "item_sku": "HMD-202",
+    "item_name": "Humidity Sensor Module",
+    "current_demand": 95,
+    "forecasted_demand": 250,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "13",
+    "item_sku": "ACC-206",
+    "item_name": "3-Axis Accelerometer",
+    "current_demand": 180,
+    "forecasted_demand": 350,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "14",
+    "item_sku": "SRV-301",
+    "item_name": "Micro Servo Motor",
+    "current_demand": 45,
+    "forecasted_demand": 200,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "15",
+    "item_sku": "SRV-302",
+    "item_name": "Standard Servo Motor",
+    "current_demand": 28,
+    "forecasted_demand": 100,
+    "trend": "increasing",
+    "period": "Next 30 days"
   }
 ]

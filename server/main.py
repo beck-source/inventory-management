@@ -2,7 +2,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+
+restocking_orders = []  # runtime only; resets on server restart
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -119,6 +122,27 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockingOrderItem]
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    order_date: str
+    expected_delivery: str
+    budget: float
+    total_cost: float
+    items: List[RestockingOrderItem]
+    status: str
 
 # API endpoints
 @app.get("/")
@@ -303,6 +327,29 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return restocking_orders
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order"""
+    now = datetime.utcnow()
+    order_number = f"RES-{now.strftime('%Y')}-{len(restocking_orders) + 1:04d}"
+    order = {
+        "id": str(len(restocking_orders) + 1),
+        "order_number": order_number,
+        "order_date": now.strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": (now + timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%S"),
+        "budget": request.budget,
+        "total_cost": sum(item.line_total for item in request.items),
+        "items": [item.model_dump() for item in request.items],
+        "status": "Submitted"
+    }
+    restocking_orders.append(order)
+    return order
 
 if __name__ == "__main__":
     import uvicorn
