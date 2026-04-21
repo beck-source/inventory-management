@@ -58,7 +58,9 @@ export default {
       daysDelayed: 'Days Delayed',
       priority: 'Priority',
       unitsShort: 'units short',
-      days: 'days'
+      days: 'days',
+      createPO: 'Create PO',
+      viewPO: 'View PO'
     },
     topProducts: {
       title: 'Top Products by Revenue',
@@ -115,6 +117,18 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    restockingOrders: {
+      title: 'Submitted Restocking Orders',
+      orderId: 'Order ID',
+      items: 'Items',
+      totalCost: 'Total Cost',
+      maxLeadTime: 'Max Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      status: 'Status',
+      submitted: 'Submitted',
+      itemsCount: '{count} items',
+      days: 'days'
+    },
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -340,6 +354,38 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Recommend items to restock based on demand forecasts and your available budget.',
+    loadingCandidates: 'Loading restocking candidates...',
+    candidates: 'Candidates',
+    maxPossibleSpend: 'Max Possible Spend',
+    selectedTotal: 'Selected Total',
+    budget: 'Budget',
+    overBudget: 'Over budget by {amount}',
+    restockingCandidates: 'Restocking Candidates',
+    resetAutoSelect: 'Reset to auto-select',
+    noItems: 'No items need restocking with current filters.',
+    cancel: 'Cancel',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    days: 'days',
+    selectedOf: 'Selected {selected} of {budget} budget',
+    table: {
+      item: 'Item',
+      warehouse: 'Warehouse',
+      trend: 'Trend',
+      current: 'Current',
+      forecast: 'Forecast',
+      shortfall: 'Shortfall',
+      qtyToOrder: 'Qty to Order',
+      unitCost: 'Unit Cost',
+      subtotal: 'Subtotal',
+      leadTime: 'Lead Time'
+    }
+  },
+
   // Backlog
   backlog: {
     title: 'Backlog Management',
@@ -375,6 +421,7 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items'
+    items: 'items',
+    actions: 'Actions'
   }
 }

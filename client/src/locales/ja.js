@@ -58,7 +58,9 @@ export default {
       daysDelayed: '遅延日数',
       priority: '優先度',
       unitsShort: '単位不足',
-      days: '日'
+      days: '日',
+      createPO: '発注作成',
+      viewPO: '発注を表示'
     },
     topProducts: {
       title: '収益別トップ製品',
@@ -115,6 +117,18 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    restockingOrders: {
+      title: '補充発注履歴',
+      orderId: '注文ID',
+      items: '品目',
+      totalCost: '合計費用',
+      maxLeadTime: '最大リードタイム',
+      expectedDelivery: '予定配達日',
+      status: 'ステータス',
+      submitted: '提出済み',
+      itemsCount: '{count}件',
+      days: '日'
+    },
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -340,6 +354,38 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '需要予測と予算に基づいて補充品目を推薦します。',
+    loadingCandidates: '補充候補を読み込み中...',
+    candidates: '候補',
+    maxPossibleSpend: '最大可能支出',
+    selectedTotal: '選択合計',
+    budget: '予算',
+    overBudget: '予算超過：{amount}',
+    restockingCandidates: '補充候補',
+    resetAutoSelect: '自動選択にリセット',
+    noItems: '現在のフィルターで補充が必要な品目はありません。',
+    cancel: 'キャンセル',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    days: '日',
+    selectedOf: '{selected}（予算{budget}中）を選択',
+    table: {
+      item: '品目',
+      warehouse: '倉庫',
+      trend: 'トレンド',
+      current: '現在庫',
+      forecast: '予測',
+      shortfall: '不足',
+      qtyToOrder: '発注数量',
+      unitCost: '単価',
+      subtotal: '小計',
+      leadTime: 'リードタイム'
+    }
+  },
+
   // Backlog
   backlog: {
     title: 'バックログ管理',
@@ -375,7 +421,8 @@ export default {
     search: '検索',
     filter: 'フィルター',
     export: 'エクスポート',
-    items: '件'
+    items: '件',
+    actions: 'アクション'
   },
 
   // Product Names

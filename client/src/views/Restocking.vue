@@ -1,25 +1,25 @@
 <template>
   <div class="restocking">
     <div class="page-header">
-      <h2>Restocking</h2>
-      <p>Recommend items to restock based on demand forecasts and your available budget.</p>
+      <h2>{{ t('restocking.title') }}</h2>
+      <p>{{ t('restocking.description') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">Loading restocking candidates...</div>
+    <div v-if="loading" class="loading">{{ t('restocking.loadingCandidates') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <!-- Summary stats -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Candidates</div>
+          <div class="stat-label">{{ t('restocking.candidates') }}</div>
           <div class="stat-value">{{ candidates.length }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Max Possible Spend</div>
+          <div class="stat-label">{{ t('restocking.maxPossibleSpend') }}</div>
           <div class="stat-value stat-value--currency">{{ formatCurrency(sliderMax) }}</div>
         </div>
         <div class="stat-card" :class="{ danger: overBudget }">
-          <div class="stat-label">Selected Total</div>
+          <div class="stat-label">{{ t('restocking.selectedTotal') }}</div>
           <div class="stat-value stat-value--currency" :class="{ 'over-budget-text': overBudget }">
             {{ formatCurrency(selectedTotal) }}
           </div>
@@ -29,7 +29,7 @@
       <!-- Budget card -->
       <div class="card">
         <div class="budget-header">
-          <span class="budget-label">Budget</span>
+          <span class="budget-label">{{ t('restocking.budget') }}</span>
           <span class="budget-value">{{ formatCurrency(budget) }}</span>
         </div>
         <div class="range-wrapper">
@@ -51,11 +51,11 @@
         </div>
         <div class="budget-info">
           <span>
-            Selected {{ formatCurrency(selectedTotal) }} of {{ formatCurrency(budget) }} budget
-            &middot; {{ selectedCandidates.length }} items
+            {{ t('restocking.selectedOf', { selected: formatCurrency(selectedTotal), budget: formatCurrency(budget) }) }}
+            &middot; {{ selectedCandidates.length }} {{ t('common.items') }}
           </span>
           <span v-if="overBudget" class="over-budget-warning">
-            &#9888; Over budget by {{ formatCurrency(selectedTotal - budget) }}
+            &#9888; {{ t('restocking.overBudget', { amount: formatCurrency(selectedTotal - budget) }) }}
           </span>
         </div>
       </div>
@@ -66,12 +66,12 @@
       <!-- Candidates card -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Restocking Candidates</h3>
-          <button class="btn-secondary btn-sm" @click="resetAutoSelect">Reset to auto-select</button>
+          <h3 class="card-title">{{ t('restocking.restockingCandidates') }}</h3>
+          <button class="btn-secondary btn-sm" @click="resetAutoSelect">{{ t('restocking.resetAutoSelect') }}</button>
         </div>
 
         <div v-if="candidates.length === 0" class="empty-state">
-          No items need restocking with current filters.
+          {{ t('restocking.noItems') }}
         </div>
         <div v-else class="table-container">
           <table class="candidates-table">
@@ -79,16 +79,16 @@
               <tr>
                 <th class="col-check"></th>
                 <th class="col-sku">SKU</th>
-                <th class="col-name">Item</th>
-                <th class="col-warehouse">Warehouse</th>
-                <th class="col-trend">Trend</th>
-                <th class="col-num">Current</th>
-                <th class="col-num">Forecast</th>
-                <th class="col-num">Shortfall</th>
-                <th class="col-num">Qty to Order</th>
-                <th class="col-cost">Unit Cost</th>
-                <th class="col-cost">Subtotal</th>
-                <th class="col-lead">Lead Time</th>
+                <th class="col-name">{{ t('restocking.table.item') }}</th>
+                <th class="col-warehouse">{{ t('restocking.table.warehouse') }}</th>
+                <th class="col-trend">{{ t('restocking.table.trend') }}</th>
+                <th class="col-num">{{ t('restocking.table.current') }}</th>
+                <th class="col-num">{{ t('restocking.table.forecast') }}</th>
+                <th class="col-num">{{ t('restocking.table.shortfall') }}</th>
+                <th class="col-num">{{ t('restocking.table.qtyToOrder') }}</th>
+                <th class="col-cost">{{ t('restocking.table.unitCost') }}</th>
+                <th class="col-cost">{{ t('restocking.table.subtotal') }}</th>
+                <th class="col-lead">{{ t('restocking.table.leadTime') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -117,7 +117,7 @@
                 <td class="col-num">{{ c.recommended_qty }}</td>
                 <td class="col-cost">{{ formatCurrency(c.unit_cost) }}</td>
                 <td class="col-cost">{{ formatCurrency(c.recommended_qty * c.unit_cost) }}</td>
-                <td class="col-lead">{{ c.lead_time_days }} days</td>
+                <td class="col-lead">{{ c.lead_time_days }} {{ t('restocking.days') }}</td>
               </tr>
             </tbody>
           </table>
@@ -126,13 +126,13 @@
 
       <!-- Action row -->
       <div class="action-row">
-        <button class="btn-secondary" @click="router.push('/')">Cancel</button>
+        <button class="btn-secondary" @click="router.push('/')">{{ t('restocking.cancel') }}</button>
         <button
           class="btn-primary"
           :disabled="selectedCandidates.length === 0 || overBudget || submitting"
           @click="submitOrder"
         >
-          {{ submitting ? 'Placing Order...' : 'Place Order' }}
+          {{ submitting ? t('restocking.placingOrder') : t('restocking.placeOrder') }}
         </button>
       </div>
     </div>
@@ -144,9 +144,11 @@ import { ref, computed, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useI18n } from '../composables/useI18n'
 
 const router = useRouter()
 const { getCurrentFilters, selectedLocation, selectedCategory } = useFilters()
+const { t, currentCurrency } = useI18n()
 
 // State
 const candidates = ref([])

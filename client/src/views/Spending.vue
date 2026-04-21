@@ -448,7 +448,6 @@ export default {
     }
 
     const handleTransactionClick = (transaction) => {
-      console.log('Transaction clicked:', transaction)
       alert(`Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: $${transaction.amount.toLocaleString()}`)
     }
 
@@ -501,11 +500,11 @@ export default {
 }
 
 .stat-change.positive {
-  color: #059669;
+  color: var(--color-success);
 }
 
 .stat-change.negative {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .change-icon {
@@ -527,7 +526,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .legend-dot {
@@ -536,12 +535,12 @@ export default {
   border-radius: 3px;
 }
 
-.legend-dot.procurement { background: #3b82f6; }
+.legend-dot.procurement { background: var(--color-accent); }
 .legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
+.legend-dot.labor { background: var(--color-success); }
+.legend-dot.overhead { background: var(--color-warning); }
+.legend-dot.revenue-color { background: var(--color-text); }
+.legend-dot.cost-color { background: var(--color-danger); }
 
 .stats-grid-finance {
   display: grid;
@@ -551,21 +550,21 @@ export default {
 }
 
 .revenue-card {
-  border-left: 4px solid #0f172a;
+  border-left: 4px solid var(--color-text);
 }
 
 .cost-card {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--color-danger);
 }
 
 .profit-card {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-accent);
 }
 
 .stat-meta {
   margin-top: 0.5rem;
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .bar-group-revenue {
@@ -597,11 +596,11 @@ export default {
 }
 
 .revenue-bar {
-  background: #0f172a;
+  background: var(--color-text);
 }
 
 .cost-bar {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 .revenue-bar:hover, .cost-bar:hover {

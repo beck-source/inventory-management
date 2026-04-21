@@ -11,20 +11,20 @@
       <!-- Submitted Restocking Orders -->
       <div v-if="restockingOrders.length > 0" class="card restocking-card">
         <div class="card-header">
-          <h3 class="card-title">Submitted Restocking Orders</h3>
-          <span class="badge info">{{ restockingOrders.length }} {{ restockingOrders.length === 1 ? 'order' : 'orders' }}</span>
+          <h3 class="card-title">{{ t('orders.restockingOrders.title') }}</h3>
+          <span class="badge info">{{ t('orders.restockingOrders.itemsCount', { count: restockingOrders.length }) }}</span>
         </div>
         <div class="table-container">
           <table>
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Items</th>
-                <th>Total Cost</th>
-                <th>Max Lead Time</th>
-                <th>Expected Delivery</th>
-                <th>Status</th>
-                <th>Submitted</th>
+                <th>{{ t('orders.restockingOrders.orderId') }}</th>
+                <th>{{ t('orders.restockingOrders.items') }}</th>
+                <th>{{ t('orders.restockingOrders.totalCost') }}</th>
+                <th>{{ t('orders.restockingOrders.maxLeadTime') }}</th>
+                <th>{{ t('orders.restockingOrders.expectedDelivery') }}</th>
+                <th>{{ t('orders.restockingOrders.status') }}</th>
+                <th>{{ t('orders.restockingOrders.submitted') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -32,7 +32,7 @@
                 <td><strong>{{ ro.id }}</strong></td>
                 <td>
                   <details>
-                    <summary class="items-summary">{{ ro.items.length }} items</summary>
+                    <summary class="items-summary">{{ t('orders.restockingOrders.itemsCount', { count: ro.items.length }) }}</summary>
                     <div class="restock-items-list">
                       <div v-for="item in ro.items" :key="item.sku" class="restock-item-row">
                         {{ item.sku }} &times; {{ item.quantity }}
@@ -41,9 +41,9 @@
                   </details>
                 </td>
                 <td>{{ formatCurrency(ro.total_cost) }}</td>
-                <td>{{ ro.max_lead_time_days }} days</td>
+                <td>{{ ro.max_lead_time_days }} {{ t('orders.restockingOrders.days') }}</td>
                 <td>{{ formatDateStr(ro.expected_delivery_date) }}</td>
-                <td><span class="badge info">Submitted</span></td>
+                <td><span class="badge info">{{ t('orders.restockingOrders.submitted') }}</span></td>
                 <td>{{ formatDateStr(ro.submitted_date) }}</td>
               </tr>
             </tbody>
