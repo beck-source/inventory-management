@@ -40,3 +40,12 @@ indent-style = "space"
 
 [tool.hatch.build.targets.wheel]
 packages = ["."]
+
+[tool.coverage.run]
+source = ["main", "mock_data"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+fail_under = 75

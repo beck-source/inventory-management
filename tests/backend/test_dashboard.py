@@ -1,6 +1,8 @@
 """
 Tests for dashboard API endpoints.
 """
+import random
+
 import pytest
 
 
@@ -171,3 +173,79 @@ class TestDashboardEndpoints:
 
         # Allow small floating point differences
         assert abs(dashboard_data["total_inventory_value"] - expected_value) < 0.01
+
+
+class TestDashboardProperties:
+    """Property-based tests for /api/dashboard/summary."""
+
+    def test_random_filter_combos_return_all_keys_and_non_negative_values(self, client):
+        """For 10 random filter combinations, the summary always has the 5 required keys
+        and all numeric values are non-negative.
+
+        Catches: missing keys under certain filter combos (e.g., no-orders case where
+        total_orders_value might be omitted), and sign errors in any computed aggregate.
+        """
+        random.seed(13)
+
+        warehouses = ["London", "San Francisco", "Tokyo", None]
+        categories = ["Actuators", "Circuit Boards", "Controllers", "Power Supplies", "Sensors", None]
+        statuses = ["Backordered", "Delivered", "Processing", "Shipped", None]
+        months = ["2025-01", "2025-06", "2025-12", "Q1-2025", "Q4-2025", None]
+
+        required_keys = [
+            "total_inventory_value",
+            "low_stock_items",
+            "pending_orders",
+            "total_backlog_items",
+            "total_orders_value",
+        ]
+
+        for _ in range(10):
+            params = {}
+            warehouse = random.choice(warehouses)
+            category = random.choice(categories)
+            status = random.choice(statuses)
+            month = random.choice(months)
+
+            if warehouse is not None:
+                params["warehouse"] = warehouse
+            if category is not None:
+                params["category"] = category
+            if status is not None:
+                params["status"] = status
+            if month is not None:
+                params["month"] = month
+
+            query = "&".join(f"{k}={v}" for k, v in params.items())
+            url = f"/api/dashboard/summary?{query}" if query else "/api/dashboard/summary"
+
+            response = client.get(url)
+            assert response.status_code == 200, (
+                f"Expected 200 for params={params}, got {response.status_code}"
+            )
+
+            data = response.json()
+            assert isinstance(data, dict), f"Expected dict response for params={params}"
+
+            # All 5 keys must be present regardless of filter combination.
+            for key in required_keys:
+                assert key in data, (
+                    f"Missing key '{key}' in dashboard summary for params={params}"
+                )
+
+            # All numeric values must be non-negative.
+            assert data["total_inventory_value"] >= 0, (
+                f"total_inventory_value negative for params={params}"
+            )
+            assert data["low_stock_items"] >= 0, (
+                f"low_stock_items negative for params={params}"
+            )
+            assert data["pending_orders"] >= 0, (
+                f"pending_orders negative for params={params}"
+            )
+            assert data["total_backlog_items"] >= 0, (
+                f"total_backlog_items negative for params={params}"
+            )
+            assert data["total_orders_value"] >= 0, (
+                f"total_orders_value negative for params={params}"
+            )
