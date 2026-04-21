@@ -8,6 +8,49 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted Restocking Orders -->
+      <div v-if="restockingOrders.length > 0" class="card restocking-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders</h3>
+          <span class="badge info">{{ restockingOrders.length }} {{ restockingOrders.length === 1 ? 'order' : 'orders' }}</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Items</th>
+                <th>Total Cost</th>
+                <th>Max Lead Time</th>
+                <th>Expected Delivery</th>
+                <th>Status</th>
+                <th>Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockingOrders" :key="ro.id">
+                <td><strong>{{ ro.id }}</strong></td>
+                <td>
+                  <details>
+                    <summary class="items-summary">{{ ro.items.length }} items</summary>
+                    <div class="restock-items-list">
+                      <div v-for="item in ro.items" :key="item.sku" class="restock-item-row">
+                        {{ item.sku }} &times; {{ item.quantity }}
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td>{{ formatCurrency(ro.total_cost) }}</td>
+                <td>{{ ro.max_lead_time_days }} days</td>
+                <td>{{ formatDateStr(ro.expected_delivery_date) }}</td>
+                <td><span class="badge info">Submitted</span></td>
+                <td>{{ formatDateStr(ro.submitted_date) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +138,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -122,6 +166,28 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    const formatCurrency = (value) => {
+      return Number(value).toLocaleString('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+      })
+    }
+
+    const formatDateStr = (dateString) => {
+      const d = new Date(dateString)
+      if (isNaN(d.getTime())) return dateString
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
     }
 
     // Watch for filter changes and reload data
@@ -153,7 +219,10 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
@@ -165,13 +234,37 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders,
+      formatCurrency,
+      formatDateStr
     }
   }
 }
 </script>
 
 <style scoped>
+/* Restocking card accent */
+.restocking-card {
+  background: var(--color-accent-bg);
+  border-color: #bfdbfe;
+}
+
+.restock-items-list {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  min-width: 180px;
+}
+
+.restock-item-row {
+  font-size: 0.813rem;
+  color: var(--color-text-muted);
+  padding: 2px 0;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

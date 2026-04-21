@@ -9,7 +9,8 @@
     "reorder_point": 200,
     "unit_cost": 24.99,
     "location": "Warehouse A-12",
-    "last_updated": "2025-09-30T10:30:00"
+    "last_updated": "2025-09-30T10:30:00",
+    "lead_time_days": 16
   },
   {
     "id": "2",
@@ -21,7 +22,8 @@
     "reorder_point": 150,
     "unit_cost": 29.99,
     "location": "Warehouse A-13",
-    "last_updated": "2025-09-28T14:20:00"
+    "last_updated": "2025-09-28T14:20:00",
+    "lead_time_days": 18
   },
   {
     "id": "3",
@@ -33,7 +35,8 @@
     "reorder_point": 120,
     "unit_cost": 34.5,
     "location": "Warehouse B-08",
-    "last_updated": "2025-09-25T09:15:00"
+    "last_updated": "2025-09-25T09:15:00",
+    "lead_time_days": 21
   },
   {
     "id": "4",
@@ -45,7 +48,8 @@
     "reorder_point": 150,
     "unit_cost": 89.5,
     "location": "Warehouse B-05",
-    "last_updated": "2025-09-29T14:20:00"
+    "last_updated": "2025-09-29T14:20:00",
+    "lead_time_days": 14
   },
   {
     "id": "5",
@@ -57,7 +61,8 @@
     "reorder_point": 80,
     "unit_cost": 125.0,
     "location": "Warehouse B-06",
-    "last_updated": "2025-09-27T11:45:00"
+    "last_updated": "2025-09-27T11:45:00",
+    "lead_time_days": 12
   },
   {
     "id": "6",
@@ -69,7 +74,8 @@
     "reorder_point": 300,
     "unit_cost": 12.75,
     "location": "Warehouse A-08",
-    "last_updated": "2025-09-30T09:15:00"
+    "last_updated": "2025-09-30T09:15:00",
+    "lead_time_days": 10
   },
   {
     "id": "7",
@@ -81,7 +87,8 @@
     "reorder_point": 400,
     "unit_cost": 8.5,
     "location": "Warehouse C-04",
-    "last_updated": "2025-09-26T13:30:00"
+    "last_updated": "2025-09-26T13:30:00",
+    "lead_time_days": 11
   },
   {
     "id": "8",
@@ -93,7 +100,8 @@
     "reorder_point": 250,
     "unit_cost": 15.99,
     "location": "Warehouse A-09",
-    "last_updated": "2025-09-24T10:00:00"
+    "last_updated": "2025-09-24T10:00:00",
+    "lead_time_days": 13
   },
   {
     "id": "9",
@@ -105,7 +113,8 @@
     "reorder_point": 50,
     "unit_cost": 445.0,
     "location": "Warehouse C-02",
-    "last_updated": "2025-09-30T16:45:00"
+    "last_updated": "2025-09-30T16:45:00",
+    "lead_time_days": 15
   },
   {
     "id": "10",
@@ -117,7 +126,8 @@
     "reorder_point": 30,
     "unit_cost": 725.0,
     "location": "Warehouse C-03",
-    "last_updated": "2025-09-28T12:20:00"
+    "last_updated": "2025-09-28T12:20:00",
+    "lead_time_days": 18
   },
   {
     "id": "11",
@@ -129,7 +139,8 @@
     "reorder_point": 40,
     "unit_cost": 325.0,
     "location": "Warehouse B-10",
-    "last_updated": "2025-09-22T15:30:00"
+    "last_updated": "2025-09-22T15:30:00",
+    "lead_time_days": 16
   },
   {
     "id": "12",
@@ -141,7 +152,8 @@
     "reorder_point": 500,
     "unit_cost": 8.25,
     "location": "Warehouse A-15",
-    "last_updated": "2025-09-30T08:00:00"
+    "last_updated": "2025-09-30T08:00:00",
+    "lead_time_days": 14
   },
   {
     "id": "13",
@@ -153,7 +165,8 @@
     "reorder_point": 400,
     "unit_cost": 6.5,
     "location": "Warehouse A-16",
-    "last_updated": "2025-09-27T09:45:00"
+    "last_updated": "2025-09-27T09:45:00",
+    "lead_time_days": 17
   },
   {
     "id": "14",
@@ -165,7 +178,8 @@
     "reorder_point": 350,
     "unit_cost": 7.75,
     "location": "Warehouse B-12",
-    "last_updated": "2025-09-25T14:15:00"
+    "last_updated": "2025-09-25T14:15:00",
+    "lead_time_days": 15
   },
   {
     "id": "15",
@@ -177,7 +191,8 @@
     "reorder_point": 100,
     "unit_cost": 156.0,
     "location": "Warehouse B-11",
-    "last_updated": "2025-09-29T11:30:00"
+    "last_updated": "2025-09-29T11:30:00",
+    "lead_time_days": 12
   },
   {
     "id": "16",
@@ -189,7 +204,8 @@
     "reorder_point": 120,
     "unit_cost": 95.0,
     "location": "Warehouse C-07",
-    "last_updated": "2025-09-26T16:00:00"
+    "last_updated": "2025-09-26T16:00:00",
+    "lead_time_days": 10
   },
   {
     "id": "17",
@@ -201,7 +217,8 @@
     "reorder_point": 90,
     "unit_cost": 110.5,
     "location": "Warehouse A-14",
-    "last_updated": "2025-09-23T10:45:00"
+    "last_updated": "2025-09-23T10:45:00",
+    "lead_time_days": 11
   },
   {
     "id": "18",
@@ -213,7 +230,8 @@
     "reorder_point": 200,
     "unit_cost": 18.75,
     "location": "Warehouse B-09",
-    "last_updated": "2025-09-21T13:20:00"
+    "last_updated": "2025-09-21T13:20:00",
+    "lead_time_days": 7
   },
   {
     "id": "19",
@@ -225,7 +243,8 @@
     "reorder_point": 350,
     "unit_cost": 12.25,
     "location": "Warehouse A-11",
-    "last_updated": "2025-09-19T11:00:00"
+    "last_updated": "2025-09-19T11:00:00",
+    "lead_time_days": 5
   },
   {
     "id": "20",
@@ -237,7 +256,8 @@
     "reorder_point": 600,
     "unit_cost": 15.5,
     "location": "Warehouse C-05",
-    "last_updated": "2025-09-20T08:30:00"
+    "last_updated": "2025-09-20T08:30:00",
+    "lead_time_days": 14
   },
   {
     "id": "21",
@@ -249,7 +269,8 @@
     "reorder_point": 500,
     "unit_cost": 22.0,
     "location": "Warehouse B-13",
-    "last_updated": "2025-09-18T15:45:00"
+    "last_updated": "2025-09-18T15:45:00",
+    "lead_time_days": 16
   },
   {
     "id": "22",
@@ -261,7 +282,8 @@
     "reorder_point": 40,
     "unit_cost": 285.0,
     "location": "Warehouse C-06",
-    "last_updated": "2025-09-17T09:20:00"
+    "last_updated": "2025-09-17T09:20:00",
+    "lead_time_days": 17
   },
   {
     "id": "23",
@@ -273,7 +295,8 @@
     "reorder_point": 150,
     "unit_cost": 45.5,
     "location": "Warehouse A-10",
-    "last_updated": "2025-09-16T14:30:00"
+    "last_updated": "2025-09-16T14:30:00",
+    "lead_time_days": 8
   },
   {
     "id": "24",
@@ -285,7 +308,8 @@
     "reorder_point": 250,
     "unit_cost": 32.75,
     "location": "Warehouse B-14",
-    "last_updated": "2025-09-15T10:15:00"
+    "last_updated": "2025-09-15T10:15:00",
+    "lead_time_days": 15
   },
   {
     "id": "25",
@@ -297,7 +321,8 @@
     "reorder_point": 180,
     "unit_cost": 18.99,
     "location": "Warehouse A-15",
-    "last_updated": "2025-09-28T08:45:00"
+    "last_updated": "2025-09-28T08:45:00",
+    "lead_time_days": 9
   },
   {
     "id": "26",
@@ -309,7 +334,8 @@
     "reorder_point": 200,
     "unit_cost": 22.50,
     "location": "Warehouse B-16",
-    "last_updated": "2025-09-27T13:20:00"
+    "last_updated": "2025-09-27T13:20:00",
+    "lead_time_days": 7
   },
   {
     "id": "27",
@@ -321,7 +347,8 @@
     "reorder_point": 150,
     "unit_cost": 45.75,
     "location": "Warehouse C-09",
-    "last_updated": "2025-09-26T10:15:00"
+    "last_updated": "2025-09-26T10:15:00",
+    "lead_time_days": 8
   },
   {
     "id": "28",
@@ -333,7 +360,8 @@
     "reorder_point": 100,
     "unit_cost": 38.25,
     "location": "Warehouse A-16",
-    "last_updated": "2025-09-25T16:30:00"
+    "last_updated": "2025-09-25T16:30:00",
+    "lead_time_days": 6
   },
   {
     "id": "29",
@@ -345,7 +373,8 @@
     "reorder_point": 120,
     "unit_cost": 67.50,
     "location": "Warehouse B-17",
-    "last_updated": "2025-09-24T09:00:00"
+    "last_updated": "2025-09-24T09:00:00",
+    "lead_time_days": 10
   },
   {
     "id": "30",
@@ -357,7 +386,8 @@
     "reorder_point": 250,
     "unit_cost": 29.99,
     "location": "Warehouse C-10",
-    "last_updated": "2025-09-23T14:45:00"
+    "last_updated": "2025-09-23T14:45:00",
+    "lead_time_days": 8
   },
   {
     "id": "31",
@@ -369,7 +399,8 @@
     "reorder_point": 80,
     "unit_cost": 125.00,
     "location": "Warehouse A-17",
-    "last_updated": "2025-09-22T11:30:00"
+    "last_updated": "2025-09-22T11:30:00",
+    "lead_time_days": 12
   },
   {
     "id": "32",
@@ -381,6 +412,7 @@
     "reorder_point": 100,
     "unit_cost": 185.50,
     "location": "Warehouse C-11",
-    "last_updated": "2025-09-21T15:20:00"
+    "last_updated": "2025-09-21T15:20:00",
+    "lead_time_days": 11
   }
 ]
