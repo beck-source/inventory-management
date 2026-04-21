@@ -394,7 +394,7 @@ onMounted(loadCandidates)
 }
 
 .candidate-row.selected:hover {
-  background: #dbeafe;
+  background: var(--color-info-bg);
 }
 
 code {
@@ -471,7 +471,7 @@ code {
 .inline-success {
   background: var(--color-success-bg);
   color: #065f46;
-  border: 1px solid #a7f3d0;
+  border: 1px solid var(--color-success-bg);
   border-radius: var(--radius-sm);
   padding: var(--space-3) var(--space-4);
   font-size: 0.875rem;

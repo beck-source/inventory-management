@@ -247,7 +247,7 @@ export default {
 /* Restocking card accent */
 .restocking-card {
   background: var(--color-accent-bg);
-  border-color: #bfdbfe;
+  border-color: var(--color-info-bg);
 }
 
 .restock-items-list {
@@ -303,7 +303,7 @@ export default {
 
 .items-summary {
   cursor: pointer;
-  color: #3b82f6;
+  color: var(--color-accent);
   font-weight: 500;
   list-style: none;
   user-select: none;
@@ -327,7 +327,8 @@ export default {
 }
 
 .items-summary:hover {
-  color: #2563eb;
+  color: var(--color-accent);
+  opacity: 0.8;
   text-decoration: underline;
 }
 
@@ -337,10 +338,10 @@ export default {
   top: 100%;
   left: 0;
   margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
   padding: 0.75rem;
   z-index: 10;
   min-width: 300px;
@@ -352,7 +353,7 @@ export default {
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-surface-alt);
 }
 
 .item-entry:last-child {
@@ -362,11 +363,11 @@ export default {
 .item-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .item-meta {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 </style>
