@@ -27,6 +27,41 @@
         </div>
       </div>
 
+      <div v-if="restockingOrders.length > 0" class="card restocking-card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">Submitted Restocking Orders</h3>
+            <p class="card-subtitle">{{ restockingOrders.length }} order{{ restockingOrders.length !== 1 ? 's' : '' }} pending fulfillment</p>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Submitted</th>
+                <th>Items</th>
+                <th>Total Value</th>
+                <th>Expected Delivery</th>
+                <th>Lead Time</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.order_number">
+                <td class="order-number">{{ order.order_number }}</td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}</td>
+                <td>${{ order.total_value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td class="lead-time">14 days</td>
+                <td><span class="status-badge status-restocking">Restocking</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -129,6 +164,10 @@ export default {
       loadOrders()
     })
 
+    const restockingOrders = computed(() =>
+      orders.value.filter(o => o.status === 'Restocking')
+    )
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -160,6 +199,7 @@ export default {
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +315,20 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-card {
+  border-left: 3px solid #2563eb;
+}
+
+.status-restocking {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.lead-time {
+  color: #64748b;
+  font-size: 13px;
 }
 </style>
