@@ -279,3 +279,60 @@ class TestMonthlyTrends:
         assert len(months) == len(set(months)), (
             f"Duplicate month entries found: {months}"
         )
+
+
+class TestQuarterlyReportsYearAgnostic:
+    """Quarterly reports must work for every year in the data, not just 2025.
+
+    The previous implementation hardcoded Q1-Q4 for 2025 via a chain of ifs
+    with `else: continue` — any 2026+ order was silently dropped. After the
+    fix, year is parsed directly from the order date.
+    """
+
+    def test_2026_order_produces_q1_2026_entry(self, client):
+        """Injecting a February 2026 order must produce a Q1-2026 quarter entry."""
+        import main
+
+        fake_order = {
+            "id": "test-2026-q1",
+            "order_number": "ORD-TEST-2026-Q1",
+            "customer": "Year-Agnostic Test",
+            "items": [],
+            "status": "Delivered",
+            "order_date": "2026-02-15T10:00:00",
+            "expected_delivery": "2026-02-20T10:00:00",
+            "total_value": 1000.0,
+        }
+        main.orders.append(fake_order)
+        try:
+            response = client.get("/api/reports/quarterly")
+            assert response.status_code == 200
+            quarters = {entry["quarter"] for entry in response.json()}
+            assert "Q1-2026" in quarters, (
+                f"Expected Q1-2026 in response, got: {sorted(quarters)}"
+            )
+        finally:
+            main.orders.remove(fake_order)
+
+    def test_2024_order_produces_q4_2024_entry(self, client):
+        """A November 2024 order must produce a Q4-2024 quarter (past years work too)."""
+        import main
+
+        fake_order = {
+            "id": "test-2024-q4",
+            "order_number": "ORD-TEST-2024-Q4",
+            "customer": "Past-Year Test",
+            "items": [],
+            "status": "Delivered",
+            "order_date": "2024-11-05T10:00:00",
+            "expected_delivery": "2024-11-10T10:00:00",
+            "total_value": 500.0,
+        }
+        main.orders.append(fake_order)
+        try:
+            response = client.get("/api/reports/quarterly")
+            assert response.status_code == 200
+            quarters = {entry["quarter"] for entry in response.json()}
+            assert "Q4-2024" in quarters
+        finally:
+            main.orders.remove(fake_order)

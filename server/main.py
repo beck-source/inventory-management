@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime, timedelta, date
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
@@ -10,29 +10,36 @@ restocking_orders: list[dict] = []
 
 app = FastAPI(title="Factory Inventory Management System")
 
-# Quarter mapping for date filtering
-QUARTER_MAP = {
-    'Q1-2025': ['2025-01', '2025-02', '2025-03'],
-    'Q2-2025': ['2025-04', '2025-05', '2025-06'],
-    'Q3-2025': ['2025-07', '2025-08', '2025-09'],
-    'Q4-2025': ['2025-10', '2025-11', '2025-12']
-}
+def _parse_quarter(key: str) -> Optional[list[str]]:
+    """Parse a 'Q<N>-<YYYY>' key into its three YYYY-MM month prefixes.
+
+    Returns None for any malformed or out-of-range input — callers treat
+    that as 'no orders match' rather than silently passing the filter.
+    """
+    try:
+        q_part, year_part = key.split('-')
+        quarter_num = int(q_part[1:])
+        year = int(year_part)
+    except (ValueError, IndexError):
+        return None
+    if not 1 <= quarter_num <= 4:
+        return None
+    start = (quarter_num - 1) * 3 + 1
+    return [f"{year}-{m:02d}" for m in range(start, start + 3)]
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
-    """Filter items by month/quarter based on order_date field"""
+    """Filter items by month (YYYY-MM) or quarter (Q<N>-<YYYY>) based on order_date."""
     if not month or month == 'all':
         return items
 
     if month.startswith('Q'):
-        # Handle quarters
-        if month in QUARTER_MAP:
-            months = QUARTER_MAP[month]
-            return [item for item in items if any(m in item.get('order_date', '') for m in months)]
-    else:
-        # Direct month match
-        return [item for item in items if month in item.get('order_date', '')]
+        months = _parse_quarter(month)
+        if months is None:
+            return []
+        return [item for item in items if any(m in item.get('order_date', '') for m in months)]
 
-    return items
+    # Direct month match (YYYY-MM)
+    return [item for item in items if month in item.get('order_date', '')]
 
 def apply_filters(items: list, warehouse: Optional[str] = None, category: Optional[str] = None,
                  status: Optional[str] = None) -> list:
@@ -142,10 +149,10 @@ class RestockingCandidate(BaseModel):
 class RestockingOrderLine(BaseModel):
     sku: str
     name: str
-    quantity: int
-    unit_cost: float
-    lead_time_days: int
-    subtotal: float
+    quantity: int = Field(gt=0)
+    unit_cost: float = Field(ge=0)
+    lead_time_days: int = Field(ge=0)
+    subtotal: float = Field(ge=0)
 
 class RestockingOrder(BaseModel):
     id: str
@@ -268,23 +275,21 @@ def get_recent_transactions():
 
 @app.get("/api/reports/quarterly")
 def get_quarterly_reports():
-    """Get quarterly performance reports"""
-    # Calculate quarterly statistics from orders
+    """Get quarterly performance reports for every year present in the data."""
     quarters = {}
 
     for order in orders:
         order_date = order.get('order_date', '')
-        # Determine quarter
-        if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
-            quarter = 'Q1-2025'
-        elif '2025-04' in order_date or '2025-05' in order_date or '2025-06' in order_date:
-            quarter = 'Q2-2025'
-        elif '2025-07' in order_date or '2025-08' in order_date or '2025-09' in order_date:
-            quarter = 'Q3-2025'
-        elif '2025-10' in order_date or '2025-11' in order_date or '2025-12' in order_date:
-            quarter = 'Q4-2025'
-        else:
+        if len(order_date) < 7:
             continue
+        try:
+            year = int(order_date[:4])
+            month_num = int(order_date[5:7])
+        except ValueError:
+            continue
+        if not 1 <= month_num <= 12:
+            continue
+        quarter = f"Q{(month_num - 1) // 3 + 1}-{year}"
 
         if quarter not in quarters:
             quarters[quarter] = {

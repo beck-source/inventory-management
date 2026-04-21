@@ -263,3 +263,36 @@ class TestOrdersFuzz:
                     assert order.get("warehouse") == warehouse, (
                         f"Filter warehouse={warehouse} but order has warehouse={order.get('warehouse')}"
                     )
+
+
+class TestFilterByMonthEdgeCases:
+    """Invalid or out-of-range month/quarter keys must not silently pass through.
+
+    The previous implementation fell through to returning the unfiltered list for
+    any quarter key it didn't know about. That was a footgun: a typo or future
+    quarter silently disabled the filter instead of restricting the result set.
+    """
+
+    def test_future_quarter_with_no_data_returns_empty_list(self, client):
+        """Q1-2099 has no matching orders — must return [] not the full dataset."""
+        response = client.get("/api/orders?month=Q1-2099")
+        assert response.status_code == 200
+        assert response.json() == []
+
+    def test_malformed_quarter_key_returns_empty_list(self, client):
+        """'Qfoo-bar' is not a valid quarter — must return [] not the full dataset."""
+        response = client.get("/api/orders?month=Qfoo-bar")
+        assert response.status_code == 200
+        assert response.json() == []
+
+    def test_invalid_quarter_number_returns_empty_list(self, client):
+        """Q5-2025 is not a real quarter — must return [] not the full dataset."""
+        response = client.get("/api/orders?month=Q5-2025")
+        assert response.status_code == 200
+        assert response.json() == []
+
+    def test_quarter_key_missing_year_returns_empty_list(self, client):
+        """'Q1' without a year is malformed — must return [] not the full dataset."""
+        response = client.get("/api/orders?month=Q1")
+        assert response.status_code == 200
+        assert response.json() == []

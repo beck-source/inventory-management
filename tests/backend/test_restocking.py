@@ -401,48 +401,31 @@ class TestRestockingOrderValidation:
             "subtotal": round(quantity * 89.5, 2),
         }
 
-    def test_negative_quantity_rejected(self, client):
-        """POST with a negative quantity is rejected with 422 (Pydantic validation).
+    def test_negative_quantity_rejected_with_422(self, client):
+        """POST with a negative quantity must be rejected by Pydantic validation.
 
-        Pydantic does not apply non-negativity constraints automatically for plain int
-        fields. Without an explicit validator or ge=1 constraint, negative quantities
-        would silently pass and corrupt total_cost / subtotal math. This test
-        documents the current behaviour: the server must either accept and handle it
-        gracefully, or reject it.
-
-        The current implementation has no ge constraint, so negative quantities pass
-        Pydantic validation. We document this as the expected current behaviour and
-        assert that the server does not crash (status is not 500). If the server gains
-        proper validation, this test should be updated to assert 422.
+        RestockingOrderLine.quantity is declared with Field(gt=0). Negative values
+        would corrupt total_cost and subtotal math, so they must not reach the handler.
         """
         import main
         main.restocking_orders.clear()
 
         payload = {"items": [self._item_with_quantity(-10)]}
         response = client.post("/api/restocking/orders", json=payload)
-        # Current behaviour: no ge constraint on quantity → Pydantic accepts it.
-        # The server must not crash with 500. 200 is acceptable if it passes through.
-        assert response.status_code != 500, (
-            "Negative quantity caused an unhandled server error"
+        assert response.status_code == 422
+        assert len(main.restocking_orders) == 0, (
+            "Rejected request must not have mutated server state"
         )
 
-    def test_zero_quantity_rejected_or_accepted_without_crash(self, client):
-        """POST with quantity=0 does not crash the server.
-
-        Zero-quantity items result in a zero subtotal. This verifies the server
-        handles the edge case without a division-by-zero or unhandled exception.
-        Currently zero passes Pydantic validation (no gt=0 constraint), so we
-        assert only that the server responds without error.
-        """
+    def test_zero_quantity_rejected_with_422(self, client):
+        """POST with quantity=0 must be rejected — orders must have real line items."""
         import main
         main.restocking_orders.clear()
 
         payload = {"items": [self._item_with_quantity(0)]}
         response = client.post("/api/restocking/orders", json=payload)
-        # The server must not crash with an unhandled 500 for zero quantity.
-        assert response.status_code != 500, (
-            "Zero quantity caused an unhandled server error"
-        )
+        assert response.status_code == 422
+        assert len(main.restocking_orders) == 0
 
     def test_two_consecutive_posts_have_distinct_monotonically_increasing_ids(self, client):
         """Two consecutive POSTs yield distinct IDs that increment: RO-YYYY-0001 → RO-YYYY-0002.
