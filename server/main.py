@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import math
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -120,6 +122,17 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockingOrderItem(BaseModel):
+    inventory_item_id: str
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    total_budget: float
+
 # API endpoints
 @app.get("/")
 def root():
@@ -196,7 +209,7 @@ def get_dashboard_summary(
 
     total_inventory_value = sum(item["quantity_on_hand"] * item["unit_cost"] for item in filtered_inventory)
     low_stock_items = len([item for item in filtered_inventory if item["quantity_on_hand"] <= item["reorder_point"]])
-    pending_orders = len([order for order in filtered_orders if order["status"] in ["Processing", "Backordered"]])
+    pending_orders = len([order for order in filtered_orders if order["status"] in ["Processing", "Backordered", "Submitted"]])
     total_backlog_items = len(backlog_items)
 
     return {
@@ -303,6 +316,63 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+def calculate_lead_days(quantity: int) -> int:
+    """Calculate lead time in days based on order quantity."""
+    if quantity <= 20:
+        return 4   # midpoint of 3-5 days (small)
+    elif quantity <= 100:
+        return 8   # midpoint of 7-10 days (medium)
+    else:
+        return 12  # midpoint of 10-14 days (large)
+
+@app.post("/api/restocking-orders", status_code=201)
+def submit_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order for low-stock inventory items."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="At least one item is required")
+
+    now = datetime.now()
+    max_lead = max(calculate_lead_days(item.quantity) for item in request.items)
+    expected_delivery = now + timedelta(days=max_lead)
+
+    order_id = str(len(orders) + len(restocking_orders) + 1)
+    order_number = f"RST-2025-{len(restocking_orders) + 1:04d}"
+
+    order_items = [
+        {
+            "sku": item.sku,
+            "name": item.name,
+            "quantity": item.quantity,
+            "unit_price": item.unit_cost
+        }
+        for item in request.items
+    ]
+    total_value = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+
+    order_dict = {
+        "id": order_id,
+        "order_number": order_number,
+        "customer": "Internal Restocking",
+        "items": order_items,
+        "status": "Submitted",
+        "order_date": now.isoformat(),
+        "expected_delivery": expected_delivery.isoformat(),
+        "total_value": total_value,
+        "actual_delivery": None,
+        "warehouse": None,
+        "category": None
+    }
+
+    restocking_orders.append(order_dict)
+    orders.append(order_dict)
+
+    return order_dict
+
+@app.get("/api/restocking-orders")
+def get_restocking_orders():
+    """Get all submitted restocking orders."""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
