@@ -16,6 +16,9 @@
           <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
             {{ t('nav.orders') }}
           </router-link>
+          <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
+            {{ t('nav.restocking') }}
+          </router-link>
           <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
             {{ t('nav.finance') }}
           </router-link>
@@ -465,6 +468,11 @@ tbody tr:hover {
 .badge.low {
   background: #dbeafe;
   color: #1e40af;
+}
+
+.badge.submitted {
+  background: #ede9fe;
+  color: #6d28d9;
 }
 
 .loading {

@@ -25,11 +25,56 @@
           <div class="stat-label">{{ t('status.backordered') }}</div>
           <div class="stat-value">{{ getOrdersByStatus('Backordered').length }}</div>
         </div>
+        <div class="stat-card" style="border-top: 3px solid #8b5cf6;">
+          <div class="stat-value" style="color: #7c3aed;">{{ submittedOrders.length }}</div>
+          <div class="stat-label">{{ t('status.submitted') }}</div>
+        </div>
+      </div>
+
+      <div v-if="submittedOrders.length > 0" class="card submitted-orders-card">
+        <div class="card-header">
+          <h3>{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('orders.table.status') }}</th>
+                <th>{{ t('orders.table.orderDate') }}</th>
+                <th>{{ t('orders.table.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.totalValue') }}</th>
+                <th>{{ t('orders.deliveryEta') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id" class="submitted-row">
+                <td>{{ order.order_number }}</td>
+                <td>
+                  <details>
+                    <summary>{{ t('orders.itemsCount', { count: order.items.length }) }}</summary>
+                    <ul class="item-list">
+                      <li v-for="item in order.items" :key="item.sku">
+                        {{ item.name }} — {{ t('orders.quantity') }}: {{ item.quantity.toLocaleString() }}
+                      </li>
+                    </ul>
+                  </details>
+                </td>
+                <td><span class="badge submitted">{{ t('status.submitted') }}</span></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td>{{ formatCurrency(order.total_value) }}</td>
+                <td><span class="delivery-countdown">{{ getDeliveryEta(order.expected_delivery) }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ regularOrders.length }})</h3>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -45,7 +90,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
+              <tr v-for="order in regularOrders" :key="order.id">
                 <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
                 <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
@@ -133,12 +178,21 @@ export default {
       return orders.value.filter(order => order.status === status)
     }
 
+    const submittedOrders = computed(() =>
+      orders.value.filter(o => o.status === 'Submitted')
+    )
+
+    const regularOrders = computed(() =>
+      orders.value.filter(o => o.status !== 'Submitted')
+    )
+
     const getOrderStatusClass = (status) => {
       const statusMap = {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'submitted'
       }
       return statusMap[status] || 'info'
     }
@@ -153,6 +207,20 @@ export default {
       })
     }
 
+    const formatCurrency = (value) => {
+      return `${currencySymbol.value}${value.toLocaleString()}`
+    }
+
+    const getDeliveryEta = (expectedDelivery) => {
+      const now = new Date()
+      const delivery = new Date(expectedDelivery)
+      if (isNaN(delivery.getTime())) return '—'
+      const diffDays = Math.ceil((delivery - now) / (1000 * 60 * 60 * 24))
+      if (diffDays <= 0) return 'Due today'
+      if (diffDays === 1) return 'Tomorrow'
+      return `${diffDays} days`
+    }
+
     onMounted(loadOrders)
 
     return {
@@ -160,9 +228,13 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
+      regularOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatCurrency,
+      getDeliveryEta,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +347,24 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.submitted-orders-card {
+  border-left: 4px solid #8b5cf6;
+}
+
+.submitted-row td {
+  background: #faf5ff;
+}
+
+.submitted-row:hover td {
+  background: #f5f3ff;
+}
+
+.delivery-countdown {
+  font-size: 0.813rem;
+  font-weight: 600;
+  color: #7c3aed;
+  white-space: nowrap;
 }
 </style>
