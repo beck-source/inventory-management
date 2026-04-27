@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 
 ```bash
 # From server directory
-uv run python main.py
+# Note: uv is blocked by Santa on this machine — use system python3 directly
+python3 main.py
 # Server runs on http://localhost:8001
 # API docs at http://localhost:8001/docs
 ```
@@ -279,8 +280,8 @@ server/
 
 ## Quick Reference
 
-**Start server:** `uv run python main.py`
+**Start server:** `python3 main.py` (uv blocked by Santa — use system python3)
 **API docs:** http://localhost:8001/docs
-**Run tests:** `cd ../tests && uv run pytest backend/ -v`
+**Run tests:** `cd ../tests && python3 -m pytest backend/ -v`
 **Add endpoint:** Define model → Add route → Write tests
 **Add filter:** Add query param → Check 'all' value → Filter data

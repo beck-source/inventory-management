@@ -30,14 +30,23 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 
 ## Quick Start
 
-```bash
-# Backend
-cd server
-uv run python main.py
+**Note:** `uv` is blocked by Santa on this machine. Use `python3` directly — FastAPI is available via system Python.
+`npm run dev` also does not work due to an esbuild/vite version conflict; invoke Vite directly instead.
 
-# Frontend
+```bash
+# Backend (from server/)
+cd server
+python3 main.py > /tmp/backend.log 2>&1 &
+
+# Frontend (from client/)
 cd client
-npm install && npm run dev
+npm install --ignore-scripts --legacy-peer-deps
+node_modules/.bin/vite > /tmp/frontend.log 2>&1 &
+```
+
+Kill existing servers before restarting:
+```bash
+lsof -ti:3000,8001 | xargs kill -9 2>/dev/null || true
 ```
 
 ## Key Patterns
@@ -72,3 +81,6 @@ npm install && npm run dev
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts
 - No emojis in UI
+
+## Code Style
+- Always document non-obvious logic changes with comments

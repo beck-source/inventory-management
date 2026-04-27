@@ -307,7 +307,7 @@
     "warehouse": "London",
     "quantity_on_hand": 350,
     "reorder_point": 200,
-    "unit_cost": 22.50,
+    "unit_cost": 22.5,
     "location": "Warehouse B-16",
     "last_updated": "2025-09-27T13:20:00"
   },
@@ -326,7 +326,7 @@
   {
     "id": "28",
     "sku": "PSU-504",
-    "name": "Dual Output ±15V Power Supply",
+    "name": "Dual Output \u00b115V Power Supply",
     "category": "Power Supplies",
     "warehouse": "San Francisco",
     "quantity_on_hand": 190,
@@ -343,7 +343,7 @@
     "warehouse": "London",
     "quantity_on_hand": 145,
     "reorder_point": 120,
-    "unit_cost": 67.50,
+    "unit_cost": 67.5,
     "location": "Warehouse B-17",
     "last_updated": "2025-09-24T09:00:00"
   },
@@ -367,7 +367,7 @@
     "warehouse": "San Francisco",
     "quantity_on_hand": 95,
     "reorder_point": 80,
-    "unit_cost": 125.00,
+    "unit_cost": 125.0,
     "location": "Warehouse A-17",
     "last_updated": "2025-09-22T11:30:00"
   },
@@ -379,8 +379,44 @@
     "warehouse": "Tokyo",
     "quantity_on_hand": 75,
     "reorder_point": 100,
-    "unit_cost": 185.50,
+    "unit_cost": 185.5,
     "location": "Warehouse C-11",
     "last_updated": "2025-09-21T15:20:00"
+  },
+  {
+    "id": "33",
+    "sku": "WDG-001",
+    "name": "Industrial Widget Type A",
+    "category": "Actuators",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 120,
+    "reorder_point": 200,
+    "unit_cost": 45.5,
+    "location": "Warehouse C-01",
+    "last_updated": "2025-09-30T10:30:00"
+  },
+  {
+    "id": "34",
+    "sku": "GSK-203",
+    "name": "High-Temperature Gasket",
+    "category": "Actuators",
+    "warehouse": "London",
+    "quantity_on_hand": 85,
+    "reorder_point": 150,
+    "unit_cost": 12.75,
+    "location": "Warehouse B-15",
+    "last_updated": "2025-09-28T09:00:00"
+  },
+  {
+    "id": "35",
+    "sku": "FLT-405",
+    "name": "Oil Filter Cartridge",
+    "category": "Actuators",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 850,
+    "reorder_point": 1000,
+    "unit_cost": 18.99,
+    "location": "Warehouse A-22",
+    "last_updated": "2025-09-25T14:00:00"
   }
 ]

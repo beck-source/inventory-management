@@ -74,6 +74,55 @@
           </table>
         </div>
       </div>
+
+      <div v-if="restockingOrders.length > 0" class="card restocking-section">
+        <div class="card-header">
+          <h3 class="card-title">
+            Submitted Restocking Orders
+            <span class="badge info restocking-count">{{ restockingOrders.length }}</span>
+          </h3>
+        </div>
+        <div class="table-container">
+          <table class="rst-table">
+            <thead>
+              <tr>
+                <th class="rst-col-order-number">Order #</th>
+                <th class="rst-col-items">Items</th>
+                <th class="rst-col-value">Total Cost</th>
+                <th class="rst-col-status">Status</th>
+                <th class="rst-col-date">Ordered</th>
+                <th class="rst-col-date">Expected Delivery</th>
+                <th class="rst-col-lead">Lead Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="rst-col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="rst-col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">SKU: {{ item.sku }} &mdash; Qty: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="rst-col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+                <td class="rst-col-status">
+                  <span class="badge info">Submitted</span>
+                </td>
+                <td class="rst-col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="rst-col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="rst-col-lead">{{ order.lead_time_days }} days</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +144,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -124,9 +174,19 @@ export default {
       }
     }
 
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        // Silently fail — restocking orders section just won't show
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
+      loadRestockingOrders()
     })
 
     const getOrdersByStatus = (status) => {
@@ -153,13 +213,17 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +339,46 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Restocking section */
+.restocking-section {
+  margin-top: 1.5rem;
+}
+
+.restocking-count {
+  margin-left: 0.5rem;
+  font-size: 0.813rem;
+  vertical-align: middle;
+}
+
+/* Restocking table */
+.rst-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.rst-col-order-number {
+  width: 160px;
+}
+
+.rst-col-items {
+  width: 200px;
+}
+
+.rst-col-value {
+  width: 140px;
+}
+
+.rst-col-status {
+  width: 120px;
+}
+
+.rst-col-date {
+  width: 140px;
+}
+
+.rst-col-lead {
+  width: 110px;
 }
 </style>
