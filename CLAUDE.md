@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Factory Inventory Management System Demo with GitHub integration - Full-stack application with Vue 3 frontend, Python FastAPI backend, and in-memory mock data (no database).
 
 ## Critical Tool Usage Rules
@@ -31,20 +33,47 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 ## Quick Start
 
 ```bash
+# One-command startup (both servers)
+./scripts/start.sh
+
+# Or manually:
 # Backend
-cd server
-uv run python main.py
+cd server && uv run python main.py
 
 # Frontend
-cd client
-npm install && npm run dev
+cd client && npm install && npm run dev
 ```
 
-## Key Patterns
+## Commands
 
-**Filter System**: 4 filters (Time Period, Warehouse, Category, Order Status) apply to all data via query params
-**Data Flow**: Vue filters → `client/src/api.js` → FastAPI → In-memory filtering → Pydantic validation → Computed properties
-**Reactivity**: Raw data in refs (`allOrders`, `inventoryItems`), derived data in computed properties
+```bash
+# Backend tests (run from repo root)
+cd tests && uv run pytest backend/ -v
+
+# Single test file
+cd tests && uv run pytest backend/test_inventory.py -v
+
+# Single test method
+cd tests && uv run pytest backend/test_inventory.py::TestInventoryEndpoints::test_get_all_inventory -v
+
+# With coverage
+cd tests && uv run pytest backend/ --cov=server --cov-report=html
+
+# Frontend build
+cd client && npm run build
+```
+
+## Architecture
+
+**Filter System**: 4 filters (Time Period, Warehouse, Category, Order Status) managed by `client/src/composables/useFilters.js` and sent as query params to every API call.
+
+**Data Flow**: `useFilters` composable → `client/src/api.js` (builds URLSearchParams, skips `'all'` values) → FastAPI `apply_filters()` helper → Pydantic-validated response → computed properties for display.
+
+**Reactivity**: Raw data stored in refs (`allOrders`, `inventoryItems`), derived/filtered data in computed properties. Never mutate props directly.
+
+**Composables**: `useFilters` (global filter state), `useAuth` (authentication), `useI18n` (translations via `client/src/locales/en.js` and `ja.js`).
+
+**Mock data**: `server/mock_data.py` loads all JSON files at startup into module-level globals. Data covers 12 months across 4 product categories (Circuit Boards, Sensors, Actuators, Controllers) and multiple warehouses.
 
 ## API Endpoints
 - `GET /api/inventory` - Filters: warehouse, category
@@ -52,6 +81,7 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/reports/*` - Quarterly and monthly trends
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
@@ -59,12 +89,17 @@ npm install && npm run dev
 3. Update Pydantic models when changing JSON data structure
 4. Inventory filters don't support month (no time dimension)
 5. Revenue goals: $800K/month single, $9.6M YTD all months
+6. `apply_filters()` in `server/main.py` handles warehouse/category; `filter_by_month()` handles time periods including quarters via `QUARTER_MAP`
+7. Always document non-obvious logic changes with comments
 
 ## File Locations
 - Views: `client/src/views/*.vue`
+- Components: `client/src/components/*.vue`
+- Composables: `client/src/composables/` (useFilters, useAuth, useI18n)
 - API Client: `client/src/api.js`
 - Backend: `server/main.py`, `server/mock_data.py`
 - Data: `server/data/*.json`
+- Tests: `tests/backend/` (conftest.py, test_inventory.py, test_dashboard.py, test_misc_endpoints.py)
 - Styles: `client/src/App.vue`
 
 ## Design System
