@@ -120,6 +120,28 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class CreateRestockingOrderRequest(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    notes: Optional[str] = None
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    total_value: float
+    status: str
+    submitted_date: str
+    expected_delivery_date: str
+    notes: Optional[str] = None
+
+restocking_orders: list = []
+
 # API endpoints
 @app.get("/")
 def root():
@@ -303,6 +325,33 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return restocking_orders
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order"""
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
+    order_number = f"RST-{now.strftime('%Y%m%d')}-{len(restocking_orders) + 1:03d}"
+    order = {
+        "id": str(len(restocking_orders) + 1),
+        "order_number": order_number,
+        "item_sku": request.item_sku,
+        "item_name": request.item_name,
+        "quantity": request.quantity,
+        "unit_cost": request.unit_cost,
+        "total_value": round(request.quantity * request.unit_cost, 2),
+        "status": "Submitted",
+        "submitted_date": now.isoformat(),
+        "expected_delivery_date": (now + timedelta(days=30)).isoformat(),
+        "notes": request.notes,
+    }
+    restocking_orders.append(order)
+    return order
 
 if __name__ == "__main__":
     import uvicorn

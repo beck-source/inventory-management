@@ -75,6 +75,51 @@
         </div>
       </div>
     </div>
+
+    <!-- Submitted Restocking Orders -->
+    <div class="card restocking-section">
+      <div class="card-header">
+        <span class="card-title">Submitted Restocking Orders</span>
+        <span class="restocking-count">{{ restockingOrders.length }} order{{ restockingOrders.length !== 1 ? 's' : '' }}</span>
+      </div>
+
+      <div v-if="restockingLoading" class="loading">Loading...</div>
+
+      <div v-else-if="!restockingOrders.length" class="restocking-empty">
+        No restocking orders yet. Use the Restocking tab to place orders.
+      </div>
+
+      <div v-else class="table-container">
+        <table class="restocking-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>SKU</th>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Unit Cost</th>
+              <th>Total Value</th>
+              <th>Submitted</th>
+              <th>Expected Delivery</th>
+              <th>Lead Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in restockingOrders" :key="order.id">
+              <td class="order-num">{{ order.order_number }}</td>
+              <td class="sku-cell">{{ order.item_sku }}</td>
+              <td>{{ order.item_name }}</td>
+              <td>{{ order.quantity.toLocaleString() }}</td>
+              <td>${{ order.unit_cost.toFixed(2) }}</td>
+              <td class="total-cell">${{ order.total_value.toLocaleString(undefined, {minimumFractionDigits:2,maximumFractionDigits:2}) }}</td>
+              <td>{{ formatRestockingDate(order.submitted_date) }}</td>
+              <td>{{ formatRestockingDate(order.expected_delivery_date) }}</td>
+              <td><span class="lead-time-badge">{{ daysUntilDelivery(order.expected_delivery_date) }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -153,7 +198,38 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const restockingOrders = ref([])
+    const restockingLoading = ref(false)
+
+    const loadRestockingOrders = async () => {
+      restockingLoading.value = true
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      } finally {
+        restockingLoading.value = false
+      }
+    }
+
+    const formatRestockingDate = (dateStr) => {
+      if (!dateStr) return '—'
+      const date = new Date(dateStr)
+      return isNaN(date.getTime()) ? '—' : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    }
+
+    const daysUntilDelivery = (dateStr) => {
+      if (!dateStr) return '—'
+      const delivery = new Date(dateStr)
+      if (isNaN(delivery.getTime())) return '—'
+      const diff = Math.ceil((delivery - new Date()) / (1000 * 60 * 60 * 24))
+      return diff > 0 ? `${diff}d` : 'Due'
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
@@ -165,7 +241,11 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders,
+      restockingLoading,
+      formatRestockingDate,
+      daysUntilDelivery
     }
   }
 }
@@ -275,5 +355,41 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-section { margin-top: 2rem; }
+.restocking-count {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #64748b);
+  background: var(--surface-border, #e2e8f0);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+.restocking-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted, #94a3b8);
+  font-size: 0.875rem;
+}
+.order-num {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--sidebar-active-border, #3b82f6);
+}
+.sku-cell {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.78rem;
+  color: var(--text-secondary, #64748b);
+}
+.total-cell { font-weight: 600; }
+.lead-time-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #eff6ff;
+  color: #1e40af;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
 }
 </style>
