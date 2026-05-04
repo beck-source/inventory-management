@@ -1,10 +1,21 @@
 <template>
   <div class="app">
-    <aside class="sidebar">
+    <aside :class="['sidebar', { collapsed: sidebarCollapsed }]">
       <div class="sidebar-brand">
         <span class="sidebar-brand-name">{{ t('nav.companyName') }}</span>
         <span class="sidebar-brand-sub">{{ t('nav.subtitle') }}</span>
       </div>
+
+      <button class="sidebar-toggle" @click="toggleSidebar" :title="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <template v-if="!sidebarCollapsed">
+            <polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/>
+          </template>
+          <template v-else>
+            <polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/>
+          </template>
+        </svg>
+      </button>
 
       <nav class="sidebar-nav">
         <router-link
@@ -12,6 +23,7 @@
           :key="item.path"
           :to="item.path"
           :class="['sidebar-nav-item', { active: $route.path === item.path }]"
+          :title="sidebarCollapsed ? (item.labelKey === 'reports' ? 'Reports' : t(item.labelKey)) : undefined"
         >
           <!-- grid -->
           <svg v-if="item.icon === 'grid'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
@@ -84,7 +96,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -186,7 +198,25 @@ export default {
       }
     }
 
-    onMounted(loadTasks)
+    const sidebarCollapsed = ref(false)
+
+    const toggleSidebar = () => {
+      sidebarCollapsed.value = !sidebarCollapsed.value
+    }
+
+    const handleResize = () => {
+      sidebarCollapsed.value = window.innerWidth < 768
+    }
+
+    onMounted(() => {
+      loadTasks()
+      handleResize()
+      window.addEventListener('resize', handleResize)
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize)
+    })
 
     return {
       t,
@@ -198,7 +228,9 @@ export default {
       tasks,
       addTask,
       deleteTask,
-      toggleTask
+      toggleTask,
+      sidebarCollapsed,
+      toggleSidebar
     }
   }
 }
@@ -207,6 +239,7 @@ export default {
 <style>
 :root {
   --sidebar-width: 240px;
+  --sidebar-collapsed-width: 56px;
   --sidebar-bg: #0f172a;
   --sidebar-text: #94a3b8;
   --sidebar-text-active: #f1f5f9;
@@ -241,8 +274,7 @@ body {
 }
 
 .app {
-  display: grid;
-  grid-template-columns: var(--sidebar-width) 1fr;
+  display: flex;
   min-height: 100vh;
 }
 
@@ -252,10 +284,18 @@ body {
   top: 0;
   height: 100vh;
   overflow-y: auto;
+  overflow-x: hidden;
   background: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: var(--space-6) 0;
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  transition: width 0.2s ease;
+}
+
+.sidebar.collapsed {
+  width: var(--sidebar-collapsed-width);
 }
 
 .sidebar-brand {
@@ -393,8 +433,68 @@ body {
   color: var(--sidebar-text-active);
 }
 
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: 0 auto var(--space-4);
+  background: var(--sidebar-hover-bg);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-toggle:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--sidebar-text-active);
+}
+
+/* ── Collapsed sidebar ── */
+.sidebar.collapsed .nav-label,
+.sidebar.collapsed .sidebar-brand-sub,
+.sidebar.collapsed .sidebar-username { display: none; }
+
+.sidebar.collapsed .sidebar-nav-item {
+  justify-content: center;
+  padding: var(--space-3);
+  margin: 0 var(--space-1);
+  border-left-color: transparent;
+}
+
+.sidebar.collapsed .sidebar-nav-item.active {
+  border-left-color: var(--sidebar-active-border);
+}
+
+.sidebar.collapsed .sidebar-brand {
+  align-items: center;
+  padding-bottom: var(--space-4);
+}
+
+.sidebar.collapsed .sidebar-brand-name {
+  font-size: 0.7rem;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 40px;
+}
+
+.sidebar.collapsed .sidebar-bottom {
+  justify-content: center;
+  padding: var(--space-3) var(--space-2);
+}
+
+.sidebar.collapsed .avatar { margin: 0; }
+
 /* ── App body ── */
 .app-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
