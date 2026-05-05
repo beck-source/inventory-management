@@ -1,12 +1,16 @@
 {
   "mcpServers": {
     "playwright": {
-      "command": "npx",
+      "type": "stdio",
+      "command": "playwright-mcp",
       "args": [
-        "@playwright/mcp@latest"
-      ]
+        "--browser",
+        "chrome"
+      ],
+      "env": {}
     },
     "github": {
+      "type": "stdio",
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],
       "env": {

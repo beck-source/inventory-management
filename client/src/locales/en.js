@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,16 +107,19 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    leadTimeDays: '{days} day lead time',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
       orderDate: 'Order Date',
+      submittedDate: 'Submitted',
       date: 'Date',
       customer: 'Customer',
       category: 'Category',
@@ -198,12 +202,43 @@ export default {
     allMonths: 'All Months'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and restock the largest forecast shortages',
+    budgetLabel: 'Available budget',
+    budgetHint: 'Items are recommended largest shortage first until the budget runs out',
+    coverage: '{covered} of {total} shortages covered',
+    plannedSpend: 'Planned spend',
+    remaining: 'Remaining',
+    recommendations: 'Recommended Restock',
+    overBudget: 'Over budget',
+    inBudget: 'Included',
+    noShortages: 'No forecast shortages right now — nothing to restock',
+    placeOrder: 'Place Restocking Order',
+    submitting: 'Submitting...',
+    submitted: 'Order {orderNumber} submitted — {count} items, {total}',
+    submitError: 'Failed to submit order',
+    leadDays: '{days}d',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Trend',
+      shortage: 'Shortage',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time',
+      status: 'Status'
+    }
+  },
+
   // Statuses
   status: {
     delivered: 'Delivered',
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

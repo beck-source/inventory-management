@@ -27,6 +27,54 @@
         </div>
       </div>
 
+      <!-- Submitted restocking orders (hidden until at least one is placed) -->
+      <div v-if="submittedOrders.length" class="card submitted-orders-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-date">{{ t('orders.table.submittedDate') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-date">{{ formatDate(order.submitted_at) }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                        <span class="item-lead">{{ t('orders.leadTimeDays', { days: item.lead_time_days }) }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+                <td class="col-date">{{ latestDelivery(order) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +143,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -109,7 +158,12 @@ export default {
       try {
         loading.value = true
         const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+        // Restocking orders have no warehouse/category dimension, so they
+        // ignore the global filter bar and are always fetched in full.
+        const [fetchedOrders, fetchedSubmitted] = await Promise.all([
+          api.getOrders(filters),
+          api.getSubmittedOrders()
+        ])
 
         // Sort orders by order_date (earliest first)
         orders.value = fetchedOrders.sort((a, b) => {
@@ -117,6 +171,7 @@ export default {
           const dateB = new Date(b.order_date)
           return dateA - dateB
         })
+        submittedOrders.value = fetchedSubmitted
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
@@ -138,7 +193,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
     }
@@ -153,6 +209,15 @@ export default {
       })
     }
 
+    // A restocking order has multiple lines with different lead times; the
+    // order isn't fulfilled until the slowest part arrives, so show the
+    // latest expected_delivery across all lines.
+    const latestDelivery = (order) => {
+      if (!order.items || order.items.length === 0) return '—'
+      const latest = Math.max(...order.items.map(i => new Date(i.expected_delivery).getTime()))
+      return formatDate(new Date(latest))
+    }
+
     onMounted(loadOrders)
 
     return {
@@ -160,9 +225,11 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      latestDelivery,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +342,14 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.item-lead {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.submitted-orders-card {
+  margin-bottom: 1.5rem;
 }
 </style>
