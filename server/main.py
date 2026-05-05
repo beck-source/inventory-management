@@ -2,7 +2,14 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+
+# In-memory store for restocking orders submitted via the Restocking tab
+restocking_orders: list = []
+
+# Trend priority for recommendation sorting: increasing items are most urgent
+TREND_PRIORITY = {'increasing': 0, 'stable': 1, 'decreasing': 2}
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -80,6 +87,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    is_restocking: Optional[bool] = False
 
 class DemandForecast(BaseModel):
     id: str
@@ -303,6 +311,101 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+class RestockingOrderRequest(BaseModel):
+    items: List[dict]  # selected recommendation items from /api/restocking/recommendations
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(budget: float = 0):
+    """Return demand-forecast items ranked by urgency, greedy-selected within budget."""
+    inventory_by_sku = {item['sku']: item for item in inventory_items}
+
+    candidates = []
+    for forecast in demand_forecasts:
+        inv = inventory_by_sku.get(forecast['item_sku'])
+        if not inv:
+            continue
+        # Quantity needed to reach forecasted demand from current demand
+        quantity_to_order = max(0, forecast['forecasted_demand'] - forecast['current_demand'])
+        if quantity_to_order == 0:
+            continue
+        unit_cost = inv['unit_cost']
+        candidates.append({
+            'item_sku': forecast['item_sku'],
+            'item_name': forecast['item_name'],
+            'current_demand': forecast['current_demand'],
+            'forecasted_demand': forecast['forecasted_demand'],
+            'trend': forecast['trend'],
+            'quantity_to_order': quantity_to_order,
+            'unit_cost': unit_cost,
+            'item_cost': round(quantity_to_order * unit_cost, 2),
+            'warehouse': inv['warehouse'],
+            'category': inv['category'],
+        })
+
+    # Increasing trend first, then stable, then decreasing
+    candidates.sort(key=lambda x: TREND_PRIORITY.get(x['trend'], 99))
+
+    # Greedy pass: mark items that fit within the remaining budget as selected
+    remaining = budget
+    result = []
+    for item in candidates:
+        selected = item['item_cost'] <= remaining
+        if selected:
+            remaining -= item['item_cost']
+        result.append({**item, 'selected': selected})
+
+    total_cost = round(budget - remaining, 2)
+    return {
+        'budget': budget,
+        'total_cost': total_cost,
+        'remaining_budget': round(remaining, 2),
+        'items': result,
+    }
+
+@app.post("/api/restocking/orders", response_model=Order)
+def place_restocking_order(request: RestockingOrderRequest):
+    """Create a restocking order from the selected recommendation items."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="No items provided")
+
+    now = datetime.now()
+    expected_delivery = now + timedelta(days=14)
+    # Use combined length of all orders for a unique numeric suffix
+    order_id = str(len(orders) + len(restocking_orders) + 1)
+    order_number = f"RST-{now.year}-{order_id.zfill(4)}"
+
+    order_items = [
+        {
+            'sku': item['item_sku'],
+            'name': item['item_name'],
+            'quantity': item['quantity_to_order'],
+            'unit_price': item['unit_cost'],
+        }
+        for item in request.items
+    ]
+
+    new_order = {
+        'id': order_id,
+        'order_number': order_number,
+        'customer': 'Internal Restocking',
+        'items': order_items,
+        'status': 'Processing',
+        'order_date': now.isoformat(),
+        'expected_delivery': expected_delivery.isoformat(),
+        'total_value': round(sum(item['item_cost'] for item in request.items), 2),
+        'is_restocking': True,
+    }
+
+    # Append to both the global orders list (so Orders tab sees it) and local store
+    orders.append(new_order)
+    restocking_orders.append(new_order)
+    return new_order
+
+@app.get("/api/restocking/orders", response_model=List[Order])
+def get_restocking_orders():
+    """Return all restocking orders placed in this session."""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
