@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +90,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +121,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    # Field name matches existing orders.json item shape (unit_price), not demand's unit_cost.
+    unit_price: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
 
 # API endpoints
 @app.get("/")
@@ -165,6 +177,51 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+# Fixed lead-time policy for restocking orders. Surfaced as expected_delivery on the
+# Order so the existing schema works unchanged; the Orders tab derives lead time
+# from (expected_delivery - order_date) at render time.
+RESTOCKING_LEAD_TIME_DAYS = 14
+
+@app.post("/api/restocking/orders", response_model=Order)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new internal restocking order from the demand forecast cart."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="At least one item is required")
+
+    # Pull next sequence number from the existing ORD-2025-XXXX series so the new
+    # restocking order slots into the same numbering customers are used to seeing.
+    existing_numbers = [
+        int(o["order_number"].split("-")[-1])
+        for o in orders
+        if o.get("order_number", "").startswith("ORD-2025-")
+    ]
+    next_number = (max(existing_numbers) if existing_numbers else 0) + 1
+    order_number = f"ORD-2025-{next_number:04d}"
+
+    # Recompute total server-side; the client's budget warning is UI-only and the
+    # submitted total must reflect what we actually persist.
+    total_value = sum(item.quantity * item.unit_price for item in request.items)
+
+    order_date = datetime.utcnow()
+    expected_delivery = order_date + timedelta(days=RESTOCKING_LEAD_TIME_DAYS)
+
+    new_order = {
+        "id": f"restock-{next_number}",
+        "order_number": order_number,
+        "customer": "Internal Restock",
+        "items": [item.model_dump() for item in request.items],
+        "status": "Submitted",
+        "warehouse": None,
+        "category": None,
+        "order_date": order_date.isoformat(timespec="seconds"),
+        "expected_delivery": expected_delivery.isoformat(timespec="seconds"),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+    }
+    # In-memory append; data is reset on server restart by design (demo).
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():

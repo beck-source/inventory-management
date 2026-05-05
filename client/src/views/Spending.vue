@@ -1,9 +1,6 @@
 <template>
   <div class="spending">
-    <div class="page-header">
-      <h2>{{ t('finance.title') }}</h2>
-      <p>{{ t('finance.description') }}</p>
-    </div>
+    <PageHeader :title="t('finance.title')" :subtitle="t('finance.description')" />
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
@@ -178,11 +175,13 @@ import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency as formatCurrencyUtil } from '../utils/currency'
 import CostDetailModal from '../components/CostDetailModal.vue'
+import PageHeader from '../components/PageHeader.vue'
 
 export default {
   name: 'Spending',
   components: {
-    CostDetailModal
+    CostDetailModal,
+    PageHeader
   },
   setup() {
     const { t, currentCurrency } = useI18n()

@@ -1,9 +1,6 @@
 <template>
   <div class="demand">
-    <div class="page-header">
-      <h2>{{ t('demand.title') }}</h2>
-      <p>{{ t('demand.description') }}</p>
-    </div>
+    <PageHeader :title="t('demand.title')" :subtitle="t('demand.description')" />
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
@@ -115,9 +112,13 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import PageHeader from '../components/PageHeader.vue'
 
 export default {
   name: 'Demand',
+  components: {
+    PageHeader
+  },
   setup() {
     const { t } = useI18n()
     const loading = ref(true)
