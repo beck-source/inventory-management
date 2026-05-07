@@ -35,5 +35,10 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Restock orders submitted via the Restocking tab. Intentionally not backed by a
+# JSON file: the demo treats these as session-scoped state, so a server restart
+# wipes them — matching how the rest of the in-memory data behaves on reload.
+submitted_orders: list = []
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data

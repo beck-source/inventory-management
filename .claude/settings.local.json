@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(netstat -aon)",
+      "Bash(findstr \":3000 :8001\")",
+      "Bash(findstr \"3000\")",
+      "Bash(findstr \"8001\")",
+      "Bash(uv run *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"Backend: %{http_code}\\\\n\" http://localhost:8001/docs)",
+      "Bash(curl -s -o /dev/null -w \"Frontend: %{http_code}\\\\n\" http://localhost:3000)",
+      "mcp__playwright__browser_navigate",
+      "Bash(git check-ignore *)",
+      "Bash(findstr /R \"settings.local package-lock\")",
+      "Bash(findstr \"package-lock\")"
+    ]
+  }
+}

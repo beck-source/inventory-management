@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,6 +113,11 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedTitle: '提出済み補充注文',
+    submittedEmpty: 'まだ補充注文が提出されていません — 「補充」タブからご注文ください。',
+    leadTime: 'リードタイム',
+    leadTimeDays: '{days}日',
+    createdDate: '作成日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -126,6 +132,37 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '需要予測で不足が見込まれる品目に対して、目標予算を割り当てます。',
+    budget: '予算',
+    budgetUsed: '使用予算',
+    itemsSelected: '選択品目数',
+    unitsCovered: 'カバー単位数',
+    unmetItems: '未対応の予測',
+    recommendedItems: '推奨品目',
+    placeOrder: '注文を確定',
+    placing: '送信中...',
+    noRecommendations: 'この予算で対応できる品目はありません。予算を増やしてください。',
+    noForecasts: '在庫と一致する需要予測の品目がありません。リードタイムと単価のデータを追加してください。',
+    successToast: '補充注文を提出しました。「注文」タブでご確認いただけます。',
+    submitFailed: '注文の提出に失敗しました。もう一度お試しください。',
+    confirmTitle: '補充注文の確認',
+    confirmCopy: '提出すると、この注文が「注文」タブに記録されます。注文を受領するまで在庫数は変わりません。',
+    confirm: '確認して提出',
+    cancel: 'キャンセル',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      trend: 'トレンド',
+      quantity: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '行合計',
+      leadTime: 'リードタイム'
     }
   },
 

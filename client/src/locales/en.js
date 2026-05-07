@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,11 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedTitle: 'Submitted Orders',
+    submittedEmpty: 'No restock orders submitted yet — visit the Restocking tab.',
+    leadTime: 'Lead Time',
+    leadTimeDays: '{days}d',
+    createdDate: 'Created',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -126,6 +132,37 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Spend a target budget on the items the demand forecast says will run short.',
+    budget: 'Budget',
+    budgetUsed: 'Budget Used',
+    itemsSelected: 'Items Selected',
+    unitsCovered: 'Units Covered',
+    unmetItems: 'Unmet Forecasts',
+    recommendedItems: 'Recommended Items',
+    placeOrder: 'Place Order',
+    placing: 'Placing...',
+    noRecommendations: 'No items fit this budget. Try increasing it.',
+    noForecasts: 'No items in the demand forecast match your inventory. Add lead time and unit cost data first.',
+    successToast: 'Restock order submitted. View it on the Orders tab.',
+    submitFailed: 'Failed to submit the order. Try again.',
+    confirmTitle: 'Confirm Restock Order',
+    confirmCopy: 'Submitting will record this order on the Orders tab. Inventory levels stay unchanged until the order is received.',
+    confirm: 'Confirm & Submit',
+    cancel: 'Cancel',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      quantity: 'Suggested Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
     }
   },
 

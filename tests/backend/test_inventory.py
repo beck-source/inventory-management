@@ -108,12 +108,16 @@ class TestInventoryEndpoints:
         required_fields = [
             "id", "sku", "name", "category", "warehouse",
             "quantity_on_hand", "reorder_point", "unit_cost",
-            "location", "last_updated"
+            "location", "last_updated", "lead_time_days"
         ]
 
         for item in data:
             for field in required_fields:
                 assert field in item, f"Missing field: {field}"
+            # lead_time_days drives Restocking → Submitted Orders delivery dates,
+            # so it must be a positive integer on every row.
+            assert isinstance(item["lead_time_days"], int)
+            assert item["lead_time_days"] > 0
 
     def test_inventory_quantity_types(self, client):
         """Test that quantity fields are proper numeric types."""

@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, submitted_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -67,6 +68,7 @@ class InventoryItem(BaseModel):
     unit_cost: float
     location: str
     last_updated: str
+    lead_time_days: int
 
 class Order(BaseModel):
     id: str
@@ -119,6 +121,25 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class SubmittedOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    lead_time_days: int
+
+class SubmittedOrder(BaseModel):
+    id: str
+    items: List[SubmittedOrderItem]
+    total_value: float
+    budget: float
+    created_date: str
+    expected_delivery_date: str
+
+class CreateSubmittedOrderRequest(BaseModel):
+    items: List[SubmittedOrderItem]
+    budget: float
 
 # API endpoints
 @app.get("/")
@@ -303,6 +324,41 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/submitted-orders", response_model=List[SubmittedOrder])
+def get_submitted_orders():
+    """Get all restock orders submitted via the Restocking tab, newest first."""
+    # submitted_orders is a module-level mutable list reset on server restart;
+    # newest-first ordering matches how the Orders tab renders the section.
+    return list(reversed(submitted_orders))
+
+@app.post("/api/submitted-orders", response_model=SubmittedOrder)
+def create_submitted_order(request: CreateSubmittedOrderRequest):
+    """Create a restock order from the Restocking tab."""
+    if not request.items:
+        raise HTTPException(status_code=422, detail="items must not be empty")
+
+    # Naive UTC timestamp — the Orders tab uses these as ISO strings without
+    # timezone math, so dropping tzinfo keeps the wire format stable across the
+    # session. utcnow() is deprecated in 3.14, hence the explicit replace().
+    created = datetime.now(timezone.utc).replace(tzinfo=None)
+    # Pick the slowest-arriving item as the order's expected delivery date so the
+    # Orders tab can show a single "ready by" date for the whole batch; per-item
+    # lead times remain on each line for the chip display.
+    max_lead = max(item.lead_time_days for item in request.items)
+    expected = created + timedelta(days=max_lead)
+
+    total = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+    new_order = {
+        "id": f"SUB-{len(submitted_orders) + 1:04d}",
+        "items": [item.model_dump() for item in request.items],
+        "total_value": total,
+        "budget": request.budget,
+        "created_date": created.isoformat(timespec="seconds"),
+        "expected_delivery_date": expected.isoformat(timespec="seconds"),
+    }
+    submitted_orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn

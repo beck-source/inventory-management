@@ -34,7 +34,8 @@ def sample_inventory_item():
         "reorder_point": 200,
         "unit_cost": 24.99,
         "location": "Warehouse A-12",
-        "last_updated": "2025-09-30T10:30:00"
+        "last_updated": "2025-09-30T10:30:00",
+        "lead_time_days": 21
     }
 
 

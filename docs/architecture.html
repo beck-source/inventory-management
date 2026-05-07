@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Architecture — Factory Inventory Management System</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --accent: #1e40af;
+    --accent-soft: #dbeafe;
+    --green: #15803d;
+    --green-soft: #dcfce7;
+    --amber: #b45309;
+    --amber-soft: #fef3c7;
+    --rose: #b91c1c;
+    --rose-soft: #fee2e2;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+
+  header.hero {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 32px;
+    margin-bottom: 40px;
+  }
+  header.hero .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  header.hero h1 {
+    font-size: 32px;
+    line-height: 1.2;
+    margin: 8px 0 12px;
+    letter-spacing: -0.01em;
+  }
+  header.hero p.lede {
+    margin: 0;
+    color: var(--muted);
+    font-size: 16px;
+    max-width: 760px;
+  }
+
+  section {
+    margin-bottom: 56px;
+  }
+  section h2 {
+    font-size: 20px;
+    margin: 0 0 4px;
+    letter-spacing: -0.01em;
+  }
+  section .section-sub {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 20px;
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+  }
+
+  /* Tech stack grid */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .stack-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .stack-card h3 {
+    margin: 0 0 4px;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .stack-card .role {
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .stack-card ul {
+    margin: 12px 0 0;
+    padding-left: 18px;
+    color: var(--ink);
+  }
+  .stack-card ul li { margin-bottom: 4px; }
+  .stack-card ul li code {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0 5px;
+    font-size: 12.5px;
+  }
+  .dot {
+    width: 8px; height: 8px; border-radius: 999px; display: inline-block;
+  }
+  .dot.client { background: #2563eb; }
+  .dot.server { background: #15803d; }
+  .dot.data   { background: #b45309; }
+
+  /* Diagram panels */
+  .diagram-wrap {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  svg.diagram { display: block; width: 100%; height: auto; }
+
+  /* Endpoint table */
+  table.endpoints {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 14px;
+  }
+  table.endpoints th, table.endpoints td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.endpoints th {
+    background: var(--bg);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  table.endpoints tr:last-child td { border-bottom: none; }
+  table.endpoints code {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: 12.5px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge.get { background: var(--accent-soft); color: var(--accent); }
+  .badge.note { background: var(--bg); color: var(--muted); border: 1px solid var(--line); }
+  .badge.filtered { background: var(--green-soft); color: var(--green); }
+
+  /* State / file layout columns */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .two-col .panel h3 {
+    margin: 0 0 12px;
+    font-size: 15px;
+  }
+  .two-col .panel ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--ink);
+  }
+  .two-col .panel ul li { margin-bottom: 6px; }
+  .two-col .panel code {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0 5px;
+    font-size: 12.5px;
+  }
+
+  footer {
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 760px) {
+    .stack-grid { grid-template-columns: 1fr; }
+    .two-col { grid-template-columns: 1fr; }
+    .page { padding: 32px 20px 64px; }
+    header.hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <div class="eyebrow">Architecture Reference</div>
+    <h1>Factory Inventory Management System</h1>
+    <p class="lede">
+      A demo full-stack application for inventory tracking, order management, demand forecasting,
+      backlog monitoring, and spending analytics. Vue 3 single-page client, FastAPI service,
+      and JSON-file mock data &mdash; no database.
+    </p>
+  </header>
+
+  <!-- Tech stack -->
+  <section>
+    <h2>Tech stack</h2>
+    <p class="section-sub">Three layers, each with a small, deliberate dependency surface.</p>
+
+    <div class="stack-grid">
+      <div class="stack-card">
+        <div class="role"><span class="dot client"></span> Client</div>
+        <h3>Vue 3 + Vite</h3>
+        <ul>
+          <li><code>vue</code> ^3.4 &mdash; Composition API only</li>
+          <li><code>vue-router</code> ^4.3 &mdash; six page routes</li>
+          <li><code>axios</code> ^1.6 &mdash; HTTP client</li>
+          <li><code>vite</code> ^5.2 &mdash; dev server on port 3000</li>
+        </ul>
+      </div>
+
+      <div class="stack-card">
+        <div class="role"><span class="dot server"></span> Server</div>
+        <h3>FastAPI + Pydantic</h3>
+        <ul>
+          <li><code>fastapi</code> &mdash; routing, OpenAPI at <code>/docs</code></li>
+          <li><code>pydantic</code> ^2.5 &mdash; response models / validation</li>
+          <li><code>uvicorn</code> &mdash; ASGI server on port 8001</li>
+          <li><code>uv</code> &mdash; Python toolchain &amp; venv</li>
+        </ul>
+      </div>
+
+      <div class="stack-card">
+        <div class="role"><span class="dot data"></span> Data</div>
+        <h3>JSON files (in-memory)</h3>
+        <ul>
+          <li>Loaded once at import in <code>mock_data.py</code></li>
+          <li>Files in <code>server/data/*.json</code></li>
+          <li>Mutations are non-persistent</li>
+          <li>Restart server to reload from disk</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- System architecture diagram -->
+  <section>
+    <h2>System architecture</h2>
+    <p class="section-sub">Browser &rarr; Vite dev server &rarr; FastAPI &rarr; in-memory JSON. CORS is fully open in dev.</p>
+
+    <div class="diagram-wrap">
+      <svg class="diagram" viewBox="0 0 1000 360" role="img" aria-label="System architecture diagram">
+        <!-- Browser -->
+        <g>
+          <rect x="40" y="120" width="180" height="120" rx="10" fill="#ffffff" stroke="#e2e8f0" />
+          <text x="130" y="150" text-anchor="middle" font-size="13" fill="#64748b" font-family="inherit" font-weight="600" letter-spacing="1.2">BROWSER</text>
+          <text x="130" y="180" text-anchor="middle" font-size="15" fill="#0f172a" font-family="inherit" font-weight="600">User</text>
+          <text x="130" y="202" text-anchor="middle" font-size="12" fill="#64748b" font-family="inherit">Chrome / Edge / Safari</text>
+          <text x="130" y="222" text-anchor="middle" font-size="12" fill="#64748b" font-family="inherit">localhost:3000</text>
+        </g>
+
+        <!-- Vite + Vue client -->
+        <g>
+          <rect x="280" y="60" width="240" height="240" rx="10" fill="#eff6ff" stroke="#bfdbfe" />
+          <text x="400" y="88" text-anchor="middle" font-size="13" fill="#1e40af" font-family="inherit" font-weight="600" letter-spacing="1.2">CLIENT</text>
+          <text x="400" y="112" text-anchor="middle" font-size="15" fill="#0f172a" font-family="inherit" font-weight="600">Vue 3 SPA + Vite</text>
+          <line x1="300" y1="128" x2="500" y2="128" stroke="#bfdbfe" />
+          <text x="310" y="150" font-size="12" fill="#0f172a" font-family="inherit">Views (Dashboard, Inventory,</text>
+          <text x="310" y="166" font-size="12" fill="#0f172a" font-family="inherit">Orders, Demand, Spending,</text>
+          <text x="310" y="182" font-size="12" fill="#0f172a" font-family="inherit">Reports)</text>
+          <text x="310" y="206" font-size="12" fill="#0f172a" font-family="inherit">Composables: useFilters,</text>
+          <text x="310" y="222" font-size="12" fill="#0f172a" font-family="inherit">useI18n, useAuth</text>
+          <text x="310" y="246" font-size="12" fill="#0f172a" font-family="inherit">api.js (axios client)</text>
+          <text x="310" y="270" font-size="12" fill="#64748b" font-family="inherit">FilterBar drives global state</text>
+        </g>
+
+        <!-- FastAPI server -->
+        <g>
+          <rect x="580" y="60" width="240" height="240" rx="10" fill="#ecfdf5" stroke="#bbf7d0" />
+          <text x="700" y="88" text-anchor="middle" font-size="13" fill="#15803d" font-family="inherit" font-weight="600" letter-spacing="1.2">SERVER</text>
+          <text x="700" y="112" text-anchor="middle" font-size="15" fill="#0f172a" font-family="inherit" font-weight="600">FastAPI + Pydantic</text>
+          <line x1="600" y1="128" x2="800" y2="128" stroke="#bbf7d0" />
+          <text x="610" y="150" font-size="12" fill="#0f172a" font-family="inherit">main.py &mdash; 14 GET routes</text>
+          <text x="610" y="172" font-size="12" fill="#0f172a" font-family="inherit">apply_filters()</text>
+          <text x="610" y="188" font-size="12" fill="#64748b" font-family="inherit">warehouse / category / status</text>
+          <text x="610" y="212" font-size="12" fill="#0f172a" font-family="inherit">filter_by_month()</text>
+          <text x="610" y="228" font-size="12" fill="#64748b" font-family="inherit">month or QUARTER_MAP lookup</text>
+          <text x="610" y="252" font-size="12" fill="#0f172a" font-family="inherit">CORS: allow all (dev only)</text>
+          <text x="610" y="270" font-size="12" fill="#64748b" font-family="inherit">localhost:8001 &mdash; /docs</text>
+        </g>
+
+        <!-- Data store -->
+        <g>
+          <rect x="880" y="120" width="80" height="120" rx="10" fill="#fffbeb" stroke="#fde68a" />
+          <text x="920" y="150" text-anchor="middle" font-size="11" fill="#b45309" font-family="inherit" font-weight="600" letter-spacing="1.1">DATA</text>
+          <text x="920" y="175" text-anchor="middle" font-size="13" fill="#0f172a" font-family="inherit" font-weight="600">JSON</text>
+          <text x="920" y="193" text-anchor="middle" font-size="11" fill="#0f172a" font-family="inherit">files</text>
+          <text x="920" y="215" text-anchor="middle" font-size="11" fill="#64748b" font-family="inherit">server/</text>
+          <text x="920" y="228" text-anchor="middle" font-size="11" fill="#64748b" font-family="inherit">data/</text>
+        </g>
+
+        <!-- Arrows -->
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- Browser <-> Client -->
+        <line x1="220" y1="180" x2="280" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)" />
+        <line x1="280" y1="200" x2="220" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)" />
+        <text x="250" y="170" text-anchor="middle" font-size="10" fill="#64748b" font-family="inherit">HTTP</text>
+
+        <!-- Client <-> Server -->
+        <line x1="520" y1="170" x2="580" y2="170" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)" />
+        <line x1="580" y1="195" x2="520" y2="195" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)" />
+        <text x="550" y="160" text-anchor="middle" font-size="10" fill="#64748b" font-family="inherit">REST + JSON</text>
+
+        <!-- Server <-> Data -->
+        <line x1="820" y1="180" x2="880" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)" />
+        <text x="850" y="170" text-anchor="middle" font-size="10" fill="#64748b" font-family="inherit">read once</text>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Data flow -->
+  <section>
+    <h2>Data flow: a filtered request</h2>
+    <p class="section-sub">
+      Global filters live in a singleton composable. The diagram traces a single user filter change
+      end-to-end, from <code>FilterBar.vue</code> back to the rendered view.
+    </p>
+
+    <div class="diagram-wrap">
+      <svg class="diagram" viewBox="0 0 1000 460" role="img" aria-label="Data flow diagram">
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e40af"/>
+          </marker>
+        </defs>
+
+        <!-- Step boxes -->
+        <g font-family="inherit">
+          <!-- 1 -->
+          <rect x="40"  y="40"  width="220" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="62" cy="62" r="13" fill="#1e40af"/>
+          <text x="62" y="66" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">1</text>
+          <text x="84" y="66" font-size="13" font-weight="600" fill="#0f172a">FilterBar.vue</text>
+          <text x="56" y="92" font-size="12" fill="#64748b">User picks Warehouse / Category /</text>
+          <text x="56" y="108" font-size="12" fill="#64748b">Status / Time Period via &lt;select&gt;.</text>
+
+          <!-- 2 -->
+          <rect x="380" y="40"  width="240" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="402" cy="62" r="13" fill="#1e40af"/>
+          <text x="402" y="66" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">2</text>
+          <text x="424" y="66" font-size="13" font-weight="600" fill="#0f172a">useFilters (singleton)</text>
+          <text x="396" y="92" font-size="12" fill="#64748b">refs declared at module scope:</text>
+          <text x="396" y="108" font-size="12" fill="#64748b">selectedPeriod / Location / etc.</text>
+
+          <!-- 3 -->
+          <rect x="740" y="40"  width="220" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="762" cy="62" r="13" fill="#1e40af"/>
+          <text x="762" y="66" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">3</text>
+          <text x="784" y="66" font-size="13" font-weight="600" fill="#0f172a">View loadData()</text>
+          <text x="756" y="92" font-size="12" fill="#64748b">getCurrentFilters() &rarr; api.*</text>
+          <text x="756" y="108" font-size="12" fill="#64748b">try / catch, sets loading/error.</text>
+
+          <!-- 4 -->
+          <rect x="740" y="190" width="220" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="762" cy="212" r="13" fill="#1e40af"/>
+          <text x="762" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">4</text>
+          <text x="784" y="216" font-size="13" font-weight="600" fill="#0f172a">api.js</text>
+          <text x="756" y="242" font-size="12" fill="#64748b">URLSearchParams, drops 'all',</text>
+          <text x="756" y="258" font-size="12" fill="#64748b">GET http://localhost:8001/api/&hellip;</text>
+
+          <!-- 5 -->
+          <rect x="380" y="190" width="240" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="402" cy="212" r="13" fill="#1e40af"/>
+          <text x="402" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">5</text>
+          <text x="424" y="216" font-size="13" font-weight="600" fill="#0f172a">FastAPI route</text>
+          <text x="396" y="242" font-size="12" fill="#64748b">apply_filters() then</text>
+          <text x="396" y="258" font-size="12" fill="#64748b">filter_by_month() if applicable.</text>
+
+          <!-- 6 -->
+          <rect x="40"  y="190" width="220" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="62" cy="212" r="13" fill="#1e40af"/>
+          <text x="62" y="216" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">6</text>
+          <text x="84" y="216" font-size="13" font-weight="600" fill="#0f172a">In-memory data</text>
+          <text x="56" y="242" font-size="12" fill="#64748b">inventory_items, orders, &hellip;</text>
+          <text x="56" y="258" font-size="12" fill="#64748b">loaded from JSON at startup.</text>
+
+          <!-- 7 -->
+          <rect x="40"  y="340" width="220" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="62" cy="362" r="13" fill="#15803d"/>
+          <text x="62" y="366" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">7</text>
+          <text x="84" y="366" font-size="13" font-weight="600" fill="#0f172a">Pydantic validation</text>
+          <text x="56" y="392" font-size="12" fill="#64748b">response_model serialises the</text>
+          <text x="56" y="408" font-size="12" fill="#64748b">result before return.</text>
+
+          <!-- 8 -->
+          <rect x="380" y="340" width="240" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="402" cy="362" r="13" fill="#15803d"/>
+          <text x="402" y="366" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">8</text>
+          <text x="424" y="366" font-size="13" font-weight="600" fill="#0f172a">View ref&lt;Array&gt;</text>
+          <text x="396" y="392" font-size="12" fill="#64748b">raw data goes into a ref;</text>
+          <text x="396" y="408" font-size="12" fill="#64748b">computed properties derive views.</text>
+
+          <!-- 9 -->
+          <rect x="740" y="340" width="220" height="86" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+          <circle cx="762" cy="362" r="13" fill="#15803d"/>
+          <text x="762" y="366" text-anchor="middle" font-size="12" font-weight="700" fill="#ffffff">9</text>
+          <text x="784" y="366" font-size="13" font-weight="600" fill="#0f172a">Template renders</text>
+          <text x="756" y="392" font-size="12" fill="#64748b">v-for over keyed items, KPI</text>
+          <text x="756" y="408" font-size="12" fill="#64748b">tiles, custom SVG charts.</text>
+        </g>
+
+        <!-- Arrows: 1 -> 2 -> 3 -->
+        <line x1="260" y1="83"  x2="380" y2="83"  stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <line x1="620" y1="83"  x2="740" y2="83"  stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- 3 -> 4 (down) -->
+        <line x1="850" y1="126" x2="850" y2="190" stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- 4 -> 5 -->
+        <line x1="740" y1="233" x2="620" y2="233" stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- 5 -> 6 -->
+        <line x1="380" y1="233" x2="260" y2="233" stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- 6 -> 7 (down) -->
+        <line x1="150" y1="276" x2="150" y2="340" stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- 7 -> 8 -->
+        <line x1="260" y1="383" x2="380" y2="383" stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+        <!-- 8 -> 9 -->
+        <line x1="620" y1="383" x2="740" y2="383" stroke="#1e40af" stroke-width="1.5" marker-end="url(#arr2)"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- API endpoints -->
+  <section>
+    <h2>API surface</h2>
+    <p class="section-sub">All endpoints are <code>GET</code>. Filters that respect the global filter bar are marked <em>filtered</em>.</p>
+
+    <table class="endpoints">
+      <thead>
+        <tr>
+          <th style="width: 90px">Method</th>
+          <th>Path</th>
+          <th>Filters</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/inventory</code></td>
+          <td><span class="badge filtered">warehouse, category</span></td>
+          <td>No time dimension &mdash; <code>month</code> does not apply.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/inventory/{id}</code></td>
+          <td><span class="badge note">none</span></td>
+          <td>404 on missing.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/orders</code></td>
+          <td><span class="badge filtered">warehouse, category, status, month</span></td>
+          <td>Month accepts <code>YYYY-MM</code> or <code>Q1-2025&hellip;Q4-2025</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/orders/{id}</code></td>
+          <td><span class="badge note">none</span></td>
+          <td>404 on missing.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/dashboard/summary</code></td>
+          <td><span class="badge filtered">all four</span></td>
+          <td>Returns inventory value, low-stock count, pending-order count, total backlog, total order value.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/demand</code></td>
+          <td><span class="badge note">none</span></td>
+          <td>Forecasted vs. current demand per SKU.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/backlog</code></td>
+          <td><span class="badge note">none</span></td>
+          <td>Injects <code>has_purchase_order</code> by joining <code>purchase_orders.json</code>.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/spending/{summary, monthly, categories, transactions}</code></td>
+          <td><span class="badge note">none</span></td>
+          <td>Four sibling endpoints under spending.</td>
+        </tr>
+        <tr>
+          <td><span class="badge get">GET</span></td>
+          <td><code>/api/reports/{quarterly, monthly-trends}</code></td>
+          <td><span class="badge note">none</span></td>
+          <td>Aggregates orders by quarter or month.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- State + Layout -->
+  <section>
+    <h2>Client state &amp; layout</h2>
+    <p class="section-sub">Three composables hold global state. Everything else is local view state.</p>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3>Composables</h3>
+        <ul>
+          <li><code>useFilters</code> &mdash; singleton refs for Period, Location, Category, Status. Same instance across all callers.</li>
+          <li><code>useI18n</code> &mdash; <code>en</code> / <code>ja</code> locales, persisted in <code>localStorage</code>. Currency derives from locale (USD or JPY).</li>
+          <li><code>useAuth</code> &mdash; mock current user, locale-aware fields, sample tasks. No real auth.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Routes (<code>main.js</code>)</h3>
+        <ul>
+          <li><code>/</code> &rarr; Dashboard</li>
+          <li><code>/inventory</code> &rarr; Inventory</li>
+          <li><code>/orders</code> &rarr; Orders</li>
+          <li><code>/demand</code> &rarr; Demand</li>
+          <li><code>/spending</code> &rarr; Spending</li>
+          <li><code>/reports</code> &rarr; Reports</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Server modules</h3>
+        <ul>
+          <li><code>main.py</code> &mdash; routes, Pydantic models, filter helpers, <code>QUARTER_MAP</code>.</li>
+          <li><code>mock_data.py</code> &mdash; loads each JSON file into a module-level list at import time.</li>
+          <li><code>generate_data.py</code> &mdash; one-off script to regenerate sample data.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h3>Data files (<code>server/data/</code>)</h3>
+        <ul>
+          <li><code>inventory.json</code></li>
+          <li><code>orders.json</code></li>
+          <li><code>demand_forecasts.json</code></li>
+          <li><code>backlog_items.json</code></li>
+          <li><code>purchase_orders.json</code></li>
+          <li><code>spending.json</code> (summary / monthly / category)</li>
+          <li><code>transactions.json</code></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Run / verify -->
+  <section>
+    <h2>Run &amp; verify</h2>
+    <p class="section-sub">Two processes, two ports. Tests live in their own folder with a dedicated <code>pytest.ini</code>.</p>
+
+    <div class="two-col">
+      <div class="panel">
+        <h3>Backend &mdash; port 8001</h3>
+        <ul>
+          <li><code>cd server &amp;&amp; uv venv &amp;&amp; uv sync</code></li>
+          <li><code>uv run python main.py</code></li>
+          <li>Open <code>http://localhost:8001/docs</code> for Swagger UI.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Frontend &mdash; port 3000</h3>
+        <ul>
+          <li><code>cd client &amp;&amp; npm install</code></li>
+          <li><code>npm run dev</code></li>
+          <li>Open <code>http://localhost:3000</code>.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Tests</h3>
+        <ul>
+          <li><code>cd tests &amp;&amp; uv run pytest -v</code></li>
+          <li>One file: <code>uv run pytest backend/test_inventory.py -v</code></li>
+          <li>One test: <code>&hellip;::TestInventoryEndpoints::test_get_all_inventory</code></li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Production build</h3>
+        <ul>
+          <li><code>cd client &amp;&amp; npm run build</code> &rarr; <code>client/dist/</code></li>
+          <li>No build step on the server &mdash; FastAPI serves Python directly.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated reference for the <code>inventory-management</code> repo. See <code>CLAUDE.md</code>,
+    <code>client/CLAUDE.md</code>, and <code>server/CLAUDE.md</code> for working conventions.
+  </footer>
+</div>
+</body>
+</html>
