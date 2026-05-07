@@ -19,30 +19,35 @@ tests/
 ## Running Tests
 
 ### Run all tests
+
 ```bash
 cd tests
 uv run pytest -v
 ```
 
 ### Run specific test file
+
 ```bash
 cd tests
 uv run pytest backend/test_inventory.py -v
 ```
 
 ### Run specific test class
+
 ```bash
 cd tests
 uv run pytest backend/test_inventory.py::TestInventoryEndpoints -v
 ```
 
 ### Run specific test
+
 ```bash
 cd tests
 uv run pytest backend/test_inventory.py::TestInventoryEndpoints::test_get_all_inventory -v
 ```
 
 ### Run with coverage (requires pytest-cov)
+
 ```bash
 cd tests
 uv run pytest --cov=../server --cov-report=html
@@ -53,6 +58,7 @@ uv run pytest --cov=../server --cov-report=html
 **Total: 51 tests** covering all API endpoints:
 
 ### Inventory Endpoints (10 tests)
+
 - ✓ Get all inventory items
 - ✓ Filter by warehouse
 - ✓ Filter by category (including Power Supplies)
@@ -63,6 +69,7 @@ uv run pytest --cov=../server --cov-report=html
 - ✓ Validate data types
 
 ### Orders Endpoints (15 tests)
+
 - ✓ Get all orders
 - ✓ Filter by warehouse, category, status
 - ✓ Filter by month and quarter
@@ -75,6 +82,7 @@ uv run pytest --cov=../server --cov-report=html
 - ✓ Validate total value calculations
 
 ### Dashboard Endpoints (13 tests)
+
 - ✓ Get dashboard summary
 - ✓ Validate data types and non-negative values
 - ✓ Filter by warehouse, category, status, month
@@ -85,6 +93,7 @@ uv run pytest --cov=../server --cov-report=html
   - Total inventory value calculation
 
 ### Miscellaneous Endpoints (13 tests)
+
 - **Demand Forecasts (3 tests)**
   - ✓ Get demand forecasts
   - ✓ Validate trend values
@@ -118,6 +127,7 @@ uv run pytest --cov=../server --cov-report=html
 ## Dependencies
 
 Tests require the following packages (automatically installed with `uv sync`):
+
 - pytest >= 8.0.0
 - pytest-asyncio >= 0.23.0
 - httpx >= 0.27.0
@@ -132,6 +142,7 @@ Tests require the following packages (automatically installed with `uv sync`):
 5. Run tests to verify
 
 Example:
+
 ```python
 class TestNewEndpoint:
     def test_new_feature(self, client):

@@ -7,7 +7,12 @@
             <h3 class="modal-title">Inventory Item Details</h3>
             <button class="close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M15 5L5 15M5 5L15 15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -16,13 +21,33 @@
             <div class="item-header">
               <div class="item-icon" :class="getStockIconClass()">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                  <rect x="8" y="12" width="32" height="28" rx="2" stroke="currentColor" stroke-width="2.5"/>
-                  <path d="M16 8V16M32 8V16M8 20H40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                  <path d="M16 28H32M16 34H24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <rect
+                    x="8"
+                    y="12"
+                    width="32"
+                    height="28"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  />
+                  <path
+                    d="M16 8V16M32 8V16M8 20H40"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
+                  <path
+                    d="M16 28H32M16 34H24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </div>
               <div class="item-title-section">
-                <h4 class="item-name">{{ translateProductName(inventoryItem.name) }}</h4>
+                <h4 class="item-name">
+                  {{ translateProductName(inventoryItem.name) }}
+                </h4>
                 <div class="item-sku">SKU: {{ inventoryItem.sku }}</div>
               </div>
               <span class="stock-badge" :class="getStockStatusClass()">
@@ -33,7 +58,9 @@
             <div class="stock-summary">
               <div class="summary-card primary">
                 <div class="summary-label">Quantity on Hand</div>
-                <div class="summary-value">{{ inventoryItem.quantity_on_hand }} units</div>
+                <div class="summary-value">
+                  {{ inventoryItem.quantity_on_hand }} units
+                </div>
               </div>
               <div class="summary-card" :class="getSummaryCardClass()">
                 <div class="summary-label">Stock Level</div>
@@ -55,33 +82,57 @@
 
               <div class="info-item">
                 <div class="info-label">Reorder Point</div>
-                <div class="info-value">{{ inventoryItem.reorder_point }} units</div>
+                <div class="info-value">
+                  {{ inventoryItem.reorder_point }} units
+                </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Units Remaining</div>
                 <div class="info-value">
-                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#ef4444' : '#10b981' }">
-                    {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} units
+                  <span
+                    :style="{
+                      color:
+                        inventoryItem.quantity_on_hand <=
+                        inventoryItem.reorder_point
+                          ? '#ef4444'
+                          : '#10b981',
+                    }"
+                  >
+                    {{
+                      inventoryItem.quantity_on_hand -
+                      inventoryItem.reorder_point
+                    }}
+                    units
                   </span>
                 </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Unit Cost</div>
-                <div class="info-value">{{ currencySymbol }}{{ inventoryItem.unit_cost.toFixed(2) }}</div>
+                <div class="info-value">
+                  {{ currencySymbol }}{{ inventoryItem.unit_cost.toFixed(2) }}
+                </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Total Value</div>
                 <div class="info-value total-value">
-                  {{ currencySymbol }}{{ totalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
+                  {{ currencySymbol
+                  }}{{
+                    totalValue.toLocaleString(undefined, {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  }}
                 </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Warehouse</div>
-                <div class="info-value">{{ translateWarehouse(inventoryItem.location) }}</div>
+                <div class="info-value">
+                  {{ translateWarehouse(inventoryItem.location) }}
+                </div>
               </div>
 
               <div class="info-item">
@@ -105,73 +156,81 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useI18n } from '../composables/useI18n'
+import { computed } from "vue";
+import { useI18n } from "../composables/useI18n";
 
-const { currentCurrency, translateProductName, translateWarehouse } = useI18n()
+const { currentCurrency, translateProductName, translateWarehouse } = useI18n();
 
 const currencySymbol = computed(() => {
-  return currentCurrency.value === 'JPY' ? '¥' : '$'
-})
+  return currentCurrency.value === "JPY" ? "¥" : "$";
+});
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
+    default: false,
   },
   inventoryItem: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
 
 const totalValue = computed(() => {
-  if (!props.inventoryItem) return 0
-  return props.inventoryItem.quantity_on_hand * props.inventoryItem.unit_cost
-})
+  if (!props.inventoryItem) return 0;
+  return props.inventoryItem.quantity_on_hand * props.inventoryItem.unit_cost;
+});
 
 const stockPercentage = computed(() => {
-  if (!props.inventoryItem || props.inventoryItem.reorder_point === 0) return 0
-  return Math.round((props.inventoryItem.quantity_on_hand / props.inventoryItem.reorder_point) * 100)
-})
+  if (!props.inventoryItem || props.inventoryItem.reorder_point === 0) return 0;
+  return Math.round(
+    (props.inventoryItem.quantity_on_hand / props.inventoryItem.reorder_point) *
+      100,
+  );
+});
 
 const close = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const getStockStatus = () => {
-  if (!props.inventoryItem) return 'Unknown'
-  if (props.inventoryItem.quantity_on_hand <= props.inventoryItem.reorder_point) {
-    return 'Low Stock'
-  } else if (props.inventoryItem.quantity_on_hand <= props.inventoryItem.reorder_point * 1.5) {
-    return 'Adequate'
+  if (!props.inventoryItem) return "Unknown";
+  if (
+    props.inventoryItem.quantity_on_hand <= props.inventoryItem.reorder_point
+  ) {
+    return "Low Stock";
+  } else if (
+    props.inventoryItem.quantity_on_hand <=
+    props.inventoryItem.reorder_point * 1.5
+  ) {
+    return "Adequate";
   } else {
-    return 'In Stock'
+    return "In Stock";
   }
-}
+};
 
 const getStockStatusClass = () => {
-  const status = getStockStatus()
-  if (status === 'Low Stock') return 'danger'
-  if (status === 'Adequate') return 'warning'
-  return 'success'
-}
+  const status = getStockStatus();
+  if (status === "Low Stock") return "danger";
+  if (status === "Adequate") return "warning";
+  return "success";
+};
 
 const getStockIconClass = () => {
-  const status = getStockStatus()
-  if (status === 'Low Stock') return 'danger-icon'
-  if (status === 'Adequate') return 'warning-icon'
-  return 'success-icon'
-}
+  const status = getStockStatus();
+  if (status === "Low Stock") return "danger-icon";
+  if (status === "Adequate") return "warning-icon";
+  return "success-icon";
+};
 
 const getSummaryCardClass = () => {
-  const status = getStockStatus()
-  if (status === 'Low Stock') return 'danger-card'
-  if (status === 'Adequate') return 'warning-card'
-  return 'success-card'
-}
+  const status = getStockStatus();
+  if (status === "Low Stock") return "danger-card";
+  if (status === "Adequate") return "warning-card";
+  return "success-card";
+};
 </script>
 
 <style scoped>
@@ -287,7 +346,7 @@ const getSummaryCardClass = () => {
 .item-sku {
   font-size: 0.875rem;
   color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: "Monaco", "Courier New", monospace;
 }
 
 .stock-badge {

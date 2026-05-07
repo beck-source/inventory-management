@@ -1,3 +1,5 @@
+import datetime
+from math import ceil
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -13,6 +15,24 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Per-warehouse fixed lead times for restocking. Picked to roughly match
+# transit-time expectations from each region's primary supplier hub.
+LEAD_TIMES = {
+    "San Francisco": 7,
+    "London": 14,
+    "Tokyo": 21,
+}
+
+# In-memory state for restocking submissions. Matches the rest of the demo:
+# nothing persists across restarts, mock data resets to JSON on reload.
+submitted_orders: List[dict] = []
+_submitted_seq = 0
+
+# In-memory task list. Same volatile pattern as submitted_orders — wiped on
+# restart. Frontend merges these with mock tasks from useAuth.js.
+tasks: List[dict] = []
+_task_seq = 0
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -119,6 +139,62 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class SubmittedOrderLine(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+
+class SubmittedOrder(BaseModel):
+    id: str
+    warehouse: str
+    items: List[SubmittedOrderLine]
+    total_value: float
+    submitted_date: str
+    expected_delivery_date: str
+    lead_time_days: int
+    status: str = "Submitted"
+
+class RestockingRecommendation(BaseModel):
+    sku: str
+    name: str
+    warehouse: str
+    category: str
+    unit_cost: float
+    quantity_on_hand: int
+    reorder_point: int
+    forecasted_demand: int
+    trend: Optional[str] = None
+    tier: int
+    shortfall: int
+    urgency: str
+    recommended_quantity: int
+    line_total: float
+
+class RestockingCartItem(BaseModel):
+    sku: str
+    quantity: int
+
+class CreateRestockingRequest(BaseModel):
+    items: List[RestockingCartItem]
+    budget: float
+
+# Task fields use camelCase (dueDate, not due_date) to match the frontend
+# shape — App.vue merges these with mock tasks from useAuth.js which already
+# use camelCase, so renaming server-side would force a frontend rewrite.
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str = "medium"
+    dueDate: str
 
 # API endpoints
 @app.get("/")
@@ -303,6 +379,186 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+def compute_recommendations(budget: float) -> List[dict]:
+    """Build a budget-bounded restocking plan."""
+    # Tiered priority + greedy fill. We sort all candidates into 3 tiers:
+    #   tier 1 = qty_on_hand below reorder_point (urgent stockout risk)
+    #   tier 2 = trend == 'increasing' (rising demand, plan ahead)
+    #   tier 3 = trend == 'stable' (steady-state restock)
+    # Items with trend == 'decreasing' are intentionally skipped — never
+    # buy more of something demand is dropping for.
+    demand_by_sku = {d["item_sku"]: d for d in demand_forecasts}
+    candidates = []
+    for item in inventory_items:
+        sku = item["sku"]
+        forecast = demand_by_sku.get(sku)
+        trend = forecast.get("trend") if forecast else None
+
+        if item["quantity_on_hand"] < item["reorder_point"]:
+            tier, urgency = 1, "urgent"
+            shortfall = item["reorder_point"] - item["quantity_on_hand"]
+        elif trend == "increasing":
+            tier, urgency = 2, "rising"
+            shortfall = 0
+        elif trend == "stable":
+            tier, urgency = 3, "stable"
+            shortfall = 0
+        else:
+            continue
+
+        forecasted = forecast["forecasted_demand"] if forecast else 0
+        # Recommended qty: enough to refill below-reorder gaps OR cover ~1/3
+        # of the next forecast window, whichever is larger. Floor at 1.
+        recommended_qty = max(
+            item["reorder_point"] - item["quantity_on_hand"],
+            ceil(forecasted / 3) if forecasted else 1,
+            1,
+        )
+
+        candidates.append({
+            "sku": sku,
+            "name": item["name"],
+            "warehouse": item["warehouse"],
+            "category": item["category"],
+            "unit_cost": item["unit_cost"],
+            "quantity_on_hand": item["quantity_on_hand"],
+            "reorder_point": item["reorder_point"],
+            "forecasted_demand": forecasted,
+            "trend": trend,
+            "tier": tier,
+            "shortfall": shortfall,
+            "urgency": urgency,
+            "recommended_quantity": recommended_qty,
+            "line_total": round(recommended_qty * item["unit_cost"], 2),
+        })
+
+    # Sort by tier asc; within tier, biggest shortfall first, then highest
+    # forecasted demand. This pushes the most-at-risk SKUs to the top.
+    candidates.sort(key=lambda c: (c["tier"], -c["shortfall"], -c["forecasted_demand"]))
+
+    # Greedy fill: take a candidate if it fits; if not, try buying a
+    # smaller (still >=1) quantity at the same unit cost. Continue past
+    # misses — later candidates may be cheaper and still fit.
+    selected = []
+    remaining = budget
+    for c in candidates:
+        if c["line_total"] <= remaining:
+            selected.append(c)
+            remaining -= c["line_total"]
+            continue
+        max_qty = int(remaining // c["unit_cost"])
+        if max_qty >= 1:
+            partial = dict(c)
+            partial["recommended_quantity"] = max_qty
+            partial["line_total"] = round(max_qty * c["unit_cost"], 2)
+            selected.append(partial)
+            remaining -= partial["line_total"]
+    return selected
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(budget: float = 100000.0):
+    """Compute restocking candidates that fit within budget."""
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be non-negative")
+    return compute_recommendations(budget)
+
+@app.get("/api/restocking/orders", response_model=List[SubmittedOrder])
+def get_submitted_orders():
+    """Return all restocking orders submitted in this server session."""
+    return submitted_orders
+
+@app.post("/api/restocking/orders", response_model=List[SubmittedOrder])
+def create_restocking_orders(req: CreateRestockingRequest):
+    """Submit a restocking cart. Returns one order per touched warehouse."""
+    global _submitted_seq
+    if not req.items:
+        raise HTTPException(status_code=400, detail="Cart is empty")
+
+    inventory_by_sku = {item["sku"]: item for item in inventory_items}
+
+    # Group by warehouse — lead time is per-warehouse, so each warehouse
+    # gets its own SubmittedOrder with its own ETA. One click can produce
+    # multiple orders if the cart spans warehouses.
+    by_warehouse: dict = {}
+    for cart_item in req.items:
+        item = inventory_by_sku.get(cart_item.sku)
+        if not item:
+            raise HTTPException(status_code=400, detail=f"Unknown SKU: {cart_item.sku}")
+        if cart_item.quantity < 1:
+            raise HTTPException(status_code=400, detail=f"Quantity must be >= 1 for {cart_item.sku}")
+        warehouse = item["warehouse"]
+        line = {
+            "sku": cart_item.sku,
+            "name": item["name"],
+            "quantity": cart_item.quantity,
+            "unit_cost": item["unit_cost"],
+            "line_total": round(cart_item.quantity * item["unit_cost"], 2),
+        }
+        by_warehouse.setdefault(warehouse, []).append(line)
+
+    today = datetime.date.today()
+    new_orders = []
+    for warehouse, lines in by_warehouse.items():
+        _submitted_seq += 1
+        # Fallback to 14 days for any warehouse not in LEAD_TIMES (defensive
+        # only — current data has just SF/London/Tokyo).
+        lead_days = LEAD_TIMES.get(warehouse, 14)
+        eta = today + datetime.timedelta(days=lead_days)
+        order = {
+            "id": f"SUB-{_submitted_seq:03d}",
+            "warehouse": warehouse,
+            "items": lines,
+            "total_value": round(sum(l["line_total"] for l in lines), 2),
+            "submitted_date": today.isoformat(),
+            "expected_delivery_date": eta.isoformat(),
+            "lead_time_days": lead_days,
+            "status": "Submitted",
+        }
+        submitted_orders.append(order)
+        new_orders.append(order)
+
+    return new_orders
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all API-created tasks (mock tasks live client-side in useAuth.js)."""
+    return tasks
+
+@app.post("/api/tasks", response_model=Task)
+def create_task(req: CreateTaskRequest):
+    """Create a new task. New tasks always start in 'pending' status."""
+    global _task_seq
+    _task_seq += 1
+    # Prefix distinguishes API-created tasks from mock ones; App.vue routes
+    # delete/toggle calls based on whether the id is found in the mock list.
+    task = {
+        "id": f"task-api-{_task_seq:03d}",
+        "title": req.title,
+        "priority": req.priority,
+        "dueDate": req.dueDate,
+        "status": "pending",
+    }
+    tasks.append(task)
+    return task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    """Delete a task by id. Mock tasks are removed client-side, never reach here."""
+    idx = next((i for i, t in enumerate(tasks) if t["id"] == task_id), None)
+    if idx is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    tasks.pop(idx)
+    return {"success": True}
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Flip a task between 'pending' and 'completed'."""
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
 
 if __name__ == "__main__":
     import uvicorn

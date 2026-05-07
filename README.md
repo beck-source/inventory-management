@@ -22,6 +22,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 ## Quick Start
 
 **One-command startup:**
+
 ```bash
 ./scripts/start.sh
 # Starts both backend and frontend
@@ -33,6 +34,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 **Manual startup:**
 
 Backend:
+
 ```bash
 cd server
 uv venv && uv sync
@@ -40,6 +42,7 @@ uv run python main.py
 ```
 
 Frontend:
+
 ```bash
 cd client
 npm install
@@ -60,6 +63,7 @@ All endpoints support optional filtering via query params: `warehouse`, `categor
 ## Demo Data
 
 Mock data includes:
+
 - Inventory items (Circuit Boards, Sensors, Actuators, Controllers)
 - Orders spanning 12 months (Delivered, Shipped, Processing, Backordered)
 - Demand forecasts with trends
@@ -82,6 +86,7 @@ npm run build  # Output: client/dist/
 **Windows:** The shell scripts in `scripts/` are macOS/Linux only. Use the manual startup commands instead — run each in a separate terminal:
 
 Backend:
+
 ```bash
 cd server
 uv venv && uv sync
@@ -89,6 +94,7 @@ uv run python main.py
 ```
 
 Frontend:
+
 ```bash
 cd client
 npm install

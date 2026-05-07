@@ -7,7 +7,12 @@
             <h3 class="modal-title">Product Details</h3>
             <button class="close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M15 5L5 15M5 5L15 15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -16,15 +21,31 @@
             <div class="product-header">
               <div class="product-icon">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                  <rect x="8" y="12" width="32" height="28" rx="2" stroke="currentColor" stroke-width="2.5"/>
-                  <path d="M16 8V16M32 8V16M8 20H40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <rect
+                    x="8"
+                    y="12"
+                    width="32"
+                    height="28"
+                    rx="2"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  />
+                  <path
+                    d="M16 8V16M32 8V16M8 20H40"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                  />
                 </svg>
               </div>
               <div class="product-title-section">
                 <h4 class="product-name">{{ product.name }}</h4>
                 <div class="product-sku">SKU: {{ product.sku }}</div>
               </div>
-              <span class="stock-badge" :class="getStockBadgeClass(product.stockLevel)">
+              <span
+                class="stock-badge"
+                :class="getStockBadgeClass(product.stockLevel)"
+              >
                 {{ product.stockLevel }}
               </span>
             </div>
@@ -47,7 +68,9 @@
 
               <div class="info-item">
                 <div class="info-label">Total Revenue</div>
-                <div class="info-value">{{ currencySymbol }}{{ product.revenue.toLocaleString() }}</div>
+                <div class="info-value">
+                  {{ currencySymbol }}{{ product.revenue.toLocaleString() }}
+                </div>
               </div>
 
               <div class="info-item">
@@ -62,13 +85,17 @@
 
               <div class="info-item">
                 <div class="info-label">First Order Date</div>
-                <div class="info-value">{{ formatDate(product.firstOrderDate) }}</div>
+                <div class="info-value">
+                  {{ formatDate(product.firstOrderDate) }}
+                </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Stock Status</div>
                 <div class="info-value">
-                  <span :class="['badge', getStockBadgeClass(product.stockLevel)]">
+                  <span
+                    :class="['badge', getStockBadgeClass(product.stockLevel)]"
+                  >
                     {{ product.stockLevel }}
                   </span>
                 </div>
@@ -86,48 +113,48 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useI18n } from '../composables/useI18n'
+import { computed } from "vue";
+import { useI18n } from "../composables/useI18n";
 
-const { currentCurrency } = useI18n()
+const { currentCurrency } = useI18n();
 
 const currencySymbol = computed(() => {
-  return currentCurrency.value === 'JPY' ? '¥' : '$'
-})
+  return currentCurrency.value === "JPY" ? "¥" : "$";
+});
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
+    default: false,
   },
   product: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
 
 const close = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
 const getStockBadgeClass = (stockLevel) => {
-  if (stockLevel === 'In Stock') return 'success'
-  if (stockLevel === 'Low Stock') return 'warning'
-  if (stockLevel === 'Out of Stock') return 'danger'
-  return 'info'
-}
+  if (stockLevel === "In Stock") return "success";
+  if (stockLevel === "Low Stock") return "warning";
+  if (stockLevel === "Out of Stock") return "danger";
+  return "info";
+};
 </script>
 
 <style scoped>
@@ -232,7 +259,7 @@ const getStockBadgeClass = (stockLevel) => {
 .product-sku {
   font-size: 0.875rem;
   color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: "Monaco", "Courier New", monospace;
 }
 
 .stock-badge {

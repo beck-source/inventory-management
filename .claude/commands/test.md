@@ -10,6 +10,7 @@ Run the complete test suite for this application:
 4. **Type Checking**: Verify TypeScript/JavaScript types (if configured)
 
 Please execute the tests and provide a comprehensive report including:
+
 - Total tests run and results (pass/fail)
 - Any errors or warnings found
 - Code coverage metrics (if available)
@@ -17,6 +18,7 @@ Please execute the tests and provide a comprehensive report including:
 - Suggestions for fixing any failures
 
 If tests don't exist yet, offer to create a basic test suite for:
+
 - API endpoint testing (backend)
 - Component testing (frontend)
 - Integration tests using Playwright

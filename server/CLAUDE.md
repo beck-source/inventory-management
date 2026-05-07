@@ -16,12 +16,14 @@ uv run python main.py
 ### API Design Principles
 
 **RESTful Design:**
+
 - Use appropriate HTTP methods (GET for retrieval, POST for creation, etc.)
 - Return proper status codes (200, 201, 404, 400, 500)
 - Use plural nouns for resource endpoints (`/api/orders`, not `/api/order`)
 - Keep URLs simple and predictable
 
 **Request/Response:**
+
 - Always validate input with Pydantic models
 - Return consistent response structure
 - Include error details in error responses
@@ -30,6 +32,7 @@ uv run python main.py
 ### Adding New Endpoints
 
 **Process:**
+
 1. Define Pydantic model for data validation
 2. Create endpoint function with clear name
 3. Add route decorator with explicit path
@@ -38,6 +41,7 @@ uv run python main.py
 6. Write tests in `tests/backend/`
 
 **Example Pattern:**
+
 ```python
 class MyModel(BaseModel):
     id: str
@@ -64,6 +68,7 @@ def get_resources(
 ### Data Model Best Practices
 
 **Pydantic Models:**
+
 - Define once, use everywhere
 - Make optional fields explicitly `Optional[Type]`
 - Use descriptive field names
@@ -71,6 +76,7 @@ def get_resources(
 - Keep models close to their usage
 
 **Model Updates:**
+
 - When adding fields to JSON data, update Pydantic models
 - When removing fields, mark as Optional first, then remove
 - Consider backwards compatibility
@@ -79,6 +85,7 @@ def get_resources(
 ### Filtering Best Practices
 
 **Standard Pattern:**
+
 - Accept filter parameters as optional query params
 - Check for 'all' value and skip that filter
 - Use lowercase comparison for case-insensitive matching
@@ -86,6 +93,7 @@ def get_resources(
 - Don't mutate original data - filter on copies
 
 **Filter Implementation:**
+
 ```python
 def filter_data(data, warehouse=None, category=None):
     """Filter data by multiple criteria."""
@@ -103,6 +111,7 @@ def filter_data(data, warehouse=None, category=None):
 ```
 
 **Date/Time Filtering:**
+
 - Support both direct month match (2025-01) and quarters (Q1-2025)
 - Parse date strings safely
 - Handle missing/null dates gracefully
@@ -111,6 +120,7 @@ def filter_data(data, warehouse=None, category=None):
 ### Error Handling
 
 **Use HTTPException:**
+
 ```python
 from fastapi import HTTPException
 
@@ -126,6 +136,7 @@ def get_item(item_id: str):
 ```
 
 **Best Practices:**
+
 - Return 404 for "not found" errors
 - Return 400 for bad input/validation errors
 - Return 500 for server errors (let FastAPI handle these)
@@ -135,18 +146,21 @@ def get_item(item_id: str):
 ### Mock Data Management
 
 **Pattern:**
+
 - Load all data from JSON files at startup
 - Data lives in memory during server runtime
 - Changes don't persist (restart reloads from files)
 - Keep JSON files well-formatted and validated
 
 **Adding New Data:**
+
 1. Update JSON file in `server/data/`
 2. Update Pydantic model if structure changed
 3. Restart server to reload data
 4. Verify with API docs (/docs endpoint)
 
 **Data Consistency:**
+
 - Ensure SKUs in orders reference valid inventory items
 - Keep category names consistent across data files
 - Use same date format everywhere
@@ -155,18 +169,21 @@ def get_item(item_id: str):
 ### CORS Configuration
 
 **Development:**
+
 - Allow all origins during development (`allow_origins=["*"]`)
 - Useful for frontend dev server on different port
 
 **Production:**
+
 - Restrict to specific origins only
 - Example: `allow_origins=["https://yourdomain.com"]`
-- Never use wildcard (*) in production
+- Never use wildcard (\*) in production
 - Configure based on deployment environment
 
 ### Testing API Endpoints
 
 **Using FastAPI Docs:**
+
 1. Start server
 2. Navigate to http://localhost:8001/docs
 3. Click endpoint to expand
@@ -175,6 +192,7 @@ def get_item(item_id: str):
 6. Execute and verify response
 
 **Using pytest:**
+
 ```python
 def test_endpoint(client):
     response = client.get("/api/endpoint?param=value")
@@ -185,6 +203,7 @@ def test_endpoint(client):
 ```
 
 **What to Test:**
+
 - Successful requests return 200
 - Invalid IDs return 404
 - Filters work correctly
@@ -195,12 +214,14 @@ def test_endpoint(client):
 ### Performance Considerations
 
 **In-Memory Data:**
+
 - Fast reads (no database queries)
 - No indexing needed for demo
 - All filtering happens in Python
 - Reasonable for small datasets (<10K items)
 
 **If Scaling:**
+
 - Add database (PostgreSQL, MongoDB)
 - Implement pagination
 - Add caching layer (Redis)
@@ -210,12 +231,14 @@ def test_endpoint(client):
 ### Code Organization
 
 **When to Extract:**
+
 - Filtering logic used in multiple endpoints → Extract to utility function
 - Complex business logic → Move to separate module
 - Data validation beyond Pydantic → Create custom validators
 - Repeated calculations → Extract to helper functions
 
 **Module Structure for Growth:**
+
 ```
 server/
 ├── main.py           # API endpoints only
@@ -231,6 +254,7 @@ server/
 ### Common Pitfalls
 
 **Avoid:**
+
 - ❌ Mutating global data (filter on copies)
 - ❌ Missing Pydantic model updates when JSON changes
 - ❌ Inconsistent filter parameter names across endpoints
@@ -238,6 +262,7 @@ server/
 - ❌ Not handling None/null values in data
 
 **Do:**
+
 - ✅ Validate all input with Pydantic
 - ✅ Return typed responses (response_model)
 - ✅ Handle optional parameters gracefully
@@ -247,6 +272,7 @@ server/
 ### Debugging
 
 **Techniques:**
+
 - Use FastAPI's automatic docs for quick testing
 - Print statements in endpoint functions (shows in terminal)
 - Check Pydantic validation errors in response
@@ -254,6 +280,7 @@ server/
 - Review JSON data files for structure issues
 
 **Common Issues:**
+
 - Data not loading → Check JSON file path
 - Validation errors → Verify Pydantic model matches data
 - Empty results → Check filter logic and data
@@ -262,6 +289,7 @@ server/
 ### Security Notes
 
 **For Production:**
+
 - Add authentication/authorization
 - Validate and sanitize all input
 - Use HTTPS only
@@ -271,6 +299,7 @@ server/
 - Never commit secrets to git
 
 **Current State:**
+
 - No authentication (demo only)
 - CORS allows all origins
 - No rate limiting
