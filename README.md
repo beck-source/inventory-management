@@ -8,7 +8,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 
 - **Frontend**: Vue 3 + Vite (port 3000)
 - **Backend**: Python FastAPI (port 8001)
-- **Data**: In-memory mock data (no database)
+- **Data**: In-memory mock data (no database)    
 
 ## Features
 
