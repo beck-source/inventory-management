@@ -1,6 +1,6 @@
 # Factory Inventory Management System
 
-A full-stack demo application for a Claude Code workshop — inventory management, order tracking, demand forecasting, and analytics for factory operations.
+A full-stack demo application for a Claude Code workshop — inventory management, order tracking, demand forecasting, and analytics for factory operations.  
 
 ![Dashboard](docs/dashboard-screenshot.png)
 
