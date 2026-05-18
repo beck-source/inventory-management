@@ -3,8 +3,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import uuid
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# In-memory restock orders — resets on server restart, consistent with other data
+restock_orders: list = []
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -119,6 +124,27 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderItem]
+    total_cost: float
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    budget: float
+    items: List[RestockOrderItem]
+    total_cost: float
+    status: str
+    created_date: str
+    expected_delivery: str  # created_date + 14 days
 
 # API endpoints
 @app.get("/")
@@ -303,6 +329,78 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restock/recommendations")
+def get_restock_recommendations(budget: float = 0.0):
+    """
+    Greedy restock recommendations for a given budget.
+    Sort order: increasing trend first, then stable, then decreasing.
+    Quantity per item = forecasted_demand - current_demand (gap).
+    Items with gap <= 0 are skipped.
+    Unit cost is looked up from inventory by SKU; fallback is $50 if no match.
+    """
+    TREND_ORDER = {'increasing': 0, 'stable': 1, 'decreasing': 2}
+    UNIT_COST_FALLBACK = 50.0
+
+    # Build SKU -> unit_cost lookup from inventory
+    sku_cost_map = {item['sku']: item['unit_cost'] for item in inventory_items}
+
+    candidates = [
+        f for f in demand_forecasts
+        if f['forecasted_demand'] - f['current_demand'] > 0
+    ]
+    candidates.sort(key=lambda f: TREND_ORDER.get(f['trend'], 99))
+
+    recommendations = []
+    total_cost = 0.0
+
+    for forecast in candidates:
+        qty = forecast['forecasted_demand'] - forecast['current_demand']
+        unit_cost = sku_cost_map.get(forecast['item_sku'], UNIT_COST_FALLBACK)
+        line_total = qty * unit_cost
+        # Greedy: include the full line or skip — no partial quantities
+        if total_cost + line_total <= budget:
+            recommendations.append({
+                'item_sku': forecast['item_sku'],
+                'item_name': forecast['item_name'],
+                'trend': forecast['trend'],
+                'current_demand': forecast['current_demand'],
+                'forecasted_demand': forecast['forecasted_demand'],
+                'restock_quantity': qty,
+                'unit_cost': unit_cost,
+                'line_total': round(line_total, 2),
+            })
+            total_cost += line_total
+
+    return {
+        'budget': budget,
+        'total_cost': round(total_cost, 2),
+        'remaining_budget': round(budget - total_cost, 2),
+        'recommendations': recommendations,
+    }
+
+@app.post("/api/restock/orders", status_code=201)
+def create_restock_order(order_request: CreateRestockOrderRequest):
+    """Create a restock order; expected delivery is 14 days from submission."""
+    now = datetime.utcnow()
+    expected = now + timedelta(days=14)
+    order = {
+        'id': str(uuid.uuid4()),
+        'order_number': f"RST-{now.strftime('%Y%m%d')}-{str(uuid.uuid4())[:4].upper()}",
+        'budget': order_request.budget,
+        'items': [item.model_dump() for item in order_request.items],
+        'total_cost': order_request.total_cost,
+        'status': 'Submitted',
+        'created_date': now.isoformat(),
+        'expected_delivery': expected.isoformat(),
+    }
+    restock_orders.append(order)
+    return order
+
+@app.get("/api/restock/orders")
+def get_restock_orders():
+    """Return all submitted restock orders, newest first."""
+    return list(reversed(restock_orders))
 
 if __name__ == "__main__":
     import uvicorn

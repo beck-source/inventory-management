@@ -8,6 +8,39 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted restock orders — shown only when at least one exists -->
+      <div v-if="restockOrders.length > 0" class="card restock-section">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restock Orders ({{ restockOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="restock-orders-table">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th class="num-col">Items</th>
+                <th class="num-col">Budget</th>
+                <th class="num-col">Total Cost</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Expected Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockOrders" :key="order.id">
+                <td><strong class="mono">{{ order.order_number }}</strong></td>
+                <td class="num-col">{{ order.items.length }} item(s)</td>
+                <td class="num-col">{{ formatCurrency(order.budget) }}</td>
+                <td class="num-col"><strong>{{ formatCurrency(order.total_cost) }}</strong></td>
+                <td><span class="badge info">{{ order.status }}</span></td>
+                <td>{{ formatDate(order.created_date) }}</td>
+                <td><strong>{{ formatDate(order.expected_delivery) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +128,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockOrders = ref([])
 
     // Use shared filters
     const {
@@ -123,6 +157,17 @@ export default {
         loading.value = false
       }
     }
+
+    const loadRestockOrders = async () => {
+      try {
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        console.error('Failed to load restock orders:', err)
+      }
+    }
+
+    const formatCurrency = (val) =>
+      Number(val).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
@@ -153,16 +198,21 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatCurrency,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -172,108 +222,46 @@ export default {
 </script>
 
 <style scoped>
-/* Fixed table layout to prevent column shifting */
-.orders-table {
-  table-layout: fixed;
-  width: 100%;
-}
+.orders-table { table-layout: fixed; width: 100%; }
+.col-order-number { width: 130px; }
+.col-customer { width: 180px; }
+.col-items { width: 200px; }
+.col-status { width: 130px; }
+.col-date { width: 140px; }
+.col-value { width: 120px; }
 
-/* Column widths */
-.col-order-number {
-  width: 130px;
-}
-
-.col-customer {
-  width: 180px;
-}
-
-.col-items {
-  width: 200px;
-}
-
-.col-status {
-  width: 130px;
-}
-
-.col-date {
-  width: 140px;
-}
-
-.col-value {
-  width: 120px;
-}
-
-/* Items details styling */
-.items-details {
-  position: relative;
-}
-
+.items-details { position: relative; }
 .items-summary {
-  cursor: pointer;
-  color: #3b82f6;
-  font-weight: 500;
-  list-style: none;
-  user-select: none;
-  display: inline-block;
+  cursor: pointer; color: var(--color-accent);
+  font-family: var(--font-mono); font-size: 0.75rem;
+  font-weight: 500; list-style: none;
+  user-select: none; display: inline-block; letter-spacing: 0.02em;
 }
-
-.items-summary::-webkit-details-marker {
-  display: none;
-}
-
+.items-summary::-webkit-details-marker { display: none; }
 .items-summary::before {
-  content: '▶';
-  display: inline-block;
-  margin-right: 0.375rem;
-  font-size: 0.75rem;
-  transition: transform 0.2s;
+  content: '▶'; display: inline-block; margin-right: 0.375rem;
+  font-size: 0.625rem; transition: transform 0.15s;
 }
+.items-details[open] .items-summary::before { transform: rotate(90deg); }
+.items-summary:hover { color: #33deff; }
 
-.items-details[open] .items-summary::before {
-  transform: rotate(90deg);
-}
-
-.items-summary:hover {
-  color: #2563eb;
-  text-decoration: underline;
-}
-
-/* Dropdown container */
 .items-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 0.75rem;
-  z-index: 10;
-  min-width: 300px;
-  max-width: 400px;
+  position: absolute; top: 100%; left: 0; margin-top: 0.375rem;
+  background: var(--color-bg-overlay);
+  border: 1px solid var(--color-border); border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4); padding: 0.5rem;
+  z-index: 10; min-width: 280px; max-width: 380px;
 }
-
 .item-entry {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  display: flex; flex-direction: column; gap: 0.125rem;
+  padding: 0.4rem 0.5rem; border-bottom: 1px solid var(--color-border-subtle);
 }
+.item-entry:last-child { border-bottom: none; }
+.item-name { font-size: 0.8rem; font-weight: 500; color: var(--color-text-primary); }
+.item-meta { font-family: var(--font-mono); font-size: 0.7rem; color: var(--color-text-muted); }
 
-.item-entry:last-child {
-  border-bottom: none;
-}
-
-.item-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
-}
-
-.item-meta {
-  font-size: 0.813rem;
-  color: #64748b;
-}
+.restock-section { border-left: 3px solid var(--color-accent); margin-bottom: 1rem; }
+.mono { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.02em; }
+.num-col { text-align: right; font-family: var(--font-mono); }
+.restock-orders-table { width: 100%; }
 </style>
