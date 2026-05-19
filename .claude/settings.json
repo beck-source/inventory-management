@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "epcc-workflow@aws-claude-code-plugins": true
+  }
+}

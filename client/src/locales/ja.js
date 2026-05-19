@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +107,10 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedSection: '送信済み発注',
+    submittedDate: '送信日',
+    leadTime: 'リードタイム',
+    leadTimeDays: '{days}日',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -127,6 +132,40 @@ export default {
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、在庫不足と需要予測に基づいた補充注文を送信します。',
+    budgetCard: {
+      title: '利用可能予算',
+      help: 'スライダーで予算を設定すると、優先度の高い品目から自動で選択されます。',
+      selected: '選択合計',
+      itemsSelected: '{count}件選択中',
+      utilization: '予算使用率',
+      noCandidates: '再注文点を下回る品目はありません。後で再度ご確認ください。'
+    },
+    table: {
+      title: '推奨品目',
+      sku: 'SKU',
+      name: '品目',
+      warehouse: '倉庫',
+      currentStock: '手持在庫',
+      reorderPoint: '再注文点',
+      trending: 'トレンド',
+      qty: '補充数量',
+      unitCost: '単価',
+      subtotal: '小計',
+      leadTime: 'リードタイム'
+    },
+    trendingBadge: '需要増',
+    skippedLabel: '予算超過',
+    placeOrder: '発注する',
+    placing: '送信中...',
+    successToast: '注文 {orderNumber} を送信しました。納期予定: {expected}',
+    errorToast: '発注に失敗しました。再度お試しください。',
+    viewInOrders: '注文タブで確認'
   },
 
   // Finance/Spending

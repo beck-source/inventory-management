@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,10 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedSection: 'Submitted Orders',
+    submittedDate: 'Submitted',
+    leadTime: 'Lead Time',
+    leadTimeDays: '{days} days',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -127,6 +132,40 @@ export default {
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and submit a restocking order built from inventory shortfalls and forecasted demand.',
+    budgetCard: {
+      title: 'Available Budget',
+      help: 'Move the slider to set how much you want to spend. Items are auto-selected by priority.',
+      selected: 'Selected total',
+      itemsSelected: '{count} items selected',
+      utilization: 'Budget used',
+      noCandidates: 'No items below their reorder point. Lower thresholds or restock later.'
+    },
+    table: {
+      title: 'Recommended Items',
+      sku: 'SKU',
+      name: 'Item',
+      warehouse: 'Warehouse',
+      currentStock: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      trending: 'Trending',
+      qty: 'Restock Qty',
+      unitCost: 'Unit Cost',
+      subtotal: 'Subtotal',
+      leadTime: 'Lead Time'
+    },
+    trendingBadge: 'Trending',
+    skippedLabel: 'Over budget',
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    successToast: 'Order {orderNumber} submitted. Expected by {expected}.',
+    errorToast: 'Could not submit order. Please try again.',
+    viewInOrders: 'View in Orders'
   },
 
   // Finance/Spending
