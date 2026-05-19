@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, submitted_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -66,6 +67,7 @@ class InventoryItem(BaseModel):
     reorder_point: int
     unit_cost: float
     location: str
+    lead_time_days: int
     last_updated: str
 
 class Order(BaseModel):
@@ -119,6 +121,42 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class SubmittedOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    lead_time_days: int
+
+class SubmittedOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[SubmittedOrderItem]
+    total_value: float
+    budget: float
+    submitted_date: str
+    expected_delivery: str
+    max_lead_time_days: int
+    status: str
+
+class CreateSubmittedOrderRequest(BaseModel):
+    items: List[SubmittedOrderItem]
+    budget: float
+
+# Tasks use camelCase `dueDate` to match the frontend (TasksModal.vue, App.vue),
+# unlike most snake_case fields elsewhere in this API.
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str
+    dueDate: str
 
 # API endpoints
 @app.get("/")
@@ -178,6 +216,89 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.get("/api/submitted-orders", response_model=List[SubmittedOrder])
+def get_submitted_orders():
+    """Get all submitted restocking orders (newest first)."""
+    # Return a copy in reverse-chronological order without mutating storage.
+    return list(reversed(submitted_orders))
+
+@app.post("/api/submitted-orders", response_model=SubmittedOrder, status_code=201)
+def create_submitted_order(req: CreateSubmittedOrderRequest):
+    """Create a new submitted restocking order from a list of items + budget."""
+    if not req.items:
+        raise HTTPException(status_code=400, detail="At least one item is required")
+
+    total_value = round(sum(it.quantity * it.unit_cost for it in req.items), 2)
+    if total_value > req.budget:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Total value {total_value} exceeds budget {req.budget}"
+        )
+
+    max_lead = max(it.lead_time_days for it in req.items)
+    submitted_at = datetime.now()
+    expected_at = submitted_at + timedelta(days=max_lead)
+
+    new_id = str(len(submitted_orders) + 1)
+    order_number = f"RST-{submitted_at.year}-{int(new_id):04d}"
+
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "items": [it.model_dump() for it in req.items],
+        "total_value": total_value,
+        "budget": req.budget,
+        "submitted_date": submitted_at.isoformat(timespec='seconds'),
+        "expected_delivery": expected_at.isoformat(timespec='seconds'),
+        "max_lead_time_days": max_lead,
+        "status": "Submitted",
+    }
+    submitted_orders.append(new_order)
+    return new_order
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all user tasks created via the API (newest first)."""
+    # Reverse without mutating storage so newest entries surface first.
+    return list(reversed(tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(req: CreateTaskRequest):
+    """Create a new task. ID is prefixed with 'task-' so it cannot collide
+    with the frontend's hardcoded numeric mock task IDs (1-4 in useAuth.js)."""
+    if not req.title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
+    if req.priority not in ("high", "medium", "low"):
+        raise HTTPException(status_code=400, detail="Priority must be high, medium, or low")
+
+    new_task = {
+        "id": f"task-{int(datetime.now().timestamp() * 1000)}",
+        "title": req.title.strip(),
+        "priority": req.priority,
+        "dueDate": req.dueDate,
+        "status": "pending",
+    }
+    tasks.append(new_task)
+    return new_task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    """Delete a task by ID."""
+    index = next((i for i, t in enumerate(tasks) if t["id"] == task_id), None)
+    if index is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    tasks.pop(index)
+    return {"success": True, "id": task_id}
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task's status between 'pending' and 'completed'."""
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(

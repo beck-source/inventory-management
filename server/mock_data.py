@@ -35,5 +35,11 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Load submitted restocking orders (empty seed; appended at runtime)
+submitted_orders = load_json_file('submitted_orders.json')
+
+# Load user tasks (empty seed; appended at runtime via /api/tasks)
+tasks = load_json_file('tasks.json')
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
