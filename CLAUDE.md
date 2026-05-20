@@ -2,6 +2,9 @@
 
 Factory Inventory Management System Demo with GitHub integration - Full-stack application with Vue 3 frontend, Python FastAPI backend, and in-memory mock data (no database).
 
+## Coding Conventions
+- Always document non-obvious logic changes with comments
+
 ## Critical Tool Usage Rules
 
 ### Subagents

@@ -1,8 +1,11 @@
+from datetime import datetime
+from uuid import uuid4
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, submitted_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -67,6 +70,7 @@ class InventoryItem(BaseModel):
     unit_cost: float
     location: str
     last_updated: str
+    lead_time_days: int
 
 class Order(BaseModel):
     id: str
@@ -119,6 +123,26 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class SubmittedOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    lead_time_days: int
+
+class SubmittedOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[SubmittedOrderItem]
+    total_value: float
+    max_lead_time_days: int
+    submitted_at: str
+    status: str
+
+class CreateSubmittedOrderRequest(BaseModel):
+    items: List[SubmittedOrderItem]
+    budget: float
 
 # API endpoints
 @app.get("/")
@@ -303,6 +327,33 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/submitted-orders", response_model=List[SubmittedOrder])
+def get_submitted_orders():
+    """Return restocking orders submitted via the Restocking tab, newest first."""
+    return list(reversed(submitted_orders))
+
+@app.post("/api/submitted-orders", response_model=SubmittedOrder, status_code=201)
+def create_submitted_order(payload: CreateSubmittedOrderRequest):
+    """Record a new restocking order. Persists in-memory only."""
+    if not payload.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item.")
+
+    total_value = sum(item.quantity * item.unit_cost for item in payload.items)
+    if total_value > payload.budget + 1e-6:
+        raise HTTPException(status_code=400, detail="Order total exceeds provided budget.")
+
+    order = SubmittedOrder(
+        id=f"SO-{uuid4().hex[:8].upper()}",
+        order_number=f"RSO-{len(submitted_orders) + 1:04d}",
+        items=payload.items,
+        total_value=round(total_value, 2),
+        max_lead_time_days=max(item.lead_time_days for item in payload.items),
+        submitted_at=datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        status="submitted",
+    )
+    submitted_orders.append(order.model_dump())
+    return order
 
 if __name__ == "__main__":
     import uvicorn

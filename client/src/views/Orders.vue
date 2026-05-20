@@ -8,6 +8,51 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <div v-if="submittedOrders.length" class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="submitted-table">
+            <thead>
+              <tr>
+                <th>{{ t('orders.submitted.table.orderNumber') }}</th>
+                <th>{{ t('orders.submitted.table.submittedAt') }}</th>
+                <th>{{ t('orders.submitted.table.items') }}</th>
+                <th class="num">{{ t('orders.submitted.table.totalValue') }}</th>
+                <th class="num">{{ t('orders.submitted.table.leadTime') }}</th>
+                <th>{{ t('orders.submitted.table.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="so in submittedOrders" :key="so.id">
+                <td><strong>{{ so.order_number }}</strong></td>
+                <td>{{ formatDateTime(so.submitted_at) }}</td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: so.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in so.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">
+                          {{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost.toFixed(2) }}
+                          · {{ item.lead_time_days }}d
+                        </span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="num"><strong>{{ currencySymbol }}{{ so.total_value.toLocaleString() }}</strong></td>
+                <td class="num">{{ so.max_lead_time_days }} d</td>
+                <td><span class="badge info">{{ so.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +140,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -121,6 +167,15 @@ export default {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
         loading.value = false
+      }
+    }
+
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedOrders.value = await api.getSubmittedOrders()
+      } catch (err) {
+        // Non-fatal — main orders list is still useful.
+        console.error('Failed to load submitted orders:', err)
       }
     }
 
@@ -153,16 +208,33 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const formatDateTime = (dateString) => {
+      const { currentLocale } = useI18n()
+      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
+      return new Date(dateString).toLocaleString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatDateTime,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +347,10 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.submitted-table th.num,
+.submitted-table td.num {
+  text-align: right;
 }
 </style>

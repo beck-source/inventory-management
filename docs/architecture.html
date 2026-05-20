@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Inventory Management — Architecture</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --vue: #42b883;
+    --py: #3b82f6;
+    --data: #f59e0b;
+    --shadow: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 3rem 1.5rem 4rem; }
+  header h1 { font-size: 2rem; margin: 0 0 .4rem; letter-spacing: -.02em; }
+  header p { color: var(--muted); margin: 0; }
+  h2 {
+    font-size: 1.15rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: .5rem;
+    border-bottom: 1px solid var(--line);
+    letter-spacing: -.01em;
+  }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.1rem 1.2rem;
+    box-shadow: var(--shadow);
+  }
+  .card .tag {
+    display: inline-block;
+    font-size: .68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: .15rem .5rem;
+    border-radius: 4px;
+    margin-bottom: .5rem;
+  }
+  .tag.vue { background: rgba(66,184,131,.12); color: var(--vue); }
+  .tag.py { background: rgba(59,130,246,.12); color: var(--py); }
+  .tag.data { background: rgba(245,158,11,.15); color: #b45309; }
+  .card h3 { margin: 0 0 .25rem; font-size: 1rem; }
+  .card .meta { color: var(--muted); font-size: .85rem; }
+  .card ul { margin: .6rem 0 0; padding-left: 1.1rem; color: var(--ink); font-size: .88rem; }
+  .card li { margin: .15rem 0; }
+  .card code { font-size: .82rem; background: #f1f5f9; padding: 1px 5px; border-radius: 3px; }
+
+  .flow {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) auto;
+    align-items: center;
+    gap: .6rem;
+  }
+  .flow-step {
+    text-align: center;
+    padding: .9rem .5rem;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid var(--line);
+  }
+  .flow-step .label { font-size: .7rem; text-transform: uppercase; color: var(--muted); letter-spacing: .05em; }
+  .flow-step .name { font-weight: 600; font-size: .95rem; margin-top: .25rem; }
+  .flow-step .detail { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+  .arrow { color: var(--muted); font-size: 1.2rem; text-align: center; }
+
+  table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  th, td { padding: .55rem .75rem; text-align: left; border-bottom: 1px solid var(--line); }
+  th { font-weight: 600; font-size: .78rem; text-transform: uppercase; color: var(--muted); letter-spacing: .05em; }
+  td code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: .82rem; }
+  .method {
+    display: inline-block;
+    background: rgba(59,130,246,.12);
+    color: var(--py);
+    font-weight: 600;
+    font-size: .72rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .stack-row { display: grid; grid-template-columns: 130px 1fr; gap: 1rem; padding: .55rem 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .stack-row:last-child { border-bottom: 0; }
+  .stack-row .k { color: var(--muted); font-weight: 500; }
+
+  .footer { margin-top: 3rem; color: var(--muted); font-size: .8rem; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Inventory Management — Architecture</h1>
+    <p>Full-stack demo: Vue 3 + FastAPI with in-memory JSON mock data.</p>
+  </header>
+
+  <h2>System Overview</h2>
+  <div class="grid-3">
+    <div class="card">
+      <span class="tag vue">Frontend</span>
+      <h3>Vue 3 + Vite</h3>
+      <div class="meta">Port 3000 · <code>client/</code></div>
+      <ul>
+        <li>Composition API, no Pinia</li>
+        <li>6 views (Dashboard, Inventory, Orders, Demand, Spending, Reports)</li>
+        <li>Shared filter state via <code>useFilters</code> composable</li>
+        <li>Axios client in <code>client/src/api.js</code></li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag py">Backend</span>
+      <h3>Python FastAPI</h3>
+      <div class="meta">Port 8001 · <code>server/</code></div>
+      <ul>
+        <li>Single-module API in <code>server/main.py</code></li>
+        <li>Pydantic models for validation</li>
+        <li>In-memory filtering by warehouse, category, status, month</li>
+        <li>CORS open for the Vite dev server</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="tag data">Data</span>
+      <h3>JSON Mock Files</h3>
+      <div class="meta"><code>server/data/*.json</code></div>
+      <ul>
+        <li>Loaded once at startup by <code>mock_data.py</code></li>
+        <li>No database, no persistence</li>
+        <li>7 files: inventory, orders, demand, backlog, POs, spending, transactions</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Data Flow — Dashboard Summary</h2>
+  <div class="flow">
+    <div class="flow-step">
+      <div class="label">Vue View</div>
+      <div class="name">Dashboard.vue</div>
+      <div class="detail">loadData() on mount &amp; filter change</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-step">
+      <div class="label">API Client</div>
+      <div class="name">api.js</div>
+      <div class="detail">getDashboardSummary(filters)</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-step">
+      <div class="label">FastAPI Route</div>
+      <div class="name">/api/dashboard/summary</div>
+      <div class="detail">apply_filters → compute KPIs</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="flow-step">
+      <div class="label">In-Memory Data</div>
+      <div class="name">inventory.json + orders.json</div>
+      <div class="detail">filtered &amp; aggregated</div>
+    </div>
+  </div>
+
+  <h2>API Endpoints</h2>
+  <div class="card" style="padding:0;">
+  <table>
+    <thead><tr><th>Method</th><th>Path</th><th>Filters</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method">GET</span></td><td><code>/api/inventory</code></td><td>warehouse, category</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/inventory/{item_id}</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/orders</code></td><td>warehouse, category, status, month</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/orders/{order_id}</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/dashboard/summary</code></td><td>warehouse, category, status, month</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/demand</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/backlog</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/spending/summary</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/spending/monthly</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/spending/categories</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/spending/transactions</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/reports/quarterly</code></td><td>—</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/reports/monthly-trends</code></td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Tech Stack</h2>
+  <div class="card">
+    <div class="stack-row"><div class="k">Frontend framework</div><div>Vue 3 (Composition API)</div></div>
+    <div class="stack-row"><div class="k">Build tool</div><div>Vite</div></div>
+    <div class="stack-row"><div class="k">HTTP client</div><div>Axios</div></div>
+    <div class="stack-row"><div class="k">Routing</div><div>Vue Router</div></div>
+    <div class="stack-row"><div class="k">Backend framework</div><div>FastAPI</div></div>
+    <div class="stack-row"><div class="k">Validation</div><div>Pydantic v2</div></div>
+    <div class="stack-row"><div class="k">Server</div><div>Uvicorn</div></div>
+    <div class="stack-row"><div class="k">Python tooling</div><div>uv (lockfile + venv)</div></div>
+    <div class="stack-row"><div class="k">Persistence</div><div>None — JSON files loaded into memory at startup</div></div>
+    <div class="stack-row"><div class="k">Tests</div><div>pytest + FastAPI TestClient (<code>tests/backend/</code>)</div></div>
+  </div>
+
+  <h2>Pydantic Models</h2>
+  <div class="card">
+    <div class="stack-row"><div class="k">InventoryItem</div><div>sku, name, category, warehouse, quantity_on_hand, reorder_point, unit_cost, location, last_updated</div></div>
+    <div class="stack-row"><div class="k">Order</div><div>order_number, customer, items[], status, order_date, expected_delivery, total_value, warehouse, category</div></div>
+    <div class="stack-row"><div class="k">DemandForecast</div><div>item_sku, current_demand, forecasted_demand, trend, period</div></div>
+    <div class="stack-row"><div class="k">BacklogItem</div><div>order_id, item_sku, item_name, quantity_needed, quantity_available, days_delayed, priority</div></div>
+    <div class="stack-row"><div class="k">PurchaseOrder</div><div>backlog_item_id, supplier_name, quantity, unit_cost, expected_delivery_date, status, created_date</div></div>
+    <div class="stack-row"><div class="k">CreatePurchaseOrderRequest</div><div>Input model for creating a PO from a backlog item</div></div>
+  </div>
+
+  <div class="footer">
+    Generated by Claude Code · <code>docs/architecture.html</code>
+  </div>
+
+</div>
+</body>
+</html>

@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -126,6 +127,55 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submitted: {
+      title: 'Submitted Orders',
+      empty: 'No restocking orders have been submitted yet.',
+      table: {
+        orderNumber: 'Order Number',
+        submittedAt: 'Submitted',
+        items: 'Items',
+        totalValue: 'Total Value',
+        leadTime: 'Max Lead Time',
+        status: 'Status'
+      }
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Recommend items to restock based on demand forecast and your available budget',
+    budget: {
+      title: 'Budget',
+      label: 'Selected Budget',
+      remaining: 'Unspent'
+    },
+    recommendations: {
+      title: 'Recommended Items',
+      totalCost: 'Total Cost',
+      maxLeadTime: 'Max Lead Time',
+      days: 'days',
+      empty: 'Increase the budget to see restocking recommendations.'
+    },
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Demand Trend',
+      quantity: 'Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
+    },
+    trend: {
+      increasing: 'Increasing',
+      stable: 'Stable',
+      decreasing: 'Decreasing'
+    },
+    submit: {
+      placeOrder: 'Place Order',
+      submitting: 'Submitting…',
+      success: 'Order {orderNumber} submitted. View it in the Orders tab.'
     }
   },
 
