@@ -2,12 +2,28 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
+        <div
+          ref="containerRef"
+          v-bind="ariaProps"
+          class="modal-container"
+          @click.stop
+        >
           <div class="modal-header">
-            <h3 class="modal-title">{{ t('profileDetails.title') }}</h3>
-            <button class="close-button" @click="close">
+            <h3 :id="titleId" class="modal-title">
+              {{ t("profileDetails.title") }}
+            </h3>
+            <button
+              class="close-button"
+              :aria-label="t('common.close')"
+              @click="close"
+            >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M15 5L5 15M5 5L15 15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -24,40 +40,54 @@
 
               <div class="info-grid">
                 <div class="info-item">
-                  <div class="info-label">{{ t('profileDetails.email') }}</div>
+                  <div class="info-label">{{ t("profileDetails.email") }}</div>
                   <div class="info-value">{{ currentUser.email }}</div>
                 </div>
 
                 <div class="info-item">
-                  <div class="info-label">{{ t('profileDetails.department') }}</div>
+                  <div class="info-label">
+                    {{ t("profileDetails.department") }}
+                  </div>
                   <div class="info-value">{{ currentUser.department }}</div>
                 </div>
 
                 <div class="info-item">
-                  <div class="info-label">{{ t('profileDetails.location') }}</div>
+                  <div class="info-label">
+                    {{ t("profileDetails.location") }}
+                  </div>
                   <div class="info-value">{{ currentUser.location }}</div>
                 </div>
 
                 <div class="info-item">
-                  <div class="info-label">{{ t('profileDetails.phone') }}</div>
+                  <div class="info-label">{{ t("profileDetails.phone") }}</div>
                   <div class="info-value">{{ currentUser.phone }}</div>
                 </div>
 
                 <div class="info-item">
-                  <div class="info-label">{{ t('profileDetails.joinDate') }}</div>
-                  <div class="info-value">{{ formatDate(currentUser.joinDate) }}</div>
+                  <div class="info-label">
+                    {{ t("profileDetails.joinDate") }}
+                  </div>
+                  <div class="info-value">
+                    {{ formatDate(currentUser.joinDate) }}
+                  </div>
                 </div>
 
                 <div class="info-item">
-                  <div class="info-label">{{ t('profileDetails.employeeId') }}</div>
-                  <div class="info-value">CC-{{ currentUser.id.toString().padStart(5, '0') }}</div>
+                  <div class="info-label">
+                    {{ t("profileDetails.employeeId") }}
+                  </div>
+                  <div class="info-value">
+                    CC-{{ currentUser.id.toString().padStart(5, "0") }}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">{{ t('profileDetails.close') }}</button>
+            <button class="btn-secondary" @click="close">
+              {{ t("profileDetails.close") }}
+            </button>
           </div>
         </div>
       </div>
@@ -66,34 +96,40 @@
 </template>
 
 <script setup>
-import { useAuth } from '../composables/useAuth'
-import { useI18n } from '../composables/useI18n'
+import { useAuth } from "../composables/useAuth";
+import { useI18n } from "../composables/useI18n";
+import { useModal } from "../composables/useModal";
 
-const { currentUser, getInitials } = useAuth()
-const { t, currentLocale } = useI18n()
+const { currentUser, getInitials } = useAuth();
+const { t, currentLocale } = useI18n();
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
+
+const { containerRef, ariaProps, titleId } = useModal(
+  () => props.isOpen,
+  () => emit("close"),
+);
 
 const close = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const formatDate = (dateString) => {
-  const date = new Date(dateString)
-  const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
+  const date = new Date(dateString);
+  const locale = currentLocale.value === "ja" ? "ja-JP" : "en-US";
   return date.toLocaleDateString(locale, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 </script>
 
 <style scoped>

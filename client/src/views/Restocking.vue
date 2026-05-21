@@ -1,16 +1,18 @@
 <template>
   <div class="restocking">
     <div class="page-header">
-      <h2>Restocking</h2>
-      <p>Plan a budget-constrained restock against the latest demand forecast.</p>
+      <h2>{{ t("restocking.title") }}</h2>
+      <p>{{ t("restocking.description") }}</p>
     </div>
 
-    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="loading" class="loading">{{ t("common.loading") }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div class="budget-panel">
         <div class="budget-controls">
-          <label for="budget-slider" class="budget-label">Budget</label>
+          <label for="budget-slider" class="budget-label">{{
+            t("restocking.budget")
+          }}</label>
           <input
             id="budget-slider"
             type="range"
@@ -25,15 +27,15 @@
 
         <div class="budget-summary">
           <div class="summary-stat">
-            <div class="summary-label">Budget Set</div>
+            <div class="summary-label">{{ t("restocking.budgetSet") }}</div>
             <div class="summary-value">{{ formatCurrency(budget) }}</div>
           </div>
           <div class="summary-stat">
-            <div class="summary-label">Total Cost</div>
+            <div class="summary-label">{{ t("restocking.totalCost") }}</div>
             <div class="summary-value">{{ formatCurrency(totalCost) }}</div>
           </div>
           <div class="summary-stat">
-            <div class="summary-label">Remaining</div>
+            <div class="summary-label">{{ t("restocking.remaining") }}</div>
             <div :class="['summary-value', { negative: remainingBudget < 0 }]">
               {{ formatCurrency(remainingBudget) }}
             </div>
@@ -41,33 +43,45 @@
         </div>
       </div>
 
-      <div v-if="successMessage" class="banner banner-success">{{ successMessage }}</div>
-      <div v-if="submitError" class="banner banner-error">{{ submitError }}</div>
+      <div v-if="successMessage" class="banner banner-success">
+        {{ successMessage }}
+      </div>
+      <div v-if="submitError" class="banner banner-error">
+        {{ submitError }}
+      </div>
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Recommended Restock ({{ forecasts.length }})</h3>
+          <h3 class="card-title">
+            {{ t("restocking.recommendedRestock") }} ({{ forecasts.length }})
+          </h3>
         </div>
         <div class="table-container">
           <table class="restock-table">
             <thead>
               <tr>
-                <th>SKU</th>
-                <th>Name</th>
-                <th class="num">Forecasted Demand</th>
-                <th class="num">Unit Cost</th>
-                <th class="num">Lead Time (days)</th>
-                <th class="num">Quantity</th>
-                <th class="num">Line Total</th>
-                <th>Trend</th>
+                <th>{{ t("restocking.table.sku") }}</th>
+                <th>{{ t("restocking.table.name") }}</th>
+                <th class="num">
+                  {{ t("restocking.table.forecastedDemand") }}
+                </th>
+                <th class="num">{{ t("restocking.table.unitCost") }}</th>
+                <th class="num">{{ t("restocking.table.leadTime") }}</th>
+                <th class="num">{{ t("restocking.table.quantity") }}</th>
+                <th class="num">{{ t("restocking.table.lineTotal") }}</th>
+                <th>{{ t("restocking.table.trend") }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="item in forecasts" :key="item.item_sku">
-                <td><strong>{{ item.item_sku }}</strong></td>
+                <td>
+                  <strong>{{ item.item_sku }}</strong>
+                </td>
                 <td>{{ item.item_name }}</td>
                 <td class="num">{{ item.forecasted_demand }}</td>
-                <td class="num">${{ formatNumber(item.unit_cost) }}</td>
+                <td class="num">
+                  {{ currencySymbol }}{{ formatNumber(item.unit_cost) }}
+                </td>
                 <td class="num">{{ item.lead_time_days }}</td>
                 <td class="num">
                   <input
@@ -78,9 +92,13 @@
                     @input="onQuantityInput(item.item_sku, $event.target.value)"
                   />
                 </td>
-                <td class="num">${{ formatNumber(lineTotal(item)) }}</td>
+                <td class="num">
+                  {{ currencySymbol }}{{ formatNumber(lineTotal(item)) }}
+                </td>
                 <td>
-                  <span :class="['badge', item.trend]">{{ item.trend }}</span>
+                  <span :class="['badge', item.trend]">{{
+                    t("trends." + item.trend)
+                  }}</span>
                 </td>
               </tr>
             </tbody>
@@ -93,10 +111,18 @@
             :disabled="!canPlaceOrder || submitting"
             @click="placeOrder"
           >
-            {{ submitting ? 'Submitting...' : 'Place Order' }}
+            {{
+              submitting
+                ? t("restocking.submitting")
+                : t("restocking.placeOrder")
+            }}
           </button>
-          <div v-if="overBudget" class="hint hint-error">Over budget — reduce quantities to submit.</div>
-          <div v-else-if="totalQuantity === 0" class="hint">Set at least one quantity above zero.</div>
+          <div v-if="overBudget" class="hint hint-error">
+            {{ t("restocking.overBudget") }}
+          </div>
+          <div v-else-if="totalQuantity === 0" class="hint">
+            {{ t("restocking.setQuantity") }}
+          </div>
         </div>
       </div>
     </div>
@@ -104,23 +130,31 @@
 </template>
 
 <script>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { api } from '../api'
+import { ref, reactive, computed, watch, onMounted } from "vue";
+import { api } from "../api";
+import { useI18n } from "../composables/useI18n";
 
 export default {
-  name: 'Restocking',
+  name: "Restocking",
   setup() {
-    const loading = ref(true)
-    const error = ref(null)
-    const forecasts = ref([])
-    const budget = ref(25000)
-    // Quantities keyed by SKU. Reactive object so per-row edits stay reactive.
-    const quantities = reactive({})
+    const { t, currentCurrency } = useI18n();
+    // Pattern matches Inventory.vue/Orders.vue — keep currency rendering in lockstep
+    // with the active locale (en -> $, ja -> ¥).
+    const currencySymbol = computed(() =>
+      currentCurrency.value === "JPY" ? "¥" : "$",
+    );
 
-    const submitting = ref(false)
-    const submitError = ref(null)
-    const successMessage = ref(null)
-    let successTimer = null
+    const loading = ref(true);
+    const error = ref(null);
+    const forecasts = ref([]);
+    const budget = ref(25000);
+    // Quantities keyed by SKU. Reactive object so per-row edits stay reactive.
+    const quantities = reactive({});
+
+    const submitting = ref(false);
+    const submitError = ref(null);
+    const successMessage = ref(null);
+    let successTimer = null;
 
     // Greedy fill: sort by forecasted_demand desc, then assign demand up to the
     // remaining budget, truncating the last row that overflows.
@@ -129,69 +163,72 @@ export default {
     // predictable (slider = source of truth, user fine-tunes after).
     const runGreedyFill = () => {
       const sorted = [...forecasts.value].sort(
-        (a, b) => b.forecasted_demand - a.forecasted_demand
-      )
-      let remaining = budget.value
+        (a, b) => b.forecasted_demand - a.forecasted_demand,
+      );
+      let remaining = budget.value;
       for (const item of sorted) {
-        const desired = item.forecasted_demand
-        const cost = desired * item.unit_cost
-        let qty
+        const desired = item.forecasted_demand;
+        const cost = desired * item.unit_cost;
+        let qty;
         if (cost <= remaining) {
-          qty = desired
+          qty = desired;
         } else {
-          qty = Math.floor(remaining / item.unit_cost)
-          if (qty < 0) qty = 0
+          qty = Math.floor(remaining / item.unit_cost);
+          if (qty < 0) qty = 0;
         }
-        quantities[item.item_sku] = qty
-        remaining -= qty * item.unit_cost
-        if (remaining <= 0) remaining = 0
+        quantities[item.item_sku] = qty;
+        remaining -= qty * item.unit_cost;
+        if (remaining <= 0) remaining = 0;
       }
-    }
+    };
 
     const loadForecasts = async () => {
       try {
-        loading.value = true
-        error.value = null
-        const data = await api.getDemandForecasts()
-        forecasts.value = data
-        runGreedyFill()
+        loading.value = true;
+        error.value = null;
+        const data = await api.getDemandForecasts();
+        forecasts.value = data;
+        runGreedyFill();
       } catch (err) {
-        error.value = 'Failed to load demand forecasts: ' + err.message
+        error.value = "Failed to load demand forecasts: " + err.message;
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     const onQuantityInput = (sku, value) => {
-      const n = parseInt(value, 10)
-      quantities[sku] = Number.isFinite(n) && n >= 0 ? n : 0
-    }
+      const n = parseInt(value, 10);
+      quantities[sku] = Number.isFinite(n) && n >= 0 ? n : 0;
+    };
 
     const lineTotal = (item) => {
-      const qty = quantities[item.item_sku] || 0
-      return qty * item.unit_cost
-    }
+      const qty = quantities[item.item_sku] || 0;
+      return qty * item.unit_cost;
+    };
 
     const totalCost = computed(() =>
-      forecasts.value.reduce((sum, item) => sum + lineTotal(item), 0)
-    )
+      forecasts.value.reduce((sum, item) => sum + lineTotal(item), 0),
+    );
 
     const totalQuantity = computed(() =>
-      forecasts.value.reduce((sum, item) => sum + (quantities[item.item_sku] || 0), 0)
-    )
+      forecasts.value.reduce(
+        (sum, item) => sum + (quantities[item.item_sku] || 0),
+        0,
+      ),
+    );
 
-    const remainingBudget = computed(() => budget.value - totalCost.value)
-    const overBudget = computed(() => totalCost.value > budget.value)
+    const remainingBudget = computed(() => budget.value - totalCost.value);
+    const overBudget = computed(() => totalCost.value > budget.value);
 
     const canPlaceOrder = computed(
-      () => totalQuantity.value > 0 && !overBudget.value
-    )
+      () => totalQuantity.value > 0 && !overBudget.value,
+    );
 
     // Re-run greedy auto-fill when budget changes. Workshop-grade simplicity:
     // we intentionally do NOT preserve user edits across slider moves.
     watch(budget, () => {
-      runGreedyFill()
-    })
+      runGreedyFill();
+    });
 
     const placeOrder = async () => {
       // Re-entry guard: a single user gesture (programmatic .click(), double-tap,
@@ -199,10 +236,10 @@ export default {
       // already :disabled while submitting, but disabled is only enforced on
       // pointer events — programmatic clicks via JS bypass it. This early-return
       // makes the handler idempotent regardless of how it was triggered.
-      if (submitting.value) return
-      submitError.value = null
-      successMessage.value = null
-      submitting.value = true
+      if (submitting.value) return;
+      submitError.value = null;
+      successMessage.value = null;
+      submitting.value = true;
       try {
         const items = forecasts.value
           .filter((f) => (quantities[f.item_sku] || 0) > 0)
@@ -211,46 +248,57 @@ export default {
             name: f.item_name,
             quantity: quantities[f.item_sku],
             unit_price: f.unit_cost,
-            lead_time_days: f.lead_time_days
-          }))
+            lead_time_days: f.lead_time_days,
+          }));
 
         const order = await api.submitOrder({
           items,
-          customer: 'Internal Restock'
-        })
+          customer: "Internal Restock",
+        });
 
-        successMessage.value = `Order ${order.order_number} submitted successfully.`
+        successMessage.value = t("restocking.orderSubmitted", {
+          orderNumber: order.order_number,
+        });
         // Reset quantities and re-run greedy fill at the current budget.
-        for (const key of Object.keys(quantities)) delete quantities[key]
-        runGreedyFill()
+        for (const key of Object.keys(quantities)) delete quantities[key];
+        runGreedyFill();
 
-        if (successTimer) clearTimeout(successTimer)
+        if (successTimer) clearTimeout(successTimer);
         successTimer = setTimeout(() => {
-          successMessage.value = null
-        }, 5000)
+          successMessage.value = null;
+        }, 5000);
       } catch (err) {
-        submitError.value =
-          'Failed to submit order: ' + (err.response?.data?.detail || err.message)
+        submitError.value = t("restocking.orderSubmittedFailed", {
+          error: err.response?.data?.detail || err.message,
+        });
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
-    }
+    };
 
     const formatCurrency = (value) => {
-      const sign = value < 0 ? '-' : ''
-      return sign + '$' + Math.abs(Math.round(value)).toLocaleString()
-    }
+      const sign = value < 0 ? "-" : "";
+      // Render with the locale-aware currency symbol so JPY users see ¥ here,
+      // matching the rest of the app (see Inventory.vue/Orders.vue).
+      return (
+        sign +
+        currencySymbol.value +
+        Math.abs(Math.round(value)).toLocaleString()
+      );
+    };
 
     const formatNumber = (value) => {
       return Number(value).toLocaleString(undefined, {
         minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      })
-    }
+        maximumFractionDigits: 2,
+      });
+    };
 
-    onMounted(loadForecasts)
+    onMounted(loadForecasts);
 
     return {
+      t,
+      currencySymbol,
       loading,
       error,
       forecasts,
@@ -268,10 +316,10 @@ export default {
       lineTotal,
       placeOrder,
       formatCurrency,
-      formatNumber
-    }
-  }
-}
+      formatNumber,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -388,7 +436,9 @@ export default {
   text-align: right;
   color: #0f172a;
   background: white;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 
 .qty-input:hover {

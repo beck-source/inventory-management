@@ -3,22 +3,29 @@
     <SidebarNav :collapsed="sidebarCollapsed" @toggle="toggleSidebar" />
 
     <div class="flex-1 flex flex-col min-w-0">
-      <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-sia-line">
-        <div class="flex items-center gap-3 px-8 h-16">
+      <header
+        class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-sia-line"
+      >
+        <div
+          class="flex items-center gap-3 px-4 md:px-8 h-16 flex-wrap md:flex-nowrap"
+        >
           <button
             class="lg:hidden p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-100"
             @click="toggleSidebar"
-            aria-label="Toggle sidebar"
+            :aria-label="t('aria.toggleSidebar')"
           >
             <Menu :size="20" />
           </button>
 
           <div class="hidden md:flex items-center gap-2 flex-1 max-w-md">
             <div class="relative w-full">
-              <Search :size="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search
+                :size="16"
+                class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="text"
-                placeholder="Search inventory, orders…"
+                :placeholder="t('search.placeholder')"
                 class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm placeholder:text-slate-400 focus:outline-none focus:border-sia-blue focus:bg-white focus:ring-2 focus:ring-sia-blue/10 transition"
               />
             </div>
@@ -28,7 +35,7 @@
 
           <button
             class="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition"
-            aria-label="Notifications"
+            :aria-label="t('aria.notifications')"
           >
             <Bell :size="18" />
           </button>
@@ -67,22 +74,21 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
-import { Menu, Bell, Search } from 'lucide-vue-next'
-import { api } from './api'
-import { useAuth } from './composables/useAuth'
-import { useI18n } from './composables/useI18n'
-import SidebarNav from './components/SidebarNav.vue'
-import FilterBar from './components/FilterBar.vue'
-import ProfileMenu from './components/ProfileMenu.vue'
-import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
-import TasksModal from './components/TasksModal.vue'
-import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import { ref, onMounted, onUnmounted, computed, watch } from "vue";
+import { Menu, Bell, Search } from "lucide-vue-next";
+import { useAuth } from "./composables/useAuth";
+import { useI18n } from "./composables/useI18n";
+import SidebarNav from "./components/SidebarNav.vue";
+import FilterBar from "./components/FilterBar.vue";
+import ProfileMenu from "./components/ProfileMenu.vue";
+import ProfileDetailsModal from "./components/ProfileDetailsModal.vue";
+import TasksModal from "./components/TasksModal.vue";
+import LanguageSwitcher from "./components/LanguageSwitcher.vue";
 
-const SIDEBAR_KEY = 'sia.sidebar.collapsed'
+const SIDEBAR_KEY = "sia.sidebar.collapsed";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     SidebarNav,
     FilterBar,
@@ -95,94 +101,71 @@ export default {
     Search,
   },
   setup() {
-    const { currentUser } = useAuth()
-    const { t } = useI18n()
-    const showProfileDetails = ref(false)
-    const showTasks = ref(false)
-    const apiTasks = ref([])
+    const { currentUser } = useAuth();
+    const { t } = useI18n();
+    const showProfileDetails = ref(false);
+    const showTasks = ref(false);
+    // Tasks are mock-only (see useAuth.currentUser.tasks). The previous /api/tasks endpoint
+    // never existed server-side — we render only what the mock auth seeds. See audit-action-plan.md item #1.
 
-    const stored = localStorage.getItem(SIDEBAR_KEY)
-    const sidebarCollapsed = ref(stored === null
-      ? (typeof window !== 'undefined' && window.innerWidth < 1024)
-      : stored === 'true')
+    const stored = localStorage.getItem(SIDEBAR_KEY);
+    const sidebarCollapsed = ref(
+      stored === null
+        ? typeof window !== "undefined" && window.innerWidth < 1024
+        : stored === "true",
+    );
 
-    let userToggled = stored !== null
+    let userToggled = stored !== null;
 
     const toggleSidebar = () => {
-      userToggled = true
-      sidebarCollapsed.value = !sidebarCollapsed.value
-    }
+      userToggled = true;
+      sidebarCollapsed.value = !sidebarCollapsed.value;
+    };
 
     watch(sidebarCollapsed, (v) => {
-      localStorage.setItem(SIDEBAR_KEY, String(v))
-    })
+      localStorage.setItem(SIDEBAR_KEY, String(v));
+    });
 
     // Auto-collapse when user resizes down to a smaller viewport, unless they've explicitly
     // toggled in this session. This keeps the icons-only mode useful on tablet/narrow desktop.
     const onResize = () => {
-      if (userToggled) return
-      sidebarCollapsed.value = window.innerWidth < 1024
-    }
+      if (userToggled) return;
+      sidebarCollapsed.value = window.innerWidth < 1024;
+    };
 
-    const tasks = computed(() => {
-      return [...currentUser.value.tasks, ...apiTasks.value]
-    })
+    const tasks = computed(() => currentUser.value.tasks);
 
-    const loadTasks = async () => {
-      try {
-        apiTasks.value = await api.getTasks()
-      } catch (err) {
-        console.error('Failed to load tasks:', err)
-      }
-    }
+    // Mock-only task mutations: persistence is the user's responsibility for the demo.
+    // No API round-trips — every operation mutates the in-memory mock list synchronously.
+    const addTask = (taskData) => {
+      const newTask = {
+        id: `mock-${Date.now()}`,
+        title: taskData.title,
+        priority: taskData.priority || "medium",
+        dueDate: taskData.dueDate || null,
+        status: "pending",
+      };
+      currentUser.value.tasks.unshift(newTask);
+    };
 
-    const addTask = async (taskData) => {
-      try {
-        const newTask = await api.createTask(taskData)
-        apiTasks.value.unshift(newTask)
-      } catch (err) {
-        console.error('Failed to add task:', err)
-      }
-    }
+    const deleteTask = (taskId) => {
+      const index = currentUser.value.tasks.findIndex((t) => t.id === taskId);
+      if (index !== -1) currentUser.value.tasks.splice(index, 1);
+    };
 
-    const deleteTask = async (taskId) => {
-      try {
-        const isMockTask = currentUser.value.tasks.some(t => t.id === taskId)
-        if (isMockTask) {
-          const index = currentUser.value.tasks.findIndex(t => t.id === taskId)
-          if (index !== -1) currentUser.value.tasks.splice(index, 1)
-        } else {
-          await api.deleteTask(taskId)
-          apiTasks.value = apiTasks.value.filter(t => t.id !== taskId)
-        }
-      } catch (err) {
-        console.error('Failed to delete task:', err)
-      }
-    }
-
-    const toggleTask = async (taskId) => {
-      try {
-        const mockTask = currentUser.value.tasks.find(t => t.id === taskId)
-        if (mockTask) {
-          mockTask.status = mockTask.status === 'pending' ? 'completed' : 'pending'
-        } else {
-          const updatedTask = await api.toggleTask(taskId)
-          const index = apiTasks.value.findIndex(t => t.id === taskId)
-          if (index !== -1) apiTasks.value[index] = updatedTask
-        }
-      } catch (err) {
-        console.error('Failed to toggle task:', err)
-      }
-    }
+    const toggleTask = (taskId) => {
+      const task = currentUser.value.tasks.find((t) => t.id === taskId);
+      if (task)
+        task.status = task.status === "pending" ? "completed" : "pending";
+    };
 
     onMounted(() => {
-      loadTasks()
-      window.addEventListener('resize', onResize)
-    })
+      window.addEventListener("resize", onResize);
+    });
 
     onUnmounted(() => {
-      window.removeEventListener('resize', onResize)
-    })
+      window.removeEventListener("resize", onResize);
+    });
 
     return {
       t,
@@ -194,9 +177,9 @@ export default {
       addTask,
       deleteTask,
       toggleTask,
-    }
-  }
-}
+    };
+  },
+};
 </script>
 
 <style>
@@ -207,9 +190,16 @@ export default {
 }
 
 body {
-  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #F5F7FB;
-  color: #0A1633;
+  font-family:
+    "Sora",
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  background: #f5f7fb;
+  color: #0a1633;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -223,7 +213,7 @@ body {
 .page-header h2 {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #0A1633;
+  color: #0a1633;
   margin-bottom: 0.25rem;
   letter-spacing: -0.025em;
 }
@@ -244,18 +234,18 @@ body {
   background: white;
   padding: 1.25rem 1.375rem;
   border-radius: 14px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #e2e8f0;
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
 .stat-card::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, #00B6F0, #DEECFC 60%, #FFEAF0);
+  background: linear-gradient(90deg, #00b6f0, #deecfc 60%, #ffeaf0);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -266,7 +256,9 @@ body {
   transform: translateY(-1px);
 }
 
-.stat-card:hover::before { opacity: 1; }
+.stat-card:hover::before {
+  opacity: 1;
+}
 
 .stat-label {
   color: #64748b;
@@ -280,21 +272,29 @@ body {
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
-  color: #0A1633;
+  color: #0a1633;
   letter-spacing: -0.025em;
-  font-feature-settings: 'tnum';
+  font-feature-settings: "tnum";
 }
 
-.stat-card.warning .stat-value { color: #ea580c; }
-.stat-card.success .stat-value { color: #059669; }
-.stat-card.danger  .stat-value { color: #dc2626; }
-.stat-card.info    .stat-value { color: #00B6F0; }
+.stat-card.warning .stat-value {
+  color: #ea580c;
+}
+.stat-card.success .stat-value {
+  color: #059669;
+}
+.stat-card.danger .stat-value {
+  color: #dc2626;
+}
+.stat-card.info .stat-value {
+  color: #00b6f0;
+}
 
 .card {
   background: white;
   border-radius: 14px;
   padding: 1.375rem;
-  border: 1px solid #E2E8F0;
+  border: 1px solid #e2e8f0;
   margin-bottom: 1.25rem;
   box-shadow: 0 1px 2px rgba(10, 22, 51, 0.04);
 }
@@ -305,24 +305,29 @@ body {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.875rem;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .card-title {
   font-size: 1.0625rem;
   font-weight: 700;
-  color: #0A1633;
+  color: #0a1633;
   letter-spacing: -0.015em;
 }
 
-.table-container { overflow-x: auto; }
+.table-container {
+  overflow-x: auto;
+}
 
-table { width: 100%; border-collapse: collapse; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
 thead {
-  background: #F8FAFC;
-  border-top: 1px solid #E2E8F0;
-  border-bottom: 1px solid #E2E8F0;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 th {
@@ -337,13 +342,17 @@ th {
 
 td {
   padding: 0.625rem 0.75rem;
-  border-top: 1px solid #F1F5F9;
+  border-top: 1px solid #f1f5f9;
   color: #334155;
   font-size: 0.875rem;
 }
 
-tbody tr { transition: background-color 0.15s ease; }
-tbody tr:hover { background: #F8FAFC; }
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+tbody tr:hover {
+  background: #f8fafc;
+}
 
 .badge {
   display: inline-block;
@@ -355,16 +364,46 @@ tbody tr:hover { background: #F8FAFC; }
   letter-spacing: 0.04em;
 }
 
-.badge.success    { background: #d1fae5; color: #065f46; }
-.badge.warning    { background: #fed7aa; color: #92400e; }
-.badge.danger     { background: #fecaca; color: #991b1b; }
-.badge.info       { background: #DEECFC; color: #0a3a5e; }
-.badge.increasing { background: #d1fae5; color: #065f46; }
-.badge.decreasing { background: #fecaca; color: #991b1b; }
-.badge.stable     { background: #e0e7ff; color: #3730a3; }
-.badge.high       { background: #fecaca; color: #991b1b; }
-.badge.medium     { background: #fed7aa; color: #92400e; }
-.badge.low        { background: #DEECFC; color: #0a3a5e; }
+.badge.success {
+  background: #d1fae5;
+  color: #065f46;
+}
+.badge.warning {
+  background: #fed7aa;
+  color: #92400e;
+}
+.badge.danger {
+  background: #fecaca;
+  color: #991b1b;
+}
+.badge.info {
+  background: #deecfc;
+  color: #0a3a5e;
+}
+.badge.increasing {
+  background: #d1fae5;
+  color: #065f46;
+}
+.badge.decreasing {
+  background: #fecaca;
+  color: #991b1b;
+}
+.badge.stable {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.badge.high {
+  background: #fecaca;
+  color: #991b1b;
+}
+.badge.medium {
+  background: #fed7aa;
+  color: #92400e;
+}
+.badge.low {
+  background: #deecfc;
+  color: #0a3a5e;
+}
 
 .loading {
   text-align: center;
