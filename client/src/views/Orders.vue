@@ -5,6 +5,50 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <!-- Submitted Restocking Orders section -->
+    <div v-if="restockingOrders.length > 0" class="card restocking-section">
+      <div class="card-header">
+        <h3 class="card-title restock-title">Submitted Restocking Orders</h3>
+        <span class="restock-badge">{{ restockingOrders.length }}</span>
+      </div>
+      <div class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th class="col-order-number">Order #</th>
+              <th class="col-items">Items</th>
+              <th class="col-status">Status</th>
+              <th class="col-date">Order Date</th>
+              <th class="col-date">Est. Delivery (7 days)</th>
+              <th class="col-value">Total Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="ro in restockingOrders" :key="ro.id">
+              <td class="col-order-number"><strong>{{ ro.order_number }}</strong></td>
+              <td class="col-items">
+                <details class="items-details">
+                  <summary class="items-summary">{{ ro.items.length }} item{{ ro.items.length !== 1 ? 's' : '' }}</summary>
+                  <div class="items-dropdown">
+                    <div v-for="(item, idx) in ro.items" :key="idx" class="item-entry">
+                      <span class="item-name">{{ item.name }}</span>
+                      <span class="item-meta">SKU: {{ item.sku }} &nbsp;·&nbsp; Qty: {{ item.quantity }} @ ${{ item.unit_cost.toFixed(2) }}</span>
+                    </div>
+                  </div>
+                </details>
+              </td>
+              <td class="col-status">
+                <span class="badge warning">{{ ro.status }}</span>
+              </td>
+              <td class="col-date">{{ formatDate(ro.order_date) }}</td>
+              <td class="col-date delivery-date">{{ formatDate(ro.expected_delivery) }}</td>
+              <td class="col-value"><strong>${{ ro.total_value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -95,6 +139,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -109,7 +154,10 @@ export default {
       try {
         loading.value = true
         const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+        const [fetchedOrders, fetchedRestocking] = await Promise.all([
+          api.getOrders(filters),
+          api.getRestockingOrders()
+        ])
 
         // Sort orders by order_date (earliest first)
         orders.value = fetchedOrders.sort((a, b) => {
@@ -117,6 +165,7 @@ export default {
           const dateB = new Date(b.order_date)
           return dateA - dateB
         })
+        restockingOrders.value = fetchedRestocking
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
@@ -165,13 +214,31 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders
     }
   }
 }
 </script>
 
 <style scoped>
+/* ── Restocking section ── */
+.restocking-section {
+  border: 1px solid #fbbf24;
+  background: #fffbeb;
+  margin-bottom: 24px;
+}
+.restock-title { color: #92400e; }
+.restock-badge {
+  background: #f59e0b;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 99px;
+}
+.delivery-date { color: #16a34a; font-weight: 600; }
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
