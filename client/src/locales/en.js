@@ -188,6 +188,62 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    noItems: 'No backlog items - all orders can be fulfilled!',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    itemsTitle: 'Backlog Items',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority',
+      unitsShort: 'units short',
+      days: 'days'
+    }
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    quarterly: {
+      title: 'Quarterly Performance'
+    },
+    monthly: {
+      title: 'Monthly Revenue Trend'
+    },
+    comparison: {
+      title: 'Month-over-Month Analysis'
+    },
+    quarter: 'Quarter',
+    month: 'Month',
+    orders: 'Orders',
+    totalOrders: 'Total Orders',
+    revenue: 'Revenue',
+    totalRevenue: 'Total Revenue',
+    avgOrderValue: 'Avg Order Value',
+    change: 'Change',
+    growthRate: 'Growth Rate',
+    fulfillmentRate: 'Fulfillment Rate',
+    stats: {
+      totalRevenueYTD: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrdersYTD: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
