@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "Analyze the Vue component that was just modified: ${tool_input.file_path}\n\nProvide a detailed report covering:\n\n1. **Performance Issues**\n   - Check for unnecessary reactivity (too many reactive properties)\n   - Identify expensive watchers or computed properties\n   - Look for missing keys in v-for loops\n   - Detect potential re-render issues\n   - Check component lifecycle optimization\n\n2. **Code Reuse Opportunities**\n   - Suggest extractable sub-components\n   - Recommend composable functions for shared logic\n   - Identify duplicated code patterns\n   - Propose shared utility functions\n\n3. **Vue 3 Best Practices**\n   - Check for proper use of Composition API\n   - Verify reactive data is properly scoped\n   - Look for deprecated patterns\n   - Check component registration and imports\n   - Verify proper use of script setup syntax\n\n4. **Actionable Recommendations**\n   - Prioritize by impact (high/medium/low)\n   - Provide specific code examples where helpful\n   - Include refactoring suggestions\n\nFormat the report as a concise markdown document.",
+            "if": "Write|Edit(.vue)",
+            "statusMessage": "Analyzing Vue component structure...",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}
