@@ -102,17 +102,16 @@ export default {
 
 <style scoped>
 .filters-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  border-bottom: 1px solid #E2E8F0;
   padding: 0.75rem 0;
   position: sticky;
-  top: 70px;
-  z-index: 90;
+  top: 64px;
+  z-index: 20;
 }
 
 .filters-container {
-  max-width: 1600px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0 2rem;
   display: flex;
   align-items: center;
@@ -158,8 +157,8 @@ export default {
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #00B6F0;
+  box-shadow: 0 0 0 3px rgba(0, 182, 240, 0.12);
 }
 
 .reset-filters-btn {

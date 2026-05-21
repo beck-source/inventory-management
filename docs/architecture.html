@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Factory Inventory Management — Architecture</title>
+<style>
+  :root {
+    --ink:        #0f172a;
+    --ink-2:      #1e293b;
+    --muted:      #64748b;
+    --line:       #e2e8f0;
+    --bg:         #f8fafc;
+    --card:       #ffffff;
+    --accent:     #2563eb;
+    --accent-2:   #0ea5e9;
+    --ok:         #16a34a;
+    --warn:       #d97706;
+    --code-bg:    #f1f5f9;
+    --shadow:     0 1px 2px rgba(15, 23, 42, .04), 0 1px 3px rgba(15, 23, 42, .06);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 56px 32px 96px; }
+  header { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 40px; }
+  .eyebrow {
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: .12em;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: 32px;
+    margin: 8px 0 6px;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .sub { color: var(--muted); margin: 0; font-size: 15px; }
+
+  h2 {
+    font-size: 18px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--ink-2);
+    margin: 56px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  h3 { font-size: 15px; margin: 0 0 8px; color: var(--ink); }
+  p  { margin: 0 0 12px; }
+
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) {
+    .grid-3, .grid-2 { grid-template-columns: 1fr; }
+    .wrap { padding: 32px 20px 64px; }
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+  }
+  .card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .card ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
+  .card ul li { margin: 4px 0; }
+  .card code, code {
+    background: var(--code-bg);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 12.5px;
+    color: var(--ink-2);
+  }
+
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+  .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    background: var(--code-bg);
+    font-weight: 600;
+    color: var(--ink-2);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  tr:last-child td { border-bottom: none; }
+  td code { font-size: 12.5px; }
+
+  ol.flow { counter-reset: step; list-style: none; padding: 0; margin: 0; }
+  ol.flow li {
+    counter-increment: step;
+    position: relative;
+    padding: 12px 16px 12px 56px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  ol.flow li::before {
+    content: counter(step);
+    position: absolute;
+    left: 16px; top: 12px;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .callout {
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-left: 4px solid var(--warn);
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #78350f;
+  }
+  .callout strong { color: #92400e; }
+
+  footer {
+    margin-top: 72px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">System overview</div>
+  <h1>Factory Inventory Management</h1>
+  <p class="sub">Vue 3 SPA on Vite talking to a single-file FastAPI service over <code>http://localhost:8001/api</code>. Demo workshop app — no database, no auth, mock data loaded from JSON at startup.</p>
+</header>
+
+<h2>Tech stack</h2>
+<div class="grid-3">
+  <div class="card">
+    <div class="label">Frontend · port 3000</div>
+    <h3>Vue 3 SPA</h3>
+    <ul>
+      <li>Vue 3 Composition API</li>
+      <li>vue-router (6 routes)</li>
+      <li>axios HTTP client</li>
+      <li>Vite dev server &amp; build</li>
+      <li>No state library — singleton refs in composables</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="label">Backend · port 8001</div>
+    <h3>FastAPI service</h3>
+    <ul>
+      <li>FastAPI + uvicorn</li>
+      <li>Pydantic v2 response models</li>
+      <li>Single-file <code>main.py</code></li>
+      <li>Open CORS (<code>allow_origins=["*"]</code>)</li>
+      <li>Interactive docs at <code>/docs</code></li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="label">Data &amp; tooling</div>
+    <h3>JSON fixtures + uv</h3>
+    <ul>
+      <li>7 JSON files in <code>server/data/</code></li>
+      <li>Loaded once into module-level lists</li>
+      <li>uv for Python deps &amp; venv</li>
+      <li>npm for client deps</li>
+      <li>pytest + FastAPI TestClient (51 tests)</li>
+    </ul>
+  </div>
+</div>
+
+<h2>System architecture</h2>
+<div class="diagram">
+<svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="System architecture diagram">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .box      { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+      .box-accent { fill: #eff6ff; stroke: #93c5fd; stroke-width: 1.5; }
+      .box-data { fill: #f8fafc; stroke: #cbd5e1; stroke-width: 1.5; stroke-dasharray: 4 3; }
+      .title    { font: 600 13px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #0f172a; }
+      .sub      { font: 11px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #64748b; }
+      .mono     { font: 11px "SF Mono", Consolas, monospace; fill: #1e293b; }
+      .edge-lbl { font: 11px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #475569; }
+      .lane     { font: 600 10px -apple-system, "Segoe UI", Roboto, sans-serif; fill: #94a3b8; letter-spacing: .1em; text-transform: uppercase; }
+    </style>
+  </defs>
+
+  <!-- Lane labels -->
+  <text x="40"  y="30" class="lane">Browser</text>
+  <text x="280" y="30" class="lane">Frontend (Vite, :3000)</text>
+  <text x="560" y="30" class="lane">Backend (uvicorn, :8001)</text>
+  <text x="800" y="30" class="lane">Fixtures</text>
+
+  <!-- User -->
+  <rect x="30"  y="150" rx="8" ry="8" width="120" height="60" class="box"/>
+  <text x="90"  y="178" text-anchor="middle" class="title">User</text>
+  <text x="90"  y="196" text-anchor="middle" class="sub">browser</text>
+
+  <!-- Vue SPA -->
+  <rect x="220" y="60"  rx="8" ry="8" width="240" height="240" class="box-accent"/>
+  <text x="340" y="84"  text-anchor="middle" class="title">Vue 3 SPA</text>
+  <text x="340" y="100" text-anchor="middle" class="sub">vue-router · Composition API</text>
+  <line  x1="232" y1="114" x2="448" y2="114" stroke="#bfdbfe"/>
+  <text x="240" y="134" class="mono">views/*.vue</text>
+  <text x="240" y="152" class="sub">Dashboard, Inventory, Orders, …</text>
+  <text x="240" y="178" class="mono">composables/</text>
+  <text x="240" y="196" class="sub">useFilters · useAuth · useI18n</text>
+  <text x="240" y="222" class="mono">components/</text>
+  <text x="240" y="240" class="sub">FilterBar, *DetailModal, …</text>
+  <text x="240" y="266" class="mono">api.js (axios)</text>
+  <text x="240" y="284" class="sub">single HTTP client</text>
+
+  <!-- FastAPI -->
+  <rect x="520" y="60"  rx="8" ry="8" width="240" height="240" class="box-accent"/>
+  <text x="640" y="84"  text-anchor="middle" class="title">FastAPI service</text>
+  <text x="640" y="100" text-anchor="middle" class="sub">uvicorn + Pydantic</text>
+  <line  x1="532" y1="114" x2="748" y2="114" stroke="#bfdbfe"/>
+  <text x="540" y="134" class="mono">main.py</text>
+  <text x="540" y="152" class="sub">routes + response models</text>
+  <text x="540" y="178" class="mono">apply_filters()</text>
+  <text x="540" y="196" class="sub">warehouse · category · status</text>
+  <text x="540" y="222" class="mono">filter_by_month()</text>
+  <text x="540" y="240" class="sub">YYYY-MM or Q1–Q4-2025</text>
+  <text x="540" y="266" class="mono">mock_data.py</text>
+  <text x="540" y="284" class="sub">in-memory lists</text>
+
+  <!-- JSON fixtures -->
+  <rect x="800" y="100" rx="8" ry="8" width="100" height="200" class="box-data"/>
+  <text x="850" y="124" text-anchor="middle" class="title">data/*.json</text>
+  <text x="850" y="146" text-anchor="middle" class="mono">inventory</text>
+  <text x="850" y="162" text-anchor="middle" class="mono">orders</text>
+  <text x="850" y="178" text-anchor="middle" class="mono">demand</text>
+  <text x="850" y="194" text-anchor="middle" class="mono">backlog</text>
+  <text x="850" y="210" text-anchor="middle" class="mono">spending</text>
+  <text x="850" y="226" text-anchor="middle" class="mono">transactions</text>
+  <text x="850" y="242" text-anchor="middle" class="mono">purchase_</text>
+  <text x="850" y="256" text-anchor="middle" class="mono">orders</text>
+  <text x="850" y="284" text-anchor="middle" class="sub">loaded at startup</text>
+
+  <!-- Edges -->
+  <line x1="150" y1="180" x2="220" y2="180" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="155" y="172" class="edge-lbl">clicks</text>
+
+  <line x1="460" y1="180" x2="520" y2="180" stroke="#2563eb" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+  <text x="465" y="172" class="edge-lbl">axios · JSON</text>
+  <text x="465" y="200" class="edge-lbl">/api/*</text>
+
+  <line x1="760" y1="200" x2="800" y2="200" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="762" y="192" class="edge-lbl">import</text>
+</svg>
+</div>
+
+<h2>End-to-end data flow</h2>
+<ol class="flow">
+  <li>User toggles a control in <code>FilterBar.vue</code>; mutates a module-scoped <code>ref</code> in <code>useFilters.js</code>.</li>
+  <li>The active view calls <code>getCurrentFilters()</code> and passes the shape to <code>api.js</code>.</li>
+  <li><code>api.js</code> builds <code>URLSearchParams</code>, <em>omitting any value equal to <code>'all'</code></em>, then <code>axios.get</code>s the endpoint.</li>
+  <li>FastAPI runs <code>apply_filters()</code> and/or <code>filter_by_month()</code> over the in-memory list.</li>
+  <li>Result is validated by a Pydantic response model and serialised to JSON.</li>
+  <li>The view stores the response in a <code>ref</code>; <code>computed</code> properties derive totals, sorted lists, and chart series for the template.</li>
+</ol>
+
+<h2>Routes &amp; API endpoints</h2>
+<div class="grid-2">
+  <table>
+    <thead><tr><th>Route</th><th>View</th></tr></thead>
+    <tbody>
+      <tr><td><code>/</code></td>          <td>Dashboard.vue</td></tr>
+      <tr><td><code>/inventory</code></td> <td>Inventory.vue</td></tr>
+      <tr><td><code>/orders</code></td>    <td>Orders.vue</td></tr>
+      <tr><td><code>/demand</code></td>    <td>Demand.vue</td></tr>
+      <tr><td><code>/spending</code></td>  <td>Spending.vue</td></tr>
+      <tr><td><code>/reports</code></td>   <td>Reports.vue</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead><tr><th>Endpoint</th><th>Filters</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /api/inventory</code></td>          <td>warehouse, category</td></tr>
+      <tr><td><code>GET /api/inventory/{id}</code></td>     <td>404 on miss</td></tr>
+      <tr><td><code>GET /api/orders</code></td>             <td>warehouse, category, status, month</td></tr>
+      <tr><td><code>GET /api/orders/{id}</code></td>        <td>404 on miss</td></tr>
+      <tr><td><code>GET /api/dashboard/summary</code></td>  <td>all four</td></tr>
+      <tr><td><code>GET /api/demand</code></td>             <td>—</td></tr>
+      <tr><td><code>GET /api/backlog</code></td>            <td>—</td></tr>
+      <tr><td><code>GET /api/spending/*</code></td>         <td>summary · monthly · categories · transactions</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Filter contract</h2>
+<p>Four filters span the entire app — <strong>Period</strong>, <strong>Warehouse</strong>, <strong>Category</strong>, <strong>Order Status</strong> — passed as optional query parameters. Both client and server treat the string <code>'all'</code> as &ldquo;no filter.&rdquo; Category and status comparisons are case-insensitive; warehouse is case-sensitive. Quarter values must match <code>QUARTER_MAP</code> keys exactly: <code>Q1-2025</code>, <code>Q2-2025</code>, <code>Q3-2025</code>, <code>Q4-2025</code>.</p>
+
+<div class="callout">
+  <strong>Naming mismatch worth knowing.</strong> In the UI/composable the warehouse filter is bound to <code>selectedLocation</code>, but <code>getCurrentFilters()</code> emits it as <code>warehouse</code> for the API. The API key must stay <code>warehouse</code> to match the backend contract.
+</div>
+
+<footer>
+  Generated for the <code>inventory-management</code> workshop repo. Source of truth: <code>CLAUDE.md</code>, <code>server/main.py</code>, <code>client/src/main.js</code>.
+</footer>
+
+</div>
+</body>
+</html>

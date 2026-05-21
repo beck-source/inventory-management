@@ -33,6 +33,13 @@ export const api = {
     return response.data
   },
 
+  // Submit a restocking order from the Restocking tab.
+  // payload shape: { items: [{ sku, name, quantity, unit_price, lead_time_days }], customer?, warehouse?, category? }
+  async submitOrder(payload) {
+    const response = await axios.post(`${API_BASE_URL}/orders`, payload)
+    return response.data
+  },
+
   async getDemandForecasts() {
     const response = await axios.get(`${API_BASE_URL}/demand`)
     return response.data

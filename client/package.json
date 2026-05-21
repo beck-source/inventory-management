@@ -8,12 +8,16 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.6.7",
+    "lucide-vue-next": "^1.0.0",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0",
-    "axios": "^1.6.7"
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^3.4.19",
     "vite": "^5.2.0"
   }
 }
