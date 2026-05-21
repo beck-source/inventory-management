@@ -2,7 +2,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+from mock_data import (
+    inventory_items, orders, demand_forecasts, backlog_items,
+    spending_summary, monthly_spending, category_spending,
+    recent_transactions, purchase_orders, submitted_restocking_orders,
+)
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -13,6 +18,17 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Restocking delivery lead time per category, in days. The longest lead time
+# across an order's items determines the order's expected delivery date —
+# a multi-category order only completes once its slowest item arrives.
+LEAD_TIMES_BY_CATEGORY = {
+    "Circuit Boards": 14,
+    "Controllers": 10,
+    "Actuators": 7,
+    "Sensors": 5,
+}
+DEFAULT_LEAD_TIME_DAYS = 10
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -119,6 +135,28 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    category: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingOrderItem]
+    total_cost: float
+    status: str
+    submitted_date: str
+    expected_delivery_date: str
+    lead_time_days: int
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    total_cost: float
 
 # API endpoints
 @app.get("/")
@@ -303,6 +341,102 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(budget: float = 0):
+    """Recommend items to restock under a given budget.
+
+    Joins demand_forecasts with inventory_items on SKU, computes shortfall
+    (forecasted_demand - quantity_on_hand), ranks shortfalls descending, then
+    greedily picks items whose full shortfall line cost still fits the budget.
+    Greedy fit is fine here — a tight budget may leave change on the table.
+    """
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="budget must be non-negative")
+
+    inventory_by_sku = {item['sku']: item for item in inventory_items}
+
+    candidates = []
+    for forecast in demand_forecasts:
+        inv = inventory_by_sku.get(forecast['item_sku'])
+        if not inv:
+            continue
+        shortfall = forecast['forecasted_demand'] - inv['quantity_on_hand']
+        if shortfall <= 0:
+            continue
+        unit_cost = inv['unit_cost']
+        candidates.append({
+            'sku': inv['sku'],
+            'name': inv['name'],
+            'category': inv['category'],
+            'current_stock': inv['quantity_on_hand'],
+            'forecasted_demand': forecast['forecasted_demand'],
+            'shortfall': shortfall,
+            'quantity': shortfall,
+            'unit_cost': unit_cost,
+            'line_total': round(shortfall * unit_cost, 2),
+        })
+
+    # Largest shortfall first; ties broken by smaller line_total (cheap-to-fix
+    # wins so the budget reaches more items).
+    candidates.sort(key=lambda c: (-c['shortfall'], c['line_total']))
+
+    remaining = budget
+    picks = []
+    for c in candidates:
+        if c['line_total'] <= remaining:
+            picks.append(c)
+            remaining -= c['line_total']
+
+    total_cost = round(sum(p['line_total'] for p in picks), 2)
+    return {
+        'budget': budget,
+        'recommendations': picks,
+        'total_cost': total_cost,
+        'items_included': len(picks),
+        'remaining_budget': round(budget - total_cost, 2),
+    }
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order. Expected delivery uses the longest per-category
+    lead time among the order's items — the whole order completes when its
+    slowest line arrives."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="order must include at least one item")
+
+    lead_time_days = max(
+        (LEAD_TIMES_BY_CATEGORY.get(item.category, DEFAULT_LEAD_TIME_DAYS) for item in request.items),
+        default=DEFAULT_LEAD_TIME_DAYS,
+    )
+
+    submitted_dt = datetime.utcnow()
+    expected_dt = submitted_dt + timedelta(days=lead_time_days)
+    submitted_iso = submitted_dt.replace(microsecond=0).isoformat()
+    expected_iso = expected_dt.replace(microsecond=0).isoformat()
+
+    year = submitted_dt.year
+    sequence = len(submitted_restocking_orders) + 1
+    order_number = f"RST-{year}-{sequence:04d}"
+
+    order = RestockingOrder(
+        id=str(sequence),
+        order_number=order_number,
+        items=request.items,
+        total_cost=round(request.total_cost, 2),
+        status="Submitted",
+        submitted_date=submitted_iso,
+        expected_delivery_date=expected_iso,
+        lead_time_days=lead_time_days,
+    )
+
+    submitted_restocking_orders.append(order.model_dump())
+    return order
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """List submitted restocking orders, newest first."""
+    return list(reversed(submitted_restocking_orders))
 
 if __name__ == "__main__":
     import uvicorn
