@@ -72,3 +72,8 @@ npm install && npm run dev
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts
 - No emojis in UI
+
+## Code Style & Documentation
+- **Comments**: Only add comments for non-obvious logic. Explain the *why*, not the *what*. Well-named code is better than comments explaining what it does.
+- Document tricky filtering logic, workarounds, or non-standard patterns
+- Don't comment obvious operations or implementations that follow standard patterns
