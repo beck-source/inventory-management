@@ -18,6 +18,17 @@ Factory Inventory Management System — a workshop demo app. Full-stack Vue 3 + 
 
    If you start multiple servers or open multiple URLs, list them all in a table so the user can scan and click. If Vite (or any other dev server) bound a non-default port because the canonical port was busy, **surface the actual bound port and call out the duplication** so the user can clean up.
 
+5. **When a feature works, ship it — don't leave it loose on `main`.** As soon as a discrete piece of work passes its smoke test, the default is: create a feature branch, commit, push, open a PR. Don't wait to be asked. Specifically:
+
+   1. **Branch.** `git checkout -b <type>/<short-name>` from the current base. Use Conventional-Commit-style prefixes: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`, `test/`. Never commit feature work directly to `main`.
+   2. **Stage explicitly.** `git add <specific paths>` — never `git add -A` or `git add .`. The staging list is the change inventory; if you can't list the files, you don't understand the change. Skip debug screenshots, scratch files, and anything that doesn't belong in a teammate's clone.
+   3. **Commit with a structured message.** Subject line: imperative, under 70 chars (`Add Restocking tab and Sia redesign`). Body: bullet sections — `Feature work:`, `UI:`, `Docs:`, `Config:`, etc. — explaining the *why*, not the file list. Always end with the `Co-Authored-By: Claude …` trailer.
+   4. **Push to `origin` with upstream tracking.** `git push -u origin <branch>`. `origin` is the user's fork; `upstream` is the source repo (do NOT push to `upstream`).
+   5. **Open the PR.** First try `mcp__github__create_pull_request` against `cyrilsayada/inventory-management` (the fork's `main`, not `upstream`). If GitHub MCP auth fails, fall back to opening `https://github.com/cyrilsayada/inventory-management/pull/new/<branch>` in the browser via `Start-Process`.
+   6. **PR body must include a `## Summary` (3–5 bullets, what & why), a `## Test plan` (checked boxes for everything you ran), and an `## Out of scope` section if you noticed unrelated issues.**
+
+   **Never:** force-push, rebase shared branches, push to `main`, push to `upstream`, or skip hooks (`--no-verify`). If a hook fails, fix the underlying issue and create a new commit — do not amend or bypass.
+
 ## Critical Tool Usage Rules
 
 ### Subagents (Task tool)
