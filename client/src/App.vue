@@ -29,6 +29,11 @@
 
       <div :class="['sidebar-footer', { collapsed }]">
         <LanguageSwitcher v-show="!collapsed" />
+        <button
+          class="dark-mode-toggle"
+          @click="toggleDark"
+          :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'"
+        >{{ isDark ? '☀' : '☾' }}</button>
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
@@ -70,6 +75,7 @@ import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
 import TasksModal from './components/TasksModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import { useDarkMode } from './composables/useDarkMode'
 
 export default {
   name: 'App',
@@ -83,6 +89,7 @@ export default {
   setup() {
     const { currentUser } = useAuth()
     const { t } = useI18n()
+    const { isDark, toggleDark } = useDarkMode()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
@@ -191,6 +198,8 @@ export default {
       toggleTask,
       collapsed,
       toggleSidebar,
+      isDark,
+      toggleDark,
     }
   }
 }
@@ -216,6 +225,20 @@ export default {
   --border-radius: 10px;
 }
 
+[data-theme="dark"] {
+  --color-bg: #0f172a;
+  --color-sidebar-bg: #1e293b;
+  --color-sidebar-border: #334155;
+  --color-surface: #1e293b;
+  --color-border: #334155;
+  --color-text-primary: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-accent: #60a5fa;
+  --color-accent-hover: #93c5fd;
+  --color-accent-subtle: rgba(96, 165, 250, 0.12);
+  --color-nav-hover: rgba(96, 165, 250, 0.08);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -228,6 +251,7 @@ body {
   color: var(--color-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .page-header {
@@ -600,6 +624,23 @@ tbody tr:hover {
 .sidebar-footer.collapsed {
   justify-content: center;
   padding: 0.875rem 0;
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: 6px;
+  padding: 0.375rem 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  transition: all 0.15s ease;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.dark-mode-toggle:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .content-area {
