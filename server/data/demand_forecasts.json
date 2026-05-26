@@ -5,6 +5,7 @@
     "item_name": "Industrial Widget Type A",
     "current_demand": 300,
     "forecasted_demand": 450,
+    "unit_cost": 12.50,
     "trend": "increasing",
     "period": "Next 30 days"
   },
@@ -14,6 +15,7 @@
     "item_name": "Steel Bearing Assembly",
     "current_demand": 150,
     "forecasted_demand": 152,
+    "unit_cost": 8.75,
     "trend": "stable",
     "period": "Next 30 days"
   },
@@ -23,6 +25,7 @@
     "item_name": "High-Temperature Gasket",
     "current_demand": 500,
     "forecasted_demand": 600,
+    "unit_cost": 4.25,
     "trend": "increasing",
     "period": "Next 30 days"
   },
@@ -32,6 +35,7 @@
     "item_name": "Electric Motor 5HP",
     "current_demand": 50,
     "forecasted_demand": 35,
+    "unit_cost": 145.00,
     "trend": "decreasing",
     "period": "Next 30 days"
   },
@@ -41,6 +45,7 @@
     "item_name": "Oil Filter Cartridge",
     "current_demand": 800,
     "forecasted_demand": 950,
+    "unit_cost": 22.00,
     "trend": "increasing",
     "period": "Next 30 days"
   },
@@ -50,6 +55,7 @@
     "item_name": "Pressure Relief Valve",
     "current_demand": 120,
     "forecasted_demand": 121,
+    "unit_cost": 67.50,
     "trend": "stable",
     "period": "Next 30 days"
   },
@@ -59,6 +65,7 @@
     "item_name": "5V 10A Switching Power Supply",
     "current_demand": 250,
     "forecasted_demand": 252,
+    "unit_cost": 18.99,
     "trend": "stable",
     "period": "Next 30 days"
   },
@@ -68,6 +75,7 @@
     "item_name": "Temperature Sensor Module",
     "current_demand": 180,
     "forecasted_demand": 182,
+    "unit_cost": 34.00,
     "trend": "stable",
     "period": "Next 30 days"
   },
@@ -77,6 +85,7 @@
     "item_name": "Logic Controller Board",
     "current_demand": 95,
     "forecasted_demand": 96,
+    "unit_cost": 89.00,
     "trend": "stable",
     "period": "Next 30 days"
   }
