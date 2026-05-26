@@ -1,8 +1,10 @@
+import uuid
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -80,6 +82,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    source: Optional[str] = None  # "restocking" for restocking orders, None for regular
 
 class DemandForecast(BaseModel):
     id: str
@@ -120,6 +123,27 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+
+class Task(BaseModel):
+    id: str
+    title: str
+    status: str  # 'pending' | 'completed'
+    created_date: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+
+# In-memory task storage
+tasks_store: List[dict] = []
+
 # API endpoints
 @app.get("/")
 def root():
@@ -148,8 +172,9 @@ def get_orders(
     status: Optional[str] = None,
     month: Optional[str] = None
 ):
-    """Get all orders with optional filtering"""
-    filtered_orders = apply_filters(orders, warehouse, category, status)
+    """Get all orders (including restocking orders) with optional filtering"""
+    all_orders = list(orders) + list(restocking_orders)
+    filtered_orders = apply_filters(all_orders, warehouse, category, status)
     filtered_orders = filter_by_month(filtered_orders, month)
     return filtered_orders
 
@@ -303,6 +328,67 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order from selected demand-forecast items."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="At least one item is required")
+    order_date = datetime.utcnow()
+    expected_delivery = order_date + timedelta(days=14)
+    order_number = f"RST-{order_date.year}-{len(restocking_orders) + 1:04d}"
+    total_value = sum(item.quantity * item.unit_price for item in request.items)
+    new_order = {
+        "id": str(uuid.uuid4()),
+        "order_number": order_number,
+        "customer": "Restocking Order",
+        "items": [item.dict() for item in request.items],
+        "status": "Processing",
+        "order_date": order_date.isoformat(),
+        "expected_delivery": expected_delivery.isoformat(),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+        "warehouse": "Multiple",
+        "category": "Multiple",
+        "source": "restocking"
+    }
+    restocking_orders.append(new_order)
+    return new_order
+
+@app.get("/api/restocking-orders", response_model=List[Order])
+def get_restocking_orders():
+    """Get all submitted restocking orders."""
+    return restocking_orders
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    return tasks_store
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    task = {
+        "id": str(uuid.uuid4()),
+        "title": request.title,
+        "status": "pending",
+        "created_date": datetime.now().strftime("%Y-%m-%d")
+    }
+    tasks_store.append(task)
+    return task
+
+@app.delete("/api/tasks/{task_id}", status_code=204)
+def delete_task(task_id: str):
+    task = next((t for t in tasks_store if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    tasks_store.remove(task)
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    task = next((t for t in tasks_store if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
 
 if __name__ == "__main__":
     import uvicorn
