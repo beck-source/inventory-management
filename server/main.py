@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +90,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +121,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateRestockOrderRequest(BaseModel):
+    items: List[RestockOrderItem]
+    budget: Optional[float] = None
 
 # API endpoints
 @app.get("/")
@@ -165,6 +177,42 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+# Restock orders are created at runtime via the Restocking tab and held in memory.
+# Non-persistent: this list resets when the server restarts (re-reads JSON seed data).
+restock_orders: list = []
+RESTOCK_LEAD_DAYS = 14
+
+@app.post("/api/restock-orders", response_model=Order)
+def create_restock_order(req: CreateRestockOrderRequest):
+    """Create a restock order from the Restocking tab and store it in memory.
+
+    The order is shaped to match the Order model so it renders with the existing
+    Orders UI. expected_delivery is RESTOCK_LEAD_DAYS out so the Orders tab can
+    show a delivery lead time.
+    """
+    now = datetime.now()
+    seq = len(restock_orders) + 1
+    total = sum(item.quantity * item.unit_price for item in req.items)
+    order = {
+        "id": f"RST-{seq}",
+        "order_number": f"RST-{now.year}-{seq:04d}",
+        "customer": "Internal Restock",
+        "items": [item.model_dump() for item in req.items],
+        "status": "Processing",
+        "order_date": now.isoformat(timespec="seconds"),
+        "expected_delivery": (now + timedelta(days=RESTOCK_LEAD_DAYS)).isoformat(timespec="seconds"),
+        "total_value": round(total, 2),
+        "warehouse": None,
+        "category": None,
+    }
+    restock_orders.append(order)
+    return order
+
+@app.get("/api/restock-orders", response_model=List[Order])
+def get_restock_orders():
+    """Get all restock orders submitted during this server session."""
+    return restock_orders
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():

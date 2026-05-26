@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再入荷',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,11 +107,13 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
+    leadTimeDays: '{days}日',
     quantity: '数量',
     table: {
       orderNumber: '注文番号',
@@ -125,8 +128,37 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '予算を設定し、需要予測から推奨品目を発注します',
+    budgetTitle: '利用可能な予算',
+    budgetLabel: '予算',
+    restockEverything: 'すべて再入荷: {amount}',
+    recommendedTitle: '推奨再入荷',
+    table: {
+      sku: 'SKU',
+      item: '品目',
+      trend: 'トレンド',
+      unitCost: '単価',
+      recommendedQty: '推奨数量',
+      lineCost: '小計'
+    },
+    totalCost: '合計コスト',
+    itemsSelected: '選択品目数',
+    budgetRemaining: '残り予算',
+    placeOrder: '発注する',
+    confirmPrompt: '{count}件の再入荷注文（合計{amount}）を送信しますか？',
+    confirm: '注文を確定',
+    cancel: 'キャンセル',
+    success: '再入荷注文 {orderNumber} を送信しました — 注文タブで確認できます',
+    emptyState: 'この予算内に収まる品目がありません。予算を増やして推奨を表示してください。',
+    noForecasts: '需要予測データがありません'
   },
 
   // Finance/Spending

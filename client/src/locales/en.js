@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,11 +107,13 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
+    leadTimeDays: '{days} days',
     quantity: 'Qty',
     table: {
       orderNumber: 'Order Number',
@@ -125,8 +128,37 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order recommended items from the demand forecast',
+    budgetTitle: 'Available Budget',
+    budgetLabel: 'Budget',
+    restockEverything: 'Restock everything: {amount}',
+    recommendedTitle: 'Recommended Restock',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      recommendedQty: 'Recommended Qty',
+      lineCost: 'Line Cost'
+    },
+    totalCost: 'Total Cost',
+    itemsSelected: 'Items Selected',
+    budgetRemaining: 'Budget Remaining',
+    placeOrder: 'Place Order',
+    confirmPrompt: 'Submit restock order for {count} items totaling {amount}?',
+    confirm: 'Confirm Order',
+    cancel: 'Cancel',
+    success: 'Restock order {orderNumber} submitted — view it in the Orders tab',
+    emptyState: 'No items fit within this budget. Increase your budget to see recommendations.',
+    noForecasts: 'No demand forecast data available'
   },
 
   // Finance/Spending
