@@ -123,26 +123,26 @@ const handleLogout = () => {
 .profile-button {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: 0.5rem;
+  padding: 0.25rem 0.625rem 0.25rem 0.25rem;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -150,16 +150,22 @@ const handleLogout = () => {
   font-weight: 600;
   font-size: 0.75rem;
   letter-spacing: 0.025em;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-xs);
 }
 
 .profile-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
+  color: var(--color-text-faint);
   transition: transform 0.2s ease;
 }
 
@@ -172,35 +178,39 @@ const handleLogout = () => {
   top: calc(100% + 0.5rem);
   right: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
   overflow: hidden;
+  padding: 0.375rem;
 }
 
 .dropdown-header {
-  padding: 1rem;
+  padding: 0.875rem;
   display: flex;
-  gap: 0.875rem;
+  gap: 0.75rem;
   align-items: center;
-  background: #f8fafc;
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-md);
+  margin-bottom: 0.375rem;
 }
 
 .avatar-large {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.9375rem;
   letter-spacing: 0.025em;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .user-info {
@@ -210,14 +220,14 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 600;
-  color: #0f172a;
-  font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  margin-bottom: 2px;
 }
 
 .user-email {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,57 +235,68 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+  background: var(--color-border);
+  margin: 0.375rem -0.375rem;
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
   background: none;
   border: none;
+  border-radius: var(--radius-sm);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--color-text-secondary);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--color-surface-alt);
+  color: var(--color-text-primary);
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
 .dropdown-item.logout {
-  color: #dc2626;
+  color: var(--color-error-text);
 }
 
 .dropdown-item.logout svg {
-  color: #dc2626;
+  color: var(--color-error);
 }
 
 .dropdown-item.logout:hover {
-  background: #fef2f2;
+  background: var(--color-error-soft);
 }
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
+  background: var(--color-primary);
   color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
-  min-width: 20px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.125rem 0.4375rem;
+  border-radius: var(--radius-full);
+  min-width: 18px;
   text-align: center;
+}
+
+@media (max-width: 640px) {
+  .profile-name {
+    display: none;
+  }
+  .chevron {
+    display: none;
+  }
 }
 </style>
