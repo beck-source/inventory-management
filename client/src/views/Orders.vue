@@ -27,6 +27,37 @@
         </div>
       </div>
 
+      <div v-if="restockingOrders.length > 0" class="card restocking-orders-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedOrders') }}</h3>
+          <span class="badge info">{{ restockingOrders.length }} {{ t('common.items') }}</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('orders.table.totalValue') }}</th>
+                <th>{{ t('orders.table.orderDate') }}</th>
+                <th>{{ t('restocking.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.order_number">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ formatRestockingItems(order.items) }}</td>
+                <td><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td><span :class="['badge', getOrderStatusClass(order.status)]">{{ t(`status.${order.status.toLowerCase()}`) }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +126,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -117,11 +149,26 @@ export default {
           const dateB = new Date(b.order_date)
           return dateA - dateB
         })
+        await loadRestockingOrders()
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
         loading.value = false
       }
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        // Non-critical: silently ignore if restocking endpoint fails
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    const formatRestockingItems = (items) => {
+      if (items.length <= 2) return items.map(i => i.name).join(', ')
+      return items.slice(0, 2).map(i => i.name).join(', ') + ` +${items.length - 2} more`
     }
 
     // Watch for filter changes and reload data
@@ -165,13 +212,19 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders,
+      formatRestockingItems
     }
   }
 }
 </script>
 
 <style scoped>
+.restocking-orders-card {
+  border-left: 3px solid #2563eb;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
