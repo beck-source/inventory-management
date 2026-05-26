@@ -89,6 +89,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +120,29 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingOrderItem]
+    total_value: float
+    status: str
+    order_date: str
+    expected_delivery: str
+    customer: str
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+
+# In-memory store for restocking orders placed during this server session
+restocking_orders: List[dict] = []
+_restocking_counter: dict = {"n": 0}
 
 # API endpoints
 @app.get("/")
@@ -303,6 +327,38 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order from the recommended items."""
+    from datetime import date, timedelta
+
+    _restocking_counter["n"] += 1
+    order_number = f"RST-{_restocking_counter['n']:03d}"
+    today = date.today()
+    delivery = today + timedelta(days=7)
+
+    total_value = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+
+    order = {
+        "id": order_number,
+        "order_number": order_number,
+        "items": [item.model_dump() for item in request.items],
+        "total_value": total_value,
+        "status": "Processing",
+        "order_date": today.isoformat(),
+        "expected_delivery": delivery.isoformat(),
+        "customer": "Internal Restocking"
+    }
+    restocking_orders.append(order)
+    return order
+
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all restocking orders placed this session."""
+    return restocking_orders
+
 
 if __name__ == "__main__":
     import uvicorn
