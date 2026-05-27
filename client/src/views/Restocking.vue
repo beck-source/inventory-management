@@ -281,7 +281,7 @@ export default {
 .budget-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -289,7 +289,7 @@ export default {
 .budget-amount {
   font-size: 2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--accent);
   letter-spacing: -0.025em;
 }
 
@@ -298,8 +298,8 @@ export default {
   height: 6px;
   appearance: none;
   -webkit-appearance: none;
-  accent-color: #2563eb;
-  background: #e2e8f0;
+  accent-color: var(--accent);
+  background: var(--border);
   border-radius: 3px;
   cursor: pointer;
   outline: none;
@@ -311,40 +311,40 @@ export default {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--accent);
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 1px 4px rgba(249, 115, 22, 0.4);
   transition: box-shadow 0.2s;
 }
 
 .budget-slider::-webkit-slider-thumb:hover {
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.5);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.5);
 }
 
 .budget-slider::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--accent);
   cursor: pointer;
   border: none;
-  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
+  box-shadow: 0 1px 4px rgba(249, 115, 22, 0.4);
 }
 
 .budget-hint {
   font-size: 0.813rem;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 
 .empty-state {
   text-align: center;
   padding: 2.5rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   font-size: 0.938rem;
 }
 
 .order-footer {
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border);
   margin-top: 1rem;
   padding-top: 1rem;
 }
@@ -364,7 +364,7 @@ export default {
 .summary-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -372,13 +372,13 @@ export default {
 .summary-value {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--accent);
 }
 
 .success-banner {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
+  background: var(--success-soft);
+  color: var(--success);
+  border: 1px solid var(--success);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   font-size: 0.938rem;
@@ -397,19 +397,19 @@ export default {
 
 .place-order-btn {
   padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: white;
+  background: var(--accent);
+  color: var(--accent-contrast);
   border: none;
   border-radius: 8px;
   font-size: 0.938rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .place-order-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  opacity: 0.92;
+  background: var(--accent-hover);
 }
 
 .place-order-btn:disabled {
@@ -418,15 +418,15 @@ export default {
 }
 
 .confirm-panel {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 1rem 1.25rem;
 }
 
 .confirm-prompt {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 1rem;
   font-weight: 500;
 }
@@ -438,18 +438,18 @@ export default {
 
 .confirm-btn {
   padding: 0.625rem 1.5rem;
-  background: #0f172a;
-  color: white;
+  background: var(--accent);
+  color: var(--accent-contrast);
   border: none;
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: background 0.2s;
 }
 
 .confirm-btn:hover:not(:disabled) {
-  opacity: 0.85;
+  background: var(--accent-hover);
 }
 
 .confirm-btn:disabled {
@@ -459,9 +459,9 @@ export default {
 
 .cancel-btn {
   padding: 0.625rem 1.25rem;
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -470,8 +470,8 @@ export default {
 }
 
 .cancel-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
 }
 </style>

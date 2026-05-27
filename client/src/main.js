@@ -8,6 +8,7 @@ import Demand from './views/Demand.vue'
 import Restocking from './views/Restocking.vue'
 import Spending from './views/Spending.vue'
 import Reports from './views/Reports.vue'
+import Backlog from './views/Backlog.vue'
 
 const router = createRouter([
   { path: '/', component: Dashboard },
@@ -16,7 +17,8 @@ const router = createRouter([
   { path: '/demand', component: Demand },
   { path: '/restocking', component: Restocking },
   { path: '/spending', component: Spending },
-  { path: '/reports', component: Reports }
+  { path: '/reports', component: Reports },
+  { path: '/backlog', component: Backlog }
 ])
 
 const app = createApp(App)
