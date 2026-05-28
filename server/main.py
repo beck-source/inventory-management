@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -119,6 +120,17 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    budget: float
+    warehouse: str = "San Francisco"
 
 # API endpoints
 @app.get("/")
@@ -303,6 +315,39 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", response_model=Order)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a restocking order from demand forecast recommendations"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="At least one item is required")
+
+    # Generate order number: RST-YYYY-NNNN (sequence based on existing RST orders)
+    rst_count = sum(1 for o in orders if o.get("order_number", "").startswith("RST-"))
+    year = datetime.now().year
+    order_number = f"RST-{year}-{str(rst_count + 1).zfill(4)}"
+
+    now = datetime.now()
+    total_value = sum(item.quantity * item.unit_cost for item in request.items)
+
+    new_order = {
+        "id": str(len(orders) + 1),
+        "order_number": order_number,
+        "customer": "Internal Restocking",
+        "items": [{"sku": i.sku, "name": i.name, "quantity": i.quantity, "unit_price": i.unit_cost} for i in request.items],
+        "status": "Submitted",
+        "order_date": now.isoformat(),
+        "expected_delivery": (now + timedelta(days=14)).isoformat(),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+        "warehouse": request.warehouse,
+        "category": None,
+    }
+
+    # Append to in-memory orders list so GET /api/orders immediately returns it
+    orders.append(new_order)
+    return new_order
+
 
 if __name__ == "__main__":
     import uvicorn
