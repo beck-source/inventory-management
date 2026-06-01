@@ -15,5 +15,8 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.2.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true
   }
 }

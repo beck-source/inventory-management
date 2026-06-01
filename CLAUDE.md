@@ -11,11 +11,15 @@ Use the Task tool with these specialized subagents for appropriate tasks:
   - Examples: Creating components, fixing reactivity issues, performance optimization, complex state management
   - **MANDATORY RULE: ANY time you need to create or significantly modify a .vue file, you MUST delegate to vue-expert**
 - **code-reviewer**: Use after writing significant code to review quality and best practices
+- **security-auditor**: Use to audit code for security issues (this is a demo with no auth/validation, so flag accordingly)
 - **Explore**: Use for understanding codebase structure, searching for patterns, or answering questions about how components work
 - **general-purpose**: Use for complex multi-step tasks or when other agents don't fit
 
 ### Skills
 - **backend-api-test** skill: Use when writing or modifying tests in `tests/backend` directory with pytest and FastAPI TestClient
+
+### Slash Commands
+Project commands live in `.claude/commands/`: `/start`, `/stop`, `/test`, `/optimize`, `/demo-branch`, `/reset-branch`.
 
 ### MCP Tools
 - **ALWAYS use GitHub MCP tools** (`mcp__github__*`) for ALL GitHub operations
@@ -24,9 +28,9 @@ Use the Task tool with these specialized subagents for appropriate tasks:
   - Test against: `http://localhost:3000` (frontend), `http://localhost:8001` (API)
 
 ## Stack
-- **Frontend**: Vue 3 + Composition API + Vite (port 3000)
-- **Backend**: Python FastAPI (port 8001)
-- **Data**: JSON files in `server/data/` loaded via `server/mock_data.py`
+- **Frontend**: Vue 3 + Composition API + Vite (port 3000), vue-router, axios. i18n (en/ja) and client-only mock auth via composables.
+- **Backend**: Python FastAPI (port 8001), managed with `uv` (Python >=3.11)
+- **Data**: JSON files in `server/data/` loaded via `server/mock_data.py`; regenerate with `server/generate_data.py`
 
 ## Quick Start
 
@@ -40,6 +44,18 @@ cd client
 npm install && npm run dev
 ```
 
+`./scripts/start.sh` / `stop.sh` start both at once but are macOS/Linux only — on Windows run the two commands above in separate terminals.
+
+## Testing
+
+```bash
+cd tests
+uv run pytest backend/ -v      # all backend tests
+uv run pytest backend/test_inventory.py::test_name -v   # single test
+```
+
+Tests use FastAPI `TestClient` (fixture in `tests/backend/conftest.py`); config in `tests/pytest.ini`. There is no frontend test runner configured.
+
 ## Key Patterns
 
 **Filter System**: 4 filters (Time Period, Warehouse, Category, Order Status) apply to all data via query params
@@ -52,6 +68,8 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/reports/quarterly`, `/api/reports/monthly-trends` - Reports view data
+- `GET /api/inventory/{item_id}`, `/api/orders/{order_id}` - Single item (404 if missing)
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
@@ -60,10 +78,16 @@ npm install && npm run dev
 4. Inventory filters don't support month (no time dimension)
 5. Revenue goals: $800K/month single, $9.6M YTD all months
 
+## Conventions
+- Always document non-obvious logic changes with comments
+
 ## File Locations
-- Views: `client/src/views/*.vue`
+- Views: `client/src/views/*.vue` (Dashboard, Inventory, Orders, Demand, Backlog, Spending, Reports)
+- Components: `client/src/components/*.vue` (FilterBar, detail modals, profile/language menus)
+- Composables: `client/src/composables/` (`useFilters.js`, `useI18n.js`, `useAuth.js`)
+- Locales: `client/src/locales/{en,ja}.js`; formatting helpers in `client/src/utils/`
 - API Client: `client/src/api.js`
-- Backend: `server/main.py`, `server/mock_data.py`
+- Backend: `server/main.py` (routes + Pydantic models), `server/mock_data.py`, `server/generate_data.py`
 - Data: `server/data/*.json`
 - Styles: `client/src/App.vue`
 
