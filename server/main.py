@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
+from uuid import uuid4
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -120,6 +122,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_price: float
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderItem]
+
 # API endpoints
 @app.get("/")
 def root():
@@ -160,6 +172,59 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/restock-orders", response_model=Order)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order; appends a 'Submitted' order to the in-memory orders list.
+
+    Note: this is a demo store - submitted orders live in memory only and reset on
+    server restart. Lead time is a fixed 14 days (expected_delivery = order_date + 14d).
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="No items to order")
+
+    now = datetime.now()
+    expected = now + timedelta(days=14)
+
+    # Generate the next order number from the existing ORD-2025-NNNN sequence
+    max_num = 0
+    for o in orders:
+        number = o.get("order_number", "")
+        if number.startswith("ORD-2025-"):
+            try:
+                max_num = max(max_num, int(number.split("-")[-1]))
+            except ValueError:
+                pass
+    next_number = f"ORD-2025-{max_num + 1:04d}"
+
+    # Map restock items (item_sku/item_name) to the existing order-item dict shape
+    items = [
+        {
+            "sku": item.item_sku,
+            "name": item.item_name,
+            "quantity": item.quantity,
+            "unit_price": round(item.unit_price, 2),
+        }
+        for item in request.items
+    ]
+    # Compute total server-side rather than trusting the client
+    total_value = round(sum(i["quantity"] * i["unit_price"] for i in items), 2)
+
+    new_order = {
+        "id": f"restock-{uuid4().hex[:8]}",
+        "order_number": next_number,
+        "customer": "Internal Restock",
+        "items": items,
+        "status": "Submitted",
+        "order_date": now.strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": expected.strftime("%Y-%m-%dT%H:%M:%S"),
+        "total_value": total_value,
+        "actual_delivery": None,
+        "warehouse": None,
+        "category": None,
+    }
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
