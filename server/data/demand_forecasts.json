@@ -1,56 +1,56 @@
 [
   {
     "id": "1",
-    "item_sku": "WDG-001",
-    "item_name": "Industrial Widget Type A",
-    "current_demand": 300,
-    "forecasted_demand": 450,
+    "item_sku": "SRV-301",
+    "item_name": "Micro Servo Motor",
+    "current_demand": 45,
+    "forecasted_demand": 95,
     "trend": "increasing",
     "period": "Next 30 days"
   },
   {
     "id": "2",
-    "item_sku": "BRG-102",
-    "item_name": "Steel Bearing Assembly",
-    "current_demand": 150,
-    "forecasted_demand": 152,
-    "trend": "stable",
+    "item_sku": "TMP-201",
+    "item_name": "Temperature Sensor Module",
+    "current_demand": 120,
+    "forecasted_demand": 250,
+    "trend": "increasing",
     "period": "Next 30 days"
   },
   {
     "id": "3",
-    "item_sku": "GSK-203",
-    "item_name": "High-Temperature Gasket",
-    "current_demand": 500,
-    "forecasted_demand": 600,
+    "item_sku": "ACC-206",
+    "item_name": "3-Axis Accelerometer",
+    "current_demand": 80,
+    "forecasted_demand": 180,
     "trend": "increasing",
     "period": "Next 30 days"
   },
   {
     "id": "4",
-    "item_sku": "MTR-304",
-    "item_name": "Electric Motor 5HP",
-    "current_demand": 50,
-    "forecasted_demand": 35,
-    "trend": "decreasing",
+    "item_sku": "PCB-001",
+    "item_name": "Single Layer PCB Assembly",
+    "current_demand": 300,
+    "forecasted_demand": 520,
+    "trend": "increasing",
     "period": "Next 30 days"
   },
   {
     "id": "5",
-    "item_sku": "FLT-405",
-    "item_name": "Oil Filter Cartridge",
-    "current_demand": 800,
-    "forecasted_demand": 950,
+    "item_sku": "MCU-402",
+    "item_name": "32-bit ARM Microcontroller",
+    "current_demand": 400,
+    "forecasted_demand": 700,
     "trend": "increasing",
     "period": "Next 30 days"
   },
   {
     "id": "6",
-    "item_sku": "VLV-506",
-    "item_name": "Pressure Relief Valve",
-    "current_demand": 120,
-    "forecasted_demand": 121,
-    "trend": "stable",
+    "item_sku": "LED-406",
+    "item_name": "LED Driver IC",
+    "current_demand": 250,
+    "forecasted_demand": 400,
+    "trend": "increasing",
     "period": "Next 30 days"
   },
   {
@@ -64,20 +64,20 @@
   },
   {
     "id": "8",
-    "item_sku": "SNR-420",
-    "item_name": "Temperature Sensor Module",
-    "current_demand": 180,
-    "forecasted_demand": 182,
+    "item_sku": "PRS-203",
+    "item_name": "Pressure Sensor Module",
+    "current_demand": 850,
+    "forecasted_demand": 850,
     "trend": "stable",
     "period": "Next 30 days"
   },
   {
     "id": "9",
-    "item_sku": "CTL-330",
-    "item_name": "Logic Controller Board",
-    "current_demand": 95,
-    "forecasted_demand": 96,
-    "trend": "stable",
+    "item_sku": "STP-303",
+    "item_name": "Stepper Motor NEMA 17",
+    "current_demand": 80,
+    "forecasted_demand": 60,
+    "trend": "decreasing",
     "period": "Next 30 days"
   }
 ]
