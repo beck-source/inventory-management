@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -120,6 +121,12 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class CreateOrderRequest(BaseModel):
+    customer: str
+    items: List[dict]
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
 # API endpoints
 @app.get("/")
 def root():
@@ -152,6 +159,29 @@ def get_orders(
     filtered_orders = apply_filters(orders, warehouse, category, status)
     filtered_orders = filter_by_month(filtered_orders, month)
     return filtered_orders
+
+@app.post("/api/orders", response_model=Order)
+def create_order(request: CreateOrderRequest):
+    """Create a new restocking order"""
+    new_id = str(len(orders) + 1)
+    order_date = datetime.utcnow().isoformat()
+    expected_delivery = (datetime.utcnow() + timedelta(days=14)).isoformat()
+    total_value = sum(i.get("quantity", 0) * i.get("unit_price", 0) for i in request.items)
+    order = {
+        "id": new_id,
+        "order_number": f"ORD-RESTOCK-{new_id.zfill(4)}",
+        "customer": request.customer,
+        "items": request.items,
+        "status": "Submitted",
+        "warehouse": request.warehouse,
+        "category": request.category,
+        "order_date": order_date,
+        "expected_delivery": expected_delivery,
+        "total_value": round(total_value, 2),
+        "actual_delivery": None
+    }
+    orders.append(order)
+    return order
 
 @app.get("/api/orders/{order_id}", response_model=Order)
 def get_order(order_id: str):

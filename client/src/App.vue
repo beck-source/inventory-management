@@ -25,6 +25,9 @@
           <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
             Reports
           </router-link>
+          <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
+            {{ t('nav.restocking') }}
+          </router-link>
         </nav>
         <LanguageSwitcher />
         <ProfileMenu
@@ -448,6 +451,11 @@ tbody tr:hover {
 }
 
 .badge.stable {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.badge.submitted {
   background: #e0e7ff;
   color: #3730a3;
 }
