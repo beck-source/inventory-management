@@ -1,6 +1,10 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Factory Inventory Management System Demo with GitHub integration - Full-stack application with Vue 3 frontend, Python FastAPI backend, and in-memory mock data (no database).
+
+> **Nested guidance**: `client/CLAUDE.md` (detailed Vue 3 patterns) and `server/CLAUDE.md` (detailed FastAPI patterns) hold deeper, directory-specific best practices. Read them when doing substantial frontend or backend work.
 
 ## Critical Tool Usage Rules
 
@@ -38,13 +42,25 @@ uv run python main.py
 # Frontend
 cd client
 npm install && npm run dev
+
+# Frontend production build
+cd client && npm run build   # output: client/dist/
+
+# Backend tests (pytest + FastAPI TestClient; deps in server/pyproject.toml)
+cd server && uv run pytest ../tests/backend -v
+cd server && uv run pytest ../tests/backend/test_inventory.py::test_name -v   # single test
 ```
+
+On macOS/Linux, `./scripts/start.sh` and `./scripts/stop.sh` run both servers. On Windows, use the manual commands above.
 
 ## Key Patterns
 
 **Filter System**: 4 filters (Time Period, Warehouse, Category, Order Status) apply to all data via query params
 **Data Flow**: Vue filters → `client/src/api.js` → FastAPI → In-memory filtering → Pydantic validation → Computed properties
 **Reactivity**: Raw data in refs (`allOrders`, `inventoryItems`), derived data in computed properties
+**Composables** (`client/src/composables/`): `useFilters` (global filter state + `getCurrentFilters()`), `useI18n` (translations), `useAuth` (auth state)
+**i18n**: English/Japanese via `useI18n` + `client/src/locales/{en,ja}.js`; `LanguageSwitcher` component. Add UI strings to both locale files
+**Routing**: 6 views via vue-router (`client/src/main.js`): `/` Dashboard, `/inventory`, `/orders`, `/demand`, `/spending`, `/reports`
 
 ## API Endpoints
 - `GET /api/inventory` - Filters: warehouse, category
@@ -52,6 +68,8 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/reports/quarterly`, `/api/reports/monthly-trends` - Reports view data
+- `GET /api/inventory/{item_id}`, `/api/orders/{order_id}` - Single item (404 if missing)
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
@@ -61,11 +79,18 @@ npm install && npm run dev
 5. Revenue goals: $800K/month single, $9.6M YTD all months
 
 ## File Locations
-- Views: `client/src/views/*.vue`
+- Views: `client/src/views/*.vue` (one per route)
+- Components: `client/src/components/*.vue` (FilterBar, detail modals, ProfileMenu, LanguageSwitcher)
+- Composables: `client/src/composables/*.js`
+- Locales: `client/src/locales/{en,ja}.js`
 - API Client: `client/src/api.js`
-- Backend: `server/main.py`, `server/mock_data.py`
+- Backend: `server/main.py` (endpoints), `server/mock_data.py` (JSON loader)
 - Data: `server/data/*.json`
-- Styles: `client/src/App.vue`
+- Tests: `tests/backend/*.py`
+- Styles: `client/src/App.vue` (global)
+
+## Conventions
+- Always document non-obvious logic changes with comments
 
 ## Design System
 - Colors: Slate/gray (#0f172a, #64748b, #e2e8f0)

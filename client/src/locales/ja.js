@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +107,9 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
+    leadTime: 'リードタイム',
+    leadTimeDays: '{days}日',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -188,6 +192,30 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定して、需要予測から推奨される補充品目を取得します',
+    budget: '利用可能な予算',
+    recommendedItems: '推奨品目',
+    placeOrder: '発注する',
+    placing: '発注中...',
+    totalCost: '合計コスト',
+    remainingBudget: '残り予算',
+    itemCount: '{count}件',
+    noRecommendations: '予算を増やすと推奨品目が表示されます',
+    skippedNotice: '{count}件の予測品目をスキップしました（在庫コストデータなし）',
+    orderPlaced: '補充注文 {orderNumber} を作成しました',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      trend: 'トレンド',
+      gapQuantity: '補充数量',
+      unitCost: '単価',
+      lineCost: '小計'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +232,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -373,6 +402,7 @@ export default {
     'Superior Manufacturing': 'スーペリアマニュファクチャリング',
     'Cascade Manufacturing': 'カスケードマニュファクチャリング',
     'Acme Manufacturing Corp': 'アクメ製造',
+    'Internal Restock': '社内補充',
     'TechBuild Industries': 'テックビルド工業',
     'Advanced Components Inc': 'アドバンストコンポーネンツ',
     'Premier Industries': 'プレミア工業',

@@ -2,7 +2,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+
+# Fixed delivery lead time applied to submitted restocking orders
+RESTOCK_LEAD_TIME_DAYS = 14
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -119,6 +123,25 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockLineItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int          # the positive demand gap (forecasted - current)
+    unit_cost: float       # from the matching inventory item
+    line_cost: float       # quantity * unit_cost
+    trend: str             # carried through for display/prioritization
+
+class RestockRecommendation(BaseModel):
+    budget: float
+    items: List[RestockLineItem]
+    total_cost: float
+    item_count: int
+    max_budget: float                  # cost to cover ALL positive gaps (slider max hint)
+    skipped_no_inventory: List[str]    # demand SKUs with no inventory match (no unit_cost)
+
+class RestockOrderRequest(BaseModel):
+    items: List[RestockLineItem]       # the recommended set submitted by the client
 
 # API endpoints
 @app.get("/")
@@ -303,6 +326,126 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+def _build_restock_candidates():
+    """Join demand forecasts to inventory and build priced restock candidates.
+
+    Returns (candidates, skipped) where each candidate covers the positive demand
+    gap (forecasted - current) for an item that exists in inventory. Items with a
+    non-positive gap are excluded; forecast SKUs with no inventory match (and thus
+    no unit_cost) are reported in `skipped` so the UI can surface them.
+    """
+    inv_by_sku = {item["sku"]: item for item in inventory_items}
+    candidates = []
+    skipped = []
+
+    for forecast in demand_forecasts:
+        gap = forecast["forecasted_demand"] - forecast["current_demand"]
+        if gap <= 0:
+            # Stable-at-zero or decreasing demand needs no restock
+            continue
+
+        inv = inv_by_sku.get(forecast["item_sku"])
+        if inv is None:
+            # No inventory record means no unit_cost to price the gap against
+            skipped.append(forecast["item_sku"])
+            continue
+
+        unit_cost = inv["unit_cost"]
+        candidates.append({
+            "sku": forecast["item_sku"],
+            "name": inv["name"],
+            "quantity": gap,
+            "unit_cost": unit_cost,
+            "line_cost": round(gap * unit_cost, 2),
+            "trend": forecast["trend"],
+        })
+
+    return candidates, skipped
+
+@app.get("/api/restocking/recommendations", response_model=RestockRecommendation)
+def get_restock_recommendations(budget: float = 0):
+    """Recommend items to restock that fit within the given budget.
+
+    Items are prioritized by 'increasing' trend first, then larger demand gap
+    first. We greedily select each item whose full line cost fits the remaining
+    budget (all-or-nothing per item, never a partial gap), skipping items that
+    don't fit and continuing so cheaper later items can still be included.
+    """
+    candidates, skipped = _build_restock_candidates()
+    max_budget = round(sum(c["line_cost"] for c in candidates), 2)
+
+    # Deterministic priority: increasing trend first, then largest gap first
+    candidates.sort(key=lambda c: (0 if c["trend"] == "increasing" else 1, -c["quantity"]))
+
+    selected = []
+    remaining = budget
+    for c in candidates:
+        if c["line_cost"] <= remaining:
+            selected.append(c)
+            remaining -= c["line_cost"]
+
+    return {
+        "budget": budget,
+        "items": selected,
+        "total_cost": round(sum(c["line_cost"] for c in selected), 2),
+        "item_count": len(selected),
+        "max_budget": max_budget,
+        "skipped_no_inventory": skipped,
+    }
+
+@app.post("/api/restocking/order", response_model=Order, status_code=201)
+def create_restock_order(request: RestockOrderRequest):
+    """Submit a restocking order: build a valid Order from the recommended items
+    and append it to the in-memory orders list (persists for the server's lifetime).
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="No items to order")
+
+    # Next sequential order number in the existing ORD-2025-#### scheme
+    max_seq = 0
+    for o in orders:
+        num = o.get("order_number", "")
+        if num.startswith("ORD-2025-"):
+            try:
+                max_seq = max(max_seq, int(num.rsplit("-", 1)[-1]))
+            except ValueError:
+                continue
+    order_number = f"ORD-2025-{max_seq + 1:04d}"
+
+    # Next numeric id (ids are stringified integers)
+    next_id = 1
+    numeric_ids = [int(o["id"]) for o in orders if str(o.get("id", "")).isdigit()]
+    if numeric_ids:
+        next_id = max(numeric_ids) + 1
+
+    # Order items use unit_price; restock line items carry unit_cost
+    order_items = [
+        {"sku": item.sku, "name": item.name, "quantity": item.quantity, "unit_price": item.unit_cost}
+        for item in request.items
+    ]
+    total_value = round(sum(item.line_cost for item in request.items), 2)
+
+    order_date = datetime.now()
+    expected_delivery = order_date + timedelta(days=RESTOCK_LEAD_TIME_DAYS)
+    fmt = "%Y-%m-%dT%H:%M:%S"
+
+    new_order = {
+        "id": str(next_id),
+        "order_number": order_number,
+        "customer": "Internal Restock",
+        "items": order_items,
+        "status": "Submitted",
+        "order_date": order_date.strftime(fmt),
+        "expected_delivery": expected_delivery.strftime(fmt),
+        "total_value": total_value,
+        "actual_delivery": None,
+        "warehouse": None,
+        "category": None,
+    }
+
+    orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn
