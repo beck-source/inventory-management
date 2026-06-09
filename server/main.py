@@ -2,9 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# In-memory restocking orders storage
+restocking_orders: list = []
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -118,6 +122,25 @@ class CreatePurchaseOrderRequest(BaseModel):
     quantity: int
     unit_cost: float
     expected_delivery_date: str
+    notes: Optional[str] = None
+
+class RestockingItem(BaseModel):
+    sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    items: List[RestockingItem]
+    total_cost: float
+    status: str
+    created_date: str
+    expected_delivery_date: str
+    notes: Optional[str] = None
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingItem]
     notes: Optional[str] = None
 
 # API endpoints
@@ -303,6 +326,27 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all restocking orders"""
+    return restocking_orders
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order"""
+    now = datetime.utcnow()
+    order = {
+        "id": str(len(restocking_orders) + 1),
+        "items": [item.dict() for item in request.items],
+        "total_cost": sum(item.quantity * item.unit_cost for item in request.items),
+        "status": "Processing",
+        "created_date": now.isoformat(),
+        "expected_delivery_date": (now + timedelta(days=14)).isoformat(),
+        "notes": request.notes,
+    }
+    restocking_orders.append(order)
+    return order
 
 if __name__ == "__main__":
     import uvicorn

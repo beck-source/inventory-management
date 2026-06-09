@@ -9,21 +9,21 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <!-- Revenue & Financial KPIs -->
-      <div class="stats-grid-finance">
-        <div class="stat-card revenue-card">
+      <div class="stats-grid">
+        <div class="stat-card success">
           <div class="stat-label">{{ t('finance.totalRevenue') }}</div>
           <div class="stat-value">{{ formatCurrency(revenueMetrics.totalRevenue) }}</div>
           <div class="stat-change positive">
-            <span class="change-icon">↑</span>
+            <span class="change-icon">&#8593;</span>
             {{ t('finance.fromOrders', { count: revenueMetrics.orderCount }) }}
           </div>
         </div>
-        <div class="stat-card cost-card">
+        <div class="stat-card danger">
           <div class="stat-label">{{ t('finance.totalCosts') }}</div>
           <div class="stat-value">{{ formatCurrency(totalCosts) }}</div>
           <div class="stat-meta">{{ t('finance.costBreakdown') }}</div>
         </div>
-        <div class="stat-card profit-card">
+        <div class="stat-card info">
           <div class="stat-label">{{ t('finance.netProfit') }}</div>
           <div class="stat-value">{{ formatCurrency(netProfit) }}</div>
           <div class="stat-meta">{{ profitMargin }}% {{ t('finance.margin') }}</div>
@@ -38,7 +38,7 @@
       <!-- Monthly Revenue vs Cost Chart -->
       <div class="card chart-card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('finance.revenueVsCosts.title') }}</h3>
+          <span class="card-title">{{ t('finance.revenueVsCosts.title') }}</span>
           <div class="chart-legend">
             <span class="legend-item"><span class="legend-dot revenue-color"></span>{{ t('finance.revenueVsCosts.revenue') }}</span>
             <span class="legend-item"><span class="legend-dot cost-color"></span>{{ t('finance.revenueVsCosts.costs') }}</span>
@@ -69,7 +69,7 @@
       <!-- Monthly Cost Flow Chart -->
       <div class="card chart-card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('finance.monthlyCostFlow.title') }}</h3>
+          <span class="card-title">{{ t('finance.monthlyCostFlow.title') }}</span>
           <div class="chart-legend">
             <span class="legend-item"><span class="legend-dot procurement"></span>{{ t('finance.monthlyCostFlow.procurement') }}</span>
             <span class="legend-item"><span class="legend-dot operational"></span>{{ t('finance.monthlyCostFlow.operational') }}</span>
@@ -102,11 +102,11 @@
         </div>
       </div>
 
-      <div class="two-column-grid">
+      <div class="charts-grid">
         <!-- Category Spending Breakdown -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">{{ t('finance.categorySpending.title') }}</h3>
+            <span class="card-title">{{ t('finance.categorySpending.title') }}</span>
           </div>
           <div class="category-list">
             <div v-for="category in categorySpending" :key="category.category" class="category-item">
@@ -128,12 +128,12 @@
         </div>
 
         <!-- Recent Transactions -->
-        <div class="card transactions-card">
+        <div class="card">
           <div class="card-header">
-            <h3 class="card-title">{{ t('finance.transactions.title') }}</h3>
+            <span class="card-title">{{ t('finance.transactions.title') }}</span>
           </div>
-          <div class="transactions-table-container">
-            <table class="transactions-table">
+          <div class="table-container transactions-scroll">
+            <table>
               <thead>
                 <tr>
                   <th>{{ t('finance.transactions.id') }}</th>
@@ -151,10 +151,10 @@
                   @click="handleTransactionClick(transaction)"
                 >
                   <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
-                  <td class="transaction-description">{{ transaction.description }}</td>
-                  <td class="transaction-vendor">{{ transaction.vendor }}</td>
-                  <td class="transaction-date">{{ formatDateShort(transaction.date) }}</td>
-                  <td class="transaction-amount text-right">{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</td>
+                  <td>{{ transaction.description }}</td>
+                  <td class="text-secondary">{{ transaction.vendor }}</td>
+                  <td class="text-secondary">{{ formatDateShort(transaction.date) }}</td>
+                  <td class="text-right amount-cell">{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</td>
                 </tr>
               </tbody>
             </table>
@@ -513,8 +513,15 @@ export default {
   font-size: 1rem;
 }
 
+.stat-meta {
+  margin-top: 0.5rem;
+  font-size: 0.813rem;
+  color: var(--text-secondary);
+}
+
+/* Chart cards */
 .chart-card {
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .chart-legend {
@@ -527,47 +534,55 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .legend-dot {
   width: 12px;
   height: 12px;
   border-radius: 3px;
+  flex-shrink: 0;
 }
 
-.legend-dot.procurement { background: #3b82f6; }
-.legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
+.legend-dot.procurement  { background: #3b82f6; }
+.legend-dot.operational  { background: #8b5cf6; }
+.legend-dot.labor        { background: #10b981; }
+.legend-dot.overhead     { background: #f59e0b; }
 .legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
+.legend-dot.cost-color   { background: #ef4444; }
 
-.stats-grid-finance {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+/* Bar chart shared layout */
+.chart-container {
+  padding: 1rem 0;
+}
+
+.bar-chart {
+  display: flex;
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  height: 320px;
 }
 
-.revenue-card {
-  border-left: 4px solid #0f172a;
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border);
+  min-width: 48px;
+  text-align: right;
 }
 
-.cost-card {
-  border-left: 4px solid #ef4444;
+.chart-area {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 0.5rem;
 }
 
-.profit-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
-}
-
+/* Revenue vs Cost bars */
 .bar-group-revenue {
   display: flex;
   flex-direction: column;
@@ -587,56 +602,25 @@ export default {
   padding-bottom: 2rem;
 }
 
-.revenue-bar, .cost-bar {
+.revenue-bar,
+.cost-bar {
   width: 50%;
   max-width: 30px;
   border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
+  transition: opacity 0.2s ease;
   cursor: pointer;
   min-height: 4px;
 }
 
-.revenue-bar {
-  background: #0f172a;
+.revenue-bar { background: #0f172a; }
+.cost-bar    { background: #ef4444; }
+
+.revenue-bar:hover,
+.cost-bar:hover {
+  opacity: 0.75;
 }
 
-.cost-bar {
-  background: #ef4444;
-}
-
-.revenue-bar:hover, .cost-bar:hover {
-  opacity: 0.8;
-  transform: scaleY(1.05);
-}
-
-.chart-container {
-  padding: 1.5rem 0;
-}
-
-.bar-chart {
-  display: flex;
-  gap: 1.5rem;
-  height: 350px;
-}
-
-.y-axis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
-}
-
-.chart-area {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: 0.5rem;
-}
-
+/* Stacked cost bars */
 .bar-group {
   display: flex;
   flex-direction: column;
@@ -663,51 +647,49 @@ export default {
 
 .bar-segment {
   width: 100%;
-  transition: all 0.3s ease;
-  cursor: pointer;
+  transition: opacity 0.2s ease;
   display: block;
 }
 
-.bar-segment:first-child {
-  border-radius: 0 0 6px 6px;
-}
-
-.bar-segment:last-child {
-  border-radius: 6px 6px 0 0;
-}
+.bar-segment:first-child { border-radius: 0 0 6px 6px; }
+.bar-segment:last-child  { border-radius: 6px 6px 0 0; }
 
 .bar-segment.procurement { background: #3b82f6; }
 .bar-segment.operational { background: #8b5cf6; }
-.bar-segment.labor { background: #10b981; }
-.bar-segment.overhead { background: #f59e0b; }
-
-.bar-segment:hover {
-  opacity: 0.8;
-}
+.bar-segment.labor       { background: #10b981; }
+.bar-segment.overhead    { background: #f59e0b; }
 
 .bar-label {
   margin-top: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
-.two-column-grid {
+/* Two-column bottom grid */
+.charts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
+@media (max-width: 900px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Category breakdown */
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.25rem;
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
 
 .category-info {
@@ -718,135 +700,80 @@ export default {
 
 .category-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-primary);
+  font-size: 0.875rem;
 }
 
 .category-amount {
   font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
+  color: var(--accent);
+  font-size: 1rem;
 }
 
 .category-bar-container {
   width: 100%;
-  height: 8px;
+  height: 6px;
   background: #f1f5f9;
-  border-radius: 4px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .category-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 4px;
-  transition: width 0.6s ease;
+  background: linear-gradient(90deg, #3b82f6 0%, var(--accent) 100%);
+  border-radius: 3px;
+  transition: width 0.5s ease;
 }
 
 .category-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
+  font-size: 0.8125rem;
 }
 
 .percentage {
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .change {
   font-weight: 600;
 }
 
-.change.positive {
-  color: #059669;
-}
+.change.positive { color: #059669; }
+.change.negative { color: #dc2626; }
 
-.change.negative {
-  color: #dc2626;
-}
-
-.transactions-card {
-  display: flex;
-  flex-direction: column;
-}
-
-.transactions-table-container {
+/* Transactions table */
+.transactions-scroll {
+  max-height: 380px;
   overflow-y: auto;
-  max-height: 400px;
-}
-
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.transactions-table thead {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.transactions-table th.text-right {
-  text-align: right;
-}
-
-.transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
-}
-
-.transactions-table tbody tr {
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-.transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
 }
 
 .transaction-id {
-  color: #64748b;
+  color: var(--text-secondary);
   font-weight: 500;
   font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
+  font-size: 0.8125rem;
 }
 
-.transaction-description {
-  color: #0f172a;
-  font-weight: 500;
-}
-
-.transaction-vendor {
-  color: #64748b;
-}
-
-.transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
-}
-
-.transaction-amount {
-  font-weight: 700;
-  color: #0f172a;
+.text-secondary {
+  color: var(--text-secondary);
 }
 
 .text-right {
   text-align: right;
+}
+
+.amount-cell {
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background: #eff6ff !important;
 }
 </style>
