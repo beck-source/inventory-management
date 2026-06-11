@@ -80,6 +80,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    type: Optional[str] = None  # "restocking" for restocking orders
 
 class DemandForecast(BaseModel):
     id: str
@@ -119,6 +120,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    lead_time_days: int
 
 # API endpoints
 @app.get("/")
@@ -303,6 +314,44 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", response_model=Order)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a restocking order from demand forecast recommendations"""
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    expected_delivery = now + timedelta(days=request.lead_time_days)
+
+    items = [
+        {
+            "sku": item.sku,
+            "name": item.name,
+            "quantity": item.quantity,
+            "unit_price": item.unit_cost
+        }
+        for item in request.items
+    ]
+    total_value = sum(item.quantity * item.unit_cost for item in request.items)
+
+    new_order = {
+        "id": str(len(orders) + 1),
+        "order_number": f"RST-{now.strftime('%Y%m%d%H%M%S')}",
+        "customer": "Restocking Order",
+        "items": items,
+        "status": "Processing",
+        "order_date": now.isoformat(),
+        "expected_delivery": expected_delivery.isoformat(),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+        "warehouse": None,
+        "category": None,
+        "type": "restocking"
+    }
+
+    orders.append(new_order)
+    return new_order
+
 
 if __name__ == "__main__":
     import uvicorn

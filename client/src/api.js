@@ -74,24 +74,32 @@ export const api = {
     return response.data
   },
 
-  async getTasks() {
-    const response = await axios.get(`${API_BASE_URL}/tasks`)
-    return response.data
+  getTasks() {
+    const stored = localStorage.getItem('tasks')
+    return stored ? JSON.parse(stored) : []
   },
 
-  async createTask(taskData) {
-    const response = await axios.post(`${API_BASE_URL}/tasks`, taskData)
-    return response.data
+  createTask(taskData) {
+    const tasks = this.getTasks()
+    const newTask = { ...taskData, id: Date.now() }
+    tasks.unshift(newTask)
+    localStorage.setItem('tasks', JSON.stringify(tasks))
+    return newTask
   },
 
-  async deleteTask(taskId) {
-    const response = await axios.delete(`${API_BASE_URL}/tasks/${taskId}`)
-    return response.data
+  deleteTask(taskId) {
+    const tasks = this.getTasks().filter(t => t.id !== taskId)
+    localStorage.setItem('tasks', JSON.stringify(tasks))
   },
 
-  async toggleTask(taskId) {
-    const response = await axios.patch(`${API_BASE_URL}/tasks/${taskId}`)
-    return response.data
+  toggleTask(taskId) {
+    const tasks = this.getTasks()
+    const task = tasks.find(t => t.id === taskId)
+    if (task) {
+      task.status = task.status === 'pending' ? 'completed' : 'pending'
+      localStorage.setItem('tasks', JSON.stringify(tasks))
+    }
+    return task
   },
 
   async createPurchaseOrder(purchaseOrderData) {
@@ -101,6 +109,11 @@ export const api = {
 
   async getPurchaseOrderByBacklogItem(backlogItemId) {
     const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
+    return response.data
+  },
+
+  async createRestockingOrder(payload) {
+    const response = await axios.post(`${API_BASE_URL}/restocking-orders`, payload)
     return response.data
   }
 }
