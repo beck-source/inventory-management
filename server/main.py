@@ -14,6 +14,15 @@ QUARTER_MAP = {
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
 
+# Category-based lead time mapping (in days)
+CATEGORY_LEAD_TIMES = {
+    'Circuit Boards': 7,
+    'Sensors': 10,
+    'Actuators': 14,
+    'Controllers': 12,
+    'Power Supplies': 5
+}
+
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
     if not month or month == 'all':
@@ -104,6 +113,8 @@ class BacklogItem(BaseModel):
 class PurchaseOrder(BaseModel):
     id: str
     backlog_item_id: str
+    item_sku: Optional[str] = None
+    item_name: Optional[str] = None
     supplier_name: str
     quantity: int
     unit_cost: float
@@ -303,6 +314,154 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(
+    budget: float,
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None
+):
+    """
+    Generate restocking recommendations based on:
+    - Low stock (below reorder point)
+    - High forecasted demand
+    - Available budget
+    """
+    # Filter inventory
+    filtered_inventory = apply_filters(inventory_items, warehouse, category)
+
+    # Create lookup for demand forecasts by SKU
+    demand_lookup = {f['item_sku']: f for f in demand_forecasts}
+
+    recommendations = []
+
+    for item in filtered_inventory:
+        # Check if item has demand forecast
+        forecast = demand_lookup.get(item['sku'])
+        if not forecast:
+            continue
+
+        # Calculate if item needs restocking
+        is_low_stock = item['quantity_on_hand'] <= item['reorder_point']
+        demand_increase = forecast['forecasted_demand'] - forecast['current_demand']
+
+        # Skip if not low stock and no demand increase
+        if not is_low_stock and demand_increase <= 0:
+            continue
+
+        # Calculate priority score (higher = more urgent)
+        # Formula: (demand shortage / stock ratio) with penalties for low stock
+        stock_ratio = item['quantity_on_hand'] / max(item['reorder_point'], 1)
+        demand_score = demand_increase / max(forecast['current_demand'], 1)
+        priority_score = (demand_score * 100) + (50 if is_low_stock else 0) + (30 / max(stock_ratio, 0.1))
+
+        # Calculate recommended quantity
+        # Restock to reorder point + forecasted demand increase
+        shortfall = max(0, item['reorder_point'] - item['quantity_on_hand'])
+        recommended_qty = shortfall + max(0, demand_increase)
+
+        # Get lead time based on category
+        lead_time = CATEGORY_LEAD_TIMES.get(item['category'], 14)
+
+        recommendations.append({
+            'item_sku': item['sku'],
+            'item_name': item['name'],
+            'category': item['category'],
+            'warehouse': item['warehouse'],
+            'current_stock': item['quantity_on_hand'],
+            'reorder_point': item['reorder_point'],
+            'forecasted_demand': forecast['forecasted_demand'],
+            'current_demand': forecast['current_demand'],
+            'recommended_quantity': recommended_qty,
+            'unit_cost': item['unit_cost'],
+            'total_cost': recommended_qty * item['unit_cost'],
+            'priority_score': round(priority_score, 2),
+            'lead_time_days': lead_time
+        })
+
+    # Sort by priority score (highest first)
+    recommendations.sort(key=lambda x: x['priority_score'], reverse=True)
+
+    # Filter recommendations to fit within budget
+    budget_constrained = []
+    running_total = 0.0
+
+    for rec in recommendations:
+        if running_total + rec['total_cost'] <= budget:
+            budget_constrained.append(rec)
+            running_total += rec['total_cost']
+
+    return {
+        'recommendations': budget_constrained,
+        'total_cost': round(running_total, 2),
+        'available_budget': budget,
+        'remaining_budget': round(budget - running_total, 2),
+        'items_count': len(budget_constrained)
+    }
+
+class RestockingRequest(BaseModel):
+    budget: float
+    recommendations: List[dict]
+
+@app.post("/api/restocking/submit")
+def submit_restocking_order(request: RestockingRequest):
+    """
+    Submit a restocking order based on selected recommendations.
+    Creates purchase orders for selected items.
+    """
+    from datetime import datetime, timedelta
+
+    created_orders = []
+    total_cost = 0.0
+
+    for item in request.recommendations:
+        # Generate unique order ID
+        order_id = f"PO-REST-{len(purchase_orders) + len(created_orders) + 1:04d}"
+
+        # Calculate delivery date based on category lead time
+        lead_time = CATEGORY_LEAD_TIMES.get(item['category'], 14)
+        expected_delivery = (datetime.now() + timedelta(days=lead_time)).strftime('%Y-%m-%d')
+
+        # Determine supplier based on category
+        supplier_map = {
+            'Circuit Boards': 'PCB Fabrication Corp',
+            'Sensors': 'Sensor Solutions Inc',
+            'Actuators': 'Motion Systems Ltd',
+            'Controllers': 'Control Tech Industries',
+            'Power Supplies': 'PowerTech Suppliers'
+        }
+        supplier = supplier_map.get(item['category'], 'General Supplier')
+
+        purchase_order = {
+            'id': order_id,
+            'backlog_item_id': '',  # Not from backlog
+            'item_sku': item['item_sku'],
+            'item_name': item['item_name'],
+            'supplier_name': supplier,
+            'quantity': item['quantity'],
+            'unit_cost': item['unit_cost'],
+            'expected_delivery_date': expected_delivery,
+            'status': 'Pending',
+            'created_date': datetime.now().strftime('%Y-%m-%d'),
+            'notes': f"Restocking order - Category: {item['category']}, Warehouse: {item['warehouse']}"
+        }
+
+        purchase_orders.append(purchase_order)
+        created_orders.append(purchase_order)
+        total_cost += item['quantity'] * item['unit_cost']
+
+    return {
+        'success': True,
+        'orders_created': len(created_orders),
+        'total_cost': round(total_cost, 2),
+        'order_ids': [order['id'] for order in created_orders],
+        'orders': created_orders
+    }
+
+@app.get("/api/purchase-orders", response_model=List[PurchaseOrder])
+def get_all_purchase_orders():
+    """Get all purchase orders including restocking orders."""
+    return purchase_orders
 
 if __name__ == "__main__":
     import uvicorn

@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -106,6 +107,7 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Restocking Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -121,11 +123,16 @@ export default {
       category: 'Category',
       warehouse: 'Warehouse',
       items: 'Items',
+      itemName: 'Item Name',
+      supplier: 'Supplier',
+      quantity: 'Quantity',
+      totalCost: 'Total Cost',
       value: 'Value',
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -185,6 +192,36 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking Recommendations',
+    description: 'AI-powered restocking recommendations based on inventory levels and demand forecasts',
+    setBudget: 'Set Available Budget',
+    availableBudget: 'Available Budget',
+    itemsRecommended: 'Items Recommended',
+    totalCost: 'Total Cost',
+    remainingBudget: 'Remaining Budget',
+    recommendations: 'Recommended Items',
+    noRecommendations: 'No restocking recommendations. Adjust your budget or filters.',
+    placeOrder: 'Place Order ({count} items)',
+    submitting: 'Submitting...',
+    days: 'days',
+    table: {
+      priority: 'Priority',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      currentStock: 'Current Stock',
+      reorderPoint: 'Reorder Point',
+      forecastedDemand: 'Forecasted Demand',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      totalCost: 'Total Cost',
+      leadTime: 'Lead Time'
     }
   },
 

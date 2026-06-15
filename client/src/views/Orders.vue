@@ -27,6 +27,45 @@
         </div>
       </div>
 
+      <!-- Submitted Restocking Orders -->
+      <div v-if="purchaseOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ purchaseOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderId') }}</th>
+                <th>{{ t('orders.table.itemName') }}</th>
+                <th>{{ t('orders.table.supplier') }}</th>
+                <th>{{ t('orders.table.quantity') }}</th>
+                <th>{{ t('orders.table.totalCost') }}</th>
+                <th>{{ t('orders.table.status') }}</th>
+                <th>{{ t('orders.table.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.leadTime') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="po in purchaseOrders" :key="po.id">
+                <td><strong>{{ po.id }}</strong></td>
+                <td>{{ po.item_name }}</td>
+                <td>{{ po.supplier_name }}</td>
+                <td>{{ po.quantity }}</td>
+                <td><strong>{{ currencySymbol }}{{ (po.quantity * po.unit_cost).toLocaleString() }}</strong></td>
+                <td>
+                  <span :class="['badge', getPOStatusClass(po.status)]">
+                    {{ po.status }}
+                  </span>
+                </td>
+                <td>{{ formatDate(po.expected_delivery_date) }}</td>
+                <td>{{ calculateLeadTime(po.created_date, po.expected_delivery_date) }} {{ t('restocking.days') }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +134,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const purchaseOrders = ref([])
 
     // Use shared filters
     const {
@@ -124,6 +164,14 @@ export default {
       }
     }
 
+    const loadPurchaseOrders = async () => {
+      try {
+        purchaseOrders.value = await api.getPurchaseOrders()
+      } catch (err) {
+        console.error('Failed to load purchase orders:', err)
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -143,6 +191,25 @@ export default {
       return statusMap[status] || 'info'
     }
 
+    const getPOStatusClass = (status) => {
+      const statusMap = {
+        'Pending': 'warning',
+        'Approved': 'info',
+        'Shipped': 'info',
+        'Delivered': 'success',
+        'Cancelled': 'danger'
+      }
+      return statusMap[status] || 'info'
+    }
+
+    const calculateLeadTime = (createdDate, expectedDate) => {
+      const created = new Date(createdDate)
+      const expected = new Date(expectedDate)
+      const diffTime = Math.abs(expected - created)
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      return diffDays
+    }
+
     const formatDate = (dateString) => {
       const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
@@ -153,15 +220,21 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadPurchaseOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      purchaseOrders,
       getOrdersByStatus,
       getOrderStatusClass,
+      getPOStatusClass,
+      calculateLeadTime,
       formatDate,
       currencySymbol,
       translateProductName,
