@@ -27,6 +27,39 @@
         </div>
       </div>
 
+      <div v-if="restockingOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+          <span class="badge restocking">Restocking</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Order Date</th>
+                <th>Expected Delivery</th>
+                <th>Lead Time</th>
+                <th>Total Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}</td>
+                <td><span class="badge restocking">{{ order.status }}</span></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td class="lead-time">7 days</td>
+                <td><strong>${{ order.total_value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +128,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +187,25 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +321,15 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.badge.restocking {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.lead-time {
+  color: #64748b;
+  font-size: 0.813rem;
 }
 </style>
