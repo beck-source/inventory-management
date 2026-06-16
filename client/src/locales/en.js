@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -204,6 +205,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    restocking: 'Restocking',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -309,6 +311,40 @@ export default {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and place restocking orders for low-stock items',
+    budget: {
+      label: 'Available Budget',
+      allocated: 'Allocated',
+      remaining: 'Remaining',
+      of: 'of'
+    },
+    items: {
+      title: 'Recommended Items',
+      empty: 'Increase your budget to see restocking recommendations',
+      summary: '{count} items selected'
+    },
+    table: {
+      sku: 'SKU',
+      name: 'Item',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      qtyToOrder: 'Qty to Order',
+      unitCost: 'Unit Cost',
+      totalCost: 'Total Cost'
+    },
+    placeOrder: 'Place Restocking Order',
+    orderPlaced: 'Order Placed',
+    success: 'Restocking order {orderNumber} submitted. Expected delivery: {date}.',
+    leadTime: '7-day lead time',
+    submittedOrders: 'Submitted Restocking Orders',
+    noItems: 'No low-stock items require restocking'
   },
 
   // Common
