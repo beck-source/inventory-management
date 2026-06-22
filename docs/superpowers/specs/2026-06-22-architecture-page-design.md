@@ -1,7 +1,6 @@
 # Architecture Page Design
 
 **Date:** 2026-06-22  
-**Status:** Approved  
 **Output:** `docs/architecture.html`
 
 ## Goal
@@ -22,17 +21,18 @@ Layered stack diagram: three horizontal bands (Frontend / Backend / Data) with a
 HEADER — title + port badges (3000 / 8001)
 ─────────────────────────────────────────
 FRONTEND band — Vue 3 + Vite · port 3000
-  6 Views, 8 Components, useFilters, useI18n, api.js
+  6 Views, 8 Components, useFilters, useI18n, useAuth, api.js
 ─────────────────────────────────────────
 BACKEND band — FastAPI + Pydantic · port 8001
   20+ endpoints, apply_filters(), mock_data.py
 ─────────────────────────────────────────
 DATA band — 7 JSON files in server/data/
-  inventory, orders, spending, backlog, demand, transactions
+  inventory, orders, spending, backlog, demand, transactions, purchase_orders
 ─────────────────────────────────────────
 DATA FLOW — left-to-right arrow diagram
-  Filter UI → useFilters → api.js → FastAPI
-  → apply_filters() → JSON → Pydantic → Vue ref
+  FilterBar (UI) → useFilters (shared state) → View calls getCurrentFilters()
+  → api.js (Axios) → FastAPI → apply_filters() + filter_by_month()
+  → JSON → Pydantic → JSON response → Vue ref() → re-render
 ─────────────────────────────────────────
 QUICK REF TABLE — key endpoints + params
 ```
@@ -61,12 +61,21 @@ QUICK REF TABLE — key endpoints + params
 ### Data Flow
 Filter UI → `useFilters` composable → `api.js` (Axios) → FastAPI endpoint → `apply_filters()` → JSON data → Pydantic model → JSON response → Vue `ref()` → re-render
 
-### Key Endpoints
-- `GET /api/inventory` — warehouse, category filters
-- `GET /api/orders` — warehouse, category, status, month filters
-- `GET /api/dashboard/summary` — all filters
-- `GET /api/spending/*` — summary, monthly, categories, transactions
-- `GET /api/demand`, `/api/backlog` — no filters
+### Key Endpoints Table Columns
+`Endpoint | Method | Params | Notes`
+
+| Endpoint | Method | Params | Notes |
+|----------|--------|--------|-------|
+| `/api/inventory` | GET | warehouse, category | No month filter |
+| `/api/orders` | GET | warehouse, category, status, month | Supports quarter (Q1-2025) |
+| `/api/dashboard/summary` | GET | warehouse, category, status, month | Aggregated KPIs |
+| `/api/spending/summary` | GET | — | No filters |
+| `/api/spending/monthly` | GET | — | Monthly breakdown |
+| `/api/spending/categories` | GET | — | Category totals |
+| `/api/spending/transactions` | GET | — | 60+ transaction records |
+| `/api/demand` | GET | — | No filters |
+| `/api/backlog` | GET | — | No filters |
+| `/api/purchase-orders` | GET/POST | backlogItemId | Draft feature (empty data) |
 
 ## Out of Scope
 
