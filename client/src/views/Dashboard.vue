@@ -286,13 +286,7 @@
       @close="showBacklogModal = false"
     />
 
-    <PurchaseOrderModal
-      :is-open="showPOModal"
-      :backlog-item="selectedBacklogForPO"
-      :mode="poModalMode"
-      @close="showPOModal = false"
-      @po-created="handlePOCreated"
-    />
+    <!-- PurchaseOrderModal removed — component doesn't exist yet -->
   </div>
 </template>
 

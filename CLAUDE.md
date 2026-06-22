@@ -72,3 +72,14 @@ npm install && npm run dev
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts
 - No emojis in UI
+
+## Code Documentation
+
+**Always document non-obvious logic changes with comments.** Examples of non-obvious changes that need comments:
+- Workarounds for specific bugs or framework limitations
+- Counterintuitive design decisions
+- Performance optimizations that sacrifice readability
+- Complex filtering or calculation logic
+- State mutations that don't follow typical patterns
+
+Do NOT comment obvious code — well-named variables and functions are self-documenting.
