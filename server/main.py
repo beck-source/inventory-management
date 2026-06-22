@@ -1,3 +1,7 @@
+import math
+import uuid
+from datetime import datetime, timedelta, timezone
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -89,6 +93,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +125,101 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+
+class RestockLineItem(BaseModel):
+    item_sku: str
+    item_name: str
+    trend: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+
+class RestockingRecommendation(BaseModel):
+    budget: float
+    spent: float
+    remaining: float
+    items: List[RestockLineItem]
+
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockLineItem]
+    total_value: float
+    budget: float
+    order_date: str
+    expected_delivery: str
+    status: str
+
+
+class CreateRestockingOrderRequest(BaseModel):
+    budget: float
+
+
+# In-memory store for submitted restocking orders. Resets on server restart,
+# matching the persistence model of the rest of this demo (no database).
+restocking_orders: list[dict] = []
+
+
+# Trend weight applied to the demand gap when ranking restock candidates.
+# "Increasing" items get a 50% boost so a smaller-but-rising gap can outrank
+# a larger-but-flat one — the goal is to buy ahead of the curve, not just
+# fill the biggest hole.
+TREND_WEIGHT = {"increasing": 1.5, "stable": 1.0, "decreasing": 1.0}
+
+
+def _build_restocking_recommendation(budget: float) -> dict:
+    """Rank demand-forecast items by trend-weighted gap and greedy-fill within budget.
+
+    Server-authoritative: both the GET preview and the POST submit call this,
+    so the persisted order is always derived from `budget` alone — never from
+    client-supplied line items or prices.
+    """
+    candidates = []
+    for item in demand_forecasts:
+        gap = item["forecasted_demand"] - item["current_demand"]
+        if gap <= 0:
+            continue
+        score = gap * TREND_WEIGHT.get(item.get("trend", "stable"), 1.0)
+        candidates.append((score, item, gap))
+
+    # Stable tie-break on SKU so the recommendation is deterministic for a
+    # given budget — important because POST re-derives the order server-side
+    # and must match what the user previewed via GET.
+    candidates.sort(key=lambda c: (-c[0], c[1]["item_sku"]))
+
+    remaining = float(budget)
+    line_items: list[dict] = []
+    for _, item, gap in candidates:
+        unit_cost = float(item["unit_cost"])
+        if unit_cost <= 0:
+            continue
+        affordable = math.floor(remaining / unit_cost)
+        qty = min(gap, affordable)
+        if qty <= 0:
+            continue
+        line_total = round(qty * unit_cost, 2)
+        line_items.append({
+            "item_sku": item["item_sku"],
+            "item_name": item["item_name"],
+            "trend": item["trend"],
+            "quantity": qty,
+            "unit_cost": unit_cost,
+            "line_total": line_total,
+            "lead_time_days": int(item["lead_time_days"]),
+        })
+        remaining = round(remaining - line_total, 2)
+
+    spent = round(float(budget) - remaining, 2)
+    return {
+        "budget": float(budget),
+        "spent": spent,
+        "remaining": remaining,
+        "items": line_items,
+    }
 
 # API endpoints
 @app.get("/")
@@ -226,6 +327,52 @@ def get_category_spending():
 def get_recent_transactions():
     """Get recent transactions"""
     return recent_transactions
+
+@app.get("/api/restocking/recommendations", response_model=RestockingRecommendation)
+def get_restocking_recommendations(budget: float):
+    """Preview which demand-forecast items would be restocked for a given budget."""
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="budget must be non-negative")
+    return _build_restocking_recommendation(budget)
+
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order for the given budget.
+
+    Line items, costs, and totals are recomputed server-side from the budget;
+    any extra fields in the request body are ignored by the Pydantic model.
+    """
+    if request.budget <= 0:
+        raise HTTPException(status_code=400, detail="budget must be positive")
+
+    rec = _build_restocking_recommendation(request.budget)
+    if not rec["items"]:
+        raise HTTPException(status_code=400, detail="budget too small to restock any item")
+
+    # Use a tz-aware UTC "now" but format without offset to match the rest of
+    # the mock data (e.g. orders.json uses "2025-01-08T10:19:00").
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
+    max_lead = max(item["lead_time_days"] for item in rec["items"])
+    order = {
+        "id": str(uuid.uuid4()),
+        "order_number": f"RST-{now.year}-{len(restocking_orders) + 1:04d}",
+        "items": rec["items"],
+        "total_value": rec["spent"],
+        "budget": request.budget,
+        "order_date": now.strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": (now + timedelta(days=max_lead)).strftime("%Y-%m-%dT%H:%M:%S"),
+        "status": "Submitted",
+    }
+    restocking_orders.append(order)
+    return order
+
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """List submitted restocking orders, newest first."""
+    return sorted(restocking_orders, key=lambda o: o["order_date"], reverse=True)
+
 
 @app.get("/api/reports/quarterly")
 def get_quarterly_reports():
