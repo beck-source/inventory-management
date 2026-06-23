@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture - Factory Inventory Management System</title>
+<style>
+  :root {
+    --slate-900: #0f172a;
+    --slate-600: #64748b;
+    --slate-200: #e2e8f0;
+    --slate-50: #f8fafc;
+    --green: #16a34a;
+    --blue: #2563eb;
+    --yellow: #ca8a04;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--slate-900);
+    background: var(--slate-50);
+    line-height: 1.5;
+  }
+  header {
+    background: var(--slate-900);
+    color: white;
+    padding: 2.5rem 2rem;
+  }
+  header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+  }
+  header p {
+    margin: 0;
+    color: var(--slate-200);
+    font-size: 0.95rem;
+  }
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+  section {
+    margin-bottom: 2.5rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+    border-bottom: 2px solid var(--slate-200);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .diagram {
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  .flow-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+  .box {
+    border: 1px solid var(--slate-200);
+    border-radius: 6px;
+    padding: 0.9rem 1.1rem;
+    flex: 1;
+    min-width: 180px;
+    background: var(--slate-50);
+  }
+  .box h3 {
+    margin: 0 0 0.4rem 0;
+    font-size: 0.95rem;
+  }
+  .box p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--slate-600);
+  }
+  .box.frontend { border-left: 4px solid var(--blue); }
+  .box.backend { border-left: 4px solid var(--green); }
+  .box.data { border-left: 4px solid var(--yellow); }
+  .arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--slate-600);
+    font-size: 1.3rem;
+    min-width: 1.5rem;
+  }
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+  .stack-card {
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .stack-card h3 {
+    margin: 0 0 0.6rem 0;
+    font-size: 1rem;
+  }
+  .stack-card ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    font-size: 0.85rem;
+    color: var(--slate-600);
+  }
+  .stack-card li {
+    margin-bottom: 0.3rem;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+  }
+  .badge.port { background: var(--slate-200); color: var(--slate-900); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border: 1px solid var(--slate-200);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.85rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--slate-200);
+  }
+  th {
+    background: var(--slate-50);
+    font-weight: 600;
+    color: var(--slate-600);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  tr:last-child td { border-bottom: none; }
+  code {
+    background: var(--slate-200);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+  .file-tree {
+    background: var(--slate-900);
+    color: var(--slate-200);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.8rem;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  footer {
+    text-align: center;
+    color: var(--slate-600);
+    font-size: 0.8rem;
+    padding: 2rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Factory Inventory Management System</h1>
+  <p>System architecture, tech stack, and data flow overview.</p>
+</header>
+
+<main>
+
+  <section>
+    <h2>High-level architecture</h2>
+    <div class="diagram">
+      <div class="flow-row">
+        <div class="box frontend">
+          <h3>Vue 3 client <span class="badge port">3080</span></h3>
+          <p>Composition API, Vite dev server. Views render filters, tables, and charts.</p>
+        </div>
+        <div class="arrow">&#8596;</div>
+        <div class="box backend">
+          <h3>FastAPI server <span class="badge port">8001</span></h3>
+          <p>REST endpoints. CORS enabled. Filters and validates data on each request.</p>
+        </div>
+        <div class="arrow">&#8596;</div>
+        <div class="box data">
+          <h3>In-memory mock data</h3>
+          <p>JSON files loaded at startup into Python objects. No database.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Tech stack</h2>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <h3>Frontend</h3>
+        <ul>
+          <li>Vue 3 (Composition API)</li>
+          <li>Vue Router 4</li>
+          <li>Vite 5 (dev server and build)</li>
+          <li>Axios for HTTP calls</li>
+          <li>Custom SVG charts, CSS Grid layouts</li>
+        </ul>
+      </div>
+      <div class="stack-card">
+        <h3>Backend</h3>
+        <ul>
+          <li>Python 3.11+</li>
+          <li>FastAPI</li>
+          <li>Pydantic models for validation</li>
+          <li>Uvicorn ASGI server</li>
+          <li>uv for dependency management</li>
+        </ul>
+      </div>
+      <div class="stack-card">
+        <h3>Data</h3>
+        <ul>
+          <li>Static JSON files in <code>server/data/</code></li>
+          <li>Loaded into memory via <code>mock_data.py</code></li>
+          <li>No persistent database</li>
+          <li>Generated by <code>generate_data.py</code></li>
+        </ul>
+      </div>
+      <div class="stack-card">
+        <h3>Testing and tooling</h3>
+        <ul>
+          <li>pytest + pytest-cov (backend)</li>
+          <li>FastAPI TestClient</li>
+          <li>ESLint/build checks (frontend)</li>
+          <li>Playwright MCP for browser testing</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Request data flow</h2>
+    <div class="diagram">
+      <div class="flow-row">
+        <div class="box frontend">
+          <h3>1. Filter UI</h3>
+          <p>FilterBar component sets Time period, Warehouse, Category, Order status.</p>
+        </div>
+        <div class="arrow">&#8594;</div>
+        <div class="box frontend">
+          <h3>2. api.js</h3>
+          <p>Axios client builds query params and calls the FastAPI endpoint.</p>
+        </div>
+        <div class="arrow">&#8594;</div>
+        <div class="box backend">
+          <h3>3. FastAPI route</h3>
+          <p>Endpoint filters in-memory lists by warehouse, category, status, month.</p>
+        </div>
+        <div class="arrow">&#8594;</div>
+        <div class="box backend">
+          <h3>4. Pydantic validation</h3>
+          <p>Filtered results are validated/serialized against response models.</p>
+        </div>
+        <div class="arrow">&#8594;</div>
+        <div class="box frontend">
+          <h3>5. Computed properties</h3>
+          <p>Vue refs hold raw data; computed properties derive view-specific values.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>API endpoints</h2>
+    <table>
+      <thead>
+        <tr><th>Endpoint</th><th>Purpose</th><th>Filters</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>GET /api/inventory</code></td><td>Inventory items</td><td>warehouse, category</td></tr>
+        <tr><td><code>GET /api/inventory/{item_id}</code></td><td>Single inventory item</td><td>-</td></tr>
+        <tr><td><code>GET /api/orders</code></td><td>Order list</td><td>warehouse, category, status, month</td></tr>
+        <tr><td><code>GET /api/orders/{order_id}</code></td><td>Single order</td><td>-</td></tr>
+        <tr><td><code>GET /api/dashboard/summary</code></td><td>Dashboard KPIs</td><td>all filters</td></tr>
+        <tr><td><code>GET /api/demand</code></td><td>Demand forecasts</td><td>none</td></tr>
+        <tr><td><code>GET /api/backlog</code></td><td>Backlog items</td><td>none</td></tr>
+        <tr><td><code>GET /api/spending/summary</code></td><td>Spending overview</td><td>-</td></tr>
+        <tr><td><code>GET /api/spending/monthly</code></td><td>Monthly spending trend</td><td>-</td></tr>
+        <tr><td><code>GET /api/spending/categories</code></td><td>Spending by category</td><td>-</td></tr>
+        <tr><td><code>GET /api/spending/transactions</code></td><td>Transaction list</td><td>-</td></tr>
+        <tr><td><code>GET /api/reports/quarterly</code></td><td>Quarterly performance reports</td><td>-</td></tr>
+        <tr><td><code>GET /api/reports/monthly-trends</code></td><td>Monthly trend reports</td><td>-</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Project layout</h2>
+    <div class="file-tree">client/
+  src/
+    views/        Dashboard, Inventory, Orders, Demand, Backlog, Spending, Reports
+    components/   FilterBar, modals (Inventory/Product/Cost/Backlog), ProfileMenu
+    composables/  useAuth, useFilters, useI18n
+    utils/        currency formatting
+    api.js        Axios client, all backend calls
+
+server/
+  main.py         FastAPI app, routes, CORS, Pydantic models
+  mock_data.py    Loads JSON into in-memory Python structures
+  generate_data.py  Generates the mock JSON data
+  data/*.json     Inventory, orders, demand, backlog, spending, transactions
+
+tests/
+  backend/        pytest + FastAPI TestClient tests
+</div>
+  </section>
+
+  <section>
+    <h2>Key patterns</h2>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <h3>Filter system</h3>
+        <ul>
+          <li>Four filters: Time period, Warehouse, Category, Order status</li>
+          <li>Applied globally via query params on every relevant endpoint</li>
+          <li>Inventory has no time dimension, so month filtering does not apply there</li>
+        </ul>
+      </div>
+      <div class="stack-card">
+        <h3>Reactivity model</h3>
+        <ul>
+          <li>Raw API data held in refs (<code>allOrders</code>, <code>inventoryItems</code>)</li>
+          <li>View-specific values derived via computed properties</li>
+          <li>Keeps filtering logic out of templates</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Generated overview based on the current state of the repository. No database is used; all data is served from in-memory JSON.
+</footer>
+
+</body>
+</html>
