@@ -29,7 +29,7 @@
               <tr v-for="order in restockingOrders" :key="order.id">
                 <td><strong>{{ order.order_number }}</strong></td>
                 <td>{{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}</td>
-                <td><strong>${{ order.total_cost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</strong></td>
+                <td><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</strong></td>
                 <td>{{ formatDate(order.submitted_date) }}</td>
                 <td>{{ formatDate(order.expected_delivery) }}</td>
                 <td><span class="badge restocking">{{ order.status }}</span></td>
