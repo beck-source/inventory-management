@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,12 +113,18 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted orders',
+    noSubmittedOrders: 'No restocking orders have been submitted yet.',
+    leadTime: 'Lead time',
+    days: 'days',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
       orderDate: 'Order Date',
       date: 'Date',
       customer: 'Customer',
+      sku: 'SKU',
+      itemName: 'Item name',
       category: 'Category',
       warehouse: 'Warehouse',
       items: 'Items',
@@ -125,7 +132,8 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead time'
     }
   },
 
@@ -185,6 +193,38 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and review recommended items to restock based on demand forecasts',
+    budgetLabel: 'Available budget',
+    getRecommendations: 'Get recommendations',
+    recommendations: 'Recommendations',
+    placeOrder: 'Place order',
+    placing: 'Placing order...',
+    success: 'Restocking order placed successfully.',
+    viewInOrders: 'View in orders',
+    noRecommendations: 'No items can be recommended within this budget.',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item name',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      trend: 'Trend',
+      currentDemand: 'Current demand',
+      forecastedDemand: 'Forecasted demand',
+      suggestedQuantity: 'Suggested quantity',
+      unitCost: 'Unit cost',
+      totalCost: 'Total cost'
+    },
+    summary: {
+      totalBudget: 'Total budget',
+      totalAllocated: 'Total allocated',
+      remainingBudget: 'Remaining budget',
+      itemCount: 'Item count'
     }
   },
 
