@@ -72,3 +72,11 @@ npm install && npm run dev
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts
 - No emojis in UI
+
+## Restocking Feature (New)
+- Route: `/restocking` → `client/src/views/Restocking.vue`
+- Budget slider ($0–$500K, step $5K) drives demand-based recommendations
+- Algorithm: matches demand_forecasts SKUs to inventory unit_cost, greedy fill within budget, sorts by trend (increasing > stable > decreasing)
+- Backend endpoints: `GET /api/restocking/recommendations?budget=N`, `POST /api/restocking/orders`, `GET /api/restocking/orders`
+- Submitted orders stored in-memory (`mock_data.restocking_orders`), shown in Orders tab under "Submitted Restocking Orders" section with 14-day lead time
+- API methods in `client/src/api.js`: `getRestockingRecommendations`, `placeRestockingOrder`, `getRestockingOrders`
