@@ -138,7 +138,7 @@ class RestockingOrderCreate(BaseModel):
 class RestockingOrder(BaseModel):
     id: str
     order_number: str
-    items: List[dict]
+    items: List[RestockingOrderItem]
     total_cost: float
     status: str
     submitted_date: str
@@ -332,7 +332,6 @@ def get_monthly_trends():
 def create_restocking_order(payload: RestockingOrderCreate):
     """Create a restocking order from recommended items."""
     now = datetime.utcnow()
-    order_number = f"RST-2026-{len(restocking_orders) + 1:04d}"
     items_data = [
         {
             "sku": item.sku,
@@ -344,7 +343,6 @@ def create_restocking_order(payload: RestockingOrderCreate):
     ]
     order = {
         "id": str(uuid.uuid4()),
-        "order_number": order_number,
         "items": items_data,
         "total_cost": sum(item.quantity * item.unit_cost for item in payload.items),
         "status": "Submitted",
@@ -352,6 +350,7 @@ def create_restocking_order(payload: RestockingOrderCreate):
         "expected_delivery": (now + timedelta(days=14)).isoformat(),
     }
     restocking_orders.append(order)
+    order["order_number"] = f"RST-2026-{len(restocking_orders):04d}"
     return order
 
 

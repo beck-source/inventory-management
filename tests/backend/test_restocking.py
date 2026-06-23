@@ -83,3 +83,10 @@ class TestRestockingOrders:
         r2 = client.post("/api/restocking-orders", json={"items": self.SAMPLE_ITEMS})
         assert r1.json()["order_number"] == "RST-2026-0001"
         assert r2.json()["order_number"] == "RST-2026-0002"
+
+    def test_post_restocking_order_empty_items(self, client):
+        response = client.post("/api/restocking-orders", json={"items": []})
+        assert response.status_code == 201
+        data = response.json()
+        assert data["items"] == []
+        assert data["total_cost"] == 0.0
