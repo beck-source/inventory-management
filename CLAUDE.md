@@ -28,6 +28,9 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 - **Backend**: Python FastAPI (port 8001)
 - **Data**: JSON files in `server/data/` loaded via `server/mock_data.py`
 
+## Code Conventions
+- Always document non-obvious logic changes with comments (explain *why*, not *what*).
+
 ## Quick Start
 
 ```bash
