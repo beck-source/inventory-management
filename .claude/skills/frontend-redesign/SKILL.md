@@ -1,20 +1,63 @@
 ---
-name: sidebar-redesign
-description: Redesigns this Vue 3 application's UI from a top navigation bar into a modern SaaS-style layout with a vertical left sidebar, consistent spacing, and a polished professional look. Use when asked to redesign the nav, add a sidebar, or modernize the overall app layout.
+name: frontend-redesign
+description: Redesigns this Vue 3 application's UI into a modern, polished, professional SaaS-style interface - layout shell (e.g. top nav to vertical sidebar), spacing consistency, and visual refinement. Use when asked to redesign, modernize, restyle, or "make it look more professional/SaaS-like".
 ---
 
-# Sidebar Redesign
+# Frontend Redesign
 
-Converts the top horizontal nav bar in [App.vue](client/src/App.vue) into a fixed
-vertical left sidebar, in the style of modern SaaS products (Linear, Vercel,
-Stripe dashboard). This is a layout-shell change: it touches `App.vue` and
-global styles, not individual views.
+General guidance for redesigning this app's UI toward a modern SaaS look
+(Linear, Vercel, Stripe dashboard, Notion). Covers two kinds of work:
 
-**This is a significant `.vue` file change. Delegate the implementation to the
-`vue-expert` subagent per the project's mandatory rule.** Use this skill to
-gather the plan and constraints, then hand them to `vue-expert` verbatim.
+1. **Layout shell changes** - e.g. converting the top nav bar to a vertical
+   left sidebar. See [Sidebar conversion](#sidebar-conversion) below for the
+   concrete plan.
+2. **Polish passes** - spacing/rhythm consistency, color and typography
+   cleanup, card/table/badge refinement - without necessarily changing the
+   overall shell.
 
-## What changes
+Confirm with the user which of these (or both) is in scope before starting;
+"redesign the UI" alone is ambiguous between a full shell change and a polish
+pass on the existing layout.
+
+**Any of this work touches `.vue` files significantly. Delegate the
+implementation to the `vue-expert` subagent per the project's mandatory
+rule.** Use this skill to gather the plan and constraints, then hand them to
+`vue-expert` verbatim.
+
+## Visual language to carry over
+
+Keep the existing design tokens from [App.vue](client/src/App.vue) (lines
+~185-480) rather than inventing a new palette, unless the user explicitly
+asks for a new color scheme:
+
+- Background/surface: `#ffffff`, border `#e2e8f0`
+- Text: heading `#0f172a`, muted `#64748b`, body `#334155`/`#475569`
+- Accent/active: `#2563eb` text on `#eff6ff` background
+- Status colors: success `#059669`/`#d1fae5`, warning `#ea580c`/`#fed7aa`,
+  danger `#dc2626`/`#fecaca`, info `#2563eb`/`#dbeafe`
+- Border radius `6px`-`10px` across cards, badges, buttons, inputs.
+
+General polish principles to apply across any redesign work:
+
+- Consistent spacing scale (`0.25rem` increments: `0.25, 0.5, 0.75, 1, 1.25,
+  1.5, 2rem`) - audit existing `padding`/`margin`/`gap` values and snap them
+  to this scale rather than leaving ad-hoc numbers.
+- Consistent type scale: page titles `1.875rem`/700, card titles
+  `1.125rem`/700, body `0.875rem`-`0.938rem`, labels/uppercase micro-text
+  `0.75rem`/600 with letter-spacing - reuse the scale already in `App.vue`
+  rather than introducing new sizes.
+- Hover/active states on every interactive element (rows, nav items, buttons)
+  using the existing `0.15s-0.2s ease` transition convention.
+- Use CSS spacing in `rem`, never hardcoded pixel values, per the project's
+  Typescript/coding rules.
+- No emojis in UI, per the project's design system rules.
+
+## Sidebar conversion
+
+The most common shell change: converting the top horizontal nav bar in
+[App.vue](client/src/App.vue) into a fixed vertical left sidebar.
+
+### What changes
 
 - `<header class="top-nav">` becomes `<aside class="sidebar">`, moved to the
   left, full viewport height, fixed/sticky position.
@@ -31,7 +74,7 @@ gather the plan and constraints, then hand them to `vue-expert` verbatim.
   for readability on wide screens (don't let the content stretch edge-to-edge
   on the sidebar's side).
 
-## Layout structure (target)
+### Layout structure (target)
 
 ```
 .app                      (display: flex, min-height: 100vh)
@@ -47,18 +90,7 @@ gather the plan and constraints, then hand them to `vue-expert` verbatim.
 Use `min-width: 0` on `.content-area` so wide tables/charts don't blow out the
 flex layout.
 
-## Visual language to carry over
-
-Keep the existing design tokens from [App.vue](client/src/App.vue) (lines
-~185-480) rather than inventing a new palette:
-
-- Background/surface: `#ffffff`, border `#e2e8f0`
-- Text: heading `#0f172a`, muted `#64748b`, body `#334155`/`#475569`
-- Accent/active: `#2563eb` text on `#eff6ff` background
-- Border radius `6px`-`10px`, existing `.card`, `.stat-card`, `.badge` styles
-  are unchanged - only the nav shell changes shape.
-
-For the sidebar itself, typical SaaS conventions to apply:
+### Sidebar-specific visual conventions
 
 - Sidebar background slightly distinct from content (e.g. `#f8fafc` or white
   with a `1px solid #e2e8f0` right border) so it reads as a separate surface.
@@ -68,10 +100,8 @@ For the sidebar itself, typical SaaS conventions to apply:
 - Vertical rhythm: consistent `0.25rem`-`0.5rem` gaps between nav items,
   `0.75rem`-`1rem` internal padding per item, generous `1.5rem`+ padding
   around the logo and footer blocks.
-- Use CSS spacing in `rem`, never hardcoded pixel values, per the project's
-  Typescript/coding rules.
 
-## Implementation steps
+### Sidebar implementation steps
 
 1. Read [App.vue](client/src/App.vue) in full to capture every element
    currently in `top-nav` (logo, nav-tabs, LanguageSwitcher, ProfileMenu) and
@@ -84,15 +114,8 @@ For the sidebar itself, typical SaaS conventions to apply:
 4. Verify [FilterBar.vue](client/src/components/FilterBar.vue) still renders
    correctly directly under the new sidebar layout (it's inside
    `.content-area`, not inside the sidebar).
-5. Run `npm run lint` and `npm run build` in `client/` and fix any issues.
-6. Start the app (`start` skill or manual) and check every route
-   (`/`, `/inventory`, `/orders`, `/spending`, `/demand`, `/reports`) in the
-   browser via Playwright MCP: sidebar stays fixed while content scrolls,
-   active state highlights the right item, responsive at narrower widths
-   (collapse or scroll, not overflow/clip), ProfileMenu and LanguageSwitcher
-   still function (open modals, switch language).
 
-## Things to watch for
+### Sidebar-specific watch-outs
 
 - `router-link` active-state logic (`$route.path === '/...'`) must be
   preserved when restructuring the markup - don't lose the active highlight.
@@ -105,3 +128,12 @@ For the sidebar itself, typical SaaS conventions to apply:
 - Don't introduce a mobile hamburger/collapse toggle unless asked - keep scope
   to the layout shell change. If the user wants collapsible/responsive
   behavior, confirm before adding it.
+
+## General redesign verification (applies to any scope)
+
+1. Run `npm run lint` and `npm run build` in `client/` and fix any issues.
+2. Start the app (`start` skill or manual) and check every route
+   (`/`, `/inventory`, `/orders`, `/spending`, `/demand`, `/reports`) in the
+   browser via Playwright MCP: layout holds at typical desktop widths,
+   interactive elements (nav, ProfileMenu, LanguageSwitcher, modals, filters)
+   still function, no visual regressions on tables/charts/cards.
