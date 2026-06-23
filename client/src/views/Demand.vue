@@ -5,6 +5,8 @@
       <p>{{ t('demand.description') }}</p>
     </div>
 
+    <FilterBar />
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -115,9 +117,11 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import FilterBar from '../components/FilterBar.vue'
 
 export default {
   name: 'Demand',
+  components: { FilterBar },
   setup() {
     const { t } = useI18n()
     const loading = ref(true)

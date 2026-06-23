@@ -5,6 +5,8 @@
       <p>{{ t('inventory.description') }}</p>
     </div>
 
+    <FilterBar />
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -89,11 +91,13 @@ import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import InventoryDetailModal from '../components/InventoryDetailModal.vue'
+import FilterBar from '../components/FilterBar.vue'
 
 export default {
   name: 'Inventory',
   components: {
-    InventoryDetailModal
+    InventoryDetailModal,
+    FilterBar
   },
   setup() {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
