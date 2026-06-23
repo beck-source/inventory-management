@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 ```bash
 # From client directory
 npm run dev
-# Runs on http://localhost:3000
+# Runs on http://localhost:3080
 ```
 
 ## Development Best Practices

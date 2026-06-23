@@ -21,10 +21,10 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 - **ALWAYS use GitHub MCP tools** (`mcp__github__*`) for ALL GitHub operations
   - Exception: Local branches only - use `git checkout -b` instead of `mcp__github__create_branch`
 - **ALWAYS use Playwright MCP tools** (`mcp__playwright__*`) for browser testing
-  - Test against: `http://localhost:3000` (frontend), `http://localhost:8001` (API)
+  - Test against: `http://localhost:3080` (frontend), `http://localhost:8001` (API)
 
 ## Stack
-- **Frontend**: Vue 3 + Composition API + Vite (port 3000)
+- **Frontend**: Vue 3 + Composition API + Vite (port 3080)
 - **Backend**: Python FastAPI (port 8001)
 - **Data**: JSON files in `server/data/` loaded via `server/mock_data.py`
 
@@ -72,3 +72,27 @@ npm install && npm run dev
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts
 - No emojis in UI
+
+## Coding rules
+General rules:
+- All code should have meaningful short code comments.
+- Code comments have to be sentences ending with a dot.
+- Do not ever use the em dash char (—), always use the hyphen char (-).
+
+Python rules:
+- Strings have to be double quoted.
+- Code comments where quotes are needed, double quotes have to be used.
+- Where inline quotes in strings are needed double quotes like \" have to be used.
+- Changes in the src folder have to be checked against the current unit tests by running: uv run coverage run -m pytest && uv run coverage report --fail-under=80. If source code changes affect the tests or if unit tests are missing for new functionalities, the tests will have to be adjusted and / or expanded.
+- Never generate __init__.py files.
+- To execute Python code always use "uv run ...".
+- When catching exceptions always do "... as error:" and not "... as e:".
+- When logging caught excceptions always use logger.error(), write a helpful message and then the caught error message in this format: logger.error(f"Helpful error message: \"{error}\".").
+- Imports can only be done at the top of a .py file and never inline somewhere in the code.
+- Never use import abbreviations like "import pandas as pd", "import numpy as np" or similar.
+- Always define paths relative to the "backend" folder and never use absolute paths with os.path.join() or similar.
+
+Typescript rules:
+- After making changes make sure to run "npm run lint" and "npm run build" and fix any issues that arise.
+- Never use Camel-Case when writing UI texts like "Admin View Panel" but rather only capitalize the first letter and let the rest follow standard writing rules so it would be "Admin view panel".
+- Never use hardcoded pixel values for UI elements.

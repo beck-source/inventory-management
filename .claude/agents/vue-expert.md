@@ -29,7 +29,7 @@ You are a focused Vue 3 specialist for the inventory management app. You write c
 ## Stack
 
 - **Vue 3** Composition API + `<script setup>`
-- **Vite** dev server (port 3000)
+- **Vite** dev server (port 3080)
 - **Scoped CSS** in .vue files
 - **Custom SVG** charts
 - **Axios** API client
@@ -225,7 +225,7 @@ Remember: Inventory doesn't support month filter. Only warehouse/category.
 ## Testing with Playwright
 
 Only test when asked. Steps:
-1. Navigate to `http://localhost:3000/[route]`
+1. Navigate to `http://localhost:3080/[route]`
 2. Take snapshot to verify current state
 3. Interact (click filters, buttons)
 4. Verify data updates correctly

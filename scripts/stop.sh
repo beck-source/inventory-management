@@ -41,8 +41,8 @@ if [ ! -z "$BACKEND_PIDS" ]; then
     echo "$BACKEND_PIDS" | xargs kill 2>/dev/null || true
 fi
 
-# Kill processes on port 3000 (frontend)
-FRONTEND_PIDS=$(lsof -ti:3000 2>/dev/null || true)
+# Kill processes on port 3080 (frontend)
+FRONTEND_PIDS=$(lsof -ti:3080 2>/dev/null || true)
 if [ ! -z "$FRONTEND_PIDS" ]; then
     echo "$FRONTEND_PIDS" | xargs kill 2>/dev/null || true
 fi

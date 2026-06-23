@@ -42,7 +42,7 @@ BACKEND_PID=$!
 sleep 2
 
 # Start frontend server in background
-echo -e "${GREEN}Starting frontend server on http://localhost:3000${NC}"
+echo -e "${GREEN}Starting frontend server on http://localhost:3080${NC}"
 cd "$PROJECT_ROOT/client"
 npm run dev > /tmp/inventory-frontend.log 2>&1 &
 FRONTEND_PID=$!
@@ -51,7 +51,7 @@ FRONTEND_PID=$!
 sleep 2
 
 echo -e "\n${GREEN}✓ Application started successfully!${NC}"
-echo -e "${BLUE}Frontend:${NC} http://localhost:3000"
+echo -e "${BLUE}Frontend:${NC} http://localhost:3080"
 echo -e "${BLUE}Backend API:${NC} http://localhost:8001"
 echo -e "${BLUE}API Docs:${NC} http://localhost:8001/docs"
 echo -e "\n${YELLOW}Logs:${NC}"

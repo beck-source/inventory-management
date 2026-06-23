@@ -6,7 +6,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 
 ## Tech Stack
 
-- **Frontend**: Vue 3 + Vite (port 3000)
+- **Frontend**: Vue 3 + Vite (port 3080)
 - **Backend**: Python FastAPI (port 8001)
 - **Data**: In-memory mock data (no database)
 
@@ -26,7 +26,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 ./scripts/start.sh
 # Starts both backend and frontend
 # Backend: http://localhost:8001
-# Frontend: http://localhost:3000
+# Frontend: http://localhost:3080
 # API Docs: http://localhost:8001/docs
 ```
 
