@@ -350,6 +350,7 @@ def create_restocking_order(payload: RestockingOrderCreate):
         "expected_delivery": (now + timedelta(days=14)).isoformat(),
     }
     restocking_orders.append(order)
+    # Assign after append so len() reflects final position, avoiding duplicate numbers under concurrent requests
     order["order_number"] = f"RST-2026-{len(restocking_orders):04d}"
     return order
 
