@@ -120,6 +120,28 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockingCandidate(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    reorder_point: int
+    unit_cost: float
+    restock_quantity: int
+    restock_cost: float
+
+class CreateOrderRequest(BaseModel):
+    order_number: str
+    customer: str
+    items: List[dict]
+    status: str
+    order_date: str
+    expected_delivery: str
+    total_value: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
 # API endpoints
 @app.get("/")
 def root():
@@ -303,6 +325,50 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/candidates", response_model=List[RestockingCandidate])
+def get_restocking_candidates():
+    """Return inventory items below reorder_point, sorted by urgency (most critical first)."""
+    candidates = []
+    for item in inventory_items:
+        qty = item["quantity_on_hand"]
+        reorder = item["reorder_point"]
+        if qty < reorder:
+            restock_qty = reorder * 2 - qty
+            candidates.append({
+                "sku": item["sku"],
+                "name": item["name"],
+                "category": item["category"],
+                "warehouse": item["warehouse"],
+                "quantity_on_hand": qty,
+                "reorder_point": reorder,
+                "unit_cost": item["unit_cost"],
+                "restock_quantity": restock_qty,
+                "restock_cost": round(restock_qty * item["unit_cost"], 2),
+            })
+    # Sort by shortage ratio descending so most critical items are first
+    candidates.sort(key=lambda c: (c["reorder_point"] - c["quantity_on_hand"]) / c["reorder_point"], reverse=True)
+    return candidates
+
+@app.post("/api/orders", response_model=Order)
+def create_order(order: CreateOrderRequest):
+    """Create a new order (used by the Restocking tab) and append it to in-memory list."""
+    new_id = str(len(orders) + 1)
+    new_order = {
+        "id": new_id,
+        "order_number": order.order_number,
+        "customer": order.customer,
+        "items": order.items,
+        "status": order.status,
+        "order_date": order.order_date,
+        "expected_delivery": order.expected_delivery,
+        "total_value": order.total_value,
+        "actual_delivery": None,
+        "warehouse": order.warehouse,
+        "category": order.category,
+    }
+    orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn
