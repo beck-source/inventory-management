@@ -27,6 +27,45 @@
         </div>
       </div>
 
+      <div v-if="submittedOrders.length > 0" class="card restocking-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders</h3>
+          <p class="card-subtitle">
+            {{ submittedOrders.length }} {{ submittedOrders.length === 1 ? 'order' : 'orders' }} submitted this session
+          </p>
+        </div>
+        <div class="table-container">
+          <table class="restocking-table">
+            <thead>
+              <tr>
+                <th class="text-left">Order #</th>
+                <th class="text-left">Items</th>
+                <th class="text-right">Total</th>
+                <th class="text-left">Status</th>
+                <th class="text-left">Submitted</th>
+                <th class="text-left">Expected Delivery</th>
+                <th class="text-right">Lead Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in submittedOrders" :key="ro.order_number">
+                <td class="mono"><strong>{{ ro.order_number }}</strong></td>
+                <td>{{ ro.items.length }} items</td>
+                <td class="text-right">
+                  <strong>${{ Number(ro.total_cost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong>
+                </td>
+                <td>
+                  <span class="badge-submitted">Submitted</span>
+                </td>
+                <td>{{ shortDate(ro.submitted_at || ro.order_date) }}</td>
+                <td>{{ shortDate(ro.expected_delivery) }}</td>
+                <td class="text-right">{{ ro.lead_time_days }} days</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +134,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -122,6 +162,32 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    // Independent fetch for restocking orders — failure here should not break
+    // the main orders view, so we handle errors locally.
+    const loadSubmittedRestockingOrders = async () => {
+      try {
+        const data = await api.getRestockingOrders()
+        submittedOrders.value = Array.isArray(data) ? data : []
+      } catch (err) {
+        // Silent failure: leave list empty so the card simply does not render
+        submittedOrders.value = []
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    // Short ISO-style date (YYYY-MM-DD) for the restocking orders table
+    const shortDate = (value) => {
+      if (!value) return ''
+      const s = String(value)
+      // If value is already an ISO string, slicing the first 10 chars yields YYYY-MM-DD
+      if (s.length >= 10 && s[4] === '-' && s[7] === '-') {
+        return s.slice(0, 10)
+      }
+      const d = new Date(value)
+      if (isNaN(d.getTime())) return ''
+      return d.toISOString().slice(0, 10)
     }
 
     // Watch for filter changes and reload data
@@ -153,16 +219,21 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      // Fire both fetches in parallel; they are independent of each other.
+      Promise.all([loadOrders(), loadSubmittedRestockingOrders()])
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      shortDate,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +346,67 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Submitted restocking orders card */
+.restocking-card {
+  margin-bottom: 1.5rem;
+}
+
+.card-subtitle {
+  font-size: 0.813rem;
+  color: #64748b;
+  margin: 0.25rem 0 0 0;
+}
+
+.restocking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.restocking-table thead th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.restocking-table tbody td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+}
+
+.restocking-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.mono {
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 0.813rem;
+}
+
+.badge-submitted {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 </style>
