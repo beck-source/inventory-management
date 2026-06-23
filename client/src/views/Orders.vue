@@ -74,6 +74,49 @@
           </table>
         </div>
       </div>
+
+      <div v-if="submittedOrders.length > 0" class="card submitted-orders-card">
+        <div class="card-header">
+          <span class="card-title">Submitted Restocking Orders</span>
+          <span class="submitted-count">{{ submittedOrders.length }} order{{ submittedOrders.length !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Items</th>
+                <th>Order Date</th>
+                <th>Est. Delivery</th>
+                <th>Lead Time</th>
+                <th>Total Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td><span class="order-number">{{ order.order_number }}</span></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td><span class="lead-time-badge">14 days</span></td>
+                <td>{{ formatCurrency(order.total_value) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -129,6 +172,12 @@ export default {
       loadOrders()
     })
 
+    const submittedOrders = computed(() => orders.value.filter(o => o.status === 'Submitted'))
+
+    const formatCurrency = (value) => {
+      return currencySymbol.value + value.toLocaleString()
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -138,7 +187,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'stable'
       }
       return statusMap[status] || 'info'
     }
@@ -160,9 +210,11 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatCurrency,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +327,30 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.submitted-orders-card {
+  margin-top: 1.5rem;
+}
+
+.submitted-count {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.lead-time-badge {
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.order-number {
+  font-family: monospace;
+  font-size: 0.875rem;
+  color: #0f172a;
+  font-weight: 600;
 }
 </style>
