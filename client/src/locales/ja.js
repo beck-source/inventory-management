@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,6 +127,19 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    submitted: {
+      title: '送信済み注文',
+      subtitle: '配達待ちの補充注文',
+      empty: 'まだ補充注文はありません。「補充」タブで作成してください。',
+      orderNumber: '注文番号',
+      submittedOn: '送信日',
+      items: '品目',
+      orderTotal: '注文合計',
+      leadTime: 'リードタイム',
+      expectedDelivery: '予定配達日',
+      inDays: '{count}日後',
+      status: '送信済み'
     }
   },
 
@@ -186,6 +200,45 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定すると、需要予測が補充すべき品目を推奨します',
+    budgetLabel: '利用可能な予算',
+    budgetHint: 'このサイクルで使える金額をドラッグして設定',
+    fullOrderCost: '推奨注文の総額',
+    capacitySpent: '割当済み',
+    capacityRemaining: '残り',
+    overBudget: '予算超過',
+    stats: {
+      inOrder: '注文内の品目',
+      orderTotal: '注文合計',
+      budgetRemaining: '残り予算',
+      excluded: '予算外'
+    },
+    inOrder: 'この注文に含む',
+    waterline: '予算外',
+    table: {
+      item: '品目',
+      trend: 'トレンド',
+      gap: '予測ギャップ',
+      quantity: '補充数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      share: '予算配分'
+    },
+    leadDays: '{count}日',
+    placeOrder: '注文する',
+    placing: '送信中…',
+    emptySelection: '予算を増やすと品目が注文に追加されます',
+    noRecommendations: '補充は不要です — すべての予測品目は在庫十分です。',
+    successTitle: '注文 {orderNumber} を送信しました',
+    successBody: '{count}品目 · {total} · {lead}日後に到着',
+    viewInOrders: '注文で表示',
+    placeAnother: '別の注文を作成'
   },
 
   // Filters

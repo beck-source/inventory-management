@@ -27,6 +27,65 @@
         </div>
       </div>
 
+      <div class="card submitted-card">
+        <div class="card-header">
+          <div>
+            <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ submittedOrders.length }})</h3>
+            <p class="card-subtitle">{{ t('orders.submitted.subtitle') }}</p>
+          </div>
+        </div>
+
+        <div v-if="!submittedOrders.length" class="submitted-empty">
+          {{ t('orders.submitted.empty') }}
+        </div>
+
+        <div v-else class="table-container">
+          <table class="submitted-table">
+            <thead>
+              <tr>
+                <th class="s-order">{{ t('orders.submitted.orderNumber') }}</th>
+                <th class="s-date">{{ t('orders.submitted.submittedOn') }}</th>
+                <th class="s-items">{{ t('orders.submitted.items') }}</th>
+                <th class="s-status">{{ t('orders.table.status') }}</th>
+                <th class="s-lead">{{ t('orders.submitted.leadTime') }}</th>
+                <th class="s-date">{{ t('orders.submitted.expectedDelivery') }}</th>
+                <th class="s-value">{{ t('orders.submitted.orderTotal') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="s-order"><strong>{{ order.order_number }}</strong></td>
+                <td class="s-date">{{ formatDate(order.created_date) }}</td>
+                <td class="s-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.item_count }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.item_sku" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.item_name) }}</span>
+                        <span class="item-meta">
+                          {{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}
+                          · {{ t('orders.submitted.leadTime') }} {{ item.lead_time_days }}{{ leadSuffix }}
+                        </span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="s-status">
+                  <span class="badge info">{{ t('orders.submitted.status') }}</span>
+                </td>
+                <td class="s-lead">
+                  <span class="lead-pill">{{ t('orders.submitted.inDays', { count: order.lead_time_days }) }}</span>
+                </td>
+                <td class="s-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="s-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -87,7 +146,7 @@ import { useI18n } from '../composables/useI18n'
 export default {
   name: 'Orders',
   setup() {
-    const { t, currentCurrency, translateProductName, translateCustomerName } = useI18n()
+    const { t, currentCurrency, currentLocale, translateProductName, translateCustomerName } = useI18n()
 
     const currencySymbol = computed(() => {
       return currentCurrency.value === 'JPY' ? '¥' : '$'
@@ -95,6 +154,9 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
+
+    const leadSuffix = computed(() => (currentLocale.value === 'ja' ? '日' : 'd'))
 
     // Use shared filters
     const {
@@ -124,6 +186,17 @@ export default {
       }
     }
 
+    // Submitted restocking orders are global (not affected by the filter bar),
+    // so they load once and stay put regardless of order filters.
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        // Non-fatal: the customer orders view should still render.
+        console.error('Failed to load submitted restocking orders:', err)
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -144,7 +217,6 @@ export default {
     }
 
     const formatDate = (dateString) => {
-      const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
       return new Date(dateString).toLocaleDateString(locale, {
         year: 'numeric',
@@ -153,13 +225,18 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
+      leadSuffix,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +352,48 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* ---- Submitted (restocking) orders section ---- */
+.card-subtitle {
+  font-size: 0.813rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+.submitted-empty {
+  padding: 2rem;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.938rem;
+}
+
+.submitted-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.s-order { width: 140px; }
+.s-date { width: 150px; }
+.s-items { width: 130px; }
+.s-status { width: 120px; }
+.s-lead { width: 120px; }
+.s-value { width: 130px; text-align: right; }
+
+.submitted-table td.s-value,
+.submitted-table th.s-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.lead-pill {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 </style>

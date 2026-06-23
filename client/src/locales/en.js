@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,6 +127,19 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submitted: {
+      title: 'Submitted Orders',
+      subtitle: 'Restocking orders awaiting delivery',
+      empty: 'No restocking orders submitted yet. Build one in the Restocking tab.',
+      orderNumber: 'Order Number',
+      submittedOn: 'Submitted',
+      items: 'Items',
+      orderTotal: 'Order Total',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      inDays: 'in {count} days',
+      status: 'Submitted'
     }
   },
 
@@ -186,6 +200,45 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and let the demand forecast recommend what to restock',
+    budgetLabel: 'Available budget',
+    budgetHint: 'Drag to set how much you can spend this cycle',
+    fullOrderCost: 'Full recommended order',
+    capacitySpent: 'Allocated',
+    capacityRemaining: 'Remaining',
+    overBudget: 'Over budget',
+    stats: {
+      inOrder: 'Items in order',
+      orderTotal: 'Order total',
+      budgetRemaining: 'Budget remaining',
+      excluded: "Won't fit"
+    },
+    inOrder: 'In this order',
+    waterline: "won't fit",
+    table: {
+      item: 'Item',
+      trend: 'Trend',
+      gap: 'Forecast gap',
+      quantity: 'Restock qty',
+      unitCost: 'Unit cost',
+      lineTotal: 'Line total',
+      leadTime: 'Lead time',
+      share: 'Budget share'
+    },
+    leadDays: '{count}d',
+    placeOrder: 'Place Order',
+    placing: 'Submitting…',
+    emptySelection: 'Increase the budget to add items to the order',
+    noRecommendations: 'No restock needed — every forecast item is fully stocked.',
+    successTitle: 'Order {orderNumber} submitted',
+    successBody: '{count} items · {total} · arrives in {lead} days',
+    viewInOrders: 'View in Orders',
+    placeAnother: 'Build another order'
   },
 
   // Filters
