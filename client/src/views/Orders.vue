@@ -8,6 +8,37 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted Restocking Orders -->
+      <div class="card restocking-orders-card" v-if="restockingOrders.length > 0">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th>Order #</th>
+                <th>Items</th>
+                <th>Total Cost</th>
+                <th>Submitted</th>
+                <th>Expected Delivery</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}</td>
+                <td><strong>${{ order.total_cost.toLocaleString(undefined, { maximumFractionDigits: 0 }) }}</strong></td>
+                <td>{{ formatDate(order.submitted_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td><span class="badge restocking">{{ order.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +126,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,7 +185,18 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch {
+        // Silent failure — don't break the main orders table
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
@@ -165,7 +208,8 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders
     }
   }
 }
@@ -275,5 +319,10 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.badge.restocking {
+  background: #2d1b69;
+  color: #a78bfa;
 }
 </style>
