@@ -1,42 +1,19 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
-        </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
-        <LanguageSwitcher />
-        <ProfileMenu
-          @show-profile-details="showProfileDetails = true"
-          @show-tasks="showTasks = true"
-        />
+  <div class="app-shell" :style="{ gridTemplateColumns: sidebarCollapsed ? '64px 1fr' : '240px 1fr' }">
+    <AppSidebar
+      :collapsed="sidebarCollapsed"
+      @toggle-collapse="toggleSidebar"
+      @show-profile-details="showProfileDetails = true"
+      @show-tasks="showTasks = true"
+    />
+    <div class="main-area">
+      <div class="topbar">
+        <FilterBar />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -60,25 +37,25 @@ import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
 import FilterBar from './components/FilterBar.vue'
-import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
 import TasksModal from './components/TasksModal.vue'
-import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import AppSidebar from './components/AppSidebar.vue'
 
 export default {
   name: 'App',
   components: {
     FilterBar,
-    ProfileMenu,
     ProfileDetailsModal,
     TasksModal,
-    LanguageSwitcher
+    AppSidebar
   },
   setup() {
     const { currentUser } = useAuth()
     const { t } = useI18n()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
+    const sidebarCollapsed = ref(false)
+    const toggleSidebar = () => { sidebarCollapsed.value = !sidebarCollapsed.value }
     const apiTasks = ref([])
 
     // Merge mock tasks from currentUser with API tasks
@@ -152,6 +129,8 @@ export default {
       t,
       showProfileDetails,
       showTasks,
+      sidebarCollapsed,
+      toggleSidebar,
       tasks,
       addTask,
       deleteTask,
@@ -176,101 +155,30 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
+.app-shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  transition: grid-template-columns 0.2s ease;
+}
+
+.main-area {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-}
-
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  height: 70px;
-}
-
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
-}
-
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.logo h1 {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.nav-tabs a:hover {
-  color: #0f172a;
   background: #f1f5f9;
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
-}
-
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.6rem 1.5rem;
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
-  width: 100%;
-  margin: 0 auto;
   padding: 1.5rem 2rem;
 }
 
@@ -302,7 +210,8 @@ body {
   background: white;
   padding: 1.25rem;
   border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
 }
 
@@ -347,7 +256,8 @@ body {
   background: white;
   border-radius: 10px;
   padding: 1.25rem;
-  border: 1px solid #e2e8f0;
+  border: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
   margin-bottom: 1.25rem;
 }
 

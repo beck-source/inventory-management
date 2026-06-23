@@ -188,6 +188,49 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    cardTitle: 'Backlog Items',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    noItems: 'No backlog items - all orders can be fulfilled!'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    monthlyTrend: {
+      title: 'Monthly Revenue Trend'
+    },
+    momAnalysis: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    summary: {
+      totalRevenueYTD: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrdersYTD: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',

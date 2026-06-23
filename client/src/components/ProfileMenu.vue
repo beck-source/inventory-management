@@ -169,9 +169,9 @@ const handleLogout = () => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 280px;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  min-width: 220px;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;

@@ -188,6 +188,49 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解決',
+    cardTitle: 'バックログ品目',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalItems: '総バックログ品目数',
+    noItems: '在庫不足なし - すべての注文を履行できます！'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期パフォーマンス指標と月次トレンドを表示',
+    quarterly: {
+      title: '四半期パフォーマンス',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率'
+    },
+    monthlyTrend: {
+      title: '月次収益トレンド'
+    },
+    momAnalysis: {
+      title: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '収益',
+      change: '変化',
+      growthRate: '成長率'
+    },
+    summary: {
+      totalRevenueYTD: '総収益（年初来）',
+      avgMonthlyRevenue: '平均月次収益',
+      totalOrdersYTD: '総注文数（年初来）',
+      bestQuarter: '最高業績四半期'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
