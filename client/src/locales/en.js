@@ -6,8 +6,42 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order recommended restock items based on the demand forecast',
+    budgetLabel: 'Available Budget',
+    budgetHelp: 'Drag to set how much you can spend. Recommendations update automatically.',
+    recommended: 'Recommended Items',
+    noRecommendations: 'No items fit this budget. Increase the budget to see recommendations.',
+    summary: {
+      budget: 'Budget',
+      items: 'Items',
+      totalCost: 'Total Cost',
+      remaining: 'Remaining'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      restockQty: 'Restock Qty',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time'
+    },
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    successMessage: 'Restock order {orderNumber} submitted. View it in the Orders tab.',
+    errorMessage: 'Failed to submit restock order: {error}',
+    days: 'days'
   },
 
   // Dashboard
@@ -106,6 +140,7 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +160,8 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -204,6 +240,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

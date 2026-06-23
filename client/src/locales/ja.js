@@ -6,8 +6,42 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再入荷',
+    reports: 'レポート',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
+  },
+
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '予算を設定し、需要予測に基づく推奨再入荷品目を発注します',
+    budgetLabel: '利用可能予算',
+    budgetHelp: 'スライダーで支出可能額を設定すると、推奨が自動更新されます。',
+    recommended: '推奨品目',
+    noRecommendations: 'この予算に収まる品目がありません。予算を増やしてください。',
+    summary: {
+      budget: '予算',
+      items: '品目数',
+      totalCost: '合計費用',
+      remaining: '残り'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: '品名',
+      trend: '傾向',
+      restockQty: '再入荷数量',
+      unitCost: '単価',
+      lineCost: '小計',
+      leadTime: 'リードタイム'
+    },
+    placeOrder: '発注する',
+    placing: '発注中...',
+    successMessage: '再入荷注文 {orderNumber} を送信しました。注文タブで確認できます。',
+    errorMessage: '再入荷注文の送信に失敗しました: {error}',
+    days: '日'
   },
 
   // Dashboard
@@ -106,6 +140,7 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,7 +160,8 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -204,6 +240,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
