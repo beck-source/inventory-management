@@ -323,15 +323,13 @@ export default {
       return Number(value).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
     }
 
-    const formatDate = (dateString) => {
-      if (!dateString) return 'N/A'
-      const date = new Date(dateString)
-      if (isNaN(date.getTime())) return dateString
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
+    const formatDate = (value) => {
+      if (!value) return '-'
+      // Handle plain date-only strings (YYYY-MM-DD) without UTC shifting
+      const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
+      const date = m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : new Date(value)
+      if (isNaN(date.getTime())) return '-'
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
     }
 
     return {

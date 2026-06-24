@@ -1,0 +1,763 @@
+{
+  "summary": {
+    "total_issues": 58,
+    "errors": 2,
+    "warnings": 3,
+    "info": 53,
+    "components_analyzed": 19
+  },
+  "issues": [
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\BacklogDetailModal.vue",
+      "line": 115,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\CostDetailModal.vue",
+      "line": 137,
+      "message": "Utility method \"getLaborPercentage\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getLaborPercentage"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\CostDetailModal.vue",
+      "line": 132,
+      "message": "Utility method \"getOperationalPercentage\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getOperationalPercentage"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\CostDetailModal.vue",
+      "line": 142,
+      "message": "Utility method \"getOverheadPercentage\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getOverheadPercentage"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\CostDetailModal.vue",
+      "line": 127,
+      "message": "Utility method \"getProcurementPercentage\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getProcurementPercentage"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\InventoryDetailModal.vue",
+      "line": 169,
+      "message": "Utility method \"getSummaryCardClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getSummaryCardClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\InventoryDetailModal.vue",
+      "line": 155,
+      "message": "Utility method \"getStockStatusClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockStatusClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\InventoryDetailModal.vue",
+      "line": 162,
+      "message": "Utility method \"getStockIconClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockIconClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\InventoryDetailModal.vue",
+      "line": 144,
+      "message": "Utility method \"getStockStatus\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockStatus"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\LanguageSwitcher.vue",
+      "line": 70,
+      "message": "Utility method \"getLanguageName\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getLanguageName"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\ProductDetailModal.vue",
+      "line": 125,
+      "message": "Utility method \"getStockBadgeClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockBadgeClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\ProductDetailModal.vue",
+      "line": 115,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\ProfileDetailsModal.vue",
+      "line": 88,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\PurchaseOrderModal.vue",
+      "line": 326,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\PurchaseOrderModal.vue",
+      "line": 321,
+      "message": "Utility method \"formatCurrency\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatCurrency"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\TasksModal.vue",
+      "line": 212,
+      "message": "Utility method \"getStatusText\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStatusText"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\TasksModal.vue",
+      "line": 196,
+      "message": "Utility method \"getStatusClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStatusClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\TasksModal.vue",
+      "line": 223,
+      "message": "Utility method \"translatePriority\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translatePriority"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\TasksModal.vue",
+      "line": 170,
+      "message": "Utility method \"formatDueDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDueDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Backlog.vue",
+      "line": 133,
+      "message": "Utility method \"getBacklogByPriority\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getBacklogByPriority"
+    },
+    {
+      "severity": "info",
+      "category": "performance",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 49,
+      "message": "Complex template expression: Expression exceeds 80 characters",
+      "suggestion": "Extract to computed property or method for reusability and maintainability",
+      "code": "{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboar"
+    },
+    {
+      "severity": "info",
+      "category": "performance",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 49,
+      "message": "Complex template expression: Deep property chain (5+ levels)",
+      "suggestion": "Extract to computed property or method for reusability and maintainability",
+      "code": "{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboar"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 586,
+      "message": "Utility method \"calculatePercentage\" might be duplicated across components",
+      "suggestion": "Business logic - consider moving to composable or utils",
+      "code": "calculatePercentage"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 600,
+      "message": "Utility method \"getStockBadge\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockBadge"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 625,
+      "message": "Utility method \"translatePriority\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translatePriority"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 617,
+      "message": "Utility method \"translateStockLevel\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translateStockLevel"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 606,
+      "message": "Utility method \"translateCategory\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translateCategory"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 596,
+      "message": "Utility method \"getCircleSegment\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getCircleSegment"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 637,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 317,
+      "message": "Multiple filter/selection refs (3) suggest composable extraction",
+      "suggestion": "Create a composable (e.g., useFilters) to group related state and logic",
+      "code": "selectedProduct, selectedBacklogItem, selectedBacklogForPO"
+    },
+    {
+      "severity": "warning",
+      "category": "structure",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "line": 316,
+      "message": "Large setup function (411 lines)",
+      "suggestion": "Extract related logic into composables (useFilters, useData, useUI, etc.)",
+      "code": "411 lines"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Demand.vue",
+      "line": 173,
+      "message": "Utility method \"getChangePercent\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getChangePercent"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Demand.vue",
+      "line": 192,
+      "message": "Utility method \"translatePeriod\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translatePeriod"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Demand.vue",
+      "line": 178,
+      "message": "Utility method \"getChangeColor\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getChangeColor"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Demand.vue",
+      "line": 169,
+      "message": "Utility method \"getForecastsByTrend\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getForecastsByTrend"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Inventory.vue",
+      "line": 178,
+      "message": "Utility method \"getStockStatusClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockStatusClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Inventory.vue",
+      "line": 121,
+      "message": "Utility method \"getStockStatusKey\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockStatusKey"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Inventory.vue",
+      "line": 188,
+      "message": "Utility method \"translateCategory\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translateCategory"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Inventory.vue",
+      "line": 121,
+      "message": "Utility method \"getStockStatus\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getStockStatus"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Orders.vue",
+      "line": 210,
+      "message": "Utility method \"getOrdersByStatus\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getOrdersByStatus"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Orders.vue",
+      "line": 214,
+      "message": "Utility method \"getOrderStatusClass\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getOrderStatusClass"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Orders.vue",
+      "line": 224,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "error",
+      "category": "performance",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Reports.vue",
+      "line": 51,
+      "message": "Using array index as v-for key",
+      "suggestion": "Replace with unique identifier (id, sku, uuid). Index keys break component state during reordering/filtering.",
+      "code": ":key=\"index\""
+    },
+    {
+      "severity": "error",
+      "category": "performance",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Reports.vue",
+      "line": 82,
+      "message": "Using array index as v-for key",
+      "suggestion": "Replace with unique identifier (id, sku, uuid). Index keys break component state during reordering/filtering.",
+      "code": ":key=\"index\""
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Restocking.vue",
+      "line": 257,
+      "message": "Utility method \"wouldExceedBudget\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "wouldExceedBudget"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Restocking.vue",
+      "line": 281,
+      "message": "Utility method \"autoSelectByBudget\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "autoSelectByBudget"
+    },
+    {
+      "severity": "warning",
+      "category": "structure",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Restocking.vue",
+      "line": 207,
+      "message": "Large setup function (171 lines)",
+      "suggestion": "Extract related logic into composables (useFilters, useData, useUI, etc.)",
+      "code": "171 lines"
+    },
+    {
+      "severity": "info",
+      "category": "structure",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Restocking.vue",
+      "line": 351,
+      "message": "Large return object (25 properties) exposes internal state",
+      "suggestion": "Group related properties: return { dataLayer: {...}, uiLayer: {...}, handlers: {...} }",
+      "code": "25 properties"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 411,
+      "message": "Utility method \"translateMonth\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translateMonth"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 403,
+      "message": "Utility method \"formatDateShort\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDateShort"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 391,
+      "message": "Utility method \"getRevenueBarHeight\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getRevenueBarHeight"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 386,
+      "message": "Utility method \"getBarHeight\" might be duplicated across components",
+      "suggestion": "Utility method - consider moving to composable",
+      "code": "getBarHeight"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 429,
+      "message": "Utility method \"translateCategory\" might be duplicated across components",
+      "suggestion": "Consider extracting to useI18n() composable",
+      "code": "translateCategory"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 179,
+      "message": "Utility method \"formatCurrency\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatCurrency"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 396,
+      "message": "Utility method \"formatDate\" might be duplicated across components",
+      "suggestion": "Consider extracting to utils or composable",
+      "code": "formatDate"
+    },
+    {
+      "severity": "warning",
+      "category": "structure",
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "line": 187,
+      "message": "Large setup function (303 lines)",
+      "suggestion": "Extract related logic into composables (useFilters, useData, useUI, etc.)",
+      "code": "303 lines"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "[CROSS-FILE]",
+      "line": 0,
+      "message": "Method \"formatDate\" duplicated across 7 files",
+      "suggestion": "Extract to utils or composable. Found in: BacklogDetailModal.vue, ProductDetailModal.vue, ProfileDetailsModal.vue...",
+      "code": "formatDate"
+    },
+    {
+      "severity": "info",
+      "category": "reuse",
+      "file": "[CROSS-FILE]",
+      "line": 0,
+      "message": "Method \"translateCategory\" duplicated across 3 files",
+      "suggestion": "Extract to utils or composable. Found in: Dashboard.vue, Inventory.vue, Spending.vue",
+      "code": "translateCategory"
+    }
+  ],
+  "metrics": [
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\App.vue",
+      "lines": 164,
+      "methods_count": 0,
+      "computed_count": 1,
+      "hooks_count": 1,
+      "imports_count": 9,
+      "has_watch": false,
+      "has_on_mounted": true,
+      "data_refs": 3,
+      "unique_issues": 0
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\BacklogDetailModal.vue",
+      "lines": 123,
+      "methods_count": 2,
+      "computed_count": 1,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 1
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\CostDetailModal.vue",
+      "lines": 149,
+      "methods_count": 5,
+      "computed_count": 2,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 4
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\FilterBar.vue",
+      "lines": 100,
+      "methods_count": 0,
+      "computed_count": 0,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 0
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\InventoryDetailModal.vue",
+      "lines": 174,
+      "methods_count": 5,
+      "computed_count": 3,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 4
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\LanguageSwitcher.vue",
+      "lines": 88,
+      "methods_count": 4,
+      "computed_count": 0,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 1,
+      "unique_issues": 1
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\ProductDetailModal.vue",
+      "lines": 130,
+      "methods_count": 3,
+      "computed_count": 1,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 2
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\ProfileDetailsModal.vue",
+      "lines": 96,
+      "methods_count": 2,
+      "computed_count": 0,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 1
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\ProfileMenu.vue",
+      "lines": 115,
+      "methods_count": 5,
+      "computed_count": 1,
+      "hooks_count": 0,
+      "imports_count": 3,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 1,
+      "unique_issues": 0
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\PurchaseOrderModal.vue",
+      "lines": 283,
+      "methods_count": 4,
+      "computed_count": 2,
+      "hooks_count": 2,
+      "imports_count": 2,
+      "has_watch": true,
+      "has_on_mounted": false,
+      "data_refs": 6,
+      "unique_issues": 2
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\components\\TasksModal.vue",
+      "lines": 244,
+      "methods_count": 6,
+      "computed_count": 1,
+      "hooks_count": 0,
+      "imports_count": 2,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 1,
+      "unique_issues": 4
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Backlog.vue",
+      "lines": 151,
+      "methods_count": 1,
+      "computed_count": 1,
+      "hooks_count": 2,
+      "imports_count": 3,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 4,
+      "unique_issues": 1
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Dashboard.vue",
+      "lines": 728,
+      "methods_count": 12,
+      "computed_count": 11,
+      "hooks_count": 2,
+      "imports_count": 8,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 15,
+      "unique_issues": 11
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Demand.vue",
+      "lines": 223,
+      "methods_count": 4,
+      "computed_count": 1,
+      "hooks_count": 2,
+      "imports_count": 4,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 4,
+      "unique_issues": 4
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Inventory.vue",
+      "lines": 224,
+      "methods_count": 5,
+      "computed_count": 2,
+      "hooks_count": 2,
+      "imports_count": 5,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 6,
+      "unique_issues": 4
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Orders.vue",
+      "lines": 252,
+      "methods_count": 3,
+      "computed_count": 1,
+      "hooks_count": 3,
+      "imports_count": 4,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 5,
+      "unique_issues": 3
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Reports.vue",
+      "lines": 316,
+      "methods_count": 0,
+      "computed_count": 0,
+      "hooks_count": 0,
+      "imports_count": 1,
+      "has_watch": false,
+      "has_on_mounted": false,
+      "data_refs": 0,
+      "unique_issues": 2
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Restocking.vue",
+      "lines": 363,
+      "methods_count": 6,
+      "computed_count": 9,
+      "hooks_count": 3,
+      "imports_count": 3,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 9,
+      "unique_issues": 4
+    },
+    {
+      "file": "C:\\Users\\938523\\Documents\\inventory-management\\client\\src\\views\\Spending.vue",
+      "lines": 491,
+      "methods_count": 9,
+      "computed_count": 13,
+      "hooks_count": 2,
+      "imports_count": 6,
+      "has_watch": true,
+      "has_on_mounted": true,
+      "data_refs": 9,
+      "unique_issues": 8
+    }
+  ]
+}
