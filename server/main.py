@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import re
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +91,27 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    category: str
+    warehouse: str
+
+class RestockingRecommendation(BaseModel):
+    sku: str
+    item_name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    forecasted_demand: int
+    quantity_to_restock: int
+    unit_cost: float
+    estimated_cost: float
+    trend: str
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[dict]
+    total_value: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
 
 class BacklogItem(BaseModel):
     id: str
@@ -303,6 +326,55 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations():
+    """Get demand-based restocking recommendations joined with inventory costs"""
+    inv_map = {item['sku']: item for item in inventory_items}
+    result = []
+    for fc in demand_forecasts:
+        inv = inv_map.get(fc['item_sku'])
+        qty_on_hand = inv['quantity_on_hand'] if inv else 0
+        qty_to_restock = max(0, fc['forecasted_demand'] - qty_on_hand)
+        if qty_to_restock == 0:
+            continue
+        result.append({
+            'sku': fc['item_sku'],
+            'item_name': fc['item_name'],
+            'category': fc['category'],
+            'warehouse': fc['warehouse'],
+            'quantity_on_hand': qty_on_hand,
+            'forecasted_demand': fc['forecasted_demand'],
+            'quantity_to_restock': qty_to_restock,
+            'unit_cost': fc['unit_cost'],
+            'estimated_cost': round(qty_to_restock * fc['unit_cost'], 2),
+            'trend': fc['trend'],
+        })
+    result.sort(key=lambda x: (0 if x['trend'] == 'increasing' else 1, -x['estimated_cost']))
+    return result
+
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order"""
+    year = datetime.now().year
+    nums = [int(m) for o in orders
+            for m in re.findall(rf'RST-{year}-(\d+)', o.get('order_number', ''))]
+    next_num = (max(nums) + 1) if nums else 1
+    now = datetime.now()
+    new_order = {
+        'id': str(len(orders) + 1),
+        'order_number': f'RST-{year}-{next_num:04d}',
+        'customer': 'Internal Restocking',
+        'items': request.items,
+        'status': 'Restocking',
+        'warehouse': request.warehouse or 'Multiple',
+        'category': request.category or 'Mixed',
+        'order_date': now.strftime('%Y-%m-%dT%H:%M:%S'),
+        'expected_delivery': (now + timedelta(days=14)).strftime('%Y-%m-%dT%H:%M:%S'),
+        'total_value': request.total_value,
+    }
+    orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn
