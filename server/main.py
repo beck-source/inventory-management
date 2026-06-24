@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+import uuid
+from datetime import datetime, timedelta
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -80,6 +82,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    is_restocking_order: Optional[bool] = False
 
 class DemandForecast(BaseModel):
     id: str
@@ -119,6 +122,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+
+class RestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockingOrderItem]
 
 # API endpoints
 @app.get("/")
@@ -303,6 +316,32 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking/orders", response_model=Order)
+def create_restocking_order(request: RestockingOrderRequest):
+    """Submit a budget-driven restocking order generated from demand forecasts."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    now = datetime.utcnow()
+    new_order = {
+        "id": str(uuid.uuid4()),
+        "order_number": f"RST-{now.strftime('%Y%m%d%H%M%S')}",
+        "customer": "Internal Restocking",
+        "items": [
+            {"sku": i.sku, "name": i.name, "quantity": i.quantity, "unit_price": i.unit_cost}
+            for i in request.items
+        ],
+        "status": "Processing",
+        "order_date": now.strftime("%Y-%m-%d"),
+        "expected_delivery": (now + timedelta(days=14)).strftime("%Y-%m-%d"),
+        "total_value": round(sum(i.quantity * i.unit_cost for i in request.items), 2),
+        "warehouse": None,
+        "category": "Restocking",
+        "is_restocking_order": True,
+    }
+    orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn
