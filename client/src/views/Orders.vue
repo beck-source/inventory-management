@@ -8,6 +8,52 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted Restocking Orders section — only shown when orders exist -->
+      <div v-if="restockingOrders.length > 0" class="card restocking-section">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders</h3>
+          <span class="badge info">{{ restockingOrders.length }} order{{ restockingOrders.length !== 1 ? 's' : '' }}</span>
+        </div>
+        <div class="table-container">
+          <table class="restocking-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Items</th>
+                <th>Submitted</th>
+                <th>Lead Time</th>
+                <th>Est. Delivery</th>
+                <th class="col-value">Total Cost</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="rso in restockingOrders" :key="rso.id">
+                <td><strong>{{ rso.id }}</strong></td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ rso.items.length }} item{{ rso.items.length !== 1 ? 's' : '' }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in rso.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">{{ item.sku }} &mdash; Qty: {{ item.quantity }} @ ${{ item.unit_cost }} &mdash; Lead time: {{ item.lead_time_days }}d</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td>{{ formatDate(rso.submitted_date) }}</td>
+                <td>{{ Math.max(...rso.items.map(i => i.lead_time_days)) }} days</td>
+                <td>{{ formatDate(rso.estimated_delivery) }}</td>
+                <td class="col-value"><strong>${{ rso.total_cost.toLocaleString() }}</strong></td>
+                <td><span class="badge info">{{ rso.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +141,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +200,25 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -201,6 +260,7 @@ export default {
 
 .col-value {
   width: 120px;
+  text-align: right;
 }
 
 /* Items details styling */
@@ -275,5 +335,15 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-section {
+  border-left: 3px solid #2563eb;
+  margin-bottom: 1.5rem;
+}
+
+.restocking-table {
+  table-layout: auto;
+  width: 100%;
 }
 </style>
