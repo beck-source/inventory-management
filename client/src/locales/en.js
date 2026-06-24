@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,7 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,8 +127,39 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order recommended restock items from the demand forecast',
+    budgetCard: {
+      title: 'Available Budget',
+      label: 'Set your available budget',
+      help: 'Recommendations update as you adjust the budget'
+    },
+    recommendations: {
+      title: 'Recommended Restock',
+      empty: 'No items need restocking based on the current forecast.',
+      insufficient: 'Budget too low to fund any recommended item. Increase the budget to see recommendations.',
+      summaryItems: 'Items Recommended',
+      summarySpend: 'Recommended Spend',
+      summaryRemaining: 'Budget Remaining'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total'
+    },
+    placeOrder: 'Place Order',
+    placing: 'Placing Order...',
+    success: 'Restock order {orderNumber} submitted. View it in the Orders tab.'
   },
 
   // Finance/Spending
@@ -204,6 +237,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
