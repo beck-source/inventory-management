@@ -1,7 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from datetime import datetime, timedelta
+import itertools
+import threading
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +92,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: Optional[float] = None
 
 class BacklogItem(BaseModel):
     id: str
@@ -100,6 +104,7 @@ class BacklogItem(BaseModel):
     days_delayed: int
     priority: str
     has_purchase_order: Optional[bool] = False
+    purchase_order_id: Optional[str] = None
 
 class PurchaseOrder(BaseModel):
     id: str
@@ -119,6 +124,140 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+# --- Task models ---
+# dueDate is intentionally camelCase: the UI reads task.dueDate directly.
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str = "medium"
+    dueDate: str
+
+# --- Restocking models ---
+
+class RestockRecommendation(BaseModel):
+    item_sku: str
+    item_name: str
+    current_demand: int
+    forecasted_demand: int
+    demand_gap: int
+    trend: str
+    recommended_quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+    priority_rank: int
+
+class RestockOrderItemRequest(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int = Field(ge=1)
+    unit_cost: float = Field(ge=0)
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float = Field(ge=0)
+    items: List[RestockOrderItemRequest]
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+    expected_delivery: str
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    status: str
+    created_date: str
+    budget: float
+    total_value: float
+    item_count: int
+    lead_time_days: int
+    expected_delivery: str
+    items: List[RestockOrderItem]
+
+# In-memory store for submitted restocking orders (resets on server restart,
+# consistent with the demo's no-database design).
+submitted_restock_orders: List[dict] = []
+# Monotonic order sequence + lock so concurrent submissions never collide on
+# id / order_number (the sync endpoint runs in Starlette's threadpool).
+_restock_order_seq = itertools.count(1)
+_restock_lock = threading.Lock()
+
+# In-memory store for tasks (resets on server restart), mirroring the
+# restocking-order store + monotonic sequence + lock pattern.
+tasks_store: List[dict] = []
+_task_seq = itertools.count(1)
+_task_lock = threading.Lock()
+
+# Monotonic PO sequence + lock so concurrent purchase-order creations never
+# collide on id (mirrors the restocking-order pattern).
+_po_seq = itertools.count(1)
+_po_lock = threading.Lock()
+
+def restock_unit_cost(sku: str):
+    """Authoritative unit cost for a SKU: the demand forecast price, falling
+    back to the inventory unit cost. Returns None for an unknown SKU."""
+    forecast = next((f for f in demand_forecasts if f["item_sku"] == sku), None)
+    if forecast is None:
+        return None
+    cost = forecast.get("unit_cost")
+    if cost is None:
+        inv = next((i for i in inventory_items if i["sku"] == sku), None)
+        cost = inv["unit_cost"] if inv else None
+    return cost
+
+def restock_lead_time_days(sku: str) -> int:
+    """Deterministic per-SKU delivery lead time in the 7-28 day range.
+
+    Uses a stable character-sum hash (not Python's randomized hash()) so the
+    same SKU always reports the same lead time across requests and restarts.
+    """
+    return 7 + (sum(ord(c) for c in sku) % 22)
+
+def build_restock_recommendations() -> List[dict]:
+    """Build budget-agnostic restock candidates from the demand forecast.
+
+    A candidate is any forecast item with a positive demand gap
+    (forecasted - current). Recommended quantity covers exactly that gap.
+    Sorted by demand urgency: largest gap first, then largest line total,
+    then SKU for a fully deterministic order.
+    """
+    candidates = []
+    for f in demand_forecasts:
+        gap = f["forecasted_demand"] - f["current_demand"]
+        if gap <= 0:
+            continue
+        unit_cost = restock_unit_cost(f["item_sku"])
+        if unit_cost is None:
+            unit_cost = 0.0
+        line_total = round(gap * unit_cost, 2)
+        candidates.append({
+            "item_sku": f["item_sku"],
+            "item_name": f["item_name"],
+            "current_demand": f["current_demand"],
+            "forecasted_demand": f["forecasted_demand"],
+            "demand_gap": gap,
+            "trend": f["trend"],
+            "recommended_quantity": gap,
+            "unit_cost": round(unit_cost, 2),
+            "line_total": line_total,
+            "lead_time_days": restock_lead_time_days(f["item_sku"]),
+        })
+
+    candidates.sort(key=lambda c: (-c["demand_gap"], -c["line_total"], c["item_sku"]))
+    for rank, c in enumerate(candidates, start=1):
+        c["priority_rank"] = rank
+    return candidates
 
 # API endpoints
 @app.get("/")
@@ -166,6 +305,158 @@ def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
 
+@app.get("/api/restock/recommendations", response_model=List[RestockRecommendation])
+def get_restock_recommendations():
+    """Get restock recommendations derived from the demand forecast.
+
+    Returns every item with a positive demand gap, ordered by demand urgency.
+    Budget selection happens client-side so the slider responds instantly.
+    """
+    return build_restock_recommendations()
+
+@app.get("/api/restock/orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get submitted restocking orders, most recent first."""
+    return list(reversed(submitted_restock_orders))
+
+@app.post("/api/restock/orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order.
+
+    The server is the source of truth: it prices each line from the authoritative
+    SKU unit cost (ignoring any client-supplied price), recomputes line totals
+    and per-item lead times, and derives the order-level lead time from the
+    slowest line (the order is complete only once the last item arrives). It then
+    assigns a unique, monotonic RST order number.
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="A restocking order must contain at least one item.")
+
+    created_dt = datetime.now()
+    order_items = []
+    total_value = 0.0
+    max_lead = 0
+
+    for item in request.items:
+        unit_cost = restock_unit_cost(item.item_sku)
+        if unit_cost is None:
+            raise HTTPException(status_code=400, detail=f"Unknown or unpriced SKU: {item.item_sku}")
+        line_total = round(item.quantity * unit_cost, 2)
+        lead = restock_lead_time_days(item.item_sku)
+        total_value += line_total
+        max_lead = max(max_lead, lead)
+        order_items.append({
+            "item_sku": item.item_sku,
+            "item_name": item.item_name,
+            "quantity": item.quantity,
+            "unit_cost": round(unit_cost, 2),
+            "line_total": line_total,
+            "lead_time_days": lead,
+            "expected_delivery": (created_dt + timedelta(days=lead)).isoformat(timespec="seconds"),
+        })
+
+    total_value = round(total_value, 2)
+    if total_value > round(request.budget, 2) + 1e-9:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Order total {total_value} exceeds budget {request.budget}.",
+        )
+
+    # Distinct, never-reused identifiers even under concurrent submissions.
+    with _restock_lock:
+        seq = next(_restock_order_seq)
+        new_order = {
+            "id": str(seq),
+            "order_number": f"RST-{created_dt.year}-{seq:04d}",
+            "status": "Submitted",
+            "created_date": created_dt.isoformat(timespec="seconds"),
+            "budget": round(request.budget, 2),
+            "total_value": total_value,
+            "item_count": len(order_items),
+            "lead_time_days": max_lead,
+            "expected_delivery": (created_dt + timedelta(days=max_lead)).isoformat(timespec="seconds"),
+            "items": order_items,
+        }
+        submitted_restock_orders.append(new_order)
+    return new_order
+
+# --- Tasks endpoints ---
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all tasks, newest first."""
+    return list(reversed(tasks_store))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a new task.
+
+    The id is the STRING f"task-{seq}" on purpose: the frontend mock tasks in
+    useAuth.js use INTEGER ids 1-4 and App.vue uses strict === to decide
+    mock-vs-API, so a string id can never collide with them and mutations
+    always route to the API instead of the mock list.
+    """
+    with _task_lock:
+        seq = next(_task_seq)
+        new_task = {
+            "id": f"task-{seq}",
+            "title": request.title,
+            "priority": request.priority,
+            "dueDate": request.dueDate,
+            "status": "pending",
+        }
+        tasks_store.append(new_task)
+    return new_task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task's status between 'pending' and 'completed'."""
+    task = next((t for t in tasks_store if t["id"] == task_id), None)
+    if task is None:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.delete("/api/tasks/{task_id}", status_code=204)
+def delete_task(task_id: str):
+    """Delete a task by id."""
+    task = next((t for t in tasks_store if t["id"] == task_id), None)
+    if task is None:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    tasks_store.remove(task)
+
+# --- Purchase order endpoints ---
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog item.
+
+    Returns the created PO including its id and backlog_item_id, both of which
+    the frontend's handlePOCreated handler relies on to update button state.
+    """
+    created_date = datetime.now().date().isoformat()
+    with _po_lock:
+        seq = next(_po_seq)
+        new_po = {
+            "id": f"PO-{seq:04d}",
+            "backlog_item_id": request.backlog_item_id,
+            "supplier_name": request.supplier_name,
+            "quantity": request.quantity,
+            "unit_cost": request.unit_cost,
+            "expected_delivery_date": request.expected_delivery_date,
+            "status": "Pending",
+            "created_date": created_date,
+            "notes": request.notes,
+        }
+        purchase_orders.append(new_po)
+    return new_po
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order(backlog_item_id: str):
+    """Get the purchase order associated with a backlog item."""
+    po = next((p for p in purchase_orders if p["backlog_item_id"] == backlog_item_id), None)
+    if po is None:
+        raise HTTPException(status_code=404, detail=f"No purchase order for backlog item {backlog_item_id}")
+    return po
+
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():
     """Get backlog items with purchase order status"""
@@ -173,9 +464,15 @@ def get_backlog():
     result = []
     for item in backlog_items:
         item_dict = dict(item)
-        # Check if this backlog item has a purchase order
-        has_po = any(po["backlog_item_id"] == item["id"] for po in purchase_orders)
-        item_dict["has_purchase_order"] = has_po
+        # Surface the matching PO's id (not just a boolean) so the Dashboard's
+        # Create/View PO button state persists across reloads, since the
+        # template keys off item.purchase_order_id.
+        po = next((p for p in purchase_orders if p["backlog_item_id"] == item["id"]), None)
+        if po is not None:
+            item_dict["purchase_order_id"] = po["id"]
+            item_dict["has_purchase_order"] = True
+        else:
+            item_dict["has_purchase_order"] = False
         result.append(item_dict)
     return result
 
@@ -228,12 +525,22 @@ def get_recent_transactions():
     return recent_transactions
 
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
-    """Get quarterly performance reports"""
-    # Calculate quarterly statistics from orders
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get quarterly performance reports (respects the global filter bar)"""
+    # Mirror /api/orders filtering so the report reflects the active filters
+    # instead of always aggregating every order.
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
+    # Calculate quarterly statistics from the filtered orders
     quarters = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         # Determine quarter
         if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
@@ -274,11 +581,20 @@ def get_quarterly_reports():
     return result
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
-    """Get month-over-month trends"""
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get month-over-month trends (respects the global filter bar)"""
+    # Mirror /api/orders filtering so the trend reflects the active filters.
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     months = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         if not order_date:
             continue
