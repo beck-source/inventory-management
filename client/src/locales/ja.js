@@ -326,6 +326,73 @@ export default {
     items: '件'
   },
 
+  // Restocking
+  restocking: {
+    navLabel: '補充計画',
+    title: '補充プランナー',
+    description: '使用可能な予算を設定し、需要ベースの補充推奨品を確認してください',
+    budget: {
+      title: '使用可能予算',
+      subtitle: 'スライダーをドラッグして補充予算を設定してください',
+      available: '使用可能予算',
+      used: '使用済み',
+      remaining: '残り',
+      over: '（予算超過）',
+      itemsSelected: '件選択済み'
+    },
+    kpi: {
+      critical: '緊急',
+      high: '高優先度',
+      medium: '中優先度',
+      withinBudget: '予算内'
+    },
+    recommendations: {
+      title: '推奨品目',
+      autoSelect: '予算内で自動選択',
+      clearAll: 'すべてクリア'
+    },
+    table: {
+      priority: '優先度',
+      sku: 'SKU',
+      itemName: '品目名',
+      warehouse: '倉庫',
+      onHand: '手持数',
+      reorderPoint: '発注点',
+      trend: 'トレンド',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      totalCost: '合計金額'
+    },
+    priority: {
+      critical: '緊急',
+      high: '高',
+      medium: '中'
+    },
+    order: {
+      placeOrder: '発注する',
+      placing: '発注中...',
+      noItems: '上記から品目を選択して補充発注してください',
+      summaryText: '{count}件選択 — 合計: {total}',
+      successTitle: '発注が完了しました！',
+      successMessage: '補充注文 {number} が送信されました。14日以内に配達予定です。'
+    },
+    submittedOrders: {
+      title: '送信済み補充注文',
+      empty: 'まだ補充注文が送信されていません。',
+      statusSubmitted: '送信済み',
+      days: '日のリードタイム',
+      table: {
+        orderNumber: '注文番号',
+        orderDate: '注文日',
+        items: '品目',
+        totalCost: '合計金額',
+        status: 'ステータス',
+        expectedDelivery: '予定配達日',
+        leadTime: 'リードタイム'
+      }
+    }
+  },
+
   // Product Names
   productNames: {
     'Single Layer PCB Assembly': '単層PCB組立',

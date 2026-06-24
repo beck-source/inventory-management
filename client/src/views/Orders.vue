@@ -74,6 +74,68 @@
           </table>
         </div>
       </div>
+
+      <!-- ── Submitted Restocking Orders ───────────────────────────────── -->
+      <div class="card submitted-orders-section">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedOrders.title') }}</h3>
+          <span v-if="restockingOrders.length" class="submitted-count-badge">
+            {{ restockingOrders.length }}
+          </span>
+        </div>
+
+        <div v-if="restockingLoading" class="loading-inline">{{ t('common.loading') }}</div>
+
+        <div v-else-if="restockingOrders.length === 0" class="empty-submitted">
+          <span class="empty-icon">📦</span>
+          <p>{{ t('restocking.submittedOrders.empty') }}</p>
+        </div>
+
+        <div v-else class="table-container">
+          <table class="submitted-table">
+            <thead>
+              <tr>
+                <th>{{ t('restocking.submittedOrders.table.orderNumber') }}</th>
+                <th>{{ t('restocking.submittedOrders.table.orderDate') }}</th>
+                <th>{{ t('restocking.submittedOrders.table.items') }}</th>
+                <th>{{ t('restocking.submittedOrders.table.totalCost') }}</th>
+                <th>{{ t('restocking.submittedOrders.table.status') }}</th>
+                <th>{{ t('restocking.submittedOrders.table.expectedDelivery') }}</th>
+                <th>{{ t('restocking.submittedOrders.table.leadTime') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockingOrders" :key="ro.id">
+                <td><strong>{{ ro.order_number }}</strong></td>
+                <td>{{ formatDate(ro.order_date) }}</td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: ro.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in ro.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td><strong>{{ currencySymbol }}{{ ro.total_cost.toLocaleString() }}</strong></td>
+                <td>
+                  <span class="badge badge-submitted">{{ t('restocking.submittedOrders.statusSubmitted') }}</span>
+                </td>
+                <td>{{ formatDate(ro.expected_delivery) }}</td>
+                <td>
+                  <span class="lead-time-badge">
+                    🕐 {{ ro.lead_time_days }} {{ t('restocking.submittedOrders.days') }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,6 +186,22 @@ export default {
       }
     }
 
+    // ── Submitted restocking orders ──────────────────────────────────────────
+    const restockingOrders = ref([])
+    const restockingLoading = ref(false)
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingLoading.value = true
+        restockingOrders.value = await api.getSubmittedRestockingOrders()
+      } catch (err) {
+        // Non-fatal – just show empty state
+        console.error('Failed to load restocking orders:', err)
+      } finally {
+        restockingLoading.value = false
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -154,12 +232,15 @@ export default {
     }
 
     onMounted(loadOrders)
+    onMounted(loadRestockingOrders)
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
+      restockingLoading,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +356,86 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* ── Submitted restocking orders section ──────────────────────────────── */
+.submitted-orders-section {
+  margin-top: 1.5rem;
+}
+.submitted-orders-section .card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.submitted-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #3b82f6;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.05rem 0.5rem;
+  min-width: 1.4rem;
+}
+.loading-inline {
+  color: #64748b;
+  font-size: 0.85rem;
+  padding: 0.75rem 0;
+}
+.empty-submitted {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #94a3b8;
+}
+.empty-icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
+
+.submitted-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+.submitted-table th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  white-space: nowrap;
+}
+.submitted-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+.submitted-table tbody tr:last-child td { border-bottom: none; }
+
+.badge-submitted {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-radius: 4px;
+  padding: 0.18rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lead-time-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
 </style>

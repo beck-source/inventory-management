@@ -324,5 +324,72 @@ export default {
     filter: 'Filter',
     export: 'Export',
     items: 'items'
+  },
+
+  // Restocking
+  restocking: {
+    navLabel: 'Restocking',
+    title: 'Restocking Planner',
+    description: 'Set your available budget and review demand-based restocking recommendations',
+    budget: {
+      title: 'Available Budget',
+      subtitle: 'Drag the slider to set your restocking budget',
+      available: 'Available Budget',
+      used: 'Used',
+      remaining: 'Remaining',
+      over: '(over budget)',
+      itemsSelected: 'items selected'
+    },
+    kpi: {
+      critical: 'Critical',
+      high: 'High Priority',
+      medium: 'Medium Priority',
+      withinBudget: 'Fit in Budget'
+    },
+    recommendations: {
+      title: 'Recommended Items',
+      autoSelect: 'Auto-select by budget',
+      clearAll: 'Clear all'
+    },
+    table: {
+      priority: 'Priority',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Pt',
+      trend: 'Trend',
+      recommendedQty: 'Rec. Qty',
+      unitCost: 'Unit Cost',
+      totalCost: 'Total Cost'
+    },
+    priority: {
+      critical: 'Critical',
+      high: 'High',
+      medium: 'Medium'
+    },
+    order: {
+      placeOrder: 'Place Order',
+      placing: 'Placing...',
+      noItems: 'Select items above to place a restocking order',
+      summaryText: '{count} item(s) selected — Total: {total}',
+      successTitle: 'Order placed successfully!',
+      successMessage: 'Restocking order {number} has been submitted. Expected delivery in 14 days.'
+    },
+    submittedOrders: {
+      title: 'Submitted Restocking Orders',
+      empty: 'No restocking orders have been submitted yet.',
+      statusSubmitted: 'Submitted',
+      days: 'day lead time',
+      table: {
+        orderNumber: 'Order #',
+        orderDate: 'Order Date',
+        items: 'Items',
+        totalCost: 'Total Cost',
+        status: 'Status',
+        expectedDelivery: 'Expected Delivery',
+        leadTime: 'Lead Time'
+      }
+    }
   }
 }
