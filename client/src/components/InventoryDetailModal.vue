@@ -61,7 +61,7 @@
               <div class="info-item">
                 <div class="info-label">Units Remaining</div>
                 <div class="info-value">
-                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#ef4444' : '#10b981' }">
+                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? 'var(--uui-error)' : 'var(--uui-success)' }">
                     {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} units
                   </span>
                 </div>
@@ -177,22 +177,19 @@ const getSummaryCardClass = () => {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: var(--uui-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
-  padding: 1rem;
+  z-index: var(--uui-z-modal);
+  padding: var(--uui-space-24);
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  background: var(--uui-surface-main);
+  border-radius: var(--uui-radius-12);
+  box-shadow: var(--uui-shadow-400);
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
@@ -205,71 +202,71 @@ const getSummaryCardClass = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: var(--uui-space-18) var(--uui-space-24);
+  border-bottom: 1px solid var(--uui-divider);
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-size: var(--uui-h4-size);
+  font-weight: var(--uui-fw-bold);
+  color: var(--uui-text-primary);
 }
 
 .close-button {
+  width: var(--uui-size-36);
+  height: var(--uui-size-36);
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--uui-icon);
   cursor: pointer;
-  padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
+  border-radius: var(--uui-radius-6);
+  transition: all 0.12s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--uui-night-100);
+  color: var(--uui-icon-active);
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: var(--uui-space-24);
 }
 
 .item-header {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
+  gap: var(--uui-space-18);
+  padding-bottom: var(--uui-space-18);
+  border-bottom: 1px solid var(--uui-divider);
+  margin-bottom: var(--uui-space-18);
 }
 
 .item-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 12px;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--uui-radius-12);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--uui-white);
   flex-shrink: 0;
 }
 
 .item-icon.success-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: var(--uui-green-60);
 }
 
 .item-icon.warning-icon {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: var(--uui-amber-60);
 }
 
 .item-icon.danger-icon {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: var(--uui-fire-60);
 }
 
 .item-title-section {
@@ -278,159 +275,163 @@ const getSummaryCardClass = () => {
 }
 
 .item-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  font-size: var(--uui-h3-size);
+  font-weight: var(--uui-fw-bold);
+  color: var(--uui-text-primary);
+  margin: 0 0 var(--uui-space-6) 0;
 }
 
 .item-sku {
-  font-size: 0.875rem;
-  color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: var(--uui-text-s-size);
+  color: var(--uui-text-secondary);
+  font-family: var(--uui-font-mono);
 }
 
 .stock-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
+  height: var(--uui-size-30);
+  padding: 0 var(--uui-space-12);
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--uui-radius-6);
+  font-size: var(--uui-text-xs-size);
+  font-weight: var(--uui-fw-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: var(--uui-overline-tracking);
   flex-shrink: 0;
 }
 
 .stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--uui-success-subtle);
+  color: var(--uui-green-70);
 }
 
 .stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--uui-warning-subtle);
+  color: var(--uui-amber-70);
 }
 
 .stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--uui-error-subtle);
+  color: var(--uui-fire-70);
 }
 
 .stock-summary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: var(--uui-space-12);
+  margin-bottom: var(--uui-space-24);
 }
 
 .summary-card {
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 2px solid;
+  padding: var(--uui-space-18);
+  border-radius: var(--uui-radius-12);
+  border: 1px solid;
 }
 
 .summary-card.primary {
-  border-color: #bfdbfe;
-  background: #eff6ff;
+  border-color: var(--uui-blue-20);
+  background: var(--uui-primary-subtle);
 }
 
 .summary-card.success-card {
-  border-color: #a7f3d0;
-  background: #d1fae5;
+  border-color: var(--uui-green-30);
+  background: var(--uui-success-subtle);
 }
 
 .summary-card.warning-card {
-  border-color: #fed7aa;
-  background: #fffbeb;
+  border-color: var(--uui-amber-30);
+  background: var(--uui-warning-subtle);
 }
 
 .summary-card.danger-card {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: var(--uui-fire-30);
+  background: var(--uui-error-subtle);
 }
 
 .summary-label {
-  font-size: 0.813rem;
-  font-weight: 600;
+  font-size: var(--uui-overline-size);
+  font-weight: var(--uui-fw-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  letter-spacing: var(--uui-overline-tracking);
+  color: var(--uui-text-secondary);
+  margin-bottom: var(--uui-space-6);
 }
 
 .summary-value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: 30px;
+  font-weight: var(--uui-fw-bold);
+  color: var(--uui-text-primary);
+  line-height: 1;
 }
 
 .summary-subtitle {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  font-size: var(--uui-text-xs-size);
+  color: var(--uui-text-secondary);
+  margin-top: var(--uui-space-3);
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  gap: var(--uui-space-18);
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--uui-space-6);
 }
 
 .info-label {
-  font-size: 0.813rem;
-  font-weight: 600;
+  font-size: var(--uui-overline-size);
+  font-weight: var(--uui-fw-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
+  letter-spacing: var(--uui-overline-tracking);
+  color: var(--uui-text-secondary);
 }
 
 .info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
-  font-weight: 500;
+  font-size: var(--uui-text-s-size);
+  color: var(--uui-text-primary);
+  font-weight: var(--uui-fw-semibold);
 }
 
 .info-value.total-value {
-  font-size: 1.125rem;
-  color: #2563eb;
-  font-weight: 700;
+  font-size: var(--uui-h4-size);
+  color: var(--uui-primary);
+  font-weight: var(--uui-fw-bold);
 }
 
 .modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  padding: var(--uui-space-18) var(--uui-space-24);
+  border-top: 1px solid var(--uui-divider);
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--uui-space-12);
 }
 
 .btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
+  height: var(--uui-size-36);
+  padding: 0 var(--uui-space-18);
+  background: var(--uui-night-100);
+  border: 1px solid var(--uui-border);
+  border-radius: var(--uui-radius-6);
+  font-family: var(--uui-font);
+  font-weight: var(--uui-fw-semibold);
+  font-size: var(--uui-text-s-size);
+  color: var(--uui-text-primary);
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
+  transition: all 0.12s ease;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--uui-night-200);
+  border-color: var(--uui-border-strong);
 }
 
-/* Modal transition animations */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .modal-enter-from,
@@ -440,11 +441,11 @@ const getSummaryCardClass = () => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 </style>
