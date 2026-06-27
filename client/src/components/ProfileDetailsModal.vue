@@ -99,22 +99,19 @@ const formatDate = (dateString) => {
 <style scoped>
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: var(--uui-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
-  padding: 1rem;
+  z-index: var(--uui-z-modal);
+  padding: var(--uui-space-24);
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  background: var(--uui-surface-main);
+  border-radius: var(--uui-radius-12);
+  box-shadow: var(--uui-shadow-400);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
@@ -127,140 +124,139 @@ const formatDate = (dateString) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: var(--uui-space-18) var(--uui-space-24);
+  border-bottom: 1px solid var(--uui-divider);
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+  font-size: var(--uui-h4-size);
+  font-weight: var(--uui-fw-bold);
+  color: var(--uui-text-primary);
 }
 
 .close-button {
+  width: var(--uui-size-36);
+  height: var(--uui-size-36);
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--uui-icon);
   cursor: pointer;
-  padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
+  border-radius: var(--uui-radius-6);
+  transition: all 0.12s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--uui-night-100);
+  color: var(--uui-icon-active);
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: var(--uui-space-24);
 }
 
 .profile-section {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--uui-space-24);
 }
 
 .avatar-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  gap: var(--uui-space-12);
+  padding-bottom: var(--uui-space-24);
+  border-bottom: 1px solid var(--uui-divider);
 }
 
 .avatar-xl {
   width: 96px;
   height: 96px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  border-radius: var(--uui-radius-full);
+  background: var(--uui-primary);
+  color: var(--uui-white);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: var(--uui-fw-bold);
   font-size: 2rem;
-  letter-spacing: 0.025em;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  box-shadow: var(--uui-shadow-200);
 }
 
 .profile-name {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: var(--uui-h3-size);
+  font-weight: var(--uui-fw-bold);
+  color: var(--uui-text-primary);
   margin: 0;
 }
 
 .profile-job-title {
-  font-size: 1rem;
-  color: #64748b;
+  font-size: var(--uui-text-m-size);
+  color: var(--uui-text-secondary);
   margin: 0;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: var(--uui-space-24);
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--uui-space-6);
 }
 
 .info-label {
-  font-size: 0.813rem;
-  font-weight: 600;
+  font-size: var(--uui-overline-size);
+  font-weight: var(--uui-fw-semibold);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
+  letter-spacing: var(--uui-overline-tracking);
+  color: var(--uui-text-secondary);
 }
 
 .info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
-  font-weight: 500;
+  font-size: var(--uui-text-s-size);
+  color: var(--uui-text-primary);
+  font-weight: var(--uui-fw-semibold);
 }
 
 .modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  padding: var(--uui-space-18) var(--uui-space-24);
+  border-top: 1px solid var(--uui-divider);
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--uui-space-12);
 }
 
 .btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
+  height: var(--uui-size-36);
+  padding: 0 var(--uui-space-18);
+  background: var(--uui-night-100);
+  border: 1px solid var(--uui-border);
+  border-radius: var(--uui-radius-6);
+  font-family: var(--uui-font);
+  font-weight: var(--uui-fw-semibold);
+  font-size: var(--uui-text-s-size);
+  color: var(--uui-text-primary);
   cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
+  transition: all 0.12s ease;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--uui-night-200);
+  border-color: var(--uui-border-strong);
 }
 
-/* Modal transition animations */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .modal-enter-from,
@@ -270,11 +266,11 @@ const formatDate = (dateString) => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 </style>
