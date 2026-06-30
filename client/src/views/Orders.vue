@@ -5,6 +5,37 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <!-- Submitted Restocking Orders (unfiltered, independent of global filters) -->
+    <div v-if="restockingOrders.length > 0" class="card restocking-section">
+      <div class="card-header">
+        <h3 class="card-title">Submitted Restocking Orders</h3>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Items</th>
+              <th>Total Cost</th>
+              <th>Status</th>
+              <th>Order Date</th>
+              <th>Expected Delivery</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="ro in restockingOrders" :key="ro.order_number">
+              <td><strong>{{ ro.order_number }}</strong></td>
+              <td>{{ ro.items.length }} item{{ ro.items.length !== 1 ? 's' : '' }}</td>
+              <td><strong>${{ ro.total_cost.toLocaleString() }}</strong></td>
+              <td><span class="badge info">{{ ro.status }}</span></td>
+              <td>{{ formatDate(ro.order_date) }}</td>
+              <td>{{ formatDate(ro.expected_delivery) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -95,6 +126,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +185,25 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -172,6 +216,10 @@ export default {
 </script>
 
 <style scoped>
+.restocking-section {
+  margin-bottom: 1.5rem;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

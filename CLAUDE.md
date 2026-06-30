@@ -4,6 +4,10 @@ Factory Inventory Management System Demo with GitHub integration - Full-stack ap
 
 > ⚠️ **This repository and any fork you create are PUBLIC.** Do not commit credentials, internal hostnames, or private registry URLs. `client/.npmrc` pins the public npm registry and `client/package-lock.json` is gitignored to prevent locally-configured registries from leaking into commits — leave both in place.
 
+## Code Style
+
+- Always document non-obvious logic changes with comments
+
 ## Critical Tool Usage Rules
 
 ### Subagents
