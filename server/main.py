@@ -89,6 +89,26 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float = 0.0
+
+class RestockingItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingItem]
+    total_cost: float
+    status: str
+    order_date: str
+    expected_delivery: str
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingItem]
 
 class BacklogItem(BaseModel):
     id: str
@@ -303,6 +323,39 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+# In-memory store for restocking orders
+restocking_orders = []
+restocking_order_counter = [1]
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return restocking_orders
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a new restocking order"""
+    from datetime import datetime, timedelta
+
+    now = datetime.now()
+    order_id = str(restocking_order_counter[0])
+    restocking_order_counter[0] += 1
+    order_number = f"RST-{now.strftime('%Y')}-{order_id.zfill(4)}"
+    total_cost = sum(item.line_total for item in request.items)
+    expected_delivery = (now + timedelta(days=7)).strftime("%Y-%m-%dT%H:%M:%S")
+
+    order = {
+        "id": order_id,
+        "order_number": order_number,
+        "items": [item.dict() for item in request.items],
+        "total_cost": total_cost,
+        "status": "Submitted",
+        "order_date": now.strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": expected_delivery,
+    }
+    restocking_orders.append(order)
+    return order
 
 if __name__ == "__main__":
     import uvicorn
