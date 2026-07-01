@@ -634,10 +634,9 @@ export default {
 
     const formatDate = (dateString) => {
       if (!dateString) return '-'
-      const { currentLocale } = useI18n()
-      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
+      const { dateLocale } = useI18n()
       const date = new Date(dateString)
-      return date.toLocaleDateString(locale, { month: 'short', day: 'numeric', year: 'numeric' })
+      return date.toLocaleDateString(dateLocale.value, { month: 'short', day: 'numeric', year: 'numeric' })
     }
 
     const showProductDetail = (product) => {

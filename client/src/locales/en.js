@@ -6,6 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +114,9 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    restockingOrders: 'Submitted Restocking Orders',
+    noRestockingOrders: 'No restocking orders submitted yet.',
+    submittedAt: 'Submitted At',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -126,6 +131,31 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    }
+  },
+
+  // Restocking Planner
+  restocking: {
+    title: 'Restocking Planner',
+    description: 'Recommend items to restock based on demand forecasts and available budget',
+    budgetLabel: 'Available Budget',
+    recommendedItems: 'Recommended Items',
+    totalCost: 'Total Cost',
+    remainingBudget: 'Remaining Budget',
+    placeOrder: 'Place Order',
+    orderPlaced: 'Restocking order submitted successfully',
+    noRecommendations: 'No items can be recommended within the current budget',
+    confirmOrder: 'Confirm and submit this restocking order?',
+    submitting: 'Submitting...',
+    belowReorder: 'Below Reorder Point',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      quantityToOrder: 'Qty to Order',
+      totalCost: 'Total Cost',
+      belowReorder: 'Below Reorder'
     }
   },
 
@@ -204,6 +234,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    pending: 'Pending',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -309,6 +340,30 @@ export default {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthOverMonth: 'Month-over-Month Analysis',
+    quarter: 'Quarter',
+    totalOrders: 'Total Orders',
+    totalRevenue: 'Total Revenue',
+    avgOrderValue: 'Avg Order Value',
+    fulfillmentRate: 'Fulfillment Rate',
+    month: 'Month',
+    orders: 'Orders',
+    revenue: 'Revenue',
+    change: 'Change',
+    growthRate: 'Growth Rate',
+    totalRevenueYTD: 'Total Revenue (YTD)',
+    avgMonthlyRevenue: 'Avg Monthly Revenue',
+    totalOrdersYTD: 'Total Orders (YTD)',
+    bestQuarter: 'Best Performing Quarter',
+    loadError: 'Failed to load reports'
   },
 
   // Common

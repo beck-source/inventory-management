@@ -7,7 +7,9 @@ export function formatCurrency(amount, currency = 'USD') {
     const yenAmount = Math.round(amount * USD_TO_JPY)
     return `¥${yenAmount.toLocaleString('ja-JP')}`
   }
-  // Default USD
+  if (currency === 'EUR') {
+    return `€${amount.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+  }
   return `$${amount.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
 }
 
@@ -16,7 +18,9 @@ export function formatCurrencyWithDecimals(amount, currency = 'USD', decimals = 
     const yenAmount = Math.round(amount * USD_TO_JPY)
     return `¥${yenAmount.toLocaleString('ja-JP')}`
   }
-  // Default USD
+  if (currency === 'EUR') {
+    return `€${amount.toLocaleString('fr-FR', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
+  }
   return `$${amount.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}`
 }
 
