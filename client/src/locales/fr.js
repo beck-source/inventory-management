@@ -343,6 +343,30 @@ export default {
     selectLanguage: 'Choisir la langue'
   },
 
+  // Reports
+  reports: {
+    title: 'Rapports de performance',
+    description: 'Consultez les indicateurs trimestriels et les tendances mensuelles',
+    quarterlyPerformance: 'Performance trimestrielle',
+    monthlyRevenueTrend: 'Tendance mensuelle des revenus',
+    monthOverMonth: 'Analyse mois par mois',
+    quarter: 'Trimestre',
+    totalOrders: 'Total des commandes',
+    totalRevenue: 'Revenu total',
+    avgOrderValue: 'Valeur moy. des commandes',
+    fulfillmentRate: "Taux d'exécution",
+    month: 'Mois',
+    orders: 'Commandes',
+    revenue: 'Revenu',
+    change: 'Variation',
+    growthRate: 'Taux de croissance',
+    totalRevenueYTD: "Revenu total (depuis début d'année)",
+    avgMonthlyRevenue: 'Revenu mensuel moyen',
+    totalOrdersYTD: "Total commandes (depuis début d'année)",
+    bestQuarter: 'Meilleur trimestre',
+    loadError: 'Échec du chargement des rapports'
+  },
+
   // Common
   common: {
     loading: 'Chargement...',
