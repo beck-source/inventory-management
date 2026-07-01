@@ -79,5 +79,77 @@
     "forecasted_demand": 96,
     "trend": "stable",
     "period": "Next 30 days"
+  },
+  {
+    "id": "10",
+    "item_sku": "TMP-201",
+    "item_name": "Temperature Sensor Module",
+    "current_demand": 180,
+    "forecasted_demand": 270,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "11",
+    "item_sku": "PCB-001",
+    "item_name": "Single Layer PCB Assembly",
+    "current_demand": 300,
+    "forecasted_demand": 450,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "12",
+    "item_sku": "MCU-401",
+    "item_name": "8-bit Microcontroller",
+    "current_demand": 420,
+    "forecasted_demand": 425,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "13",
+    "item_sku": "SRV-301",
+    "item_name": "Micro Servo Motor",
+    "current_demand": 60,
+    "forecasted_demand": 95,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "14",
+    "item_sku": "SRV-302",
+    "item_name": "Standard Servo Motor",
+    "current_demand": 40,
+    "forecasted_demand": 65,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "15",
+    "item_sku": "PSU-508",
+    "item_name": "Adjustable Bench Power Supply",
+    "current_demand": 50,
+    "forecasted_demand": 55,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "16",
+    "item_sku": "DSP-403",
+    "item_name": "Digital Signal Processor",
+    "current_demand": 200,
+    "forecasted_demand": 202,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "17",
+    "item_sku": "SPR-601",
+    "item_name": "Coil Spring Heavy Duty",
+    "current_demand": 150,
+    "forecasted_demand": 225,
+    "trend": "increasing",
+    "period": "Next 30 days"
   }
 ]

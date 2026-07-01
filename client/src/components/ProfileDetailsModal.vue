@@ -70,7 +70,7 @@ import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
 
 const { currentUser, getInitials } = useAuth()
-const { t, currentLocale } = useI18n()
+const { t, dateLocale } = useI18n()
 
 const props = defineProps({
   isOpen: {
@@ -87,8 +87,7 @@ const close = () => {
 
 const formatDate = (dateString) => {
   const date = new Date(dateString)
-  const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
-  return date.toLocaleDateString(locale, {
+  return date.toLocaleDateString(dateLocale.value, {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
