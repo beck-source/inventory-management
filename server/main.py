@@ -120,6 +120,19 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    # camelCase to match the frontend task shape (TasksModal / useAuth mock tasks)
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str = "medium"
+    dueDate: str
+
 # API endpoints
 @app.get("/")
 def root():
@@ -303,6 +316,54 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+# In-memory task store. Tasks are mutable (create/delete/toggle), unlike the
+# read-only JSON-backed data, so they live here and reset on server restart.
+# String ids ("task-N") never collide with the frontend's numeric mock task ids.
+tasks_store = [
+    {"id": "task-1", "title": "Reconcile supplier invoices", "priority": "high", "dueDate": "2025-07-10", "status": "pending"},
+    {"id": "task-2", "title": "Audit safety stock thresholds", "priority": "low", "dueDate": "2025-07-18", "status": "completed"},
+]
+_next_task_id = 3
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all user-created tasks."""
+    return tasks_store
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a new task (starts in 'pending' status)."""
+    global _next_task_id
+    new_task = {
+        "id": f"task-{_next_task_id}",
+        "title": request.title,
+        "priority": request.priority,
+        "dueDate": request.dueDate,
+        "status": "pending",
+    }
+    _next_task_id += 1
+    # Prepend so the newest task appears first, matching the frontend's unshift()
+    tasks_store.insert(0, new_task)
+    return new_task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task's status between 'pending' and 'completed'."""
+    task = next((t for t in tasks_store if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    """Delete a task."""
+    task = next((t for t in tasks_store if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    tasks_store.remove(task)
+    return {"success": True, "id": task_id}
 
 if __name__ == "__main__":
     import uvicorn
