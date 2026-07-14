@@ -1,8 +1,8 @@
 <template>
   <div class="reports">
     <div class="page-header">
-      <h2>Performance Reports</h2>
-      <p>View quarterly performance metrics and monthly trends</p>
+      <h2>{{ t('reports.title') }}</h2>
+      <p>{{ t('reports.description') }}</p>
     </div>
 
     <div v-if="loading" class="loading">Loading reports...</div>
@@ -126,9 +126,14 @@
 
 <script>
 import axios from 'axios'
+import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'Reports',
+  setup() {
+    const { t } = useI18n()
+    return { t }
+  },
   data() {
     return {
       loading: true,
