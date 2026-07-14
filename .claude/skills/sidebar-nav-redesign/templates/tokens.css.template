@@ -1,0 +1,45 @@
+/*
+  Skeleton design-token block. Not copy-paste-ready.
+  Replace every placeholder with a value EXTRACTED from the target app
+  (see references/design-tokens.md) — don't invent new brand colors.
+  Delete any category the app doesn't use (e.g. no shadows if it never
+  uses box-shadow today).
+*/
+
+:root {
+  /* Spacing scale — only as many steps as the app's real usage supports */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* Color roles — replace with extracted hex values */
+  --color-bg: #REPLACE;
+  --color-surface: #REPLACE;
+  --color-border: #REPLACE;
+  --color-text: #REPLACE;
+  --color-text-muted: #REPLACE;
+  --color-primary: #REPLACE;
+  --color-primary-hover: #REPLACE;
+
+  /* Status colors — only if the app has badges/alerts today */
+  --color-success: #REPLACE;
+  --color-warning: #REPLACE;
+  --color-danger: #REPLACE;
+
+  /* Radius scale */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Shadows — only if the app already uses box-shadow */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Sidebar-specific dimensions */
+  --sidebar-width-expanded: 240px;
+  --sidebar-width-collapsed: 72px;
+  --sidebar-breakpoint: 768px; /* match app's existing breakpoint if one exists */
+}
