@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, CATEGORY_LEAD_TIMES, submitted_restocking_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +90,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    category: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +122,41 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    sku: str
+    name: str
+    category: str
+    current_demand: int
+    forecasted_demand: int
+    demand_gap: int
+    unit_cost: float
+    recommended_quantity: int
+    estimated_cost: float
+    lead_time_days: int
+    reason: str
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    category: str
+    quantity: int
+    unit_cost: float
+
+class RestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockingOrderItem]
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingOrderItem]
+    total_cost: float
+    budget: float
+    lead_time_days: int
+    submitted_date: str
+    expected_delivery: str
+    status: str
 
 # API endpoints
 @app.get("/")
@@ -272,6 +310,111 @@ def get_quarterly_reports():
     # Sort by quarter
     result.sort(key=lambda x: x['quarter'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(budget: float):
+    """Recommend demand-forecast items to restock within a given budget.
+
+    Candidates are ranked by demand gap (forecasted - current), boosted for
+    increasing-trend items, then greedily filled into the budget - partially
+    funding the last affordable item rather than skipping straight to the next
+    one. (Demand-forecast SKUs mostly don't exist in inventory.json, so this
+    reads category/unit_cost straight off the forecast record instead of
+    joining to inventory.)
+    """
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be non-negative")
+
+    candidates = []
+    for forecast in demand_forecasts:
+        gap = forecast["forecasted_demand"] - forecast["current_demand"]
+        if gap <= 0:
+            continue
+
+        priority_score = gap
+        if forecast["trend"] == "increasing":
+            priority_score += 1000
+            reason = "Increasing demand"
+        else:
+            reason = "Forecasted demand gap"
+
+        candidates.append({
+            "sku": forecast["item_sku"],
+            "name": forecast["item_name"],
+            "category": forecast["category"],
+            "current_demand": forecast["current_demand"],
+            "forecasted_demand": forecast["forecasted_demand"],
+            "demand_gap": gap,
+            "unit_cost": forecast["unit_cost"],
+            "priority_score": priority_score,
+            "reason": reason,
+        })
+
+    candidates.sort(key=lambda c: c["priority_score"], reverse=True)
+
+    remaining_budget = budget
+    recommendations = []
+    for c in candidates:
+        if remaining_budget <= 0:
+            break
+
+        full_cost = c["demand_gap"] * c["unit_cost"]
+        if full_cost <= remaining_budget:
+            quantity = c["demand_gap"]
+            cost = full_cost
+        else:
+            quantity = int(remaining_budget // c["unit_cost"])
+            cost = quantity * c["unit_cost"]
+
+        if quantity <= 0:
+            continue
+
+        remaining_budget -= cost
+        recommendations.append(RestockingRecommendation(
+            sku=c["sku"],
+            name=c["name"],
+            category=c["category"],
+            current_demand=c["current_demand"],
+            forecasted_demand=c["forecasted_demand"],
+            demand_gap=c["demand_gap"],
+            unit_cost=c["unit_cost"],
+            recommended_quantity=quantity,
+            estimated_cost=round(cost, 2),
+            lead_time_days=CATEGORY_LEAD_TIMES.get(c["category"], 10),
+            reason=c["reason"],
+        ))
+
+    return recommendations
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return submitted_restocking_orders
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: RestockingOrderRequest):
+    """Submit a restocking order built from recommended items"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must include at least one item")
+
+    total_cost = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+    # Order isn't complete until its slowest item arrives, so use the max lead time
+    lead_time_days = max(CATEGORY_LEAD_TIMES.get(item.category, 10) for item in request.items)
+
+    now = datetime.now()
+    order = RestockingOrder(
+        id=str(len(submitted_restocking_orders) + 1),
+        order_number=f"RST-{now.year}-{len(submitted_restocking_orders) + 1:04d}",
+        items=request.items,
+        total_cost=total_cost,
+        budget=request.budget,
+        lead_time_days=lead_time_days,
+        submitted_date=now.isoformat(),
+        expected_delivery=(now + timedelta(days=lead_time_days)).isoformat(),
+        status="Pending",
+    )
+    submitted_restocking_orders.append(order.model_dump())
+    return order
 
 @app.get("/api/reports/monthly-trends")
 def get_monthly_trends():

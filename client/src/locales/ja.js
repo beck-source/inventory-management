@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,6 +127,18 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    submittedOrders: {
+      title: '提出済み発注',
+      noOrders: 'まだ提出された再発注はありません',
+      orderNumber: '発注番号',
+      items: '品目',
+      totalCost: '合計費用',
+      submittedDate: '提出日',
+      leadTime: 'リードタイム',
+      leadTimeDays: '{days}日',
+      expectedDelivery: '予定配達日',
+      status: 'ステータス'
     }
   },
 
@@ -185,6 +198,35 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再発注',
+    description: '予算を設定し、需要に基づいた再発注の提案を確認する',
+    budget: '利用可能な予算',
+    recommendations: '推奨品目',
+    noRecommendations: 'この予算で推奨できる品目はありません',
+    estimatedCost: '見積コスト',
+    remainingBudget: '残りの予算',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    orderPlaced: '再発注 {orderNumber} を提出しました - 配達予定は{days}日後です',
+    orderFailed: '再発注の提出に失敗しました',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      currentDemand: '現在の需要',
+      forecastedDemand: '予測需要',
+      demandGap: '需要ギャップ',
+      unitCost: '単価',
+      quantity: '数量',
+      estimatedCost: '見積コスト',
+      leadTime: 'リードタイム',
+      leadTimeDays: '{days}日',
+      reason: '理由'
     }
   },
 

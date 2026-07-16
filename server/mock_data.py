@@ -35,5 +35,19 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Demand forecasts have no lead time data, so restocking uses a fixed per-category
+# estimate instead (categories not listed here default to 10 days)
+CATEGORY_LEAD_TIMES = {
+    'Circuit Boards': 14,
+    'Sensors': 7,
+    'Actuators': 10,
+    'Controllers': 12,
+    'Power Supplies': 5,
+}
+
+# Restocking orders submitted via the Restocking tab. In-memory only, like the rest
+# of this app's data - resets when the server restarts.
+submitted_restocking_orders = []
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
