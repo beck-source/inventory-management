@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
@@ -13,6 +14,24 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Supplier lead time (in days) per product category, used to compute the
+# expected delivery date for submitted restocking orders. DEFAULT_LEAD_TIME_DAYS
+# covers any category not explicitly listed.
+CATEGORY_LEAD_TIMES = {
+    'Circuit Boards': 14,
+    'Sensors': 7,
+    'Controllers': 10,
+    'Power Supplies': 12,
+    'Actuators': 21,
+    'Mechanical Components': 18,
+}
+DEFAULT_LEAD_TIME_DAYS = 14
+
+# In-memory store for submitted restocking orders. This is runtime-only state
+# (not persisted to disk) — consistent with the demo's in-memory data approach,
+# so a server restart clears submitted orders.
+restocking_orders: List[dict] = []
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -89,6 +108,10 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    # category and unit_cost drive the Restocking tab's ROI ranking; not all
+    # forecast SKUs exist in inventory, so cost lives on the forecast record itself
+    category: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +142,37 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    category: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    created_at: str
+    items: List[RestockingOrderItem]
+    total_cost: float
+    budget: float
+    warehouse: Optional[str] = None
+    lead_time_days: int
+    expected_delivery: str
+    status: str
+
+class CreateRestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    category: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[CreateRestockingOrderItem]
+    budget: float
+    warehouse: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -165,6 +219,66 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders(warehouse: Optional[str] = None):
+    """Get submitted restocking orders, optionally filtered by warehouse"""
+    if warehouse and warehouse != 'all':
+        return [o for o in restocking_orders if o.get('warehouse') == warehouse]
+    return restocking_orders
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order.
+
+    Computes per-line and order totals, derives the order lead time from the
+    slowest item category (the whole order is gated by its longest-lead item),
+    and stamps an expected delivery date. Persists to the in-memory store.
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Cannot submit an empty restocking order")
+
+    items = []
+    total_cost = 0.0
+    # Start at 0 (not the default) so max() reflects the actual item categories.
+    # Unknown categories fall back to DEFAULT_LEAD_TIME_DAYS per-item via .get()
+    # below; the empty-order guard above ensures at least one item contributes.
+    max_lead_time = 0
+    for item in request.items:
+        if item.quantity <= 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Item {item.sku} has invalid quantity {item.quantity}"
+            )
+        line_total = round(item.quantity * item.unit_cost, 2)
+        total_cost += line_total
+        items.append({
+            "sku": item.sku,
+            "name": item.name,
+            "category": item.category,
+            "quantity": item.quantity,
+            "unit_cost": item.unit_cost,
+            "line_total": line_total,
+        })
+        # Order lead time is the max across all item categories — the order is
+        # only complete once its slowest-arriving item is delivered.
+        lead_time = CATEGORY_LEAD_TIMES.get(item.category, DEFAULT_LEAD_TIME_DAYS)
+        max_lead_time = max(max_lead_time, lead_time)
+
+    now = datetime.now()
+    order = {
+        "id": f"RO-{len(restocking_orders) + 1:04d}",
+        "created_at": now.isoformat(timespec="seconds"),
+        "items": items,
+        "total_cost": round(total_cost, 2),
+        "budget": request.budget,
+        "warehouse": request.warehouse,
+        "lead_time_days": max_lead_time,
+        "expected_delivery": (now + timedelta(days=max_lead_time)).strftime("%Y-%m-%d"),
+        "status": "Submitted",
+    }
+    restocking_orders.append(order)
+    return order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():

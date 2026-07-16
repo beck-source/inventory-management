@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '在庫補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,11 +107,14 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    restockingOrders: '送信済み補充注文',
+    noRestockingOrders: 'まだ補充注文は送信されていません。',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
+    leadTimeDays: '{count}日',
     quantity: '数量',
     table: {
       orderNumber: '注文番号',
@@ -126,6 +130,15 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    restockingTable: {
+      orderId: '注文ID',
+      submitted: '送信日',
+      items: '品目',
+      totalCost: '合計費用',
+      leadTime: 'リードタイム',
+      expectedDelivery: '予定配達日',
+      status: 'ステータス'
     }
   },
 
@@ -204,6 +217,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -214,6 +228,33 @@ export default {
     increasing: '増加',
     stable: '安定',
     decreasing: '減少'
+  },
+
+  // Restocking
+  restocking: {
+    title: '在庫補充',
+    description: '予算内でROIに基づく推奨を使用して、需要主導型の補充注文を計画します。',
+    budgetPlanner: '予算プランナー',
+    recommendations: '推奨注文',
+    placeOrder: '注文する',
+    placingOrder: '注文処理中...',
+    empty: '予算が低すぎて推奨アイテムを購入できません。予算を増やすと推奨が表示されます。',
+    orderPlaced: '補充注文 {id} が正常に発注されました。注文タブで確認できます。',
+    stats: {
+      budget: '予算',
+      recommendedSpend: '推奨支出',
+      remainingBudget: '残り予算',
+      itemsRecommended: '推奨アイテム数'
+    },
+    table: {
+      item: 'アイテム',
+      category: 'カテゴリー',
+      trend: 'トレンド',
+      roi: 'ROI（1ドルあたりの需要）',
+      unitCost: '単価',
+      recommendedQty: '推奨数量',
+      lineTotal: '合計金額'
+    }
   },
 
   // Priority
@@ -323,7 +364,8 @@ export default {
     search: '検索',
     filter: 'フィルター',
     export: 'エクスポート',
-    items: '件'
+    items: '件',
+    dismiss: '閉じる'
   },
 
   // Product Names

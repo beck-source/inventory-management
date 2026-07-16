@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,11 +107,14 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    restockingOrders: 'Submitted Restocking Orders',
+    noRestockingOrders: 'No restocking orders submitted yet.',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
+    leadTimeDays: '{count} days',
     quantity: 'Qty',
     table: {
       orderNumber: 'Order Number',
@@ -126,6 +130,15 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    restockingTable: {
+      orderId: 'Order ID',
+      submitted: 'Submitted',
+      items: 'Items',
+      totalCost: 'Total Cost',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      status: 'Status'
     }
   },
 
@@ -204,6 +217,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -214,6 +228,33 @@ export default {
     increasing: 'increasing',
     stable: 'stable',
     decreasing: 'decreasing'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan demand-driven restocking orders within a budget using ROI-based recommendations.',
+    budgetPlanner: 'Budget Planner',
+    recommendations: 'Recommended Order',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    empty: 'Budget is too low to afford any recommended items. Increase the budget to see recommendations.',
+    orderPlaced: 'Restocking order {id} placed successfully. View it in the Orders tab.',
+    stats: {
+      budget: 'Budget',
+      recommendedSpend: 'Recommended Spend',
+      remainingBudget: 'Remaining Budget',
+      itemsRecommended: 'Items Recommended'
+    },
+    table: {
+      item: 'Item',
+      category: 'Category',
+      trend: 'Trend',
+      roi: 'ROI (demand per $)',
+      unitCost: 'Unit Cost',
+      recommendedQty: 'Recommended Qty',
+      lineTotal: 'Line Total'
+    }
   },
 
   // Priority
@@ -323,6 +364,7 @@ export default {
     search: 'Search',
     filter: 'Filter',
     export: 'Export',
-    items: 'items'
+    items: 'items',
+    dismiss: 'Dismiss'
   }
 }

@@ -29,6 +29,47 @@
 
       <div class="card">
         <div class="card-header">
+          <h3 class="card-title">{{ t('orders.restockingOrders') }} ({{ restockingOrders.length }})</h3>
+        </div>
+        <div v-if="restockingOrders.length === 0" class="empty-state">
+          {{ t('orders.noRestockingOrders') }}
+        </div>
+        <div v-else class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.restockingTable.orderId') }}</th>
+                <th>{{ t('orders.restockingTable.submitted') }}</th>
+                <th>{{ t('orders.restockingTable.items') }}</th>
+                <th>{{ t('orders.restockingTable.totalCost') }}</th>
+                <th>{{ t('orders.restockingTable.leadTime') }}</th>
+                <th>{{ t('orders.restockingTable.expectedDelivery') }}</th>
+                <th>{{ t('orders.restockingTable.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.id }}</strong></td>
+                <td>{{ formatRestockingDate(order.created_at) }}</td>
+                <td :title="itemsSummary(order)">
+                  {{ t('orders.itemsCount', { count: order.items.length }) }}
+                </td>
+                <td><strong>{{ formatUsd(order.total_cost) }}</strong></td>
+                <td>{{ t('orders.leadTimeDays', { count: order.lead_time_days }) }}</td>
+                <td>{{ formatRestockingDate(order.expected_delivery) }}</td>
+                <td>
+                  <span class="badge info">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
         </div>
         <div class="table-container">
@@ -95,6 +136,9 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    // Restocking orders are fetched from a SEPARATE endpoint (api.getRestockingOrders /
+    // /api/restocking-orders) than the main orders endpoint (api.getOrders / /api/orders).
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -121,6 +165,16 @@ export default {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
         loading.value = false
+      }
+
+      // Fetch restocking orders separately so a failure here never breaks the main
+      // orders table. Errors are logged, not surfaced into the page-level error state.
+      try {
+        const filters = getCurrentFilters()
+        restockingOrders.value = await api.getRestockingOrders(filters)
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+        restockingOrders.value = []
       }
     }
 
@@ -153,6 +207,32 @@ export default {
       })
     }
 
+    // Date-safe formatter for restocking orders: validate before formatting so an
+    // invalid/missing date renders a placeholder instead of "Invalid Date".
+    const formatRestockingDate = (dateString) => {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) {
+        return '—'
+      }
+      const { currentLocale } = useI18n()
+      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
+      return date.toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    }
+
+    // Restocking totals are budgeted/reported in USD.
+    const formatUsd = (value) => {
+      return (value || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+    }
+
+    // Short comma-separated SKU summary for the items tooltip.
+    const itemsSummary = (order) => {
+      return order.items.map(item => item.sku).join(', ')
+    }
+
     onMounted(loadOrders)
 
     return {
@@ -160,9 +240,13 @@ export default {
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatRestockingDate,
+      formatUsd,
+      itemsSummary,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -172,6 +256,13 @@ export default {
 </script>
 
 <style scoped>
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
