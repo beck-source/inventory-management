@@ -1,3 +1,8 @@
+import math
+import random
+import uuid
+from datetime import datetime, timedelta
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -5,6 +10,9 @@ from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Restocking orders created at runtime (not loaded from JSON like everything else)
+restocking_orders: list = []
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -119,6 +127,133 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendationItem(BaseModel):
+    sku: str
+    item_name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    reorder_point: int
+    unit_cost: float
+    current_demand: int
+    forecasted_demand: int
+    trend: str
+    target_quantity: int
+    recommended_quantity: int
+    line_cost: float
+    fully_funded: bool
+    urgency_score: int
+
+class RestockingRecommendationResponse(BaseModel):
+    budget: float
+    allocated_cost: float
+    remaining_budget: float
+    items: List[RestockingRecommendationItem]
+
+class RestockingOrderRequest(BaseModel):
+    budget: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    line_cost: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    budget: float
+    total_cost: float
+    items: List[RestockingOrderItem]
+    order_date: str
+    lead_time_days: int
+    expected_delivery: str
+    status: str
+
+# Restocking recommendation engine
+
+def compute_restocking_recommendations(budget: float, warehouse: Optional[str] = None, category: Optional[str] = None) -> dict:
+    """Cross-reference demand forecasts with inventory and greedily fund the most
+    urgent (closest to/below reorder_point) items first within the given budget."""
+    filtered_inventory = apply_filters(inventory_items, warehouse, category)
+    inventory_by_sku = {item['sku']: item for item in filtered_inventory}
+
+    candidates = []
+    for forecast in demand_forecasts:
+        inv = inventory_by_sku.get(forecast['item_sku'])
+        if not inv:
+            continue
+
+        target_level = math.ceil(inv['reorder_point'] * 1.5)
+        if inv['quantity_on_hand'] >= target_level:
+            continue
+
+        target_quantity = target_level - inv['quantity_on_hand']
+        urgency_score = inv['quantity_on_hand'] - inv['reorder_point']
+        demand_growth = forecast['forecasted_demand'] - forecast['current_demand']
+
+        candidates.append({
+            'sku': inv['sku'],
+            'item_name': forecast['item_name'],
+            'category': inv['category'],
+            'warehouse': inv['warehouse'],
+            'quantity_on_hand': inv['quantity_on_hand'],
+            'reorder_point': inv['reorder_point'],
+            'unit_cost': inv['unit_cost'],
+            'current_demand': forecast['current_demand'],
+            'forecasted_demand': forecast['forecasted_demand'],
+            'trend': forecast['trend'],
+            'target_quantity': target_quantity,
+            'urgency_score': urgency_score,
+            'demand_growth': demand_growth,
+        })
+
+    candidates.sort(key=lambda c: (c['urgency_score'], -c['demand_growth'], c['sku']))
+
+    remaining_budget = budget
+    items = []
+    for c in candidates:
+        unit_cost = c['unit_cost']
+        if unit_cost <= 0:
+            affordable_qty = c['target_quantity']
+        else:
+            affordable_qty = min(c['target_quantity'], math.floor(remaining_budget / unit_cost))
+
+        if affordable_qty < 1:
+            continue
+
+        line_cost = round(affordable_qty * unit_cost, 2)
+        remaining_budget = round(remaining_budget - line_cost, 2)
+
+        items.append(RestockingRecommendationItem(
+            sku=c['sku'],
+            item_name=c['item_name'],
+            category=c['category'],
+            warehouse=c['warehouse'],
+            quantity_on_hand=c['quantity_on_hand'],
+            reorder_point=c['reorder_point'],
+            unit_cost=unit_cost,
+            current_demand=c['current_demand'],
+            forecasted_demand=c['forecasted_demand'],
+            trend=c['trend'],
+            target_quantity=c['target_quantity'],
+            recommended_quantity=affordable_qty,
+            line_cost=line_cost,
+            fully_funded=(affordable_qty == c['target_quantity']),
+            urgency_score=c['urgency_score'],
+        ))
+
+    allocated_cost = round(budget - remaining_budget, 2)
+    return {
+        'budget': budget,
+        'allocated_cost': allocated_cost,
+        'remaining_budget': remaining_budget,
+        'items': items,
+    }
 
 # API endpoints
 @app.get("/")
@@ -303,6 +438,61 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=RestockingRecommendationResponse)
+def get_restocking_recommendations(
+    budget: float,
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None
+):
+    """Recommend items to restock within a budget, prioritized by urgency (closest to/below reorder point)"""
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be non-negative")
+    return compute_restocking_recommendations(budget, warehouse, category)
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: RestockingOrderRequest):
+    """Place a restocking order for the current budget-constrained recommendation set.
+    Recommendations are recomputed server-side rather than trusted from the client,
+    since quantities are automatic-only (not user-editable)."""
+    if request.budget <= 0:
+        raise HTTPException(status_code=400, detail="Budget must be greater than zero")
+
+    rec = compute_restocking_recommendations(request.budget, request.warehouse, request.category)
+    if not rec['items']:
+        raise HTTPException(status_code=400, detail="No items could be recommended for this budget")
+
+    lead_time_days = random.randint(5, 14)
+    order_date = datetime.now()
+    expected_delivery = order_date + timedelta(days=lead_time_days)
+
+    order = {
+        "id": str(uuid.uuid4()),
+        "order_number": f"RO-{len(restocking_orders) + 1:04d}",
+        "budget": request.budget,
+        "total_cost": rec['allocated_cost'],
+        "items": [
+            {
+                "sku": item.sku,
+                "item_name": item.item_name,
+                "quantity": item.recommended_quantity,
+                "unit_cost": item.unit_cost,
+                "line_cost": item.line_cost,
+            }
+            for item in rec['items']
+        ],
+        "order_date": order_date.isoformat(),
+        "lead_time_days": lead_time_days,
+        "expected_delivery": expected_delivery.isoformat(),
+        "status": "Ordered",
+    }
+    restocking_orders.append(order)
+    return order
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,6 +1,10 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Factory Inventory Management System Demo with GitHub integration - Full-stack application with Vue 3 frontend, Python FastAPI backend, and in-memory mock data (no database).
+
+There are additional `CLAUDE.md` files with deeper patterns: `client/CLAUDE.md` (Vue 3 conventions, composables, styling) and `server/CLAUDE.md` (FastAPI/Pydantic conventions, filtering, error handling).
 
 > ⚠️ **This repository and any fork you create are PUBLIC.** Do not commit credentials, internal hostnames, or private registry URLs. `client/.npmrc` pins the public npm registry and `client/package-lock.json` is gitignored to prevent locally-configured registries from leaking into commits — leave both in place.
 
@@ -33,8 +37,11 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 ## Quick Start
 
 ```bash
+# One-command startup (macOS/Linux): ./scripts/start.sh — stop with ./scripts/stop.sh
+
 # Backend
 cd server
+uv venv && uv sync
 uv run python main.py
 
 # Frontend
@@ -42,18 +49,38 @@ cd client
 npm install && npm run dev
 ```
 
+## Testing
+
+Backend tests live in `tests/backend/` (pytest + FastAPI `TestClient`, see `tests/pytest.ini` and the `backend-api-test` skill). Run from the `tests/` directory:
+
+```bash
+cd tests
+uv run pytest -v                                              # all tests
+uv run pytest backend/test_inventory.py -v                    # one file
+uv run pytest backend/test_inventory.py::TestInventoryEndpoints -v                        # one class
+uv run pytest backend/test_inventory.py::TestInventoryEndpoints::test_get_all_inventory -v # one test
+uv run pytest --cov=../server --cov-report=html               # with coverage
+```
+
+There is no frontend test runner configured in `client/package.json` (no `test` script, no test framework installed) — verify frontend changes with Playwright MCP against `http://localhost:3000` instead.
+
 ## Key Patterns
 
 **Filter System**: 4 filters (Time Period, Warehouse, Category, Order Status) apply to all data via query params
 **Data Flow**: Vue filters → `client/src/api.js` → FastAPI → In-memory filtering → Pydantic validation → Computed properties
 **Reactivity**: Raw data in refs (`allOrders`, `inventoryItems`), derived data in computed properties
+**Filter state is a module-level singleton**: `client/src/composables/useFilters.js` defines its refs *outside* `useFilters()`, so every component calling the composable shares one global filter state rather than getting its own instance — intentional, but easy to break if refactored to look like a typical per-instance composable
+**Routing**: `client/src/main.js` maps one view per top-level route (`/`, `/inventory`, `/orders`, `/demand`, `/spending`, `/reports`); `App.vue` owns the persistent nav shell and filter bar around the routed view
 
 ## API Endpoints
-- `GET /api/inventory` - Filters: warehouse, category
-- `GET /api/orders` - Filters: warehouse, category, status, month
+- `GET /api/inventory`, `GET /api/inventory/{id}` - Filters: warehouse, category
+- `GET /api/orders`, `GET /api/orders/{id}` - Filters: warehouse, category, status, month
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
-- `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/spending/summary`, `/monthly`, `/categories`, `/transactions`
+- `GET /api/reports/quarterly`, `/api/reports/monthly-trends`
+
+**Known gap**: `client/src/api.js` has methods for `/api/tasks` (get/create/delete/toggle) and `/api/purchase-orders` (create/get by backlog item), but `server/main.py` implements neither — these calls will 404 until the backend endpoints are added.
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.

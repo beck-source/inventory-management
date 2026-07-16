@@ -79,5 +79,95 @@
     "forecasted_demand": 96,
     "trend": "stable",
     "period": "Next 30 days"
+  },
+  {
+    "id": "10",
+    "item_sku": "TMP-201",
+    "item_name": "Temperature Sensor Module",
+    "current_demand": 140,
+    "forecasted_demand": 175,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "11",
+    "item_sku": "SRV-301",
+    "item_name": "Micro Servo Motor",
+    "current_demand": 48,
+    "forecasted_demand": 60,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "12",
+    "item_sku": "SRV-302",
+    "item_name": "Standard Servo Motor",
+    "current_demand": 30,
+    "forecasted_demand": 42,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "13",
+    "item_sku": "PSU-508",
+    "item_name": "Battery Backup Power Supply",
+    "current_demand": 80,
+    "forecasted_demand": 110,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "14",
+    "item_sku": "HMD-202",
+    "item_name": "Humidity Sensor Module",
+    "current_demand": 90,
+    "forecasted_demand": 98,
+    "trend": "increasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "15",
+    "item_sku": "STP-304",
+    "item_name": "Stepper Motor NEMA 23",
+    "current_demand": 50,
+    "forecasted_demand": 50,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "16",
+    "item_sku": "PSU-505",
+    "item_name": "48V DC Power Supply Unit",
+    "current_demand": 130,
+    "forecasted_demand": 131,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "17",
+    "item_sku": "PSU-507",
+    "item_name": "Adjustable Bench Power Supply",
+    "current_demand": 85,
+    "forecasted_demand": 86,
+    "trend": "stable",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "18",
+    "item_sku": "PCB-001",
+    "item_name": "Single Layer PCB Assembly",
+    "current_demand": 420,
+    "forecasted_demand": 400,
+    "trend": "decreasing",
+    "period": "Next 30 days"
+  },
+  {
+    "id": "19",
+    "item_sku": "MCU-401",
+    "item_name": "8-bit Microcontroller",
+    "current_demand": 1100,
+    "forecasted_demand": 1105,
+    "trend": "stable",
+    "period": "Next 30 days"
   }
 ]
