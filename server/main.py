@@ -2,9 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Fixed delivery lead time (in days) applied to submitted restocking orders
+LEAD_TIME_DAYS = 14
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -120,6 +124,11 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class CreateOrderRequest(BaseModel):
+    items: List[dict]                       # each item: {sku, name, quantity, unit_price}
+    warehouse: Optional[str] = None
+    customer: Optional[str] = "Internal Restock"
+
 # API endpoints
 @app.get("/")
 def root():
@@ -160,6 +169,36 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order)
+def create_order(req: CreateOrderRequest):
+    """Create a new (restocking) order and append it to the in-memory orders list.
+
+    Used by the Restocking tab. The order is stamped with status 'Submitted' and a
+    fixed 14-day delivery lead time. Data is in-memory only, so it persists for the
+    server session and resets on restart.
+    """
+    now = datetime.now()
+    # Derive the total server-side so the client can't desync unit price and line totals
+    total = sum(item.get("quantity", 0) * item.get("unit_price", 0) for item in req.items)
+    # Sequence submitted orders independently so numbers are stable and human-readable
+    seq = sum(1 for o in orders if o.get("status") == "Submitted") + 1
+    order_number = f"RST-{now.year}-{seq:04d}"
+
+    new_order = {
+        "id": order_number,
+        "order_number": order_number,
+        "customer": req.customer,
+        "items": req.items,
+        "status": "Submitted",
+        "order_date": now.isoformat(timespec="seconds"),
+        "expected_delivery": (now + timedelta(days=LEAD_TIME_DAYS)).isoformat(timespec="seconds"),
+        "total_value": round(total, 2),
+        "warehouse": req.warehouse,
+        "category": None,
+    }
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
