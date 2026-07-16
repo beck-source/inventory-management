@@ -17,6 +17,7 @@ Use the Task tool with these specialized subagents for appropriate tasks:
   - Examples: Creating components, fixing reactivity issues, performance optimization, complex state management
   - **MANDATORY RULE: ANY time you need to create or significantly modify a .vue file, you MUST delegate to vue-expert**
 - **code-reviewer**: Use after writing significant code to review quality and best practices
+- **debugger**: Use to investigate runtime errors, stack traces, and unexpected behavior, and to propose root-cause fixes
 - **Explore**: Use for understanding codebase structure, searching for patterns, or answering questions about how components work
 - **general-purpose**: Use for complex multi-step tasks or when other agents don't fit
 
