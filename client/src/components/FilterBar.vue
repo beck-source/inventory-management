@@ -101,28 +101,25 @@ export default {
 </script>
 
 <style scoped>
+/* Now embedded in App.vue's content-header row (not a standalone full-width
+   bar), so it no longer needs its own background, sticky offset, or
+   max-width/centering -- the parent header handles page-level layout. */
 .filters-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 0;
-  position: sticky;
-  top: 70px;
-  z-index: 90;
+  min-width: 0;
 }
 
 .filters-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
 .filters-grid {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
+  flex-wrap: wrap;
   flex: 1;
 }
 

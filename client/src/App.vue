@@ -1,42 +1,46 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+  <div class="app-shell">
+    <AppSidebar />
+
+    <div
+      v-if="mobileOpen"
+      class="sidebar-backdrop"
+      @click="closeMobile"
+    ></div>
+
+    <div class="app-content">
+      <header class="content-header">
+        <button
+          class="mobile-menu-btn"
+          @click="toggleMobile"
+          aria-label="Toggle navigation menu"
+        >
+          <Icon name="menu" :size="20" />
+        </button>
+
+        <FilterBar class="header-filterbar" />
+
+        <div class="header-actions">
+          <button
+            class="icon-btn"
+            @click="showTasks = true"
+            aria-label="Open tasks"
+          >
+            <Icon name="bell" :size="18" />
+            <span v-if="pendingTaskCount > 0" class="tasks-badge">{{ pendingTaskCount }}</span>
+          </button>
+          <LanguageSwitcher />
+          <ProfileMenu
+            @show-profile-details="showProfileDetails = true"
+            @show-tasks="showTasks = true"
+          />
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
-        <LanguageSwitcher />
-        <ProfileMenu
-          @show-profile-details="showProfileDetails = true"
-          @show-tasks="showTasks = true"
-        />
-      </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+      </header>
+
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -59,6 +63,9 @@ import { ref, onMounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
+import { useSidebar } from './composables/useSidebar'
+import AppSidebar from './components/AppSidebar.vue'
+import Icon from './components/Icon.vue'
 import FilterBar from './components/FilterBar.vue'
 import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
@@ -68,6 +75,8 @@ import LanguageSwitcher from './components/LanguageSwitcher.vue'
 export default {
   name: 'App',
   components: {
+    AppSidebar,
+    Icon,
     FilterBar,
     ProfileMenu,
     ProfileDetailsModal,
@@ -77,6 +86,7 @@ export default {
   setup() {
     const { currentUser } = useAuth()
     const { t } = useI18n()
+    const { mobileOpen, toggleMobile, closeMobile } = useSidebar()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
@@ -84,6 +94,10 @@ export default {
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
       return [...currentUser.value.tasks, ...apiTasks.value]
+    })
+
+    const pendingTaskCount = computed(() => {
+      return tasks.value.filter(task => task.status === 'pending').length
     })
 
     const loadTasks = async () => {
@@ -150,9 +164,13 @@ export default {
 
     return {
       t,
+      mobileOpen,
+      toggleMobile,
+      closeMobile,
       showProfileDetails,
       showTasks,
       tasks,
+      pendingTaskCount,
       addTask,
       deleteTask,
       toggleTask
@@ -168,162 +186,235 @@ export default {
   box-sizing: border-box;
 }
 
+:root {
+  /* Spacing -- 4px base unit, used for padding/gap/margin everywhere */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-8: 48px;
+
+  /* Neutrals -- existing slate scale, kept as-is */
+  --color-ink: #0f172a;
+  --color-body: #334155;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-bg: #f8fafc;
+
+  /* Accent -- new indigo/violet, used for sidebar active state and other
+     primary/active UI that had no clear accent color before. Existing
+     status colors (green/blue/yellow/red) are unchanged. */
+  --color-accent: #4f46e5;
+  --color-accent-soft: #eef2ff;
+
+  /* Semantic status colors, kept separate from the accent */
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-full: 999px;
+
+  /* Shadow */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+
+  /* Type scale */
+  --text-title: 20px;
+  --text-heading: 15px;
+  --text-body: 14px;
+  --text-caption: 12px;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
+  background: var(--color-bg);
   color: #1e293b;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
-  display: flex;
-  flex-direction: column;
+/* ---- App shell: sidebar column + content column ---- */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: auto 1fr;
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+@media (max-width: 768px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
 }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+.sidebar-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    z-index: 39;
+  }
+}
+
+.app-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content-header {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-5);
   display: flex;
   align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 30;
 }
 
-.nav-container > .nav-tabs {
+.mobile-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.header-filterbar {
+  flex: 1;
+  min-width: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
   margin-left: auto;
-  margin-right: 1rem;
 }
 
-.nav-container > .language-switcher {
-  margin-right: 1rem;
-}
-
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.logo h1 {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+.icon-btn {
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.icon-btn:hover {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  border-color: #cbd5e1;
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
-}
-
-.nav-tabs a.active::after {
-  content: '';
+.tasks-badge {
   position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+  top: -4px;
+  right: -4px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.625rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
   width: 100%;
-  margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: var(--space-5);
 }
 
 .page-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-5);
 }
 
 .page-header h2 {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-ink);
   margin-bottom: 0.375rem;
   letter-spacing: -0.025em;
 }
 
 .page-header p {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 0.938rem;
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-5);
+  margin-bottom: var(--space-5);
 }
 
 .stat-card {
-  background: white;
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  background: var(--color-surface);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
 .stat-card:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .stat-label {
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 0.625rem;
+  margin-bottom: var(--space-3);
 }
 
 .stat-value {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-ink);
   letter-spacing: -0.025em;
 }
 
@@ -332,38 +423,39 @@ body {
 }
 
 .stat-card.success .stat-value {
-  color: #059669;
+  color: var(--color-success);
 }
 
 .stat-card.danger .stat-value {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .stat-card.info .stat-value {
-  color: #2563eb;
+  color: var(--color-info);
 }
 
 .card {
-  background: white;
-  border-radius: 10px;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1.25rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: var(--space-5);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-ink);
   letter-spacing: -0.025em;
 }
 
@@ -377,9 +469,9 @@ table {
 }
 
 thead {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 th {
@@ -387,7 +479,7 @@ th {
   padding: 0.5rem 0.75rem;
   font-weight: 600;
   color: #475569;
-  font-size: 0.75rem;
+  font-size: var(--text-caption);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -395,7 +487,7 @@ th {
 td {
   padding: 0.5rem 0.75rem;
   border-top: 1px solid #f1f5f9;
-  color: #334155;
+  color: var(--color-body);
   font-size: 0.875rem;
 }
 
@@ -404,14 +496,14 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: var(--color-bg);
 }
 
 .badge {
   display: inline-block;
   padding: 0.313rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -470,7 +562,7 @@ tbody tr:hover {
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--color-muted);
   font-size: 0.938rem;
 }
 
@@ -478,9 +570,9 @@ tbody tr:hover {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-sm);
+  margin: var(--space-4) 0;
   font-size: 0.938rem;
 }
 </style>
