@@ -1,5 +1,5 @@
 <template>
-  <aside class="sidebar">
+  <aside class="sidebar" :class="{ collapsed }">
     <div class="sidebar-brand">
       <h1 class="brand-name">{{ t('nav.companyName') }}</h1>
       <span class="brand-subtitle">{{ t('nav.subtitle') }}</span>
@@ -14,6 +14,7 @@
             class="nav-link"
             :class="{ 'nav-link-active': isActive(item.path) }"
             :aria-current="isActive(item.path) ? 'page' : null"
+            :title="item.label"
           >
             <span class="nav-icon" v-html="item.icon"></span>
             <span class="nav-label">{{ item.label }}</span>
@@ -21,16 +22,66 @@
         </li>
       </ul>
     </nav>
+
+    <div class="sidebar-footer">
+      <button
+        type="button"
+        class="sidebar-toggle"
+        :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        :aria-label="collapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        :aria-expanded="!collapsed"
+        @click="toggleCollapsed"
+      >
+        <span class="nav-icon" v-html="chevronIcon" aria-hidden="true"></span>
+        <span class="nav-label">Collapse</span>
+      </button>
+    </div>
   </aside>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from '../composables/useI18n'
 
 const { t } = useI18n()
 const route = useRoute()
+
+const STORAGE_KEY = 'sidebar-collapsed'
+
+const getInitialCollapsed = () => {
+  try {
+    if (typeof localStorage !== 'undefined') {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored !== null) return stored === 'true'
+    }
+  } catch (err) {
+    // localStorage unavailable (e.g. private mode) - fall through to default
+  }
+  if (typeof window !== 'undefined') {
+    return window.innerWidth < 1024
+  }
+  return false
+}
+
+const collapsed = ref(getInitialCollapsed())
+
+const toggleCollapsed = () => {
+  collapsed.value = !collapsed.value
+  try {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(STORAGE_KEY, String(collapsed.value))
+    }
+  } catch (err) {
+    // ignore persistence errors
+  }
+}
+
+const chevronIcon = computed(() => (
+  collapsed.value
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>'
+))
 
 const icons = {
   overview: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>',
@@ -77,6 +128,8 @@ const brandInitials = computed(() => {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.18s ease;
 }
 
 .sidebar-brand {
@@ -165,35 +218,70 @@ const brandInitials = computed(() => {
   outline-offset: 2px;
 }
 
-@media (max-width: 900px) {
-  .sidebar {
-    width: 68px;
-  }
+.sidebar-footer {
+  border-top: 1px solid var(--sidebar-border);
+  padding: var(--space-3);
+}
 
-  .sidebar-brand {
-    padding: var(--space-4) var(--space-2);
-    text-align: center;
-  }
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
 
-  .brand-subtitle {
-    display: none;
-  }
+.sidebar-toggle:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-hover);
+}
 
-  .brand-name {
-    display: none;
-  }
+.sidebar-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
 
-  .brand-mark {
-    display: block;
-  }
+.sidebar.collapsed {
+  width: 68px;
+}
 
-  .nav-link {
-    justify-content: center;
-    padding: var(--space-3) var(--space-2);
-  }
+.sidebar.collapsed .sidebar-brand {
+  padding: var(--space-4) var(--space-2);
+  text-align: center;
+}
 
-  .nav-label {
-    display: none;
-  }
+.sidebar.collapsed .brand-subtitle {
+  display: none;
+}
+
+.sidebar.collapsed .brand-name {
+  display: none;
+}
+
+.sidebar.collapsed .brand-mark {
+  display: block;
+}
+
+.sidebar.collapsed .nav-link {
+  justify-content: center;
+  padding: var(--space-3) var(--space-2);
+}
+
+.sidebar.collapsed .nav-label {
+  display: none;
+}
+
+.sidebar.collapsed .sidebar-toggle {
+  justify-content: center;
+  padding: var(--space-3) var(--space-2);
 }
 </style>
