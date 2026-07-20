@@ -5,6 +5,36 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <div class="card submitted-orders-card">
+      <div class="card-header">
+        <h3 class="card-title">Submitted Orders</h3>
+      </div>
+      <div v-if="restockLoading" class="loading">Loading submitted orders...</div>
+      <div v-else-if="restockError" class="error">{{ restockError }}</div>
+      <div v-else-if="restockOrders.length === 0" class="empty-state">
+        No restock orders submitted yet.
+      </div>
+      <div v-else class="submitted-orders-list">
+        <details v-for="order in restockOrders" :key="order.id" class="submitted-order">
+          <summary class="submitted-order-summary">
+            <span class="submitted-order-number">{{ order.order_number }}</span>
+            <span class="badge info">{{ order.status }}</span>
+            <span class="submitted-order-meta">Ordered {{ formatDate(order.order_date) }}</span>
+            <span class="submitted-order-lead-time">Lead time: {{ order.lead_time_days }} days</span>
+            <span class="submitted-order-meta">Expected {{ formatDate(order.expected_delivery) }}</span>
+            <span class="submitted-order-value">{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</span>
+            <span class="submitted-order-count">{{ order.item_count }} items</span>
+          </summary>
+          <div class="submitted-order-items">
+            <div v-for="item in order.items" :key="item.item_sku" class="submitted-item-entry">
+              <span class="item-name">{{ item.item_name }} ({{ item.item_sku }})</span>
+              <span class="item-meta">Qty {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }} = {{ currencySymbol }}{{ item.line_total.toLocaleString() }}</span>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -96,6 +126,10 @@ export default {
     const error = ref(null)
     const orders = ref([])
 
+    const restockOrders = ref([])
+    const restockLoading = ref(true)
+    const restockError = ref(null)
+
     // Use shared filters
     const {
       selectedPeriod,
@@ -129,6 +163,18 @@ export default {
       loadOrders()
     })
 
+    const loadRestockOrders = async () => {
+      try {
+        restockLoading.value = true
+        restockError.value = null
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        restockError.value = 'Failed to load submitted restock orders: ' + err.message
+      } finally {
+        restockLoading.value = false
+      }
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -153,13 +199,19 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockOrders,
+      restockLoading,
+      restockError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -172,6 +224,97 @@ export default {
 </script>
 
 <style scoped>
+.submitted-orders-card {
+  margin-bottom: 1.5rem;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
+.submitted-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.submitted-order {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.25rem 0.875rem;
+}
+
+.submitted-order-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 0.75rem 0;
+  cursor: pointer;
+  list-style: none;
+  flex-wrap: wrap;
+}
+
+.submitted-order-summary::-webkit-details-marker {
+  display: none;
+}
+
+.submitted-order-number {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.submitted-order-meta {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.submitted-order-lead-time {
+  color: #1e40af;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background: #dbeafe;
+  padding: 0.25rem 0.625rem;
+  border-radius: 6px;
+}
+
+.submitted-order-value {
+  font-weight: 700;
+  color: #0f172a;
+  margin-left: auto;
+}
+
+.submitted-order-count {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.submitted-order-items {
+  border-top: 1px solid #f1f5f9;
+  padding: 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.submitted-item-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.875rem;
+}
+
+.submitted-item-entry .item-name {
+  color: #0f172a;
+  font-weight: 500;
+}
+
+.submitted-item-entry .item-meta {
+  color: #64748b;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
