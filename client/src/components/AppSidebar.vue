@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar" :class="{ collapsed }">
     <div class="sidebar-header">
-      <div class="brand" v-show="!collapsed">
+      <div class="brand">
         <h1>{{ t('nav.companyName') }}</h1>
         <span class="subtitle">{{ t('nav.subtitle') }}</span>
       </div>
@@ -20,7 +20,7 @@
         :title="collapsed ? link.label : ''"
       >
         <component :is="link.icon" :size="20" />
-        <span class="nav-label" v-show="!collapsed">{{ link.label }}</span>
+        <span class="nav-label">{{ link.label }}</span>
       </router-link>
     </nav>
 
@@ -127,6 +127,12 @@ export default {
 .brand {
   overflow: hidden;
   white-space: nowrap;
+  opacity: 1;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar.collapsed .brand {
+  opacity: 0;
 }
 
 .brand h1 {
@@ -207,6 +213,15 @@ export default {
 .nav-label {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 140px;
+  opacity: 1;
+  transition: opacity 0.2s ease, max-width 0.2s ease;
+}
+
+.sidebar.collapsed .nav-label {
+  opacity: 0;
+  max-width: 0;
 }
 
 /* ---- Footer ---- */
