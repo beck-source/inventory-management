@@ -5,7 +5,7 @@
         <h1>{{ t('nav.companyName') }}</h1>
         <span class="subtitle">{{ t('nav.subtitle') }}</span>
       </div>
-      <button class="toggle-btn" @click="$emit('toggle')" :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+      <button type="button" class="toggle-btn" @click="$emit('toggle')" :title="collapsed ? 'Expand sidebar' : 'Collapse sidebar'">
         <ChevronLeft v-if="!collapsed" :size="18" />
         <ChevronRight v-else :size="18" />
       </button>
@@ -93,16 +93,15 @@ export default {
 <style scoped>
 .sidebar {
   width: 220px;
-  min-height: 100vh;
+  height: 100vh;
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   transition: width 0.25s ease;
-  overflow: hidden;
+  overflow: visible;
   position: sticky;
   top: 0;
-  height: 100vh;
 }
 
 .sidebar.collapsed {
@@ -118,6 +117,7 @@ export default {
   border-bottom: 1px solid #e2e8f0;
   min-height: 70px;
   gap: 0.5rem;
+  overflow: hidden;
 }
 
 .sidebar.collapsed .sidebar-header {
@@ -171,6 +171,7 @@ export default {
   flex-direction: column;
   gap: 0.125rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .sidebar-nav a {
