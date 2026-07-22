@@ -4,6 +4,7 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    restocking: '補充',
     finance: '財務',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
@@ -106,12 +107,14 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    leadTimeDays: '{days}日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,7 +128,39 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '需要予測を予算制約付きの補充注文に変換します',
+    budget: '予算',
+    recommendedTotal: '推奨合計',
+    remaining: '残額',
+    itemsSelected: '選択品目数',
+    setBudget: '予算を設定',
+    availableBudget: '利用可能予算',
+    recommendedRestock: '推奨補充',
+    placeOrder: '注文する',
+    placing: '注文送信中...',
+    empty: '現在の予算内に収まる品目がありません。予算を増やすと推奨が表示されます。',
+    overBudget: '選択合計が利用可能予算を超えています。数量を減らすか品目の選択を解除してください。',
+    withinBudget: '予算内',
+    success: '注文 {orderNumber} が正常に送信されました。',
+    leadTimeDays: '{days}日',
+    table: {
+      sku: 'SKU',
+      item: '品目',
+      trend: 'トレンド',
+      unitCost: '単価',
+      projectedGap: '予測ギャップ',
+      include: '含める',
+      quantity: '数量',
+      lineTotal: '小計',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -204,6 +239,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'

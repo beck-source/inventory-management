@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -106,12 +107,14 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    leadTimeDays: '{days} days',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -125,7 +128,39 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Turn demand forecasts into a budget-constrained restock order',
+    budget: 'Budget',
+    recommendedTotal: 'Recommended Total',
+    remaining: 'Remaining',
+    itemsSelected: 'Items Selected',
+    setBudget: 'Set Budget',
+    availableBudget: 'Available Budget',
+    recommendedRestock: 'Recommended Restock',
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    empty: 'No items fit within the current budget. Increase the budget to see recommendations.',
+    overBudget: 'Selected total exceeds the available budget. Reduce quantities or deselect items.',
+    withinBudget: 'Within budget',
+    success: 'Order {orderNumber} submitted successfully.',
+    leadTimeDays: '{days} days',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      projectedGap: 'Projected Gap',
+      include: 'Include',
+      quantity: 'Quantity',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -204,6 +239,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

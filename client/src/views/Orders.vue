@@ -27,9 +27,61 @@
         </div>
       </div>
 
+      <!-- Submitted orders card: only shown when restocking orders are present -->
+      <div v-if="submittedOrders.length" class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-customer">{{ t('orders.table.customer') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-date">{{ t('orders.table.leadTime') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-date">{{ t('orders.leadTimeDays', { days: getLeadTimeDays(order) }) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- All Orders card: excludes Submitted orders to avoid double-listing -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ mainOrders.length }})</h3>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -45,7 +97,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
+              <tr v-for="order in mainOrders" :key="order.id">
                 <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
                 <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
@@ -138,9 +190,27 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        // Submitted status used for restocking orders placed via the Restocking tab
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
+    }
+
+    // Orders placed via the Restocking tab arrive with status 'Submitted'
+    const submittedOrders = computed(() => orders.value.filter(o => o.status === 'Submitted'))
+    // All other orders (avoids double-listing in the main table)
+    const mainOrders = computed(() => orders.value.filter(o => o.status !== 'Submitted'))
+
+    /**
+     * Derives lead time in days from order_date → expected_delivery.
+     * Returns 0 for invalid/missing dates rather than NaN.
+     */
+    const getLeadTimeDays = (order) => {
+      const start = new Date(order.order_date)
+      const end = new Date(order.expected_delivery)
+      const diff = Math.round((end - start) / 86400000)
+      return Number.isFinite(diff) ? diff : 0
     }
 
     const formatDate = (dateString) => {
@@ -160,8 +230,11 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
+      mainOrders,
       getOrdersByStatus,
       getOrderStatusClass,
+      getLeadTimeDays,
       formatDate,
       currencySymbol,
       translateProductName,

@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +90,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +122,19 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class CreateOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateOrderRequest(BaseModel):
+    customer: str
+    items: List[CreateOrderItem]
+    lead_time_days: int
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -160,6 +176,61 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_order(request: CreateOrderRequest):
+    """Create a new order (e.g. a restock order from the demand forecast).
+
+    This is the app's only write endpoint. The order is appended to the
+    in-memory orders list with a "Submitted" status so it surfaces in the
+    existing GET /api/orders response.
+    """
+    # Only persist line items that actually order something; a request with no
+    # positive quantities has nothing to buy and is rejected.
+    valid_items = [item for item in request.items if item.quantity > 0]
+    if not valid_items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item with quantity > 0")
+
+    now = datetime.now()
+    # Clamp negative lead times to 0 so expected delivery never precedes the order date.
+    expected = now + timedelta(days=max(request.lead_time_days, 0))
+
+    # Generate a new numeric id from the current max (default 0 for an empty list).
+    new_id = str(max((int(o["id"]) for o in orders), default=0) + 1)
+
+    # Order numbers look like ORD-YYYY-NNNN; derive the next sequence number from
+    # the largest existing numeric suffix so new numbers don't collide.
+    max_seq = 0
+    for o in orders:
+        suffix = o.get("order_number", "").rsplit("-", 1)[-1]
+        if suffix.isdigit():
+            max_seq = max(max_seq, int(suffix))
+    order_number = f"ORD-{now.year}-{max_seq + 1:04d}"
+
+    total_value = round(sum(item.quantity * item.unit_price for item in valid_items), 2)
+
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "customer": request.customer,
+        "items": [item.model_dump() for item in valid_items],
+        "status": "Submitted",
+        "order_date": now.isoformat(timespec="seconds"),
+        "expected_delivery": expected.isoformat(timespec="seconds"),
+        "total_value": total_value,
+        "actual_delivery": None,
+        "warehouse": request.warehouse,
+        "category": request.category
+    }
+
+    # Deliberately mutate the module-level in-memory list so the new order is
+    # visible to later GET /api/orders calls. The server CLAUDE.md flags "don't
+    # mutate global data", but this is intentional and non-persistent by design:
+    # there is no database, and a server restart reloads orders from JSON, which
+    # drops any submitted orders.
+    orders.append(new_order)
+
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
