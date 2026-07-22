@@ -175,7 +175,7 @@ const getStockBadgeClass = (stockLevel) => {
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #4b5563;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -231,7 +231,7 @@ const getStockBadgeClass = (stockLevel) => {
 
 .product-sku {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #4b5563;
   font-family: 'Monaco', 'Courier New', monospace;
 }
 
@@ -277,7 +277,7 @@ const getStockBadgeClass = (stockLevel) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .info-value {

@@ -347,15 +347,21 @@ export default {
       return Math.ceil(max / 1000) // Return in K
     })
 
+    let abortController = null
+
     const loadData = async () => {
+      if (abortController) abortController.abort()
+      abortController = new AbortController()
+      const { signal } = abortController
+      loading.value = true
+      error.value = null
       try {
-        loading.value = true
         const [summaryRes, monthlyRes, categoryRes, transactionsRes, ordersRes] = await Promise.all([
-          api.getSpendingSummary(),
-          api.getMonthlySpending(),
-          api.getCategorySpending(),
-          api.getTransactions(),
-          api.getOrders()
+          api.getSpendingSummary({ signal }),
+          api.getMonthlySpending({ signal }),
+          api.getCategorySpending({ signal }),
+          api.getTransactions({ signal }),
+          api.getOrders({}, { signal })
         ])
 
         summaryData.value = summaryRes
@@ -364,9 +370,10 @@ export default {
         allTransactions.value = transactionsRes
         allOrders.value = ordersRes
       } catch (err) {
+        if (err.name === 'CanceledError' || err.name === 'AbortError') return
         error.value = 'Failed to load financial data: ' + err.message
       } finally {
-        loading.value = false
+        if (!signal.aborted) loading.value = false
       }
     }
 
@@ -527,7 +534,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .legend-dot {
@@ -565,7 +572,7 @@ export default {
 .stat-meta {
   margin-top: 0.5rem;
   font-size: 0.813rem;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .bar-group-revenue {
@@ -689,7 +696,7 @@ export default {
   margin-top: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .two-column-grid {
@@ -749,7 +756,7 @@ export default {
 }
 
 .percentage {
-  color: #64748b;
+  color: #4b5563;
 }
 
 .change {
@@ -821,7 +828,7 @@ export default {
 }
 
 .transaction-id {
-  color: #64748b;
+  color: #4b5563;
   font-weight: 500;
   font-family: 'Monaco', 'Courier New', monospace;
   font-size: 0.813rem;
@@ -833,11 +840,11 @@ export default {
 }
 
 .transaction-vendor {
-  color: #64748b;
+  color: #4b5563;
 }
 
 .transaction-date {
-  color: #64748b;
+  color: #4b5563;
   font-size: 0.813rem;
 }
 

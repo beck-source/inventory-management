@@ -1,5 +1,7 @@
 <template>
   <div class="demand">
+    <EuAiActBanner page="demand-forecast" />
+
     <div class="page-header">
       <h2>{{ t('demand.title') }}</h2>
       <p>{{ t('demand.description') }}</p>
@@ -115,9 +117,11 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import EuAiActBanner from '../components/EuAiActBanner.vue'
 
 export default {
   name: 'Demand',
+  components: { EuAiActBanner },
   setup() {
     const { t } = useI18n()
     const loading = ref(true)
@@ -139,32 +143,42 @@ export default {
       return allForecasts.value.filter(f => validSkus.has(f.item_sku))
     })
 
+    const debounce = (fn, delay) => {
+      let t
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay) }
+    }
+
+    let abortController = null
+
     const loadForecasts = async () => {
+      if (abortController) abortController.abort()
+      abortController = new AbortController()
+      const { signal } = abortController
+      loading.value = true
+      error.value = null
       try {
-        loading.value = true
         const filters = getCurrentFilters()
 
         const [forecastsData, inventoryData] = await Promise.all([
-          api.getDemandForecasts(),
+          api.getDemandForecasts({ signal }),
           api.getInventory({
             warehouse: filters.warehouse,
             category: filters.category
-          })
+          }, { signal })
         ])
 
         allForecasts.value = forecastsData
         inventoryItems.value = inventoryData
       } catch (err) {
+        if (err.name === 'CanceledError' || err.name === 'AbortError') return
         error.value = 'Failed to load demand forecasts: ' + err.message
       } finally {
-        loading.value = false
+        if (!signal.aborted) loading.value = false
       }
     }
 
-    // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadForecasts()
-    })
+    // Watch for filter changes and reload data (debounced to prevent rapid re-fetches)
+    watch([selectedLocation, selectedCategory], debounce(loadForecasts, 250))
 
     const getForecastsByTrend = (trend) => {
       return forecasts.value.filter(f => f.trend === trend)
@@ -294,7 +308,7 @@ export default {
 .trend-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: #4b5563;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -356,12 +370,12 @@ export default {
 }
 
 .item-change.neutral {
-  color: #64748b;
+  color: #4b5563;
 }
 
 .more-items {
   font-size: 0.813rem;
-  color: #64748b;
+  color: #4b5563;
   font-style: italic;
   text-align: center;
   padding: 0.5rem;

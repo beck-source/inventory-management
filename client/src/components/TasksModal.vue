@@ -291,7 +291,7 @@ export default {
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #4b5563;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -427,7 +427,7 @@ label {
 .no-tasks {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: #4b5563;
   font-size: 1.1rem;
   font-style: italic;
 }
@@ -563,7 +563,7 @@ label {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.813rem;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .task-due-date svg {

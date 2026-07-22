@@ -382,5 +382,101 @@
     "unit_cost": 185.50,
     "location": "Warehouse C-11",
     "last_updated": "2025-09-21T15:20:00"
+  },
+  {
+    "id": "33",
+    "sku": "WDG-001",
+    "name": "Industrial Widget Type A",
+    "category": "Actuators",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 275,
+    "reorder_point": 150,
+    "unit_cost": 45.00,
+    "location": "Warehouse A-18",
+    "last_updated": "2025-09-20T09:00:00"
+  },
+  {
+    "id": "34",
+    "sku": "BRG-102",
+    "name": "Steel Bearing Assembly",
+    "category": "Actuators",
+    "warehouse": "London",
+    "quantity_on_hand": 480,
+    "reorder_point": 100,
+    "unit_cost": 28.50,
+    "location": "Warehouse B-17",
+    "last_updated": "2025-09-19T11:30:00"
+  },
+  {
+    "id": "35",
+    "sku": "GSK-203",
+    "name": "High-Temperature Gasket",
+    "category": "Sensors",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 620,
+    "reorder_point": 200,
+    "unit_cost": 12.00,
+    "location": "Warehouse C-12",
+    "last_updated": "2025-09-18T14:00:00"
+  },
+  {
+    "id": "36",
+    "sku": "MTR-304",
+    "name": "Electric Motor 5HP",
+    "category": "Actuators",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 45,
+    "reorder_point": 20,
+    "unit_cost": 380.00,
+    "location": "Warehouse A-19",
+    "last_updated": "2025-09-17T08:45:00"
+  },
+  {
+    "id": "37",
+    "sku": "FLT-405",
+    "name": "Oil Filter Cartridge",
+    "category": "Sensors",
+    "warehouse": "London",
+    "quantity_on_hand": 850,
+    "reorder_point": 300,
+    "unit_cost": 18.75,
+    "location": "Warehouse B-18",
+    "last_updated": "2025-09-16T13:15:00"
+  },
+  {
+    "id": "38",
+    "sku": "VLV-506",
+    "name": "Pressure Relief Valve",
+    "category": "Actuators",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 190,
+    "reorder_point": 60,
+    "unit_cost": 65.00,
+    "location": "Warehouse C-13",
+    "last_updated": "2025-09-15T10:00:00"
+  },
+  {
+    "id": "39",
+    "sku": "SNR-420",
+    "name": "Temperature Sensor Module",
+    "category": "Sensors",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 310,
+    "reorder_point": 120,
+    "unit_cost": 89.50,
+    "location": "Warehouse A-20",
+    "last_updated": "2025-09-14T09:30:00"
+  },
+  {
+    "id": "40",
+    "sku": "CTL-330",
+    "name": "Logic Controller Board",
+    "category": "Controllers",
+    "warehouse": "London",
+    "quantity_on_hand": 95,
+    "reorder_point": 40,
+    "unit_cost": 125.00,
+    "location": "Warehouse B-19",
+    "last_updated": "2025-09-13T15:45:00"
   }
 ]

@@ -149,26 +149,36 @@ export default {
       })
     })
 
+    const debounce = (fn, delay) => {
+      let t
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay) }
+    }
+
+    let abortController = null
+
     const loadInventory = async () => {
+      if (abortController) abortController.abort()
+      abortController = new AbortController()
+      const { signal } = abortController
+      loading.value = true
+      error.value = null
       try {
-        loading.value = true
         const filters = getCurrentFilters()
         // Inventory doesn't support month/status filters, only warehouse and category
         items.value = await api.getInventory({
           warehouse: filters.warehouse,
           category: filters.category
-        })
+        }, { signal })
       } catch (err) {
+        if (err.name === 'CanceledError' || err.name === 'AbortError') return
         error.value = 'Failed to load inventory: ' + err.message
       } finally {
-        loading.value = false
+        if (!signal.aborted) loading.value = false
       }
     }
 
-    // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadInventory()
-    })
+    // Watch for filter changes and reload data (debounced to prevent rapid re-fetches)
+    watch([selectedLocation, selectedCategory], debounce(loadInventory, 250))
 
     const getStockStatus = (item) => {
       const key = getStockStatusKey(item)
@@ -234,7 +244,7 @@ export default {
 }
 
 .page-header p {
-  color: #64748b;
+  color: #4b5563;
   font-size: 0.875rem;
 }
 
@@ -309,7 +319,7 @@ export default {
 
 .clear-search:hover {
   background: #e2e8f0;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .clear-search svg {
@@ -321,7 +331,7 @@ export default {
 .error {
   padding: 2rem;
   text-align: center;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .error {
