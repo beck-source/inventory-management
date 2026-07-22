@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import uuid
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -12,6 +14,15 @@ QUARTER_MAP = {
     'Q2-2025': ['2025-04', '2025-05', '2025-06'],
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
+}
+
+# Lead time mapping by product category (in days)
+CATEGORY_LEAD_TIMES = {
+    'Circuit Boards': 14,
+    'Sensors': 10,
+    'Actuators': 12,
+    'Controllers': 7,
+    'Power Supplies': 10
 }
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
@@ -119,6 +130,12 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderRequest(BaseModel):
+    warehouse: str
+    items: List[dict]
+    budget: float
+    recommended_items: List[dict]
 
 # API endpoints
 @app.get("/")
@@ -303,6 +320,73 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/orders", response_model=Order)
+def create_restocking_order(order_req: RestockingOrderRequest):
+    """Create a new restocking order"""
+    # Validate budget
+    total_cost = 0
+    order_items = []
+
+    # Get inventory items to fetch product info
+    for item_req in order_req.items:
+        inventory_item = next(
+            (inv for inv in inventory_items if inv["sku"] == item_req["sku"]),
+            None
+        )
+        if not inventory_item:
+            raise HTTPException(status_code=404, detail=f"Item {item_req['sku']} not found")
+
+        unit_cost = inventory_item["unit_cost"]
+        quantity = item_req["quantity"]
+        item_total = unit_cost * quantity
+        total_cost += item_total
+
+        order_items.append({
+            "sku": item_req["sku"],
+            "name": inventory_item["name"],
+            "quantity": quantity,
+            "unit_price": unit_cost
+        })
+
+    # Validate budget constraint
+    if total_cost > order_req.budget:
+        raise HTTPException(status_code=400, detail=f"Order total (${total_cost:.2f}) exceeds budget (${order_req.budget:.2f})")
+
+    # Calculate lead time based on first item's category
+    first_item_category = order_items[0].get("name", "") if order_items else ""
+    # Get category from first ordered item
+    first_sku = order_req.items[0]["sku"] if order_req.items else None
+    lead_time_days = 10  # default
+    if first_sku:
+        first_inv = next((inv for inv in inventory_items if inv["sku"] == first_sku), None)
+        if first_inv:
+            category = first_inv["category"]
+            lead_time_days = CATEGORY_LEAD_TIMES.get(category, 10)
+
+    # Create new order
+    now = datetime.utcnow()
+    order_date = now.isoformat()
+    expected_delivery = (now + timedelta(days=lead_time_days)).isoformat()
+
+    new_order = {
+        "id": str(uuid.uuid4()),
+        "order_number": f"ORD-RESTOCK-{len(orders) + 1001}",
+        "customer": "Internal Restocking",
+        "items": order_items,
+        "status": "Submitted Orders",
+        "order_date": order_date,
+        "expected_delivery": expected_delivery,
+        "total_value": round(total_cost, 2),
+        "warehouse": order_req.warehouse,
+        "category": order_items[0].get("name", "") if order_items else None,
+        "recommended_items": order_req.recommended_items
+    }
+
+    # Add to orders list
+    orders.append(new_order)
+
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn

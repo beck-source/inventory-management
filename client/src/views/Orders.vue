@@ -27,9 +27,59 @@
         </div>
       </div>
 
-      <div class="card">
+      <!-- Submitted Orders Section -->
+      <div v-if="submittedOrders.length > 0" class="card submitted-section">
         <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-warehouse">Warehouse</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-leadtime">Lead Time (days)</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-warehouse">{{ order.warehouse }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t('orders.statusSubmitted') }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-leadtime">{{ calculateLeadTime(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Mock/Historical Orders Section -->
+      <div class="card mock-section">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.historicalOrders') }} ({{ regularOrders.length }})</h3>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -45,7 +95,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
+              <tr v-for="order in regularOrders" :key="order.id">
                 <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
                 <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
@@ -138,9 +188,26 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted Orders': 'info'
       }
       return statusMap[status] || 'info'
+    }
+
+    const submittedOrders = computed(() =>
+      orders.value.filter(order => order.status === 'Submitted Orders')
+    )
+
+    const regularOrders = computed(() =>
+      orders.value.filter(order => order.status !== 'Submitted Orders')
+    )
+
+    const calculateLeadTime = (expectedDeliveryDate) => {
+      const today = new Date()
+      const delivery = new Date(expectedDeliveryDate)
+      const diffTime = Math.abs(delivery - today)
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      return diffDays
     }
 
     const formatDate = (dateString) => {
@@ -160,12 +227,15 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
+      regularOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      calculateLeadTime
     }
   }
 }
@@ -201,6 +271,24 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.col-warehouse {
+  width: 140px;
+}
+
+.col-leadtime {
+  width: 140px;
+  text-align: center;
+}
+
+.submitted-section {
+  margin-bottom: 2rem;
+  border-top: 3px solid #3b82f6;
+}
+
+.mock-section {
+  border-top: 3px solid #9ca3af;
 }
 
 /* Items details styling */
