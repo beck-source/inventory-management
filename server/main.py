@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
@@ -13,6 +14,16 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Delivery lead time by warehouse, in days. This is not present in any fixture
+# file - these are the documented shipping times for each site, and they are the
+# only source for a restocking order's expected_delivery date.
+WAREHOUSE_LEAD_TIME_DAYS = {
+    'San Francisco': 5,
+    'London': 10,
+    'Tokyo': 14
+}
+DEFAULT_LEAD_TIME_DAYS = 7
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -119,6 +130,34 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderLine(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    # Named unit_price (not unit_cost) to match the existing Order.items[] shape
+    unit_price: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    warehouse: str
+    items: List[RestockingOrderLine]
+    status: str
+    order_date: str
+    expected_delivery: str
+    lead_time_days: int
+    total_value: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    warehouse: str
+    items: List[RestockingOrderLine]
+
+# Submitted restocking orders. Deliberately process-local and never written to
+# disk: this is the only mutable state in the service, and it resets on restart
+# just like the JSON-backed fixtures. Kept separate from `orders` on purpose so
+# submissions don't skew dashboard, reports or spending totals.
+restocking_orders: List[dict] = []
 
 # API endpoints
 @app.get("/")
@@ -303,6 +342,47 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders, newest first"""
+    return list(reversed(restocking_orders))
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order for a single warehouse"""
+    if not request.items:
+        raise HTTPException(
+            status_code=400,
+            detail="A restocking order must contain at least one item"
+        )
+
+    # Lead time is derived from the warehouse - it is the only delivery signal
+    # available, since no fixture carries a per-SKU lead time.
+    lead_time_days = WAREHOUSE_LEAD_TIME_DAYS.get(request.warehouse, DEFAULT_LEAD_TIME_DAYS)
+
+    order_date = datetime.now()
+    expected_delivery = order_date + timedelta(days=lead_time_days)
+    total_value = sum(line.quantity * line.unit_price for line in request.items)
+
+    # Sequence from the current list length - ids only need to be unique within
+    # this process, since the store is cleared on restart.
+    sequence = len(restocking_orders) + 1
+
+    new_order = {
+        'id': f"RST-{sequence}",
+        'order_number': f"RST-2025-{sequence:04d}",
+        'warehouse': request.warehouse,
+        'items': [line.model_dump() for line in request.items],
+        'status': 'Submitted',
+        'order_date': order_date.strftime('%Y-%m-%dT%H:%M:%S'),
+        'expected_delivery': expected_delivery.strftime('%Y-%m-%dT%H:%M:%S'),
+        'lead_time_days': lead_time_days,
+        'total_value': round(total_value, 2)
+    }
+
+    restocking_orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn
