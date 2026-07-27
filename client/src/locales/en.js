@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,9 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No restock orders submitted yet',
+    leadTimeDays: '{days} days',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -125,7 +129,8 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -185,6 +190,28 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and get demand-driven restock recommendations',
+    budgetLabel: 'Restock Budget',
+    recommendedItems: 'Recommended Items',
+    totalCost: 'Total Cost',
+    budgetRemaining: 'Budget Remaining',
+    recommendations: 'Recommendations',
+    noRecommendations: 'No items are affordable or needed at this budget',
+    placeOrder: 'Place Order',
+    orderSuccess: 'Order {orderNumber} placed successfully',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      suggestedQuantity: 'Suggested Quantity',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total'
     }
   },
 
@@ -302,6 +329,43 @@ export default {
     dueDate: 'Due Date',
     addTask: 'Add Task',
     noTasks: 'No tasks yet. Add your first task above!'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    viewTitle: 'Purchase Order Details',
+    backlogContext: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage'
+    },
+    form: {
+      supplierName: 'Supplier Name',
+      supplierNamePlaceholder: 'Enter supplier name...',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      expectedDeliveryDate: 'Expected Delivery Date',
+      notes: 'Notes',
+      notesPlaceholder: 'Optional notes...'
+    },
+    submit: 'Create Purchase Order',
+    submitting: 'Creating...',
+    createError: 'Failed to create purchase order. Please try again.',
+    loadError: 'Failed to load purchase order details.',
+    details: {
+      supplier: 'Supplier',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      total: 'Total',
+      expectedDelivery: 'Expected Delivery',
+      status: 'Status',
+      createdDate: 'Created Date',
+      notes: 'Notes',
+      noNotes: 'No notes'
+    }
   },
 
   // Language

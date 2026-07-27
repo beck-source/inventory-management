@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,6 +113,9 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: '提出済み注文',
+    noSubmittedOrders: 'まだ補充注文が提出されていません',
+    leadTimeDays: '{days}日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,7 +129,8 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -185,6 +190,28 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、需要に基づいた補充提案を確認します',
+    budgetLabel: '補充予算',
+    recommendedItems: '推奨品目数',
+    totalCost: '合計コスト',
+    budgetRemaining: '残り予算',
+    recommendations: '推奨事項',
+    noRecommendations: 'この予算では購入可能または必要な品目がありません',
+    placeOrder: '注文する',
+    orderSuccess: '注文{orderNumber}が正常に送信されました',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      trend: 'トレンド',
+      suggestedQuantity: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '小計'
     }
   },
 
@@ -302,6 +329,43 @@ export default {
     dueDate: '期限',
     addTask: 'タスクを追加',
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    viewTitle: '発注書の詳細',
+    backlogContext: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足'
+    },
+    form: {
+      supplierName: 'サプライヤー名',
+      supplierNamePlaceholder: 'サプライヤー名を入力...',
+      quantity: '数量',
+      unitCost: '単価',
+      expectedDeliveryDate: '納品予定日',
+      notes: '備考',
+      notesPlaceholder: '備考を入力（任意）...'
+    },
+    submit: '発注書を作成',
+    submitting: '作成中...',
+    createError: '発注書の作成に失敗しました。もう一度お試しください。',
+    loadError: '発注書の詳細の読み込みに失敗しました。',
+    details: {
+      supplier: 'サプライヤー',
+      quantity: '数量',
+      unitCost: '単価',
+      total: '合計',
+      expectedDelivery: '納品予定日',
+      status: 'ステータス',
+      createdDate: '作成日',
+      notes: '備考',
+      noNotes: '備考なし'
+    }
   },
 
   // Language

@@ -35,5 +35,9 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Load tasks - starts empty; tasks created via the API live here for the
+# server's lifetime and reset on restart, like all other mutations in this demo
+tasks = load_json_file('tasks.json')
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data

@@ -12,6 +12,7 @@ server_path = Path(__file__).parent.parent.parent / "server"
 sys.path.insert(0, str(server_path))
 
 from main import app
+from mock_data import purchase_orders, tasks
 
 
 @pytest.fixture
@@ -19,6 +20,26 @@ def client():
     """Create a test client for the FastAPI application."""
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def reset_mutable_stores():
+    """
+    Restore the in-memory stores that POST/PATCH/DELETE endpoints mutate.
+
+    tasks and purchase_orders are module-level lists shared between mock_data
+    and main, so they must be restored in place (never rebound) to keep the
+    references in main.py valid and each test independent.
+    """
+    tasks_snapshot = [dict(t) for t in tasks]
+    purchase_orders_snapshot = [dict(po) for po in purchase_orders]
+
+    yield
+
+    tasks.clear()
+    tasks.extend(tasks_snapshot)
+    purchase_orders.clear()
+    purchase_orders.extend(purchase_orders_snapshot)
 
 
 @pytest.fixture
