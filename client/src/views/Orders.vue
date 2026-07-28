@@ -25,6 +25,10 @@
           <div class="stat-label">{{ t('status.backordered') }}</div>
           <div class="stat-value">{{ getOrdersByStatus('Backordered').length }}</div>
         </div>
+        <div class="stat-card" style="border-left: 3px solid #6366f1;">
+          <div class="stat-label">Submitted</div>
+          <div class="stat-value">{{ submittedOrders.length }}</div>
+        </div>
       </div>
 
       <div class="card">
@@ -74,6 +78,45 @@
           </table>
         </div>
       </div>
+      <div class="card" v-if="submittedOrders.length">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table submitted-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order #</th>
+                <th class="col-items">Items</th>
+                <th class="col-date">Order Date</th>
+                <th class="col-date">Expected Delivery</th>
+                <th class="col-lead">Lead Time</th>
+                <th class="col-value">Total Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">{{ order.items.length }} item(s)</summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity }} @ ${{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-lead">{{ getLeadTimeDays(order.order_date, order.expected_delivery) }} days</td>
+                <td class="col-value"><strong>${{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +138,8 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    // allOrders holds unfiltered set so Submitted orders (from restock) always appear
+    const allOrders = ref([])
 
     // Use shared filters
     const {
@@ -109,14 +154,15 @@ export default {
       try {
         loading.value = true
         const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+        // Fetch filtered + unfiltered in parallel; unfiltered needed for Submitted orders section
+        const [fetchedOrders, allFetched] = await Promise.all([
+          api.getOrders(filters),
+          api.getOrders({})
+        ])
 
-        // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
-          const dateA = new Date(a.order_date)
-          const dateB = new Date(b.order_date)
-          return dateA - dateB
-        })
+        const sortByDate = (a, b) => new Date(a.order_date) - new Date(b.order_date)
+        orders.value = fetchedOrders.sort(sortByDate)
+        allOrders.value = allFetched.sort(sortByDate)
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
@@ -129,6 +175,15 @@ export default {
       loadOrders()
     })
 
+    const submittedOrders = computed(() =>
+      allOrders.value.filter(o => o.status === 'Submitted')
+    )
+
+    const getLeadTimeDays = (orderDate, deliveryDate) => {
+      const msPerDay = 1000 * 60 * 60 * 24
+      return Math.round((new Date(deliveryDate) - new Date(orderDate)) / msPerDay)
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -138,7 +193,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'stable'
       }
       return statusMap[status] || 'info'
     }
@@ -160,9 +216,11 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      getLeadTimeDays,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -202,6 +260,17 @@ export default {
 .col-value {
   width: 120px;
 }
+
+.col-lead {
+  width: 100px;
+}
+
+/* Submitted orders table has fewer columns so fixed layout needs different widths */
+.submitted-table .col-order-number { width: 160px; }
+.submitted-table .col-items { width: 160px; }
+.submitted-table .col-date { width: 160px; }
+.submitted-table .col-lead { width: 100px; }
+.submitted-table .col-value { width: 140px; }
 
 /* Items details styling */
 .items-details {
