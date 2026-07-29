@@ -7,6 +7,8 @@ export default {
     finance: '財務',
     demandForecast: '需要予測',
     restocking: '補充発注',
+    reports: 'レポート',
+    backlog: 'バックログ',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -242,6 +244,80 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期業績指標と月次トレンドを表示',
+    // Japanese puts the year first, so the placeholder order differs from English.
+    quarterLabel: '{year}年{quarter}',
+    quarters: {
+      q1: '第1四半期',
+      q2: '第2四半期',
+      q3: '第3四半期',
+      q4: '第4四半期'
+    },
+    monthLabel: '{year}年{month}',
+    notAvailable: '該当なし',
+    quarterly: {
+      title: '四半期業績',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総売上',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率'
+    },
+    monthlyChart: {
+      title: '月次売上推移',
+      ariaLabel: '月次売上の棒グラフ'
+    },
+    monthOverMonth: {
+      title: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '売上',
+      change: '増減',
+      growthRate: '成長率'
+    },
+    stats: {
+      totalRevenue: '総売上',
+      avgMonthlyRevenue: '月平均売上',
+      totalOrders: '総注文数',
+      bestQuarter: '最高業績四半期'
+    },
+    errors: {
+      load: 'レポートの読み込みに失敗しました:'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解決',
+    itemsTitle: 'バックログ項目',
+    empty: 'バックログ項目はありません - すべての注文を履行できます',
+    unitsShort: '{count}個不足',
+    // Japanese does not inflect for number; both keys exist to match the en shape.
+    dayValue: '{days}日',
+    daysValue: '{days}日',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalItems: 'バックログ項目合計',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '利用可能数量',
+      shortage: '不足数',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    },
+    errors: {
+      load: 'バックログの読み込みに失敗しました:'
     }
   },
 

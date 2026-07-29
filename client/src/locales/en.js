@@ -7,6 +7,8 @@ export default {
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     restocking: 'Restocking',
+    reports: 'Reports',
+    backlog: 'Backlog',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -242,6 +244,80 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    // Backend returns quarters as "Q1-2025"; these compose a locale-correct label.
+    quarterLabel: '{quarter} {year}',
+    quarters: {
+      q1: 'Q1',
+      q2: 'Q2',
+      q3: 'Q3',
+      q4: 'Q4'
+    },
+    monthLabel: '{month} {year}',
+    notAvailable: 'N/A',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    monthlyChart: {
+      title: 'Monthly Revenue Trend',
+      ariaLabel: 'Bar chart of monthly revenue'
+    },
+    monthOverMonth: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    stats: {
+      totalRevenue: 'Total Revenue',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders',
+      bestQuarter: 'Best Performing Quarter'
+    },
+    errors: {
+      load: 'Failed to load reports:'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    itemsTitle: 'Backlog Items',
+    empty: 'No backlog items - all orders can be fulfilled!',
+    unitsShort: '{count} units short',
+    // The custom t() has no plural support, so singular gets its own key.
+    dayValue: '{days} day',
+    daysValue: '{days} days',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    errors: {
+      load: 'Failed to load backlog:'
     }
   },
 

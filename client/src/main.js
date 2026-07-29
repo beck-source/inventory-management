@@ -8,6 +8,7 @@ import Demand from './views/Demand.vue'
 import Restocking from './views/Restocking.vue'
 import Spending from './views/Spending.vue'
 import Reports from './views/Reports.vue'
+import Backlog from './views/Backlog.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -18,7 +19,10 @@ const router = createRouter({
     { path: '/demand', component: Demand },
     { path: '/restocking', component: Restocking },
     { path: '/spending', component: Spending },
-    { path: '/reports', component: Reports }
+    { path: '/reports', component: Reports },
+    // Backlog was previously built but never routed, so /backlog resolved to nothing.
+    // No nav entry yet - the page is reachable by URL only.
+    { path: '/backlog', component: Backlog }
   ]
 })
 
