@@ -27,6 +27,56 @@
         </div>
       </div>
 
+      <!-- Restock orders bypass the global filter bar (backend endpoint accepts no params),
+           so this section stays visible regardless of filter changes. -->
+      <div v-if="submittedOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table restock-orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-value">{{ t('orders.table.totalCost') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.submittedDate') }}</th>
+                <th class="col-lead-time">{{ t('orders.table.leadTime') }}</th>
+                <th class="col-date">{{ t('orders.table.estimatedDelivery') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <!-- Restock items use unit_cost (what we pay a supplier), not unit_price
+                             (what a customer pays) used by the All Orders table above. -->
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-status">
+                  <span :class="['badge', 'info']">{{ t('status.submitted') }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(order.submitted_date) }}</td>
+                <td class="col-lead-time">{{ formatLeadTime(order) }}</td>
+                <td class="col-date">{{ formatDate(order.estimated_delivery) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +145,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -108,8 +159,15 @@ export default {
     const loadOrders = async () => {
       try {
         loading.value = true
+        error.value = null
         const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+
+        // Restock orders don't accept filter params (they're not tied to
+        // warehouse/category/status/month), so fetch them independently in parallel.
+        const [fetchedOrders, fetchedRestockOrders] = await Promise.all([
+          api.getOrders(filters),
+          api.getRestockOrders()
+        ])
 
         // Sort orders by order_date (earliest first)
         orders.value = fetchedOrders.sort((a, b) => {
@@ -117,6 +175,9 @@ export default {
           const dateB = new Date(b.order_date)
           return dateA - dateB
         })
+
+        // Backend already returns restock orders newest-first; keep that order.
+        submittedOrders.value = fetchedRestockOrders
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
@@ -153,6 +214,15 @@ export default {
       })
     }
 
+    // Renders lead time as a single value (e.g. "14 days") when min/max match,
+    // or a range (e.g. "7-21 days") when the supplier gives a variable window.
+    const formatLeadTime = (order) => {
+      if (order.min_lead_time_days === order.max_lead_time_days) {
+        return t('restocking.days', { count: order.max_lead_time_days })
+      }
+      return t('restocking.daysRange', { min: order.min_lead_time_days, max: order.max_lead_time_days })
+    }
+
     onMounted(loadOrders)
 
     return {
@@ -160,9 +230,11 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatLeadTime,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -201,6 +273,11 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+/* Lead time column, used only by the restock orders table */
+.col-lead-time {
+  width: 110px;
 }
 
 /* Items details styling */
