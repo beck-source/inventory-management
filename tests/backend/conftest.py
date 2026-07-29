@@ -39,6 +39,32 @@ def sample_inventory_item():
 
 
 @pytest.fixture
+def sample_restock_order_request():
+    """Sample restock order request payload for testing."""
+    return {
+        "budget": 2500.0,
+        "items": [
+            {
+                "item_sku": "WDG-001",
+                "item_name": "Industrial Widget Type A",
+                "quantity": 150,
+                "unit_cost": 12.50,
+                "lead_time_days": 10,
+                "line_total": 1875.00
+            },
+            {
+                "item_sku": "BRG-102",
+                "item_name": "Steel Bearing Assembly",
+                "quantity": 2,
+                "unit_cost": 45.00,
+                "lead_time_days": 14,
+                "line_total": 90.00
+            }
+        ]
+    }
+
+
+@pytest.fixture
 def sample_order():
     """Sample order for testing."""
     return {
