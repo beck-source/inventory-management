@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
@@ -65,6 +66,9 @@ class InventoryItem(BaseModel):
     quantity_on_hand: int
     reorder_point: int
     unit_cost: float
+    # Supplier lead time in days, used by the restocking recommender to
+    # estimate delivery. Defaults to 14 for any record missing the field.
+    lead_time_days: int = 14
     location: str
     last_updated: str
 
@@ -119,6 +123,33 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    lead_time_days: int
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockOrderItem]
+    total_cost: float
+    budget: float
+    status: str
+    submitted_date: str
+    min_lead_time_days: int
+    max_lead_time_days: int
+    estimated_delivery: str
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderItem]
+
+# Submitted restock orders live in memory only, matching how the rest of this
+# demo holds data - they survive page refreshes but reset on server restart.
+submitted_restock_orders: List[dict] = []
 
 # API endpoints
 @app.get("/")
@@ -178,6 +209,53 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get submitted restock orders, newest first"""
+    return list(reversed(submitted_restock_orders))
+
+@app.post("/api/restock-orders", response_model=RestockOrder)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restock order for the recommended basket of items"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Restock order must contain at least one item")
+
+    if any(item.quantity <= 0 for item in request.items):
+        raise HTTPException(status_code=400, detail="Item quantities must be greater than zero")
+
+    # Recompute the total server-side rather than trusting the client, so the
+    # budget check below cannot be bypassed by tampering with the request.
+    total_cost = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+
+    if total_cost > request.budget:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Total cost {total_cost} exceeds budget {request.budget}"
+        )
+
+    lead_times = [item.lead_time_days for item in request.items]
+    submitted_at = datetime.now()
+    # The order is only complete once its slowest line arrives, so the overall
+    # ETA uses the longest lead time in the basket.
+    max_lead_time = max(lead_times)
+    sequence = len(submitted_restock_orders) + 1
+
+    order = {
+        "id": str(sequence),
+        "order_number": f"RO-{submitted_at.year}-{sequence:04d}",
+        "items": [item.model_dump() for item in request.items],
+        "total_cost": total_cost,
+        "budget": request.budget,
+        "status": "Submitted",
+        "submitted_date": submitted_at.strftime("%Y-%m-%dT%H:%M:%S"),
+        "min_lead_time_days": min(lead_times),
+        "max_lead_time_days": max_lead_time,
+        "estimated_delivery": (submitted_at + timedelta(days=max_lead_time)).strftime("%Y-%m-%d")
+    }
+
+    submitted_restock_orders.append(order)
+    return order
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(

@@ -8,6 +8,7 @@
     "quantity_on_hand": 450,
     "reorder_point": 200,
     "unit_cost": 24.99,
+    "lead_time_days": 21,
     "location": "Warehouse A-12",
     "last_updated": "2025-09-30T10:30:00"
   },
@@ -20,6 +21,7 @@
     "quantity_on_hand": 320,
     "reorder_point": 150,
     "unit_cost": 29.99,
+    "lead_time_days": 19,
     "location": "Warehouse A-13",
     "last_updated": "2025-09-28T14:20:00"
   },
@@ -32,6 +34,7 @@
     "quantity_on_hand": 275,
     "reorder_point": 120,
     "unit_cost": 34.5,
+    "lead_time_days": 23,
     "location": "Warehouse B-08",
     "last_updated": "2025-09-25T09:15:00"
   },
@@ -44,6 +47,7 @@
     "quantity_on_hand": 125,
     "reorder_point": 150,
     "unit_cost": 89.5,
+    "lead_time_days": 10,
     "location": "Warehouse B-05",
     "last_updated": "2025-09-29T14:20:00"
   },
@@ -56,6 +60,7 @@
     "quantity_on_hand": 95,
     "reorder_point": 80,
     "unit_cost": 125.0,
+    "lead_time_days": 12,
     "location": "Warehouse B-06",
     "last_updated": "2025-09-27T11:45:00"
   },
@@ -68,6 +73,7 @@
     "quantity_on_hand": 850,
     "reorder_point": 300,
     "unit_cost": 12.75,
+    "lead_time_days": 8,
     "location": "Warehouse A-08",
     "last_updated": "2025-09-30T09:15:00"
   },
@@ -80,6 +86,7 @@
     "quantity_on_hand": 1200,
     "reorder_point": 400,
     "unit_cost": 8.5,
+    "lead_time_days": 11,
     "location": "Warehouse C-04",
     "last_updated": "2025-09-26T13:30:00"
   },
@@ -92,6 +99,7 @@
     "quantity_on_hand": 680,
     "reorder_point": 250,
     "unit_cost": 15.99,
+    "lead_time_days": 9,
     "location": "Warehouse A-09",
     "last_updated": "2025-09-24T10:00:00"
   },
@@ -104,6 +112,7 @@
     "quantity_on_hand": 45,
     "reorder_point": 50,
     "unit_cost": 445.0,
+    "lead_time_days": 14,
     "location": "Warehouse C-02",
     "last_updated": "2025-09-30T16:45:00"
   },
@@ -116,6 +125,7 @@
     "quantity_on_hand": 28,
     "reorder_point": 30,
     "unit_cost": 725.0,
+    "lead_time_days": 16,
     "location": "Warehouse C-03",
     "last_updated": "2025-09-28T12:20:00"
   },
@@ -128,6 +138,7 @@
     "quantity_on_hand": 62,
     "reorder_point": 40,
     "unit_cost": 325.0,
+    "lead_time_days": 12,
     "location": "Warehouse B-10",
     "last_updated": "2025-09-22T15:30:00"
   },
@@ -140,6 +151,7 @@
     "quantity_on_hand": 1200,
     "reorder_point": 500,
     "unit_cost": 8.25,
+    "lead_time_days": 18,
     "location": "Warehouse A-15",
     "last_updated": "2025-09-30T08:00:00"
   },
@@ -152,6 +164,7 @@
     "quantity_on_hand": 980,
     "reorder_point": 400,
     "unit_cost": 6.5,
+    "lead_time_days": 16,
     "location": "Warehouse A-16",
     "last_updated": "2025-09-27T09:45:00"
   },
@@ -164,6 +177,7 @@
     "quantity_on_hand": 750,
     "reorder_point": 350,
     "unit_cost": 7.75,
+    "lead_time_days": 20,
     "location": "Warehouse B-12",
     "last_updated": "2025-09-25T14:15:00"
   },
@@ -176,6 +190,7 @@
     "quantity_on_hand": 180,
     "reorder_point": 100,
     "unit_cost": 156.0,
+    "lead_time_days": 13,
     "location": "Warehouse B-11",
     "last_updated": "2025-09-29T11:30:00"
   },
@@ -188,6 +203,7 @@
     "quantity_on_hand": 240,
     "reorder_point": 120,
     "unit_cost": 95.0,
+    "lead_time_days": 10,
     "location": "Warehouse C-07",
     "last_updated": "2025-09-26T16:00:00"
   },
@@ -200,6 +216,7 @@
     "quantity_on_hand": 165,
     "reorder_point": 90,
     "unit_cost": 110.5,
+    "lead_time_days": 8,
     "location": "Warehouse A-14",
     "last_updated": "2025-09-23T10:45:00"
   },
@@ -212,6 +229,7 @@
     "quantity_on_hand": 420,
     "reorder_point": 200,
     "unit_cost": 18.75,
+    "lead_time_days": 12,
     "location": "Warehouse B-09",
     "last_updated": "2025-09-21T13:20:00"
   },
@@ -224,6 +242,7 @@
     "quantity_on_hand": 890,
     "reorder_point": 350,
     "unit_cost": 12.25,
+    "lead_time_days": 9,
     "location": "Warehouse A-11",
     "last_updated": "2025-09-19T11:00:00"
   },
@@ -236,6 +255,7 @@
     "quantity_on_hand": 1500,
     "reorder_point": 600,
     "unit_cost": 15.5,
+    "lead_time_days": 17,
     "location": "Warehouse C-05",
     "last_updated": "2025-09-20T08:30:00"
   },
@@ -248,6 +268,7 @@
     "quantity_on_hand": 1100,
     "reorder_point": 500,
     "unit_cost": 22.0,
+    "lead_time_days": 19,
     "location": "Warehouse B-13",
     "last_updated": "2025-09-18T15:45:00"
   },
@@ -260,6 +281,7 @@
     "quantity_on_hand": 55,
     "reorder_point": 40,
     "unit_cost": 285.0,
+    "lead_time_days": 15,
     "location": "Warehouse C-06",
     "last_updated": "2025-09-17T09:20:00"
   },
@@ -272,6 +294,7 @@
     "quantity_on_hand": 310,
     "reorder_point": 150,
     "unit_cost": 45.5,
+    "lead_time_days": 11,
     "location": "Warehouse A-10",
     "last_updated": "2025-09-16T14:30:00"
   },
@@ -284,6 +307,7 @@
     "quantity_on_hand": 580,
     "reorder_point": 250,
     "unit_cost": 32.75,
+    "lead_time_days": 18,
     "location": "Warehouse B-14",
     "last_updated": "2025-09-15T10:15:00"
   },
@@ -296,6 +320,7 @@
     "quantity_on_hand": 420,
     "reorder_point": 180,
     "unit_cost": 18.99,
+    "lead_time_days": 7,
     "location": "Warehouse A-15",
     "last_updated": "2025-09-28T08:45:00"
   },
@@ -308,6 +333,7 @@
     "quantity_on_hand": 350,
     "reorder_point": 200,
     "unit_cost": 22.50,
+    "lead_time_days": 9,
     "location": "Warehouse B-16",
     "last_updated": "2025-09-27T13:20:00"
   },
@@ -320,6 +346,7 @@
     "quantity_on_hand": 280,
     "reorder_point": 150,
     "unit_cost": 45.75,
+    "lead_time_days": 6,
     "location": "Warehouse C-09",
     "last_updated": "2025-09-26T10:15:00"
   },
@@ -332,6 +359,7 @@
     "quantity_on_hand": 190,
     "reorder_point": 100,
     "unit_cost": 38.25,
+    "lead_time_days": 8,
     "location": "Warehouse A-16",
     "last_updated": "2025-09-25T16:30:00"
   },
@@ -344,6 +372,7 @@
     "quantity_on_hand": 145,
     "reorder_point": 120,
     "unit_cost": 67.50,
+    "lead_time_days": 10,
     "location": "Warehouse B-17",
     "last_updated": "2025-09-24T09:00:00"
   },
@@ -356,6 +385,7 @@
     "quantity_on_hand": 520,
     "reorder_point": 250,
     "unit_cost": 29.99,
+    "lead_time_days": 5,
     "location": "Warehouse C-10",
     "last_updated": "2025-09-23T14:45:00"
   },
@@ -368,6 +398,7 @@
     "quantity_on_hand": 95,
     "reorder_point": 80,
     "unit_cost": 125.00,
+    "lead_time_days": 9,
     "location": "Warehouse A-17",
     "last_updated": "2025-09-22T11:30:00"
   },
@@ -380,7 +411,112 @@
     "quantity_on_hand": 75,
     "reorder_point": 100,
     "unit_cost": 185.50,
+    "lead_time_days": 7,
     "location": "Warehouse C-11",
     "last_updated": "2025-09-21T15:20:00"
+  },
+  {
+    "id": "33",
+    "sku": "WDG-001",
+    "name": "Industrial Widget Type A",
+    "category": "Actuators",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 120,
+    "reorder_point": 200,
+    "unit_cost": 34.50,
+    "lead_time_days": 10,
+    "location": "Warehouse A-18",
+    "last_updated": "2025-09-29T09:10:00"
+  },
+  {
+    "id": "34",
+    "sku": "BRG-102",
+    "name": "Steel Bearing Assembly",
+    "category": "Actuators",
+    "warehouse": "London",
+    "quantity_on_hand": 85,
+    "reorder_point": 150,
+    "unit_cost": 47.25,
+    "lead_time_days": 14,
+    "location": "Warehouse B-18",
+    "last_updated": "2025-09-28T11:35:00"
+  },
+  {
+    "id": "35",
+    "sku": "GSK-203",
+    "name": "High-Temperature Gasket",
+    "category": "Actuators",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 210,
+    "reorder_point": 400,
+    "unit_cost": 12.80,
+    "lead_time_days": 7,
+    "location": "Warehouse C-12",
+    "last_updated": "2025-09-30T13:05:00"
+  },
+  {
+    "id": "36",
+    "sku": "MTR-304",
+    "name": "Electric Motor 5HP",
+    "category": "Actuators",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 18,
+    "reorder_point": 40,
+    "unit_cost": 485.00,
+    "lead_time_days": 21,
+    "location": "Warehouse A-19",
+    "last_updated": "2025-09-27T15:50:00"
+  },
+  {
+    "id": "37",
+    "sku": "FLT-405",
+    "name": "Oil Filter Cartridge",
+    "category": "Actuators",
+    "warehouse": "London",
+    "quantity_on_hand": 340,
+    "reorder_point": 600,
+    "unit_cost": 8.75,
+    "lead_time_days": 7,
+    "location": "Warehouse B-19",
+    "last_updated": "2025-09-30T08:25:00"
+  },
+  {
+    "id": "38",
+    "sku": "VLV-506",
+    "name": "Pressure Relief Valve",
+    "category": "Actuators",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 65,
+    "reorder_point": 100,
+    "unit_cost": 156.40,
+    "lead_time_days": 18,
+    "location": "Warehouse C-13",
+    "last_updated": "2025-09-26T14:40:00"
+  },
+  {
+    "id": "39",
+    "sku": "CTL-330",
+    "name": "Logic Controller Board",
+    "category": "Controllers",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 45,
+    "reorder_point": 90,
+    "unit_cost": 212.00,
+    "lead_time_days": 14,
+    "location": "Warehouse A-20",
+    "last_updated": "2025-09-29T16:15:00"
+  },
+  {
+    "id": "40",
+    "sku": "SNR-420",
+    "name": "Temperature Sensor Module",
+    "category": "Sensors",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 110,
+    "reorder_point": 160,
+    "unit_cost": 82.40,
+    "lead_time_days": 10,
+    "location": "Warehouse C-14",
+    "last_updated": "2025-09-28T10:05:00"
   }
 ]
