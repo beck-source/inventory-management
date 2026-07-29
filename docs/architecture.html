@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Architecture &mdash; Factory Inventory Management System</title>
+<style>
+  :root {
+    --ink:        #0f172a;
+    --ink-soft:   #334155;
+    --muted:      #64748b;
+    --line:       #e2e8f0;
+    --line-firm:  #cbd5e1;
+    --bg:         #ffffff;
+    --surface:    #f8fafc;
+    --surface-2:  #f1f5f9;
+    --accent:     #2563eb;
+    --green:      #16a34a;
+    --amber:      #d97706;
+    --red:        #dc2626;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink:       #e2e8f0;
+      --ink-soft:  #cbd5e1;
+      --muted:     #94a3b8;
+      --line:      #1e293b;
+      --line-firm: #334155;
+      --bg:        #0f172a;
+      --surface:   #172033;
+      --surface-2: #1e293b;
+      --accent:    #60a5fa;
+      --green:     #4ade80;
+      --amber:     #fbbf24;
+      --red:       #f87171;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px 96px; }
+
+  /* ---------- masthead ---------- */
+  header.masthead {
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 48px;
+    padding: 56px 0 32px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  h1 { font-size: 34px; line-height: 1.2; letter-spacing: -.02em; margin: 0 0 12px; font-weight: 650; }
+  .lede { font-size: 16px; color: var(--ink-soft); margin: 0; max-width: 66ch; }
+
+  .facts { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 28px; }
+  .fact .k { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); font-weight: 600; }
+  .fact .v { font-size: 15px; font-weight: 600; font-family: var(--mono); }
+
+  /* ---------- sections ---------- */
+  section { margin-bottom: 56px; }
+  h2 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  h3 { font-size: 15px; font-weight: 650; margin: 28px 0 12px; }
+  p { margin: 0 0 14px; max-width: 76ch; }
+  code { font-family: var(--mono); font-size: .875em; background: var(--surface-2); padding: 2px 5px; border-radius: 3px; }
+
+  /* ---------- architecture diagram ---------- */
+  .diagram { display: flex; flex-direction: column; gap: 0; }
+
+  .tier {
+    border: 1px solid var(--line-firm);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 18px 20px;
+  }
+  .tier-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+  .tier-name { font-size: 14px; font-weight: 650; letter-spacing: -.01em; }
+  .tier-meta { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+  .nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .node {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 11px 13px;
+  }
+  .node .t { font-size: 13px; font-weight: 600; }
+  .node .d { font-size: 11.5px; color: var(--muted); font-family: var(--mono); margin-top: 3px; }
+
+  .conn { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
+  .conn .bar { width: 1px; height: 16px; background: var(--line-firm); }
+  .conn .lbl {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px 12px;
+  }
+  .conn .arrow { color: var(--line-firm); font-size: 13px; line-height: 1; }
+
+  /* ---------- tables ---------- */
+  .tbl-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 520px; }
+  th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 0 14px 8px 0;
+    border-bottom: 1px solid var(--line-firm);
+    white-space: nowrap;
+  }
+  td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td.mono, th.mono { font-family: var(--mono); font-size: 12.5px; }
+  td.num { text-align: right; font-family: var(--mono); font-size: 12.5px; padding-right: 0; }
+  .dim { color: var(--muted); }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+    letter-spacing: .02em;
+  }
+  .tag.get  { color: var(--green); }
+  .tag.post { color: var(--accent); }
+  .tag.miss { color: var(--red); }
+
+  /* ---------- flow ---------- */
+  ol.flow { list-style: none; counter-reset: s; padding: 0; margin: 0; }
+  ol.flow li {
+    counter-increment: s;
+    position: relative;
+    padding: 0 0 20px 42px;
+    border-left: 1px solid var(--line);
+    margin-left: 13px;
+  }
+  ol.flow li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.flow li::before {
+    content: counter(s);
+    position: absolute;
+    left: -13px; top: 0;
+    width: 26px; height: 26px;
+    background: var(--surface-2);
+    border: 1px solid var(--line-firm);
+    border-radius: 50%;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    display: grid;
+    place-items: center;
+  }
+  ol.flow .step-t { font-weight: 600; font-size: 14px; }
+  ol.flow .step-d { color: var(--ink-soft); font-size: 13.5px; }
+  ol.flow .step-d code { font-size: 12.5px; }
+
+  /* ---------- columns ---------- */
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 28px; }
+
+  .kv { list-style: none; padding: 0; margin: 0; }
+  .kv li { padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; display: flex; gap: 10px; justify-content: space-between; }
+  .kv li:last-child { border-bottom: none; }
+  .kv .n { font-family: var(--mono); font-size: 12.5px; }
+  .kv .x { color: var(--muted); text-align: right; }
+
+  /* ---------- notes ---------- */
+  .note {
+    border-left: 2px solid var(--amber);
+    background: var(--surface);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 14px;
+  }
+  .note .h { font-weight: 650; font-size: 13.5px; margin-bottom: 4px; }
+  .note .b { font-size: 13.5px; color: var(--ink-soft); margin: 0; }
+  .note.info { border-left-color: var(--accent); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding-top: 20px;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 0 20px 64px; }
+    h1 { font-size: 27px; }
+    .facts { gap: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">System Architecture</p>
+    <h1>Factory Inventory Management System</h1>
+    <p class="lede">
+      A two-tier demo application: a Vue 3 single-page frontend talking to a Python FastAPI service
+      over plain HTTP. There is no database &mdash; the API loads seven JSON files into memory at import
+      time and filters them in Python on every request. One feature, Restocking, also writes:
+      submitted orders accumulate in a module-level list for the lifetime of the process.
+    </p>
+    <div class="facts">
+      <div class="fact"><div class="k">Frontend</div><div class="v">:3000</div></div>
+      <div class="fact"><div class="k">Backend</div><div class="v">:8001</div></div>
+      <div class="fact"><div class="k">Persistence</div><div class="v">none</div></div>
+      <div class="fact"><div class="k">Endpoints</div><div class="v">17</div></div>
+      <div class="fact"><div class="k">Views</div><div class="v">7</div></div>
+      <div class="fact"><div class="k">Locales</div><div class="v">en / ja</div></div>
+    </div>
+  </header>
+
+  <!-- ============ ARCHITECTURE ============ -->
+  <section>
+    <h2>Architecture</h2>
+
+    <div class="diagram">
+
+      <div class="tier">
+        <div class="tier-head">
+          <span class="tier-name">Browser &mdash; Vue 3 SPA</span>
+          <span class="tier-meta">Vite 5 dev server &middot; port 3000</span>
+        </div>
+        <div class="nodes">
+          <div class="node"><div class="t">App shell</div><div class="d">App.vue</div></div>
+          <div class="node"><div class="t">Router</div><div class="d">vue-router 4</div></div>
+          <div class="node"><div class="t">7 views</div><div class="d">views/*.vue</div></div>
+          <div class="node"><div class="t">9 components</div><div class="d">components/*.vue</div></div>
+          <div class="node"><div class="t">3 composables</div><div class="d">shared refs</div></div>
+          <div class="node"><div class="t">API client</div><div class="d">api.js (axios)</div></div>
+        </div>
+      </div>
+
+      <div class="conn">
+        <div class="bar"></div>
+        <div class="lbl">HTTP &middot; JSON &middot; query-param filters &middot; CORS *</div>
+        <div class="bar"></div>
+        <div class="arrow">&#9660;</div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-head">
+          <span class="tier-name">API &mdash; FastAPI</span>
+          <span class="tier-meta">uvicorn &middot; port 8001 &middot; docs at /docs</span>
+        </div>
+        <div class="nodes">
+          <div class="node"><div class="t">Routes</div><div class="d">main.py</div></div>
+          <div class="node"><div class="t">CORS middleware</div><div class="d">allow_origins ["*"]</div></div>
+          <div class="node"><div class="t">Filter helpers</div><div class="d">apply_filters()</div></div>
+          <div class="node"><div class="t">Quarter map</div><div class="d">filter_by_month()</div></div>
+          <div class="node"><div class="t">Pydantic models</div><div class="d">11 models</div></div>
+          <div class="node"><div class="t">Aggregations</div><div class="d">summary / reports</div></div>
+          <div class="node"><div class="t">Restock planner</div><div class="d">build_restock_plan()</div></div>
+          <div class="node"><div class="t">Submitted orders</div><div class="d">module-level list</div></div>
+        </div>
+      </div>
+
+      <div class="conn">
+        <div class="bar"></div>
+        <div class="lbl">module-level import &middot; read once at startup</div>
+        <div class="bar"></div>
+        <div class="arrow">&#9660;</div>
+      </div>
+
+      <div class="tier">
+        <div class="tier-head">
+          <span class="tier-name">Data &mdash; in-memory JSON</span>
+          <span class="tier-meta">mock_data.py &middot; server/data/*.json</span>
+        </div>
+        <div class="nodes">
+          <div class="node"><div class="t">orders</div><div class="d">250 records</div></div>
+          <div class="node"><div class="t">transactions</div><div class="d">56 records</div></div>
+          <div class="node"><div class="t">inventory</div><div class="d">32 records</div></div>
+          <div class="node"><div class="t">demand_forecasts</div><div class="d">9 records &middot; +cost/lead/supplier</div></div>
+          <div class="node"><div class="t">backlog_items</div><div class="d">4 records</div></div>
+          <div class="node"><div class="t">spending</div><div class="d">3 sub-objects</div></div>
+          <div class="node"><div class="t">purchase_orders</div><div class="d">0 records</div></div>
+          <div class="node"><div class="t">submitted_restock_orders</div><div class="d">runtime only &middot; no file</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="note info" style="margin-top:24px">
+      <div class="h">Data is read-only and non-durable</div>
+      <p class="b">
+        <code>mock_data.py</code> calls <code>json.load()</code> at import, so every module shares the same
+        Python lists. Nothing writes back to disk; restarting the server resets all state. Filtering builds
+        new lists rather than mutating the originals, which keeps the shared data safe across requests.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ TECH STACK ============ -->
+  <section>
+    <h2>Tech Stack</h2>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Technology</th><th class="mono">Version</th><th>Role</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UI framework</td><td>Vue 3 (Composition API)</td><td class="mono">^3.4.21</td><td class="dim">Components, reactivity, computed derivations</td></tr>
+          <tr><td>Routing</td><td>vue-router</td><td class="mono">^4.3.0</td><td class="dim">History-mode client routing, 6 flat routes</td></tr>
+          <tr><td>HTTP client</td><td>axios</td><td class="mono">^1.6.7</td><td class="dim">All calls funnelled through api.js</td></tr>
+          <tr><td>Build / dev server</td><td>Vite + @vitejs/plugin-vue</td><td class="mono">^5.2.0</td><td class="dim">HMR on port 3000, production bundling</td></tr>
+          <tr><td>API framework</td><td>FastAPI</td><td class="mono">&ge;0.110</td><td class="dim">Routing, OpenAPI docs, dependency injection</td></tr>
+          <tr><td>ASGI server</td><td>uvicorn</td><td class="mono">&ge;0.24</td><td class="dim">Serves on 0.0.0.0:8001</td></tr>
+          <tr><td>Validation</td><td>Pydantic</td><td class="mono">&ge;2.5</td><td class="dim">response_model enforcement on typed routes</td></tr>
+          <tr><td>Runtime</td><td>Python</td><td class="mono">&ge;3.11</td><td class="dim">Managed by uv (pyproject.toml)</td></tr>
+          <tr><td>Tests</td><td>pytest + FastAPI TestClient</td><td class="mono">&ge;8.0</td><td class="dim">tests/backend/ &mdash; 68 tests: dashboard 13, inventory 10, misc 17, restocking 28</td></tr>
+          <tr><td>Charts</td><td>Hand-written SVG</td><td class="mono dim">&mdash;</td><td class="dim">No charting library; computed props feed SVG</td></tr>
+          <tr><td>i18n</td><td>Custom composable</td><td class="mono dim">&mdash;</td><td class="dim">useI18n + locales/en.js, ja.js, localStorage</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ DATA FLOW ============ -->
+  <section>
+    <h2>Data Flow</h2>
+    <p>
+      Every screen follows the same path. The four global filters are the only cross-cutting input, and they
+      live in a single shared module rather than a store.
+    </p>
+
+    <ol class="flow">
+      <li>
+        <div class="step-t">User changes a filter</div>
+        <div class="step-d">
+          <code>FilterBar.vue</code> binds to four refs in <code>composables/useFilters.js</code> &mdash;
+          period, location, category, status. The module holds them at top level, so every importer shares
+          one instance (singleton pattern, no Pinia/Vuex).
+        </div>
+      </li>
+      <li>
+        <div class="step-t">View reloads on change</div>
+        <div class="step-d">
+          The active view calls <code>getCurrentFilters()</code>, which maps UI names to API names &mdash;
+          <code>selectedLocation</code> becomes <code>warehouse</code>, and <code>selectedPeriod</code> is
+          emitted as <code>month</code> only when it is not <code>all</code>.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">api.js builds the query string</div>
+        <div class="step-d">
+          Each method drops any filter equal to <code>all</code> via <code>URLSearchParams</code>, so a
+          default page load sends no filter params at all.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">FastAPI filters in memory</div>
+        <div class="step-d">
+          <code>apply_filters()</code> chains warehouse / category / status list comprehensions
+          (category and status compare case-insensitively). <code>filter_by_month()</code> then handles either
+          a direct <code>YYYY-MM</code> substring match or a <code>Q1-2025</code>-style key expanded through
+          <code>QUARTER_MAP</code>, both against the <code>order_date</code> field.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">Pydantic validates the response</div>
+        <div class="step-d">
+          Typed routes declare <code>response_model</code>, so a JSON shape that drifts from the model raises
+          a server-side error. Aggregate routes (<code>/dashboard/summary</code>, <code>/reports/*</code>,
+          <code>/spending/*</code>) return raw dicts with no model.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">Vue stores raw, derives the rest</div>
+        <div class="step-d">
+          Responses land in refs such as <code>allOrders</code> and <code>inventoryItems</code>; every
+          number on screen &mdash; totals, low-stock counts, chart series &mdash; is a
+          <code>computed()</code> over those refs, so the DOM updates without a second fetch.
+        </div>
+      </li>
+    </ol>
+
+    <h3>Restocking &mdash; the one write path</h3>
+    <p>
+      Restocking is the only feature that does not follow the flow above. It ignores the four global
+      filters entirely and drives off a single local input instead: a budget slider.
+    </p>
+
+    <ol class="flow">
+      <li>
+        <div class="step-t">Slider moves, request is debounced</div>
+        <div class="step-d">
+          <code>Restocking.vue</code> watches one <code>budget</code> ref. A range input emits a value at
+          every step it crosses, so the watcher waits <code>250&nbsp;ms</code> for the drag to settle before
+          fetching &mdash; a full-track drag costs 2 requests, not 44. A <code>planPending</code> flag
+          disables <em>Place Order</em> while the on-screen plan belongs to an older budget.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">Server ranks by urgency, then funds greedily</div>
+        <div class="step-d">
+          <code>build_restock_plan()</code> takes the demand gap
+          (<code>forecasted_demand&nbsp;&minus;&nbsp;current_demand</code>), drops any non-positive gap, and
+          weights it by trend through <code>TREND_WEIGHTS</code> &mdash; increasing&nbsp;&times;1.5,
+          stable&nbsp;&times;1.0, decreasing&nbsp;&times;0.5. Candidates sort by that score descending, SKU
+          ascending as a deterministic tie-break.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">Funding is all-or-nothing per line</div>
+        <div class="step-d">
+          Walking the ranking, a line whose <code>line_total</code> fits the remaining budget is funded in
+          full; one that does not is pushed to <code>skipped</code> and the budget passes to the next item
+          down. A partially funded line would not close its demand gap, so partial fills are never offered.
+          The plan quotes <code>max_lead_time_days</code> &mdash; the order lands when its slowest line lands.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">POST appends to a process-local list</div>
+        <div class="step-d">
+          <code>create_restock_order()</code> stamps <code>RO-1001</code> upward by list length, sets
+          <code>expected_delivery = today + max_lead_time_days</code>, and appends to
+          <code>submitted_restock_orders</code>. No file is written.
+        </div>
+      </li>
+      <li>
+        <div class="step-t">Orders view reads it back unfiltered</div>
+        <div class="step-d">
+          <code>Orders.vue</code> calls <code>getRestockOrders()</code> once on mount, separately from its
+          filtered <code>getOrders()</code> call, and renders a <em>Submitted Orders</em> card above
+          <em>All Orders</em>. A failure there is logged and swallowed so it cannot blank out the customer
+          orders table beneath it.
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ============ API SURFACE ============ -->
+  <section>
+    <h2>API Surface</h2>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Filters accepted</th><th>Response model</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/</td><td class="dim">&mdash;</td><td class="dim">raw dict</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/inventory</td><td class="mono">warehouse, category</td><td class="mono">List[InventoryItem]</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/inventory/{id}</td><td class="dim">&mdash; (404 if absent)</td><td class="mono">InventoryItem</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/orders</td><td class="mono">warehouse, category, status, month</td><td class="mono">List[Order]</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/orders/{id}</td><td class="dim">&mdash; (404 if absent)</td><td class="mono">Order</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/demand</td><td class="dim">none</td><td class="mono">List[DemandForecast]</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/backlog</td><td class="dim">none</td><td class="mono">List[BacklogItem]</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/restock/recommendations</td><td class="mono">budget <span class="dim">(&ge;0, 422 if negative)</span></td><td class="mono">RestockPlan</td></tr>
+          <tr><td><span class="tag post">POST</span></td><td class="mono">/api/restock-orders</td><td class="dim">JSON body &mdash; 400 if items empty</td><td class="mono">SubmittedRestockOrder <span class="dim">201</span></td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/restock-orders</td><td class="dim">none &mdash; newest first</td><td class="mono">List[SubmittedRestockOrder]</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/dashboard/summary</td><td class="mono">all four</td><td class="dim">raw dict &mdash; 5 metrics</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/spending/summary</td><td class="dim">none</td><td class="dim">raw dict</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/spending/monthly</td><td class="dim">none</td><td class="dim">raw list</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/spending/categories</td><td class="dim">none</td><td class="dim">raw list</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/spending/transactions</td><td class="dim">none</td><td class="dim">raw list</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/reports/quarterly</td><td class="dim">none &mdash; derived from all orders</td><td class="dim">raw list</td></tr>
+          <tr><td><span class="tag get">GET</span></td><td class="mono">/api/reports/monthly-trends</td><td class="dim">none &mdash; derived from all orders</td><td class="dim">raw list</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Client methods with no server route</h3>
+    <p>
+      <code>api.js</code> exposes six methods whose endpoints are not defined in <code>main.py</code>.
+      They return 404 at runtime &mdash; the app requests <code>/api/tasks</code> on load, so this is visible
+      in the server log on every page view.
+    </p>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>Client method</th><th>Attempts</th><th>Server state</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="mono">getTasks()</td><td class="mono">GET /api/tasks</td><td><span class="tag miss">404</span> <span class="dim">no route, no model, no data file</span></td></tr>
+          <tr><td class="mono">createTask()</td><td class="mono">POST /api/tasks</td><td><span class="tag miss">404</span> <span class="dim">tasks are hard-coded in useAuth.js instead</span></td></tr>
+          <tr><td class="mono">deleteTask()</td><td class="mono">DELETE /api/tasks/{id}</td><td><span class="tag miss">404</span></td></tr>
+          <tr><td class="mono">toggleTask()</td><td class="mono">PATCH /api/tasks/{id}</td><td><span class="tag miss">404</span></td></tr>
+          <tr><td class="mono">createPurchaseOrder()</td><td class="mono">POST /api/purchase-orders</td><td><span class="tag miss">404</span> <span class="dim">models exist, route does not</span></td></tr>
+          <tr><td class="mono">getPurchaseOrderByBacklogItem()</td><td class="mono">GET /api/purchase-orders/{id}</td><td><span class="tag miss">404</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ FRONTEND STRUCTURE ============ -->
+  <section>
+    <h2>Frontend Structure</h2>
+    <div class="cols">
+      <div>
+        <h3 style="margin-top:0">Views &rarr; routes</h3>
+        <ul class="kv">
+          <li><span class="n">Dashboard.vue</span><span class="x">/ &middot; 1271 ln</span></li>
+          <li><span class="n">Spending.vue</span><span class="x">/spending &middot; 852 ln</span></li>
+          <li><span class="n">Restocking.vue</span><span class="x">/restocking &middot; 489 ln</span></li>
+          <li><span class="n">Reports.vue</span><span class="x">/reports &middot; 488 ln</span></li>
+          <li><span class="n">Demand.vue</span><span class="x">/demand &middot; 369 ln</span></li>
+          <li><span class="n">Orders.vue</span><span class="x">/orders &middot; 363 ln</span></li>
+          <li><span class="n">Inventory.vue</span><span class="x">/inventory &middot; 339 ln</span></li>
+          <li><span class="n dim">Backlog.vue</span><span class="x">unrouted &middot; 152 ln</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-top:0">Components</h3>
+        <ul class="kv">
+          <li><span class="n">FilterBar</span><span class="x">global filter row</span></li>
+          <li><span class="n">TasksModal</span><span class="x">621 ln</span></li>
+          <li><span class="n">InventoryDetailModal</span><span class="x">450 ln</span></li>
+          <li><span class="n">CostDetailModal</span><span class="x">384 ln</span></li>
+          <li><span class="n">BacklogDetailModal</span><span class="x">380 ln</span></li>
+          <li><span class="n">ProductDetailModal</span><span class="x">335 ln</span></li>
+          <li><span class="n">ProfileMenu</span><span class="x">281 ln</span></li>
+          <li><span class="n">ProfileDetailsModal</span><span class="x">280 ln</span></li>
+          <li><span class="n">LanguageSwitcher</span><span class="x">183 ln</span></li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="margin-top:0">Composables (shared state)</h3>
+        <ul class="kv">
+          <li><span class="n">useFilters</span><span class="x">4 filter refs</span></li>
+          <li><span class="n">useI18n</span><span class="x">locale + currency</span></li>
+          <li><span class="n">useAuth</span><span class="x">mock user + tasks</span></li>
+        </ul>
+        <p class="dim" style="font-size:13px; margin-top:14px">
+          Locale drives currency automatically: <code>en</code> &rarr; USD, <code>ja</code> &rarr; JPY.
+          The mock user's name, title and task list are all swapped per locale in
+          <code>useAuth.js</code>, and the choice persists in <code>localStorage</code>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ NOTES ============ -->
+  <section>
+    <h2>Notes &amp; Constraints</h2>
+
+    <div class="note">
+      <div class="h">Inventory has no time dimension</div>
+      <p class="b">
+        <code>/api/inventory</code> accepts only warehouse and category. Month and quarter filters apply to
+        orders, because <code>filter_by_month()</code> matches on <code>order_date</code>, a field inventory
+        records do not carry.
+      </p>
+    </div>
+
+    <div class="note">
+      <div class="h">Date filtering is substring matching</div>
+      <p class="b">
+        Both month and quarter filters use <code>in</code> against the raw date string rather than parsed
+        dates, and <code>QUARTER_MAP</code> hard-codes 2025 only. Data outside 2025 is silently excluded from
+        quarterly reports.
+      </p>
+    </div>
+
+    <div class="note">
+      <div class="h">Two aggregation paths can disagree</div>
+      <p class="b">
+        <code>/api/reports/*</code> derives its quarters from all 250 orders and ignores the global filters,
+        while <code>/api/dashboard/summary</code> honours all four. The same metric can differ between the
+        Reports and Overview screens by design.
+      </p>
+    </div>
+
+    <div class="note">
+      <div class="h">Not production-hardened</div>
+      <p class="b">
+        No authentication, no rate limiting, and CORS is <code>allow_origins=["*"]</code>. The backend binds
+        <code>0.0.0.0</code>, so it is reachable from the local network. Suitable for local demo only.
+      </p>
+    </div>
+
+    <div class="note">
+      <div class="h">Submitted restock orders vanish on restart</div>
+      <p class="b">
+        <code>submitted_restock_orders</code> is a plain module-level list, not a file. Restarting the server
+        empties it and <code>RO-</code> numbering restarts at <code>1001</code>, which means order numbers are
+        not unique across process lifetimes. The backend tests reset the list in an autouse fixture so cases
+        stay independent.
+      </p>
+    </div>
+
+    <div class="note">
+      <div class="h">Restocking bypasses the global filters</div>
+      <p class="b">
+        A restock plan is derived from budget alone, and a submitted order carries no warehouse or category, so
+        the <em>Submitted Orders</em> card in the Orders view is always shown in full while the table below it
+        respects the filter bar. Recommendations also draw purely on
+        <code>demand_forecasts.json</code> &mdash; on-hand stock in <code>inventory.json</code> is never
+        consulted, and only <code>PSU-501</code> appears in both files.
+      </p>
+    </div>
+
+    <div class="note info">
+      <div class="h">Backlog and purchase orders are half-wired</div>
+      <p class="b">
+        <code>/api/backlog</code> computes a <code>has_purchase_order</code> flag by scanning
+        <code>purchase_orders.json</code> &mdash; which currently holds zero records &mdash; so the flag is
+        always <code>false</code>. The <code>PurchaseOrder</code> and
+        <code>CreatePurchaseOrderRequest</code> models are defined but no route uses them.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    Generated from source at commit 27b0724 + uncommitted Restocking work &middot; branch new_features &middot; docs/architecture.html
+  </footer>
+
+</div>
+</body>
+</html>

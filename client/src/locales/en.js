@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,6 +127,62 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submitted: {
+      title: 'Submitted Orders',
+      note: 'Restocking orders - not affected by the filters above',
+      submittedDate: 'Submitted',
+      leadTime: 'Lead Time',
+      leadTimeValue: '{days} days'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the most urgent items from the demand forecast',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing order...',
+    daysSuffix: 'd',
+    budget: {
+      title: 'Available Budget',
+      totalNeed: 'Full demand coverage would cost {amount}'
+    },
+    stats: {
+      allocated: 'Budget Allocated',
+      remaining: 'Budget Remaining',
+      itemsRecommended: 'Items Recommended',
+      leadTime: 'Longest Lead Time'
+    },
+    recommendations: {
+      title: 'Recommended Restock',
+      empty: 'No items fit within this budget. Increase the budget to see recommendations.'
+    },
+    skipped: {
+      title: 'Not Funded',
+      note: 'These items have rising or unmet demand but do not fit in the remaining budget.',
+      shortBy: 'Short By'
+    },
+    submitted: {
+      heading: 'Order {orderNumber} submitted',
+      detail: '{count} items, {units} units, arriving in {days} days',
+      viewInOrders: 'View in Orders'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      supplier: 'Supplier',
+      trend: 'Trend',
+      demandGap: 'Demand Gap',
+      quantity: 'Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      total: 'Total'
+    },
+    errors: {
+      load: 'Failed to load restocking recommendations:',
+      submit: 'Failed to submit restocking order:'
     }
   },
 
@@ -204,6 +261,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
