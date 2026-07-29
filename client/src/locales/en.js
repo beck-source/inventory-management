@@ -125,7 +125,50 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
+    },
+    submittedOrders: 'Submitted Orders',
+    submittedEmpty: 'No restocking orders submitted yet. Build one from the Restocking tab.',
+    leadTimeDays: '{days} days',
+    units: '{count} units'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the highest-priority items from the demand forecast',
+    budget: 'Available Budget',
+    budgetHint: 'Drag to set how much you can spend this cycle',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    itemsRecommended: 'Items Recommended',
+    totalUnits: 'Total Units',
+    longestLeadTime: 'Longest Lead Time',
+    leadTimeDays: '{days} days',
+    recommended: 'Recommended Restock',
+    recommendedEmpty: 'Budget too small to fund any forecast item.',
+    partial: 'Partial',
+    full: 'Full',
+    unfunded: 'Not Funded By This Budget',
+    placeOrder: 'Place Order',
+    placing: 'Submitting...',
+    orderPlaced: 'Restocking order {orderNumber} submitted. View it in the Orders tab.',
+    orderFailed: 'Failed to submit restocking order',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      category: 'Category',
+      trend: 'Trend',
+      onHand: 'On Hand',
+      forecast: 'Forecast',
+      shortfall: 'Shortfall',
+      orderQty: 'Order Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      coverage: 'Coverage',
+      shortfallCost: 'Cost to Cover'
     }
   },
 
@@ -206,7 +249,8 @@ export default {
     backordered: 'Backordered',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
-    adequate: 'Adequate'
+    adequate: 'Adequate',
+    submitted: 'Submitted'
   },
 
   // Trends
