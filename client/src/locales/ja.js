@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,6 +127,20 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    submittedOrders: {
+      title: '発注済み補充注文',
+      empty: 'まだ補充注文が送信されていません',
+      days: '日',
+      table: {
+        orderNumber: '注文番号',
+        items: '品目',
+        totalCost: '合計金額',
+        orderDate: '注文日',
+        leadTime: '納期',
+        expectedDelivery: '予定配達日',
+        status: 'ステータス'
+      }
     }
   },
 
@@ -186,6 +201,44 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定すると、需要予測に基づいて補充すべき品目が提案されます',
+    budgetLabel: '予算',
+    maxPossibleCost: 'すべて補充する場合のコスト',
+    stats: {
+      budget: '予算',
+      itemsFunded: '対象品目数',
+      totalCost: '合計金額',
+      remainingBudget: '残り予算'
+    },
+    recommendedItems: '推奨品目',
+    table: {
+      itemName: '品目名',
+      sku: 'SKU',
+      category: 'カテゴリ',
+      trend: 'トレンド',
+      unitCost: '単価',
+      recommendedQuantity: '推奨数量',
+      quantityIncluded: '発注数量',
+      subtotal: '小計',
+      status: 'ステータス'
+    },
+    fundedStatus: {
+      fullyFunded: '全数確保',
+      partiallyFunded: '一部確保',
+      notFunded: '未確保'
+    },
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    orderSuccess: '注文が送信されました！',
+    orderSuccessDetail: '注文タブでご確認いただけます。',
+    orderError: '注文の送信に失敗しました',
+    noItemsFunded: '予算を増やすと品目を確保できます',
+    viewInOrders: '注文タブで見る'
   },
 
   // Filters

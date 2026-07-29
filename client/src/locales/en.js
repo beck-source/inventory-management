@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,6 +127,20 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submittedOrders: {
+      title: 'Submitted Orders',
+      empty: 'No restocking orders submitted yet',
+      days: 'days',
+      table: {
+        orderNumber: 'Order Number',
+        items: 'Items',
+        totalCost: 'Total Cost',
+        orderDate: 'Order Date',
+        leadTime: 'Lead Time',
+        expectedDelivery: 'Expected Delivery',
+        status: 'Status'
+      }
     }
   },
 
@@ -186,6 +201,44 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and get recommended items to restock based on demand forecasts',
+    budgetLabel: 'Budget',
+    maxPossibleCost: 'Cost to fully restock everything',
+    stats: {
+      budget: 'Budget',
+      itemsFunded: 'Items Funded',
+      totalCost: 'Total Cost',
+      remainingBudget: 'Remaining Budget'
+    },
+    recommendedItems: 'Recommended Items',
+    table: {
+      itemName: 'Item Name',
+      sku: 'SKU',
+      category: 'Category',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      recommendedQuantity: 'Recommended Qty',
+      quantityIncluded: 'Included Qty',
+      subtotal: 'Subtotal',
+      status: 'Status'
+    },
+    fundedStatus: {
+      fullyFunded: 'Fully Funded',
+      partiallyFunded: 'Partially Funded',
+      notFunded: 'Not Funded'
+    },
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    orderSuccess: 'Order submitted successfully!',
+    orderSuccessDetail: 'View it in the Orders tab.',
+    orderError: 'Failed to submit order',
+    noItemsFunded: 'Increase your budget to fund at least one item',
+    viewInOrders: 'View in Orders'
   },
 
   // Filters

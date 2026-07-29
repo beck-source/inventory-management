@@ -1,3 +1,7 @@
+import itertools
+import math
+import random
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -119,6 +123,123 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockRecommendationItem(BaseModel):
+    item_sku: str
+    item_name: str
+    category: str
+    unit_cost: float
+    trend: str
+    recommended_quantity: int
+    quantity_included: int
+    subtotal: float
+    fully_funded: bool
+
+class RestockAllocation(BaseModel):
+    budget: float
+    items: List[RestockRecommendationItem]
+    total_cost: float
+    remaining_budget: float
+    max_possible_cost: float
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    subtotal: float
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    budget: float
+    items: List[RestockOrderItem]
+    total_cost: float
+    lead_time_days: int
+    order_date: str
+    expected_delivery: str
+    status: str
+
+class SubmitRestockOrderRequest(BaseModel):
+    budget: float
+
+# In-memory store for submitted restocking orders. Not persisted to disk -
+# resets on server restart, same as every other mutable list in this app.
+submitted_restock_orders: List[dict] = []
+# Monotonic counter for order id/number generation - independent of list
+# length so concurrent submissions can't produce duplicate ids.
+_restock_order_id_counter = itertools.count(1)
+
+def compute_restock_allocation(budget: float) -> dict:
+    """Greedily allocate a restocking budget across demand-forecast items
+    with growing demand (forecasted_demand > current_demand).
+
+    Items are ranked by the size of their demand gap (largest first, tie-broken
+    by cheapest unit cost, then SKU). The budget is spent in that order; the
+    first item that doesn't fully fit gets a partial quantity if it can afford
+    at least one unit, and every item after that gets zero - this is a single
+    greedy pass with no backtracking to fill leftover budget with later,
+    cheaper items.
+    """
+    eligible = []
+    for forecast in demand_forecasts:
+        gap = forecast["forecasted_demand"] - forecast["current_demand"]
+        if gap > 0:
+            eligible.append({
+                "item_sku": forecast["item_sku"],
+                "item_name": forecast["item_name"],
+                "category": forecast["category"],
+                "unit_cost": forecast["unit_cost"],
+                "trend": forecast["trend"],
+                "recommended_quantity": gap,
+                "full_cost": round(gap * forecast["unit_cost"], 2)
+            })
+
+    eligible.sort(key=lambda item: (-item["recommended_quantity"], item["unit_cost"], item["item_sku"]))
+
+    max_possible_cost = round(sum(item["full_cost"] for item in eligible), 2)
+
+    result_items = []
+    remaining = budget
+    budget_exhausted = False
+
+    for item in eligible:
+        if budget_exhausted:
+            quantity_included = 0
+            subtotal = 0.0
+        elif item["full_cost"] <= remaining:
+            quantity_included = item["recommended_quantity"]
+            subtotal = item["full_cost"]
+            remaining = round(remaining - subtotal, 2)
+        else:
+            budget_exhausted = True
+            quantity_included = math.floor(remaining / item["unit_cost"]) if item["unit_cost"] > 0 else 0
+            quantity_included = min(quantity_included, item["recommended_quantity"])
+            subtotal = round(quantity_included * item["unit_cost"], 2)
+            if quantity_included > 0:
+                remaining = round(remaining - subtotal, 2)
+
+        result_items.append({
+            "item_sku": item["item_sku"],
+            "item_name": item["item_name"],
+            "category": item["category"],
+            "unit_cost": item["unit_cost"],
+            "trend": item["trend"],
+            "recommended_quantity": item["recommended_quantity"],
+            "quantity_included": quantity_included,
+            "subtotal": subtotal,
+            "fully_funded": quantity_included == item["recommended_quantity"] and quantity_included > 0
+        })
+
+    total_cost = round(sum(item["subtotal"] for item in result_items), 2)
+
+    return {
+        "budget": budget,
+        "items": result_items,
+        "total_cost": total_cost,
+        "remaining_budget": round(budget - total_cost, 2),
+        "max_possible_cost": max_possible_cost
+    }
 
 # API endpoints
 @app.get("/")
@@ -303,6 +424,58 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=RestockAllocation)
+def get_restock_recommendations(budget: float = 0.0):
+    """Get restock recommendations for a given budget"""
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be non-negative")
+    return compute_restock_allocation(budget)
+
+@app.post("/api/restocking/orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: SubmitRestockOrderRequest):
+    """Submit a restocking order for the given budget"""
+    if request.budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be non-negative")
+
+    allocation = compute_restock_allocation(request.budget)
+    order_items = [
+        {
+            "item_sku": item["item_sku"],
+            "item_name": item["item_name"],
+            "quantity": item["quantity_included"],
+            "unit_cost": item["unit_cost"],
+            "subtotal": item["subtotal"]
+        }
+        for item in allocation["items"] if item["quantity_included"] > 0
+    ]
+
+    if not order_items:
+        raise HTTPException(status_code=400, detail="Budget too low to order any items")
+
+    lead_time_days = random.randint(5, 14)
+    order_date = datetime.now()
+    expected_delivery = order_date + timedelta(days=lead_time_days)
+    order_number = next(_restock_order_id_counter)
+
+    restock_order = {
+        "id": str(order_number),
+        "order_number": f"RSO-{order_number:04d}",
+        "budget": request.budget,
+        "items": order_items,
+        "total_cost": allocation["total_cost"],
+        "lead_time_days": lead_time_days,
+        "order_date": order_date.strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": expected_delivery.strftime("%Y-%m-%dT%H:%M:%S"),
+        "status": "Submitted"
+    }
+    submitted_restock_orders.append(restock_order)
+    return restock_order
+
+@app.get("/api/restocking/orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get all submitted restocking orders"""
+    return submitted_restock_orders
 
 if __name__ == "__main__":
     import uvicorn
