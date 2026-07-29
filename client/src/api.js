@@ -43,6 +43,22 @@ export const api = {
     return response.data
   },
 
+  async getRestockRecommendations(budget) {
+    const params = new URLSearchParams({ budget: String(budget) })
+    const response = await axios.get(`${API_BASE_URL}/restock/recommendations?${params.toString()}`)
+    return response.data
+  },
+
+  async submitRestockOrder(order) {
+    const response = await axios.post(`${API_BASE_URL}/restock-orders`, order)
+    return response.data
+  },
+
+  async getRestockOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restock-orders`)
+    return response.data
+  },
+
   async getDashboardSummary(filters = {}) {
     const params = new URLSearchParams()
     if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
@@ -51,6 +67,30 @@ export const api = {
     if (filters.month && filters.month !== 'all') params.append('month', filters.month)
 
     const response = await axios.get(`${API_BASE_URL}/dashboard/summary?${params.toString()}`)
+    return response.data
+  },
+
+  // Both report endpoints accept the same four global filters as the dashboard, so the
+  // Reports screen cannot disagree with Overview on the same metric.
+  async getQuarterlyReports(filters = {}) {
+    const params = new URLSearchParams()
+    if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category)
+    if (filters.status && filters.status !== 'all') params.append('status', filters.status)
+    if (filters.month && filters.month !== 'all') params.append('month', filters.month)
+
+    const response = await axios.get(`${API_BASE_URL}/reports/quarterly?${params.toString()}`)
+    return response.data
+  },
+
+  async getMonthlyTrends(filters = {}) {
+    const params = new URLSearchParams()
+    if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category)
+    if (filters.status && filters.status !== 'all') params.append('status', filters.status)
+    if (filters.month && filters.month !== 'all') params.append('month', filters.month)
+
+    const response = await axios.get(`${API_BASE_URL}/reports/monthly-trends?${params.toString()}`)
     return response.data
   },
 

@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import date, timedelta
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
@@ -13,6 +14,19 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Restocking priority weights. A rising trend means the forecast gap understates the
+# real risk, so it is inflated; a falling trend means the gap will likely shrink on its
+# own, so it is discounted. Applied to the raw forecast gap to rank restock candidates.
+TREND_WEIGHTS = {
+    'increasing': 1.5,
+    'stable': 1.0,
+    'decreasing': 0.5
+}
+
+# Submitted restocking orders live here for the process lifetime only. Consistent with
+# the rest of this demo: no database, so a server restart clears them.
+submitted_restock_orders: list = []
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -89,6 +103,9 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
+    supplier: str
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +136,56 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockRecommendation(BaseModel):
+    item_sku: str
+    item_name: str
+    supplier: str
+    trend: str
+    demand_gap: int
+    recommended_quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+    priority_score: float
+
+class RestockPlan(BaseModel):
+    budget: float
+    recommendations: List[RestockRecommendation]
+    skipped: List[RestockRecommendation]
+    total_cost: float
+    remaining_budget: float
+    total_need: float
+    items_recommended: int
+    items_skipped: int
+    total_units: int
+    max_lead_time_days: int
+
+class RestockOrderLine(BaseModel):
+    item_sku: str
+    item_name: str
+    supplier: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderLine]
+
+class SubmittedRestockOrder(BaseModel):
+    id: str
+    order_number: str
+    status: str
+    submitted_date: str
+    expected_delivery: str
+    max_lead_time_days: int
+    budget: float
+    total_cost: float
+    item_count: int
+    total_units: int
+    items: List[RestockOrderLine]
 
 # API endpoints
 @app.get("/")
@@ -179,6 +246,103 @@ def get_backlog():
         result.append(item_dict)
     return result
 
+def build_restock_plan(budget: float) -> dict:
+    """Rank forecast items by restocking urgency and fund as many as the budget allows."""
+    candidates = []
+
+    for forecast in demand_forecasts:
+        gap = forecast['forecasted_demand'] - forecast['current_demand']
+        # A non-positive gap means demand is flat or falling, so there is nothing to
+        # restock for that item - it is excluded from the plan entirely.
+        if gap <= 0:
+            continue
+
+        weight = TREND_WEIGHTS.get(forecast['trend'], 1.0)
+        candidates.append({
+            'item_sku': forecast['item_sku'],
+            'item_name': forecast['item_name'],
+            'supplier': forecast['supplier'],
+            'trend': forecast['trend'],
+            'demand_gap': gap,
+            'recommended_quantity': gap,
+            'unit_cost': forecast['unit_cost'],
+            'line_total': round(gap * forecast['unit_cost'], 2),
+            'lead_time_days': forecast['lead_time_days'],
+            'priority_score': round(gap * weight, 1)
+        })
+
+    # Most urgent first. SKU breaks ties so that equal scores always yield the same
+    # ordering - without it, two items scoring alike could swap between requests and
+    # change which one the budget funds.
+    candidates.sort(key=lambda c: (-c['priority_score'], c['item_sku']))
+
+    recommendations = []
+    skipped = []
+    remaining = round(budget, 2)
+
+    for candidate in candidates:
+        # All-or-nothing per item: a partially funded line does not close the demand
+        # gap, so an unaffordable item is passed over and the remaining budget is
+        # offered to the next item down the ranking.
+        if candidate['line_total'] <= remaining:
+            remaining = round(remaining - candidate['line_total'], 2)
+            recommendations.append(candidate)
+        else:
+            skipped.append(candidate)
+
+    return {
+        'budget': round(budget, 2),
+        'recommendations': recommendations,
+        'skipped': skipped,
+        'total_cost': round(sum(r['line_total'] for r in recommendations), 2),
+        'remaining_budget': remaining,
+        'total_need': round(sum(c['line_total'] for c in candidates), 2),
+        'items_recommended': len(recommendations),
+        'items_skipped': len(skipped),
+        'total_units': sum(r['recommended_quantity'] for r in recommendations),
+        # The whole order lands only when its slowest line lands, so the plan quotes
+        # the maximum lead time rather than an average.
+        'max_lead_time_days': max((r['lead_time_days'] for r in recommendations), default=0)
+    }
+
+@app.get("/api/restock/recommendations", response_model=RestockPlan)
+def get_restock_recommendations(budget: float = Query(0, ge=0)):
+    """Recommend demand-forecast items to restock within the given budget"""
+    return build_restock_plan(budget)
+
+@app.post("/api/restock-orders", response_model=SubmittedRestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order and return the created order"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="A restocking order must contain at least one item")
+
+    max_lead_time = max(item.lead_time_days for item in request.items)
+    submitted_on = date.today()
+
+    order = {
+        'id': str(len(submitted_restock_orders) + 1),
+        # Sequential within the process; numbering restarts with the server.
+        'order_number': f"RO-{1001 + len(submitted_restock_orders)}",
+        'status': 'Submitted',
+        'submitted_date': submitted_on.isoformat(),
+        # Delivery date is driven by the slowest item in the order.
+        'expected_delivery': (submitted_on + timedelta(days=max_lead_time)).isoformat(),
+        'max_lead_time_days': max_lead_time,
+        'budget': round(request.budget, 2),
+        'total_cost': round(sum(item.line_total for item in request.items), 2),
+        'item_count': len(request.items),
+        'total_units': sum(item.quantity for item in request.items),
+        'items': [item.model_dump() for item in request.items]
+    }
+
+    submitted_restock_orders.append(order)
+    return order
+
+@app.get("/api/restock-orders", response_model=List[SubmittedRestockOrder])
+def get_restock_orders():
+    """Get restocking orders submitted since the server started, newest first"""
+    return list(reversed(submitted_restock_orders))
+
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
     warehouse: Optional[str] = None,
@@ -228,12 +392,23 @@ def get_recent_transactions():
     return recent_transactions
 
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
-    """Get quarterly performance reports"""
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get quarterly performance reports with optional filtering"""
+    # Reports previously derived from every order regardless of the global filter bar, so
+    # the same metric could disagree with the Overview screen. Filter on the same inputs
+    # as /api/dashboard/summary so both aggregation paths agree.
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     # Calculate quarterly statistics from orders
     quarters = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         # Determine quarter
         if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
@@ -274,11 +449,19 @@ def get_quarterly_reports():
     return result
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
-    """Get month-over-month trends"""
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get month-over-month trends with optional filtering"""
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     months = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         if not order_date:
             continue

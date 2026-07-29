@@ -6,7 +6,10 @@
     "current_demand": 300,
     "forecasted_demand": 450,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 42.5,
+    "lead_time_days": 14,
+    "supplier": "Acme Industrial Supply"
   },
   {
     "id": "2",
@@ -15,7 +18,10 @@
     "current_demand": 150,
     "forecasted_demand": 152,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 87.25,
+    "lead_time_days": 21,
+    "supplier": "Northline Bearings"
   },
   {
     "id": "3",
@@ -24,7 +30,10 @@
     "current_demand": 500,
     "forecasted_demand": 600,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 12.75,
+    "lead_time_days": 7,
+    "supplier": "SealTech Materials"
   },
   {
     "id": "4",
@@ -33,7 +42,10 @@
     "current_demand": 50,
     "forecasted_demand": 35,
     "trend": "decreasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 615.0,
+    "lead_time_days": 35,
+    "supplier": "Volta Motorworks"
   },
   {
     "id": "5",
@@ -42,7 +54,10 @@
     "current_demand": 800,
     "forecasted_demand": 950,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 9.4,
+    "lead_time_days": 10,
+    "supplier": "PureFlow Filtration"
   },
   {
     "id": "6",
@@ -51,7 +66,10 @@
     "current_demand": 120,
     "forecasted_demand": 121,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 148.0,
+    "lead_time_days": 28,
+    "supplier": "Hydra Valve Co."
   },
   {
     "id": "7",
@@ -60,7 +78,10 @@
     "current_demand": 250,
     "forecasted_demand": 252,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 18.99,
+    "lead_time_days": 12,
+    "supplier": "Meridian Power Systems"
   },
   {
     "id": "8",
@@ -69,7 +90,10 @@
     "current_demand": 180,
     "forecasted_demand": 182,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 34.9,
+    "lead_time_days": 12,
+    "supplier": "ThermoSense Devices"
   },
   {
     "id": "9",
@@ -78,6 +102,9 @@
     "current_demand": 95,
     "forecasted_demand": 96,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 212.0,
+    "lead_time_days": 24,
+    "supplier": "LogicCore Systems"
   }
 ]

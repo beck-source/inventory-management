@@ -6,6 +6,9 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
+    backlog: 'Backlog',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,6 +129,62 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submitted: {
+      title: 'Submitted Orders',
+      note: 'Restocking orders - not affected by the filters above',
+      submittedDate: 'Submitted',
+      leadTime: 'Lead Time',
+      leadTimeValue: '{days} days'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the most urgent items from the demand forecast',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing order...',
+    daysSuffix: 'd',
+    budget: {
+      title: 'Available Budget',
+      totalNeed: 'Full demand coverage would cost {amount}'
+    },
+    stats: {
+      allocated: 'Budget Allocated',
+      remaining: 'Budget Remaining',
+      itemsRecommended: 'Items Recommended',
+      leadTime: 'Longest Lead Time'
+    },
+    recommendations: {
+      title: 'Recommended Restock',
+      empty: 'No items fit within this budget. Increase the budget to see recommendations.'
+    },
+    skipped: {
+      title: 'Not Funded',
+      note: 'These items have rising or unmet demand but do not fit in the remaining budget.',
+      shortBy: 'Short By'
+    },
+    submitted: {
+      heading: 'Order {orderNumber} submitted',
+      detail: '{count} items, {units} units, arriving in {days} days',
+      viewInOrders: 'View in Orders'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      supplier: 'Supplier',
+      trend: 'Trend',
+      demandGap: 'Demand Gap',
+      quantity: 'Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      total: 'Total'
+    },
+    errors: {
+      load: 'Failed to load restocking recommendations:',
+      submit: 'Failed to submit restocking order:'
     }
   },
 
@@ -188,6 +247,80 @@ export default {
     }
   },
 
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    // Backend returns quarters as "Q1-2025"; these compose a locale-correct label.
+    quarterLabel: '{quarter} {year}',
+    quarters: {
+      q1: 'Q1',
+      q2: 'Q2',
+      q3: 'Q3',
+      q4: 'Q4'
+    },
+    monthLabel: '{month} {year}',
+    notAvailable: 'N/A',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    monthlyChart: {
+      title: 'Monthly Revenue Trend',
+      ariaLabel: 'Bar chart of monthly revenue'
+    },
+    monthOverMonth: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    stats: {
+      totalRevenue: 'Total Revenue',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders',
+      bestQuarter: 'Best Performing Quarter'
+    },
+    errors: {
+      load: 'Failed to load reports:'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    itemsTitle: 'Backlog Items',
+    empty: 'No backlog items - all orders can be fulfilled!',
+    unitsShort: '{count} units short',
+    // The custom t() has no plural support, so singular gets its own key.
+    dayValue: '{days} day',
+    daysValue: '{days} days',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    errors: {
+      load: 'Failed to load backlog:'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +337,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
