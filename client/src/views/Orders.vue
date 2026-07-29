@@ -29,6 +29,60 @@
 
       <div class="card">
         <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedOrders') }} ({{ restockOrders.length }})</h3>
+          <span class="card-note">{{ t('restocking.notFiltered') }}</span>
+        </div>
+        <div v-if="restockError" class="error">{{ restockError }}</div>
+        <div v-else-if="restockOrders.length === 0" class="empty-restock">
+          {{ t('restocking.noSubmittedOrders') }}
+        </div>
+        <div v-else class="table-container">
+          <table class="restock-orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-lead">{{ t('restocking.leadTime') }}</th>
+                <th class="col-date">{{ t('restocking.eta') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.item_sku" class="item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">
+                          {{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}
+                          &middot; {{ t('restocking.daysLead', { days: item.lead_time_days }) }}
+                        </span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span class="badge info">{{ t('restocking.statusSubmitted') }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-lead">{{ t('restocking.daysLead', { days: order.max_lead_time_days }) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
         </div>
         <div class="table-container">
@@ -96,6 +150,11 @@ export default {
     const error = ref(null)
     const orders = ref([])
 
+    // Restock orders use isolated state - a failure here must not blank the
+    // whole page, and they are deliberately not affected by the shared filters
+    const restockOrders = ref([])
+    const restockError = ref(null)
+
     // Use shared filters
     const {
       selectedPeriod,
@@ -124,7 +183,18 @@ export default {
       }
     }
 
-    // Watch for filter changes and reload data
+    const loadRestockOrders = async () => {
+      try {
+        restockError.value = null
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        restockError.value = 'Failed to load submitted orders: ' + err.message
+      }
+    }
+
+    // Watch for filter changes and reload data. Restock orders are intentionally
+    // excluded - they have no warehouse, category, customer or matching status,
+    // so any active filter would empty the section and look like a bug.
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
     })
@@ -153,13 +223,18 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockOrders,
+      restockError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -172,6 +247,29 @@ export default {
 </script>
 
 <style scoped>
+/* Submitted (restock) orders section */
+.restock-orders-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.col-lead {
+  width: 120px;
+}
+
+.card-note {
+  font-size: 0.813rem;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.empty-restock {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

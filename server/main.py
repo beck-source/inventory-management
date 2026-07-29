@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from pydantic import BaseModel, Field
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restock_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +90,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +122,29 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int = Field(gt=0)
+    unit_cost: float = Field(ge=0)
+    lead_time_days: int = Field(ge=0)
+    line_total: float
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockOrderItem]
+    status: str
+    order_date: str
+    expected_delivery: str
+    max_lead_time_days: int
+    budget: float
+    total_cost: float
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float = Field(ge=0)
+    items: List[RestockOrderItem] = Field(min_length=1)
 
 # API endpoints
 @app.get("/")
@@ -165,6 +191,56 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get all submitted restocking orders, newest first"""
+    return list(reversed(restock_orders))
+
+@app.post("/api/restock-orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order built from demand forecast recommendations"""
+    valid_skus = {forecast["item_sku"] for forecast in demand_forecasts}
+
+    total_cost = 0.0
+    for item in request.items:
+        if item.item_sku not in valid_skus:
+            raise HTTPException(status_code=400, detail=f"Unknown item SKU: {item.item_sku}")
+
+        expected_line_total = round(item.quantity * item.unit_cost, 2)
+        if abs(item.line_total - expected_line_total) > 0.01:
+            raise HTTPException(
+                status_code=400,
+                detail=f"line_total mismatch for {item.item_sku}: expected {expected_line_total}"
+            )
+        total_cost += expected_line_total
+
+    total_cost = round(total_cost, 2)
+    if total_cost > request.budget + 0.01:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Order total {total_cost} exceeds the budget of {request.budget}"
+        )
+
+    max_lead_time = max(item.lead_time_days for item in request.items)
+    now = datetime.now()
+    sequence = len(restock_orders) + 1
+
+    order = {
+        "id": f"RO-{sequence}",
+        "order_number": f"RSO-{now.year}-{sequence:04d}",
+        "items": [item.model_dump() for item in request.items],
+        "status": "Submitted",
+        "order_date": now.isoformat(timespec="seconds"),
+        "expected_delivery": (now + timedelta(days=max_lead_time)).isoformat(timespec="seconds"),
+        "max_lead_time_days": max_lead_time,
+        "budget": request.budget,
+        "total_cost": total_cost
+    }
+
+    # Mutate in place - rebinding would drop the write (see mock_data.py)
+    restock_orders.append(order)
+    return order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():
