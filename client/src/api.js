@@ -74,6 +74,24 @@ export const api = {
     return response.data
   },
 
+  async getRestockingRecommendations(budget) {
+    const params = new URLSearchParams()
+    params.append('budget', budget)
+
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations?${params.toString()}`)
+    return response.data
+  },
+
+  async createRestockingOrder(orderData) {
+    const response = await axios.post(`${API_BASE_URL}/restocking/order`, orderData)
+    return response.data
+  },
+
+  async getRestockingOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/orders`)
+    return response.data
+  },
+
   async getTasks() {
     const response = await axios.get(`${API_BASE_URL}/tasks`)
     return response.data
