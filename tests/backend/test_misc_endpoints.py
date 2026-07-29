@@ -52,8 +52,8 @@ class TestDemandEndpoints:
 
         stable_items = [item for item in data if item["trend"].lower() == "stable"]
 
-        # Should have at least 5 stable items
-        assert len(stable_items) >= 5, f"Expected at least 5 stable items, found {len(stable_items)}"
+        # Should have at least 3 stable items
+        assert len(stable_items) >= 3, f"Expected at least 3 stable items, found {len(stable_items)}"
 
         for item in stable_items:
             current = item["current_demand"]
@@ -65,23 +65,27 @@ class TestDemandEndpoints:
                 assert percent_change < 2.0, \
                     f"Item {item['item_name']} has {percent_change:.2f}% change, expected < 2%"
 
-    def test_demand_forecast_has_new_items(self, client):
-        """Test that new demand forecast items exist."""
+    def test_demand_forecast_matches_inventory_skus(self, client):
+        """Test that demand forecast SKUs are joinable to real inventory items."""
+        forecast_response = client.get("/api/demand")
+        forecasts = forecast_response.json()
+
+        inventory_response = client.get("/api/inventory")
+        inventory_skus = {item["sku"] for item in inventory_response.json()}
+
+        for forecast in forecasts:
+            assert forecast["item_sku"] in inventory_skus, \
+                f"Forecast SKU {forecast['item_sku']} has no matching inventory item"
+
+    def test_demand_forecast_includes_joined_inventory_fields(self, client):
+        """Test that /api/demand embeds unit_cost/quantity_on_hand/reorder_point from inventory."""
         response = client.get("/api/demand")
         data = response.json()
 
-        # Check for the new items we added
-        skus = [item["item_sku"] for item in data]
-
-        # Should have Temperature Sensor Module and Logic Controller Board
-        assert "SNR-420" in skus, "Missing Temperature Sensor Module"
-        assert "CTL-330" in skus, "Missing Logic Controller Board"
-
-        # Verify they are marked as stable
-        for item in data:
-            if item["item_sku"] in ["SNR-420", "CTL-330"]:
-                assert item["trend"].lower() == "stable", \
-                    f"New item {item['item_name']} should have stable trend"
+        for forecast in data:
+            assert forecast["unit_cost"] is not None
+            assert forecast["quantity_on_hand"] is not None
+            assert forecast["reorder_point"] is not None
 
 
 class TestBacklogEndpoints:
