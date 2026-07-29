@@ -142,38 +142,28 @@ export default {
     }
   },
   mounted() {
-    console.log('Reports component mounted')
     this.loadData()
   },
   methods: {
     async loadData() {
-      console.log('Loading reports data...')
       try {
         this.loading = true
 
         // Fetch quarterly data
-        console.log('Fetching quarterly data...')
         const quarterlyResponse = await axios.get('http://localhost:8001/api/reports/quarterly')
         this.quarterlyData = quarterlyResponse.data
-        console.log('Quarterly data:', this.quarterlyData)
 
         // Fetch monthly data
-        console.log('Fetching monthly data...')
         const monthlyResponse = await axios.get('http://localhost:8001/api/reports/monthly-trends')
         this.monthlyData = monthlyResponse.data
-        console.log('Monthly data:', this.monthlyData)
 
         // Calculate summary stats
-        console.log('Calculating summary stats...')
         this.calculateSummaryStats()
-        console.log('Summary stats calculated')
 
       } catch (err) {
-        console.log('Error loading reports:', err)
         this.error = 'Failed to load reports: ' + err.message
       } finally {
         this.loading = false
-        console.log('Loading complete')
       }
     },
 
@@ -212,7 +202,6 @@ export default {
     },
 
     formatNumber(num) {
-      console.log('Formatting number:', num)
       // Format number with commas
       var str = num.toString()
       var parts = str.split('.')
@@ -240,7 +229,6 @@ export default {
     },
 
     formatMonth(monthStr) {
-      console.log('Formatting month:', monthStr)
       // Convert YYYY-MM to readable format
       var parts = monthStr.split('-')
       var year = parts[0]
@@ -253,7 +241,6 @@ export default {
     },
 
     getBarHeight(revenue) {
-      console.log('Calculating bar height for revenue:', revenue)
       // Calculate bar height (max height 200px)
       var maxRevenue = 0
       for (var i = 0; i < this.monthlyData.length; i++) {
