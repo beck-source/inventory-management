@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -189,11 +189,11 @@ class RestockingRecommendationsResponse(BaseModel):
 class RestockingOrderItem(BaseModel):
     sku: str
     name: str
-    quantity: int
-    unit_price: float
+    quantity: int = Field(gt=0)
+    unit_price: float = Field(ge=0)
 
 class CreateRestockingOrderRequest(BaseModel):
-    items: List[RestockingOrderItem]
+    items: List[RestockingOrderItem] = Field(max_length=100)
 
 class RestockingOrderResponse(BaseModel):
     order: Order

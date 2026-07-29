@@ -132,6 +132,11 @@ export default {
     const recommendedItems = ref([])
     const totalCost = ref(0)
     const checkedSkus = ref(new Set())
+    // Tracks whether applyRecommendations has ever run. Only the very first
+    // call should default every recommended item to checked; subsequent
+    // calls (from budget changes / post-order refresh) must preserve the
+    // user's existing unchecked selections instead of clobbering them.
+    let hasLoadedOnce = false
 
     let debounceTimer = null
 
@@ -155,9 +160,25 @@ export default {
     }
 
     const applyRecommendations = (data) => {
+      const newSkus = data.recommended_items.map(item => item.sku)
+
+      if (!hasLoadedOnce) {
+        // First load ever: check everything by default.
+        checkedSkus.value = new Set(newSkus)
+        hasLoadedOnce = true
+      } else {
+        // Subsequent recompute: keep the user's exclusions for SKUs that
+        // were already visible and unchecked. Brand-new SKUs (the user
+        // hasn't had a chance to react to them) default to checked.
+        const previousSkus = new Set(recommendedItems.value.map(item => item.sku))
+        const nextChecked = new Set(
+          newSkus.filter(sku => !previousSkus.has(sku) || checkedSkus.value.has(sku))
+        )
+        checkedSkus.value = nextChecked
+      }
+
       recommendedItems.value = data.recommended_items
       totalCost.value = data.total_cost
-      checkedSkus.value = new Set(data.recommended_items.map(item => item.sku))
     }
 
     const fetchRecommendations = async (budgetValue) => {

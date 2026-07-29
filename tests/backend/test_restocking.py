@@ -116,3 +116,34 @@ class TestRestockingEndpoints:
 
         data = response.json()
         assert "detail" in data
+
+    def test_submit_negative_quantity_rejected(self, client):
+        """Test that a negative or zero quantity fails validation."""
+        payload = {
+            "items": [
+                {"sku": "WDG-001", "name": "Industrial Widget Type A", "quantity": -5, "unit_price": 15.5}
+            ]
+        }
+        response = client.post("/api/restocking/orders", json=payload)
+        assert response.status_code == 422
+
+    def test_submit_negative_unit_price_rejected(self, client):
+        """Test that a negative unit price fails validation."""
+        payload = {
+            "items": [
+                {"sku": "WDG-001", "name": "Industrial Widget Type A", "quantity": 10, "unit_price": -1.0}
+            ]
+        }
+        response = client.post("/api/restocking/orders", json=payload)
+        assert response.status_code == 422
+
+    def test_submit_too_many_items_rejected(self, client):
+        """Test that submitting more than the max allowed line items fails validation."""
+        payload = {
+            "items": [
+                {"sku": f"SKU-{i}", "name": "Item", "quantity": 1, "unit_price": 1.0}
+                for i in range(101)
+            ]
+        }
+        response = client.post("/api/restocking/orders", json=payload)
+        assert response.status_code == 422
