@@ -1,9 +1,10 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ 'sidebar-variant': variant === 'sidebar', 'collapsed': collapsed }">
     <button
       class="language-button"
       @click="toggleDropdown"
       @blur="handleBlur"
+      :title="collapsed ? localeName : ''"
     >
       <svg
         width="20"
@@ -17,8 +18,9 @@
         <path d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
       </svg>
-      <span class="language-label">{{ localeName }}</span>
+      <span v-if="!collapsed" class="language-label">{{ localeName }}</span>
       <svg
+        v-if="!collapsed"
         class="chevron"
         :class="{ 'chevron-open': isDropdownOpen }"
         width="16"
@@ -57,6 +59,18 @@
 <script setup>
 import { ref } from 'vue'
 import { useI18n } from '../composables/useI18n'
+
+const props = defineProps({
+  variant: {
+    type: String,
+    default: 'default',
+    validator: (v) => ['default', 'sidebar'].includes(v)
+  },
+  collapsed: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
 
@@ -179,5 +193,58 @@ const selectLanguage = (locale) => {
 .check-icon {
   color: #2563eb;
   flex-shrink: 0;
+}
+
+/* Sidebar variant styles */
+.language-switcher.sidebar-variant {
+  width: 100%;
+}
+
+.language-switcher.sidebar-variant .language-button {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text);
+  justify-content: flex-start;
+}
+
+.language-switcher.sidebar-variant .language-button:hover {
+  background: var(--sidebar-hover);
+  border-color: var(--sidebar-border);
+}
+
+.language-switcher.sidebar-variant .globe-icon {
+  color: var(--sidebar-text-muted);
+}
+
+.language-switcher.sidebar-variant .language-label {
+  color: var(--sidebar-text);
+}
+
+.language-switcher.sidebar-variant .chevron {
+  color: var(--sidebar-text-muted);
+  margin-left: auto;
+}
+
+.language-switcher.sidebar-variant .dropdown-menu {
+  bottom: 100%;
+  top: auto;
+  left: 0;
+  right: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Collapsed state */
+.language-switcher.collapsed .language-button {
+  padding: 0.625rem;
+  justify-content: center;
+}
+
+.language-switcher.collapsed .dropdown-menu {
+  left: 100%;
+  bottom: auto;
+  top: 0;
+  margin-left: 0.5rem;
+  margin-bottom: 0;
 }
 </style>

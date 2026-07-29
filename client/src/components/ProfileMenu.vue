@@ -1,15 +1,17 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" :class="{ 'sidebar-variant': variant === 'sidebar', 'collapsed': collapsed }">
     <button
       class="profile-button"
       @click="toggleDropdown"
       @blur="handleBlur"
+      :title="collapsed ? currentUser.name : ''"
     >
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
       </div>
-      <span class="profile-name">{{ currentUser.name }}</span>
+      <span v-if="!collapsed" class="profile-name">{{ currentUser.name }}</span>
       <svg
+        v-if="!collapsed"
         class="chevron"
         :class="{ 'chevron-open': isDropdownOpen }"
         width="16"
@@ -77,6 +79,18 @@
 import { ref, computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
+
+const props = defineProps({
+  variant: {
+    type: String,
+    default: 'default',
+    validator: (v) => ['default', 'sidebar'].includes(v)
+  },
+  collapsed: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
@@ -277,5 +291,60 @@ const handleLogout = () => {
   border-radius: 12px;
   min-width: 20px;
   text-align: center;
+}
+
+/* Sidebar variant styles */
+.profile-menu.sidebar-variant {
+  width: 100%;
+}
+
+.profile-menu.sidebar-variant .profile-button {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text);
+  justify-content: flex-start;
+}
+
+.profile-menu.sidebar-variant .profile-button:hover {
+  background: var(--sidebar-hover);
+  border-color: var(--sidebar-border);
+}
+
+.profile-menu.sidebar-variant .profile-name {
+  color: var(--sidebar-text);
+}
+
+.profile-menu.sidebar-variant .chevron {
+  color: var(--sidebar-text-muted);
+  margin-left: auto;
+}
+
+.profile-menu.sidebar-variant .avatar {
+  width: 28px;
+  height: 28px;
+  font-size: 0.688rem;
+}
+
+.profile-menu.sidebar-variant .dropdown-menu {
+  bottom: 100%;
+  top: auto;
+  left: 0;
+  right: 0;
+  margin-bottom: 0.5rem;
+}
+
+/* Collapsed state */
+.profile-menu.collapsed .profile-button {
+  padding: 0.625rem;
+  justify-content: center;
+}
+
+.profile-menu.collapsed .dropdown-menu {
+  left: 100%;
+  bottom: auto;
+  top: 0;
+  margin-left: 0.5rem;
+  margin-bottom: 0;
 }
 </style>
