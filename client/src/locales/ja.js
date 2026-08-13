@@ -3,6 +3,7 @@ export default {
   nav: {
     overview: '概要',
     inventory: '在庫',
+    restocking: '再入荷',
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
@@ -126,6 +127,21 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    submittedOrders: {
+      title: '提出済み再入荷注文',
+      description: '再入荷タブから発注された注文',
+      noOrders: 'まだ再入荷注文はありません',
+      table: {
+        orderNumber: '注文番号',
+        items: '品目',
+        status: 'ステータス',
+        totalCost: '合計金額',
+        budget: '予算',
+        createdDate: '作成日',
+        expectedDelivery: '予定配達日',
+        leadTime: 'リードタイム'
+      }
     }
   },
 
@@ -186,6 +202,40 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '予算を設定し、需要予測に基づいた再入荷品目の提案を受け取ります',
+    budgetCard: {
+      title: '利用可能な予算',
+      hint: '予算を調整すると提案が再計算されます'
+    },
+    stats: {
+      budget: '予算',
+      selectedTotal: '選択合計',
+      itemsSelected: '選択品目数'
+    },
+    checklist: {
+      title: '推奨品目',
+      itemsSelectedCount: '{count}件選択中'
+    },
+    table: {
+      item: '品目',
+      trend: 'トレンド',
+      unitCost: '単価',
+      quantity: '数量',
+      lineCost: '金額',
+      leadTime: 'リードタイム'
+    },
+    days: '{count}日',
+    overBudget: '合計が予算を超えています — 数量を減らして発注してください',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    orderPlaced: '注文{orderNumber}が正常に送信されました',
+    viewInOrders: '注文タブで確認する',
+    noItemsSelected: '発注するには少なくとも1つの品目を選択してください'
   },
 
   // Filters
@@ -359,7 +409,14 @@ export default {
     '48V DC Power Supply Unit': '48V DC電源ユニット',
     'USB-C PD 100W Power Supply': 'USB-C PD 100W電源',
     'Battery Backup Power Supply': 'バッテリバックアップ電源',
-    'Adjustable Bench Power Supply': '可変ベンチ電源'
+    'Adjustable Bench Power Supply': '可変ベンチ電源',
+    'Industrial Widget Type A': '産業用ウィジェットタイプA',
+    'Steel Bearing Assembly': 'スチールベアリングアセンブリ',
+    'High-Temperature Gasket': '耐熱ガスケット',
+    'Electric Motor 5HP': '電動モーター5馬力',
+    'Oil Filter Cartridge': 'オイルフィルターカートリッジ',
+    'Pressure Relief Valve': '圧力逃し弁',
+    'Logic Controller Board': 'ロジックコントローラーボード'
   },
 
   // Customer Names
