@@ -54,6 +54,17 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/restocking/recommendations` - Required: budget. Filters: warehouse, category
+- `GET|POST /api/restocking/orders` - No filters. The only write endpoint; persists to `server/data/restock_orders.json`
+
+## Code Conventions
+
+**Always document non-obvious logic with comments.** When logic encodes something the code itself can't show — a business rule, a workaround, an ordering dependency, a magic constant — add a short comment stating *why*, not what. Match the surrounding comment style and density; don't narrate self-evident lines.
+
+```javascript
+// Inventory has no time dimension, so the month filter is intentionally ignored here
+const params = buildParams({ warehouse, category })
+```
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
