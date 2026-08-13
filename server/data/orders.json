@@ -6180,5 +6180,68 @@
     "expected_delivery": "2025-11-19T12:30:00",
     "total_value": 9125.0,
     "actual_delivery": "2025-11-18T12:30:00"
+  },
+  {
+    "id": "251",
+    "order_number": "RST-2025-0001",
+    "customer": "Internal Restocking",
+    "items": [
+      {
+        "sku": "PCB-001",
+        "name": "Single Layer PCB Assembly",
+        "quantity": 200,
+        "unit_price": 24.99
+      },
+      {
+        "sku": "WDG-001",
+        "name": "Industrial Widget Type A",
+        "quantity": 150,
+        "unit_price": 45.5
+      }
+    ],
+    "status": "Restocking Order",
+    "warehouse": "San Francisco",
+    "category": "Components",
+    "order_date": "2025-09-30T14:30:00",
+    "expected_delivery": "2025-10-30T14:30:00",
+    "total_value": 11822.5
+  },
+  {
+    "id": "252",
+    "order_number": "RST-2025-0002",
+    "customer": "Internal Restocking",
+    "items": [
+      {
+        "sku": "TMP-201",
+        "name": "Temperature Sensor Module",
+        "quantity": 100,
+        "unit_price": 89.5
+      }
+    ],
+    "status": "Restocking Order",
+    "warehouse": "London",
+    "category": "Sensors",
+    "order_date": "2025-09-28T10:15:00",
+    "expected_delivery": "2025-10-28T10:15:00",
+    "total_value": 8950.0
+  },
+  {
+    "id": "253",
+    "order_number": "RST-2025-0253",
+    "customer": "Internal Restocking",
+    "items": [
+      {
+        "sku": "PSU-501",
+        "name": "5V 10A Switching Power Supply",
+        "quantity": 252,
+        "unit_price": 18.99
+      }
+    ],
+    "status": "Restocking Order",
+    "warehouse": "all",
+    "category": "all",
+    "order_date": "2026-08-13T14:12:31.036229",
+    "expected_delivery": "2026-09-12T14:12:31.036371",
+    "total_value": 4785.48
   }
 ]
