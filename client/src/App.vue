@@ -2,30 +2,17 @@
   <div class="app">
     <header class="top-nav">
       <div class="nav-container">
+        <button
+          class="sidebar-toggle"
+          @click="toggleSidebar"
+          aria-label="Toggle sidebar"
+        >
+          <MenuIcon />
+        </button>
         <div class="logo">
           <h1>{{ t('nav.companyName') }}</h1>
           <span class="subtitle">{{ t('nav.subtitle') }}</span>
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
@@ -34,9 +21,13 @@
       </div>
     </header>
     <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+    <div class="app-layout">
+      <Sidebar :is-collapsed="isCollapsed" />
+
+      <main class="main-content" :class="{ 'content-expanded': isCollapsed }">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,15 +46,18 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
+import { useSidebar } from './composables/useSidebar'
 import FilterBar from './components/FilterBar.vue'
 import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
 import TasksModal from './components/TasksModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import Sidebar from './components/Sidebar.vue'
+import MenuIcon from './components/icons/MenuIcon.vue'
 
 export default {
   name: 'App',
@@ -72,11 +66,14 @@ export default {
     ProfileMenu,
     ProfileDetailsModal,
     TasksModal,
-    LanguageSwitcher
+    LanguageSwitcher,
+    Sidebar,
+    MenuIcon
   },
   setup() {
     const { currentUser } = useAuth()
     const { t } = useI18n()
+    const { isCollapsed, toggleSidebar, loadSavedState, handleResize } = useSidebar()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
@@ -146,7 +143,16 @@ export default {
       }
     }
 
-    onMounted(loadTasks)
+    onMounted(() => {
+      loadTasks()
+      loadSavedState()
+      window.addEventListener('resize', handleResize)
+      handleResize()
+    })
+
+    onUnmounted(() => {
+      window.removeEventListener('resize', handleResize)
+    })
 
     return {
       t,
@@ -155,7 +161,9 @@ export default {
       tasks,
       addTask,
       deleteTask,
-      toggleTask
+      toggleTask,
+      isCollapsed,
+      toggleSidebar
     }
   }
 }
@@ -200,12 +208,8 @@ body {
   height: 70px;
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
 .nav-container > .language-switcher {
+  margin-left: auto;
   margin-right: 1rem;
 }
 
@@ -230,48 +234,54 @@ body {
   border-left: 1px solid #e2e8f0;
 }
 
-.nav-tabs {
+/* Sidebar toggle button */
+.sidebar-toggle {
   display: flex;
-  gap: 0.25rem;
-}
-
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.938rem;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: transparent;
+  border: 1px solid #e2e8f0;
   border-radius: 6px;
+  cursor: pointer;
+  color: #64748b;
   transition: all 0.2s ease;
-  position: relative;
+  margin-right: 1rem;
 }
 
-.nav-tabs a:hover {
+.sidebar-toggle:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
   color: #0f172a;
-  background: #f1f5f9;
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+/* App layout wrapper */
+.app-layout {
+  display: flex;
+  position: relative;
+  flex: 1;
 }
 
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
-}
-
+/* Main content with sidebar offset */
 .main-content {
   flex: 1;
   max-width: 1600px;
   width: 100%;
   margin: 0 auto;
   padding: 1.5rem 2rem;
+  margin-left: 240px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content.content-expanded {
+  margin-left: 70px;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 70px;
+  }
 }
 
 .page-header {

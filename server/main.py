@@ -120,6 +120,15 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class CreateOrderRequest(BaseModel):
+    customer: str
+    items: List[dict]  # [{sku, name, quantity, unit_price}]
+    total_value: float
+    order_type: str
+    expected_delivery: str
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
 # API endpoints
 @app.get("/")
 def root():
@@ -160,6 +169,36 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order)
+def create_order(order_request: CreateOrderRequest):
+    """Create a new order (restocking or customer order)"""
+    from datetime import datetime
+
+    # Generate unique ID and order number
+    new_id = str(len(orders) + 1)
+    order_count = len([o for o in orders if 'RESTOCK' in o['order_number']]) + 1
+    order_number = f"RESTOCK-2025-{order_count:04d}"
+
+    # Create order object matching the Order model structure
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "customer": order_request.customer,
+        "items": order_request.items,
+        "status": "Submitted",
+        "order_date": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": order_request.expected_delivery,
+        "total_value": order_request.total_value,
+        "actual_delivery": None,
+        "warehouse": order_request.warehouse,
+        "category": order_request.category
+    }
+
+    # Append to in-memory orders list
+    orders.append(new_order)
+
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
