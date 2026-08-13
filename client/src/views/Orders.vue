@@ -27,6 +27,69 @@
         </div>
       </div>
 
+      <!--
+        Restock orders submitted from the Restocking tab ignore the global FilterBar
+        on purpose:
+        - Time Period only offers 2025 months, but these orders are submitted "now"
+        - Order Status only offers Delivered/Shipped/Processing/Backordered, and
+          "Submitted" doesn't match any of them
+        - A single restock order can span multiple warehouses and categories
+        Applying any of the four filters would spuriously empty this list. There's
+        precedent for this: /api/demand and /api/backlog also ignore filters.
+      -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div v-if="submittedError" class="error">{{ submittedError }}</div>
+        <div v-else-if="submittedOrders.length === 0" class="no-submitted-orders">
+          {{ t('orders.noSubmittedOrders') }}
+        </div>
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.submittedDate') }}</th>
+                <th class="col-lead-time">{{ t('orders.table.leadTime') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <!-- Unit costs need cents: formatCurrency would round $89.50 to $90 -->
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ formatCurrencyWithDecimals(item.unit_cost, currentCurrency, 2) }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(order.submitted_at) }}</td>
+                <td class="col-lead-time">{{ t('restocking.days', { count: order.lead_time_days }) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ formatCurrency(order.total_value, currentCurrency) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -83,6 +146,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency, formatCurrencyWithDecimals } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -95,6 +159,13 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+
+    // Submitted restock orders (from the Restocking tab) have their own loading
+    // state and their own error ref, kept separate from the page-level error
+    // above. If the backend hasn't picked up this endpoint yet, we want just
+    // this section to show an error, not blank out the whole Orders page.
+    const submittedOrders = ref([])
+    const submittedError = ref(null)
 
     // Use shared filters
     const {
@@ -129,6 +200,21 @@ export default {
       loadOrders()
     })
 
+    // Deliberately NOT added to the watch above: restock orders are
+    // filter-independent (see template comment), so refetching them on every
+    // filter change would be wasted work.
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        // Only set submittedError here, never the page-level `error` ref -
+        // otherwise a backend that hasn't been restarted yet with this
+        // endpoint would blank out the entire Orders page instead of just
+        // this section.
+        submittedError.value = 'Failed to load submitted restock orders: ' + err.message
+      }
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -138,7 +224,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
     }
@@ -153,17 +240,25 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
+      submittedError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
       currencySymbol,
+      currentCurrency,
+      formatCurrency,
+      formatCurrencyWithDecimals,
       translateProductName,
       translateCustomerName
     }
@@ -201,6 +296,19 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.col-lead-time {
+  width: 110px;
+}
+
+/* Empty state for the submitted restock orders card, styled to match .no-tasks in TasksModal.vue */
+.no-submitted-orders {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-size: 1.1rem;
+  font-style: italic;
 }
 
 /* Items details styling */

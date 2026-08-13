@@ -4,6 +4,7 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    restocking: '在庫補充',
     finance: '財務',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
@@ -112,6 +113,8 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: '送信済み補充注文',
+    noSubmittedOrders: '送信済みの補充注文はありません',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,7 +128,43 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      submittedDate: '送信日',
+      leadTime: 'リードタイム'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '在庫補充',
+    description: '予算を設定し、補充が最も必要な品目を発注します',
+    availableBudget: '利用可能予算',
+    recommendedItems: '推奨品目',
+    budgetUsed: '割当予算',
+    budgetRemaining: '残予算',
+    itemsRecommended: '推奨品目数',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    orderPlaced: '補充注文 {orderNumber} を送信しました',
+    orderPlacedDetail: '予定配達日 {date}（リードタイム {days} 日）',
+    orderFailed: '補充注文の送信に失敗しました',
+    viewInOrders: '注文タブで確認',
+    allStocked: 'すべての品目の在庫は十分です。補充は不要です。',
+    budgetTooLow: '予算が最安値の品目（{amount}）を下回っています。予算を増やしてください。',
+    days: '{count} 日',
+    critical: '緊急',
+    low: '低',
+    partial: '一部',
+    table: {
+      onHand: '在庫数',
+      reorderPoint: '発注点',
+      target: '目標数量',
+      shortfall: '不足数',
+      orderQuantity: '発注数量',
+      unitCost: '単価',
+      lineCost: '小計',
+      leadTime: 'リードタイム',
+      priority: '優先度'
     }
   },
 
@@ -204,6 +243,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
