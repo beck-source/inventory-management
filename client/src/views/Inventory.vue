@@ -11,6 +11,9 @@
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('inventory.stockLevels') }} ({{ filteredItems.length }} {{ t('inventory.skus') }})</h3>
+          <button @click="exportInventory" class="export-button" :title="t('common.export')">
+            {{ t('common.export') }}
+          </button>
           <div class="search-box">
             <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -88,6 +91,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { exportToCSV } from '../utils/csvExport'
 import InventoryDetailModal from '../components/InventoryDetailModal.vue'
 
 export default {
@@ -201,6 +205,23 @@ export default {
       showItemModal.value = true
     }
 
+    const exportInventory = () => {
+      const exportData = filteredItems.value.map(item => ({
+        'SKU': item.sku,
+        'Item Name': translateProductName(item.name),
+        'Category': translateCategory(item.category),
+        'Quantity On Hand': item.quantity_on_hand,
+        'Reorder Point': item.reorder_point,
+        'Unit Cost': currencySymbol.value + item.unit_cost.toFixed(2),
+        'Total Value': currencySymbol.value + (item.quantity_on_hand * item.unit_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}),
+        'Warehouse': translateWarehouse(item.location),
+        'Status': getStockStatus(item)
+      }))
+      exportToCSV(exportData, `inventory-${new Date().toISOString().split('T')[0]}`, [
+        'SKU', 'Item Name', 'Category', 'Quantity On Hand', 'Reorder Point', 'Unit Cost', 'Total Value', 'Warehouse', 'Status'
+      ])
+    }
+
     onMounted(loadInventory)
 
     return {
@@ -218,7 +239,8 @@ export default {
       showItemDetail,
       currencySymbol,
       translateProductName,
-      translateWarehouse
+      translateWarehouse,
+      exportInventory
     }
   }
 }
@@ -252,6 +274,28 @@ export default {
   font-weight: 600;
   color: #0f172a;
   margin: 0;
+}
+
+.export-button {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.export-button:hover {
+  background: #2563eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:active {
+  background: #1d4ed8;
 }
 
 .search-box {

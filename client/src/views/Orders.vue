@@ -34,6 +34,9 @@
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <button @click="exportOrders" class="export-button" :title="t('common.export')">
+            {{ t('common.export') }}
+          </button>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -87,6 +90,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { exportToCSV } from '../utils/csvExport'
 
 export default {
   name: 'Orders',
@@ -158,6 +162,21 @@ export default {
       })
     }
 
+    const exportOrders = () => {
+      const exportData = orders.value.map(order => ({
+        'Order Number': order.order_number,
+        'Customer': translateCustomerName(order.customer),
+        'Items': order.items.length,
+        'Status': t(`status.${order.status.toLowerCase()}`),
+        'Order Date': formatDate(order.order_date),
+        'Expected Delivery': formatDate(order.expected_delivery),
+        'Total Value': currencySymbol.value + order.total_value.toLocaleString()
+      }))
+      exportToCSV(exportData, `orders-${new Date().toISOString().split('T')[0]}`, [
+        'Order Number', 'Customer', 'Items', 'Status', 'Order Date', 'Expected Delivery', 'Total Value'
+      ])
+    }
+
     onMounted(loadOrders)
 
     return {
@@ -170,13 +189,41 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      exportOrders
     }
   }
 }
 </script>
 
 <style scoped>
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.export-button {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.export-button:hover {
+  background: #2563eb;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.export-button:active {
+  background: #1d4ed8;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

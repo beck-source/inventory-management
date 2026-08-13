@@ -424,7 +424,7 @@ export default {
     cancel: 'キャンセル',
     search: '検索',
     filter: 'フィルター',
-    export: 'エクスポート',
+    export: 'CSVをエクスポート',
     items: '件'
   },
 

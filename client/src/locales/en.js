@@ -424,7 +424,7 @@ export default {
     cancel: 'Cancel',
     search: 'Search',
     filter: 'Filter',
-    export: 'Export',
+    export: 'Export CSV',
     items: 'items'
   }
 }
