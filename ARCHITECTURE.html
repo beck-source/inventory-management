@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Inventory Management - Architecture Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        main {
+            padding: 60px 40px;
+        }
+
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #3b82f6;
+            color: #60a5fa;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #93c5fd;
+        }
+
+        .diagram {
+            background: rgba(30, 41, 59, 0.5);
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+            overflow-x: auto;
+        }
+
+        .box {
+            display: inline-block;
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 10px;
+            min-width: 200px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .box.frontend {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-color: #10b981;
+        }
+
+        .box.backend {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            border-color: #a78bfa;
+        }
+
+        .box.data {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            border-color: #f87171;
+        }
+
+        .arrow {
+            display: inline-block;
+            width: 30px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 1.5em;
+            vertical-align: middle;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .tech-item {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .tech-item h4 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .tech-item ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tech-item li {
+            padding: 5px 0;
+            color: #cbd5e1;
+            font-size: 0.95em;
+        }
+
+        .tech-item li:before {
+            content: "▸ ";
+            color: #3b82f6;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .data-flow {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .flow-step {
+            background: rgba(51, 65, 85, 0.5);
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .flow-step strong {
+            color: #93c5fd;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .endpoints {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .endpoint {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 3px solid #10b981;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+        }
+
+        .endpoint .method {
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .port {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.85em;
+            margin-left: 10px;
+            font-family: monospace;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .feature-card h4 {
+            color: #60a5fa;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #cbd5e1;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        footer {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 30px 40px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9em;
+            border-top: 1px solid #3b82f6;
+        }
+
+        .highlight {
+            background: rgba(59, 130, 246, 0.2);
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏭 Factory Inventory Management System</h1>
+            <p>System Architecture & Technical Overview</p>
+        </header>
+
+        <main>
+            <!-- System Architecture Section -->
+            <section>
+                <h2>System Architecture</h2>
+                <p>This application is built with a classic <span class="highlight">frontend-backend separation</span> design. Here's how it works:</p>
+
+                <div class="diagram">
+                    <div style="text-align: center;">
+                        <div class="box frontend">
+                            <strong>Vue 3 Frontend</strong><br>
+                            Dashboard & UI<br>
+                            <small>Port 3000</small>
+                        </div>
+                        <div class="arrow">↔</div>
+                        <div class="box backend">
+                            <strong>FastAPI Backend</strong><br>
+                            Data & API<br>
+                            <small>Port 8001</small>
+                        </div>
+                        <div class="arrow">↔</div>
+                        <div class="box data">
+                            <strong>Mock Data</strong><br>
+                            JSON Files<br>
+                            <small>In Memory</small>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>What Each Part Does</h3>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>🖥️ Frontend (Vue 3)</h4>
+                        <p>The visual dashboard you see in the browser. Shows charts, tables, and metrics. Sends requests to the backend when you click buttons or change filters.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>⚙️ Backend (FastAPI)</h4>
+                        <p>The invisible server that stores data and answers questions. When the frontend asks for inventory data, the backend retrieves it and sends it back as JSON.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📊 Data (JSON)</h4>
+                        <p>Simulated factory data stored in files. Includes inventory, orders, demand forecasts, and spending information. Loaded into memory when the server starts.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tech Stack Section -->
+            <section>
+                <h2>Tech Stack</h2>
+                <p>The technologies and frameworks used to build this application:</p>
+
+                <div class="tech-stack">
+                    <div class="tech-item">
+                        <h4>Frontend</h4>
+                        <ul>
+                            <li><strong>Vue 3</strong> - Interactive UI framework</li>
+                            <li><strong>Vite</strong> - Development server & build tool</li>
+                            <li><strong>Axios</strong> - HTTP client for API calls</li>
+                            <li><strong>JavaScript ES6+</strong> - Programming language</li>
+                        </ul>
+                    </div>
+
+                    <div class="tech-item">
+                        <h4>Backend</h4>
+                        <ul>
+                            <li><strong>FastAPI</strong> - Python web framework</li>
+                            <li><strong>Python 3.9+</strong> - Programming language</li>
+                            <li><strong>Pydantic</strong> - Data validation</li>
+                            <li><strong>CORS</strong> - Cross-domain requests</li>
+                        </ul>
+                    </div>
+
+                    <div class="tech-item">
+                        <h4>Data & Infrastructure</h4>
+                        <ul>
+                            <li><strong>JSON Files</strong> - Data storage</li>
+                            <li><strong>In-Memory Loading</strong> - Fast access</li>
+                            <li><strong>Mock Data</strong> - No database needed</li>
+                            <li><strong>Port 3000 & 8001</strong> - Local development</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Flow Section -->
+            <section>
+                <h2>How Data Flows Through the System</h2>
+                <p>Here's what happens when you use the dashboard:</p>
+
+                <div class="data-flow">
+                    <div class="flow-step">
+                        <strong>1. User Action</strong>
+                        You click a button or change a filter on the dashboard
+                    </div>
+
+                    <div class="flow-step">
+                        <strong>2. Frontend Sends Request</strong>
+                        Vue.js sends an HTTP request to the backend API with your filters
+                    </div>
+
+                    <div class="flow-step">
+                        <strong>3. Backend Processes</strong>
+                        FastAPI receives the request, filters the data according to your criteria
+                    </div>
+
+                    <div class="flow-step">
+                        <strong>4. Query Mock Data</strong>
+                        Backend searches through the JSON data loaded in memory
+                    </div>
+
+                    <div class="flow-step">
+                        <strong>5. Validate & Return</strong>
+                        Backend validates the results using Pydantic models, then sends JSON back
+                    </div>
+
+                    <div class="flow-step">
+                        <strong>6. Display Results</strong>
+                        Frontend receives the data and updates the dashboard to show new results
+                    </div>
+                </div>
+
+                <h3>Example: Filtering Orders by Month</h3>
+                <div class="diagram">
+                    <div style="font-size: 0.95em; line-height: 1.8;">
+                        <strong>You select: "February 2025"</strong><br><br>
+                        ↓<br><br>
+                        Frontend sends:<br>
+                        <code>GET http://localhost:8001/api/orders?month=2025-02</code><br><br>
+                        ↓<br><br>
+                        Backend filters JSON data:<br>
+                        <code>Find all orders where order_date contains "2025-02"</code><br><br>
+                        ↓<br><br>
+                        Backend returns:<br>
+                        <code>[{order_id: "123", date: "2025-02-14", ...}, ...]</code><br><br>
+                        ↓<br><br>
+                        Dashboard updates:<br>
+                        Shows February orders in tables and charts
+                    </div>
+                </div>
+            </section>
+
+            <!-- API Endpoints Section -->
+            <section>
+                <h2>Backend API Endpoints</h2>
+                <p>The frontend communicates with the backend through these API endpoints:</p>
+
+                <div class="endpoints">
+                    <div class="endpoint">
+                        <span class="method">GET</span> <code>/api/inventory</code><br>
+                        <small>Gets inventory items. Supports filters: warehouse, category</small>
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method">GET</span> <code>/api/orders</code><br>
+                        <small>Gets customer orders. Supports filters: warehouse, category, status, month</small>
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method">GET</span> <code>/api/demand</code><br>
+                        <small>Gets demand forecasts for products</small>
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method">GET</span> <code>/api/backlog</code><br>
+                        <small>Gets list of backlogged orders (unfulfilled)</small>
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method">GET</span> <code>/api/dashboard/summary</code><br>
+                        <small>Gets summary statistics. Supports all filters</small>
+                    </div>
+
+                    <div class="endpoint">
+                        <span class="method">GET</span> <code>/api/spending/*</code><br>
+                        <small>Gets spending data (summary, monthly, by category, transactions)</small>
+                    </div>
+                </div>
+
+                <p><strong>Pro Tip:</strong> Visit <span class="port">http://localhost:8001/docs</span> to see interactive API documentation!</p>
+            </section>
+
+            <!-- Dashboard Pages Section -->
+            <section>
+                <h2>Frontend Pages & Features</h2>
+                <p>The dashboard has 6 main views, each with specific functionality:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>📊 Overview Dashboard</h4>
+                        <p>Key metrics, KPIs, order health pie chart, inventory by category, top products, and inventory shortages table.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📦 Inventory</h4>
+                        <p>Complete inventory items list with SKU, quantity, location, and category. Searchable and filterable.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📋 Orders</h4>
+                        <p>Customer orders with status tracking. Shows delivered, shipped, processing, and backordered orders.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>💰 Finance & Spending</h4>
+                        <p>Revenue analysis, spending by category, monthly spending trends, and transaction details.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📈 Demand Forecast</h4>
+                        <p>Predicted demand for products showing trends and forecasts over time.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📑 Reports</h4>
+                        <p>Backlog report showing unfulfilled orders that need immediate attention.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filter System Section -->
+            <section>
+                <h2>Filter System</h2>
+                <p>The application has a consistent filtering system across pages:</p>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>📅 Time Period</h4>
+                        <p><strong>Options:</strong> All Months, or individual months (January - December 2025)</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🏢 Location / Warehouse</h4>
+                        <p><strong>Options:</strong> All, San Francisco, London, Tokyo</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📂 Category</h4>
+                        <p><strong>Options:</strong> Circuit Boards, Sensors, Actuators, Controllers, Power Supplies</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>✓ Order Status</h4>
+                        <p><strong>Options:</strong> Delivered, Shipped, Processing, Backordered</p>
+                    </div>
+                </div>
+
+                <p>When you change any filter, the frontend immediately requests new data from the backend and updates all visible charts and tables.</p>
+            </section>
+
+            <!-- Key Facts Section -->
+            <section>
+                <h2>Key Facts About This System</h2>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>✅ No Database</h4>
+                        <p>Data is stored in JSON files and loaded into memory. Perfect for demos and learning!</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>⚡ Fast Development</h4>
+                        <p>Hot reloading on both frontend and backend means changes show up instantly.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🔓 No Authentication</h4>
+                        <p>This is a demo app. In production, you'd add login and permission checks.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📱 Responsive Design</h4>
+                        <p>Dashboard works on desktop, tablet, and mobile devices.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🎨 Consistent UI</h4>
+                        <p>Clean, modern design using slate gray colors and status-based highlighting.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📖 Well Documented</h4>
+                        <p>CLAUDE.md files guide developers on best practices for both frontend and backend.</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Factory Inventory Management System | Architecture Overview | Built for the Anthropic Partner Basecamp Workshop</p>
+        </footer>
+    </div>
+</body>
+</html>

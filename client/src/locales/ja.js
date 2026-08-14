@@ -188,6 +188,35 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算制約の下で在庫補充を計画・最適化',
+    setBudget: '予算を設定',
+    totalBudget: '総予算',
+    itemsInRecommendations: '推奨品目数',
+    totalEstimatedCost: '推定総コスト',
+    budgetRemaining: '残り予算',
+    exceeded: '超過',
+    recommendedItems: '推奨品目',
+    noRecommendations: '推奨事項がありません。予算を調整してみてください。',
+    placeOrder: '注文を発注',
+    loadError: 'データの読み込みに失敗しました',
+    recommendationsError: '推奨事項の読み込みに失敗しました',
+    submitError: '注文の送信に失敗しました',
+    orderSubmitted: '注文が正常に送信されました！',
+    noItemsSelected: '注文する品目を1つ以上選択してください',
+    table: {
+      sku: 'SKU',
+      name: '品目名',
+      currentStock: '現在の在庫',
+      forecastedDemand: '予測需要',
+      unitCost: '単価',
+      recommendedQty: '推奨数量',
+      estimatedCost: '推定コスト'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
