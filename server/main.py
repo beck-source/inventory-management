@@ -143,6 +143,22 @@ class RestockingOrderRequest(BaseModel):
     total_cost: float
     budget: float
 
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str
+    dueDate: str
+
+# In-memory task store (separate from mock_data.py - user-generated, not seed data)
+tasks: List[dict] = []
+next_task_id = 1
+
 # API endpoints
 @app.get("/")
 def root():
@@ -424,6 +440,40 @@ def create_restocking_order(order_request: RestockingOrderRequest):
         'total_cost': order_request.total_cost,
         'expected_delivery': delivery_date.isoformat()
     }
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    return tasks
+
+@app.post("/api/tasks", response_model=Task)
+def create_task(task_request: CreateTaskRequest):
+    global next_task_id
+    new_task = {
+        'id': str(next_task_id),
+        'title': task_request.title,
+        'priority': task_request.priority,
+        'dueDate': task_request.dueDate,
+        'status': 'pending'
+    }
+    next_task_id += 1
+    tasks.append(new_task)
+    return new_task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    task = next((t for t in tasks if t['id'] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task['status'] = 'completed' if task['status'] == 'pending' else 'pending'
+    return task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    task = next((t for t in tasks if t['id'] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    tasks.remove(task)
+    return {'message': 'Task deleted', 'id': task_id}
 
 if __name__ == "__main__":
     import uvicorn
