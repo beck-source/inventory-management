@@ -102,5 +102,34 @@ export const api = {
   async getPurchaseOrderByBacklogItem(backlogItemId) {
     const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
     return response.data
+  },
+
+  async getRestockingRecommendations(budget, filters = {}) {
+    const params = new URLSearchParams()
+    if (budget > 0) params.append('budget', budget)
+    if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
+    if (filters.category && filters.category !== 'all') params.append('category', filters.category)
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations?${params.toString()}`)
+    return response.data
+  },
+
+  async placeRestockingOrder(orderData) {
+    const response = await axios.post(`${API_BASE_URL}/restocking/orders`, orderData)
+    return response.data
+  },
+
+  async getRestockingOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/orders`)
+    return response.data
+  },
+
+  async getQuarterlyReports() {
+    const response = await axios.get(`${API_BASE_URL}/reports/quarterly`)
+    return response.data
+  },
+
+  async getMonthlyTrends() {
+    const response = await axios.get(`${API_BASE_URL}/reports/monthly-trends`)
+    return response.data
   }
 }

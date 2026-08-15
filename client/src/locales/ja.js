@@ -304,6 +304,40 @@ export default {
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
   },
 
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期ごとのパフォーマンス指標と月次トレンドを表示',
+    error: {
+      loadFailed: 'レポートデータの読み込みに失敗しました'
+    },
+    quarterly: {
+      title: '四半期別パフォーマンス',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総売上',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '充足率'
+    },
+    monthlyTrend: {
+      title: '月別売上トレンド'
+    },
+    monthOverMonth: {
+      title: '月次比較分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '売上',
+      change: '変化',
+      growthRate: '成長率'
+    },
+    summary: {
+      totalRevenue: '総売上（YTD）',
+      avgMonthlyRevenue: '月平均売上',
+      totalOrders: '総注文数（YTD）',
+      bestQuarter: '最高パフォーマンス四半期'
+    }
+  },
+
   // Language
   language: {
     english: 'English',

@@ -304,6 +304,40 @@ export default {
     noTasks: 'No tasks yet. Add your first task above!'
   },
 
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    error: {
+      loadFailed: 'Failed to load reports data'
+    },
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    monthlyTrend: {
+      title: 'Monthly Revenue Trend'
+    },
+    monthOverMonth: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    summary: {
+      totalRevenue: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    }
+  },
+
   // Language
   language: {
     english: 'English',

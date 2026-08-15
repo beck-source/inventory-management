@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(lsof -ti:3000,8001)",
+      "Bash(xargs kill:*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 40304)"
+    ]
+  }
+}

@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -54,6 +55,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# In-memory storage for restocking orders
+restocking_orders: List[dict] = []
+restocking_order_counter = {"value": 1}
 
 # Data models
 class InventoryItem(BaseModel):
@@ -119,6 +124,43 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    reorder_point: int
+    unit_cost: float
+    recommended_quantity: int
+    estimated_cost: float
+    demand_source: str
+    stockout_severity: float
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class PlaceRestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockingOrderItem]
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    order_date: str
+    expected_delivery: str
+    status: str
+    items: List[dict]
+    total_value: float
+    budget_used: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -303,6 +345,110 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(
+    budget: float = 0,
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None
+):
+    """Get restocking recommendations for low-stock items"""
+    # Apply filters to inventory
+    filtered_inventory = apply_filters(inventory_items, warehouse, category)
+
+    # Keep only items where quantity_on_hand <= reorder_point
+    low_stock = [item for item in filtered_inventory if item["quantity_on_hand"] <= item["reorder_point"]]
+
+    # Build forecast lookup
+    forecast_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+
+    # Build recommendations
+    recommendations = []
+    for item in low_stock:
+        sku = item["sku"]
+
+        # Determine recommended quantity and demand source
+        forecast = forecast_by_sku.get(sku)
+        if forecast and forecast["forecasted_demand"] > forecast["current_demand"]:
+            recommended_qty = forecast["forecasted_demand"] - forecast["current_demand"]
+            demand_source = "forecast"
+        else:
+            recommended_qty = max(1, item["reorder_point"] - item["quantity_on_hand"])
+            demand_source = "reorder_point"
+
+        if recommended_qty == 0:
+            continue
+
+        estimated_cost = recommended_qty * item["unit_cost"]
+        stockout_severity = max(0.0, (item["reorder_point"] - item["quantity_on_hand"]) / item["reorder_point"]) if item["reorder_point"] > 0 else 0.0
+
+        recommendations.append({
+            "sku": sku,
+            "name": item["name"],
+            "category": item["category"],
+            "warehouse": item["warehouse"],
+            "quantity_on_hand": item["quantity_on_hand"],
+            "reorder_point": item["reorder_point"],
+            "unit_cost": item["unit_cost"],
+            "recommended_quantity": recommended_qty,
+            "estimated_cost": estimated_cost,
+            "demand_source": demand_source,
+            "stockout_severity": stockout_severity
+        })
+
+    # Sort by stockout_severity (descending), then by estimated_cost (ascending)
+    recommendations.sort(key=lambda x: (-x["stockout_severity"], x["estimated_cost"]))
+
+    # If budget > 0, apply greedy selection
+    if budget > 0:
+        selected = []
+        remaining_budget = budget
+        for rec in recommendations:
+            if rec["estimated_cost"] <= remaining_budget:
+                selected.append(rec)
+                remaining_budget -= rec["estimated_cost"]
+        return selected
+
+    return recommendations
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder)
+def place_restocking_order(request: PlaceRestockingOrderRequest):
+    """Place a restocking order"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Items list cannot be empty")
+
+    # Calculate total value
+    total_value = sum(item.quantity * item.unit_price for item in request.items)
+
+    # Generate order number
+    order_number = f"RST-{datetime.now().strftime('%Y%m%d')}-{str(restocking_order_counter['value']).zfill(4)}"
+    restocking_order_counter['value'] += 1
+
+    # Set dates
+    order_date = datetime.now().isoformat()
+    expected_delivery = (datetime.now() + timedelta(days=14)).isoformat()
+
+    # Create order
+    order = {
+        "id": f"restocking_{restocking_order_counter['value']}",
+        "order_number": order_number,
+        "order_date": order_date,
+        "expected_delivery": expected_delivery,
+        "status": "Processing",
+        "items": [item.dict() for item in request.items],
+        "total_value": total_value,
+        "budget_used": total_value,
+        "warehouse": request.warehouse,
+        "category": request.category
+    }
+
+    restocking_orders.append(order)
+    return order
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all restocking orders"""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
