@@ -56,6 +56,7 @@ npm install && npm run dev
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
 
 ## Common Issues
+0. Always document non-obvious logic changes with comments
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
 2. Validate dates before `.getMonth()` calls
 3. Update Pydantic models when changing JSON data structure
