@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WorldView OSS + Singapore — Hackathon Presentation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --anthropic-bg: #1a1a2e;
+    --anthropic-surface: #16213e;
+    --anthropic-accent: #d4a574;
+    --anthropic-accent-light: #e8c9a0;
+    --anthropic-text: #f5f5f5;
+    --anthropic-text-muted: #a0a0b8;
+    --anthropic-border: #2a2a4a;
+    --anthropic-green: #4ade80;
+    --anthropic-amber: #fbbf24;
+    --anthropic-red: #f87171;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--anthropic-bg);
+    color: var(--anthropic-text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .slide {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    padding: 60px 80px;
+    position: relative;
+  }
+
+  .slide.active { display: flex; }
+
+  /* Anthropic subtle gradient background */
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(212, 165, 116, 0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(212, 165, 116, 0.03) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .slide-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    width: 100%;
+  }
+
+  /* Top bar */
+  .top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--anthropic-accent), var(--anthropic-accent-light), var(--anthropic-accent));
+    z-index: 100;
+  }
+
+  /* Footer */
+  .footer {
+    position: fixed;
+    bottom: 20px;
+    left: 40px;
+    right: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--anthropic-text-muted);
+    z-index: 100;
+    letter-spacing: 0.05em;
+  }
+
+  .footer .anthropic-mark {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: var(--anthropic-accent);
+  }
+
+  .footer .anthropic-mark svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  h1 .accent { color: var(--anthropic-accent); }
+
+  h2 {
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 32px;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--anthropic-accent);
+    margin-bottom: 16px;
+  }
+
+  .subtitle {
+    font-size: 22px;
+    color: var(--anthropic-text-muted);
+    font-weight: 400;
+    line-height: 1.5;
+    max-width: 700px;
+  }
+
+  p { font-size: 18px; line-height: 1.7; color: var(--anthropic-text-muted); }
+
+  /* Cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: var(--anthropic-surface);
+    border: 1px solid var(--anthropic-border);
+    border-radius: 12px;
+    padding: 28px;
+  }
+
+  .card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--anthropic-text);
+  }
+
+  .card p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--anthropic-text-muted);
+  }
+
+  .card .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+  }
+
+  .tag-green { background: rgba(74, 222, 128, 0.15); color: var(--anthropic-green); }
+  .tag-amber { background: rgba(251, 191, 36, 0.15); color: var(--anthropic-amber); }
+  .tag-red { background: rgba(248, 113, 113, 0.15); color: var(--anthropic-red); }
+  .tag-accent { background: rgba(212, 165, 116, 0.15); color: var(--anthropic-accent); }
+
+  /* Flow diagram */
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 32px 0;
+  }
+
+  .flow-step {
+    flex: 1;
+    background: var(--anthropic-surface);
+    border: 1px solid var(--anthropic-border);
+    padding: 20px;
+    text-align: center;
+    border-radius: 0;
+  }
+
+  .flow-step:first-child { border-radius: 10px 0 0 10px; }
+  .flow-step:last-child { border-radius: 0 10px 10px 0; }
+
+  .flow-step h4 { font-size: 14px; margin-bottom: 4px; color: var(--anthropic-accent); }
+  .flow-step p { font-size: 12px; }
+
+  .flow-arrow {
+    padding: 0 6px;
+    color: var(--anthropic-border);
+    font-size: 18px;
+    background: var(--anthropic-surface);
+    border-top: 1px solid var(--anthropic-border);
+    border-bottom: 1px solid var(--anthropic-border);
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-height: 80px;
+  }
+
+  /* Stat */
+  .stat { font-size: 48px; font-weight: 800; color: var(--anthropic-accent); letter-spacing: -0.02em; }
+  .stat-label { font-size: 14px; color: var(--anthropic-text-muted); margin-top: 4px; }
+
+  /* Code block */
+  .code {
+    background: #0d1117;
+    border: 1px solid var(--anthropic-border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #c9d1d9;
+    overflow-x: auto;
+    margin-top: 20px;
+  }
+
+  .code .comment { color: #8b949e; }
+  .code .keyword { color: #ff7b72; }
+  .code .string { color: #a5d6ff; }
+  .code .fn { color: #d2a8ff; }
+
+  /* Navigation */
+  .nav-hint {
+    position: fixed;
+    bottom: 20px;
+    right: 40px;
+    font-size: 12px;
+    color: var(--anthropic-text-muted);
+    z-index: 100;
+  }
+
+  .slide-counter {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: var(--anthropic-text-muted);
+    z-index: 100;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Lists */
+  ul { list-style: none; padding: 0; }
+  ul li {
+    padding: 8px 0;
+    font-size: 16px;
+    color: var(--anthropic-text-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  ul li::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--anthropic-accent);
+    flex-shrink: 0;
+    margin-top: 8px;
+  }
+
+  /* Title slide special */
+  .title-slide .team {
+    font-size: 16px;
+    color: var(--anthropic-text-muted);
+    margin-top: 24px;
+    font-weight: 500;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--anthropic-border);
+    color: var(--anthropic-text-muted);
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar"></div>
+
+<!-- Slide 1: Title -->
+<div class="slide active title-slide" id="slide-1">
+  <div class="slide-content">
+    <h3>Claude Code Hackathon</h3>
+    <h1>WorldView OSS<br><span class="accent">+ Singapore</span></h1>
+    <p class="subtitle">Real-time carpark intelligence on a 3D globe. 129 carparks. Live data. One afternoon.</p>
+    <p class="team">Matt Johnson &mdash; Solo Team</p>
+    <div class="badge-row">
+      <span class="badge">Next.js 16</span>
+      <span class="badge">CesiumJS</span>
+      <span class="badge">LTA DataMall</span>
+      <span class="badge">Zustand</span>
+      <span class="badge">TypeScript</span>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 2: Live Demo Screenshot -->
+<div class="slide" id="slide-2">
+  <div class="slide-content" style="text-align: center;">
+    <h3>Live on the Globe</h3>
+    <h2>129 carparks. Real-time. Singapore.</h2>
+    <img src="sg-carparks-live.png" alt="WorldView OSS with Singapore Carparks" style="max-width: 100%; max-height: 60vh; border-radius: 12px; border: 1px solid var(--anthropic-border); margin-top: 24px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);" />
+  </div>
+</div>
+
+<!-- Slide 3: The Problem -->
+<div class="slide" id="slide-3">
+  <div class="slide-content">
+    <h3>The Opportunity</h3>
+    <h2>WorldView has 9 global layers.<br>Zero local Singapore data.</h2>
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-accent">EXISTING</span>
+        <h4>Global Intelligence</h4>
+        <p>Flights, satellites, earthquakes, asteroids, weather, CCTV cameras, news, military actions, live streams</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-red">MISSING</span>
+        <h4>Singapore Data</h4>
+        <p>No local transport, no parking, no MRT, no taxis. The dashboard ignores the city it's being demoed in.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">ADDED</span>
+        <h4>SG Carparks</h4>
+        <p>Real-time carpark availability from LTA DataMall. 129+ locations. Color-coded dots + heatmap overlay.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: Architecture -->
+<div class="slide" id="slide-4">
+  <div class="slide-content">
+    <h3>Architecture</h3>
+    <h2>Followed the existing pattern. Exactly.</h2>
+    <p>Every layer in WorldView follows a 6-file pattern. The carpark layer is file #10, not a hack.</p>
+    <div class="flow">
+      <div class="flow-step">
+        <h4>LTA API</h4>
+        <p>CarParkAvailabilityv2<br>paginated, 500/page</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <h4>API Route</h4>
+        <p>/api/carparks<br>60s server cache</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <h4>Hook</h4>
+        <p>useCarparks()<br>60s client polling</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <h4>Store</h4>
+        <p>Zustand<br>carparks[]</p>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <h4>Globe</h4>
+        <p>CesiumJS entities<br>points + ellipses</p>
+      </div>
+    </div>
+    <div class="code">
+      <span class="comment">// 8 files touched. 4 new. 4 modified. Zero new dependencies.</span><br>
+      lib/api/carparks.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// LTA fetcher + pagination</span><br>
+      app/api/carparks/route.ts &nbsp;&nbsp;&nbsp;<span class="comment">// Next.js API route</span><br>
+      hooks/useCarparks.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Polling hook</span><br>
+      components/layers/CarParkLayer.tsx <span class="comment">// CesiumJS renderer</span><br>
+      <span class="keyword">+</span> types/index.ts &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// LayerKey, CarPark interface</span><br>
+      <span class="keyword">+</span> stores/worldview-store.ts &nbsp;&nbsp;<span class="comment">// State + setter</span><br>
+      <span class="keyword">+</span> components/Globe.tsx &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// Conditional render</span><br>
+      <span class="keyword">+</span> components/hud/Sidebar.tsx &nbsp;<span class="comment">// Toggle button</span>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 5: The Heatmap -->
+<div class="slide" id="slide-5">
+  <div class="slide-content">
+    <h3>Visualization</h3>
+    <h2>Dots + Heatmap. No extra libraries.</h2>
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <span class="tag tag-green">POINTS</span>
+        <h4>Color-Coded Availability</h4>
+        <p>Each carpark renders as a 6px dot. Color indicates real-time availability:</p>
+        <ul>
+          <li><strong style="color: var(--anthropic-green);">Green</strong> &mdash; 100+ lots available</li>
+          <li><strong style="color: var(--anthropic-amber);">Amber</strong> &mdash; 20-100 lots available</li>
+          <li><strong style="color: var(--anthropic-red);">Red</strong> &mdash; Under 20 lots available</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag tag-accent">HEATMAP</span>
+        <h4>Overlapping Ellipses</h4>
+        <p>Each carpark also renders a 500m radius semi-transparent ellipse (12-18% alpha). In dense areas like the CBD, dozens overlap to create a natural heatmap &mdash; no heatmap library needed.</p>
+        <ul>
+          <li>Dense red zones = parking pressure</li>
+          <li>Green glow = plenty of space</li>
+          <li>Auto-hides above 500km altitude</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 6: How Claude Code Helped -->
+<div class="slide" id="slide-6">
+  <div class="slide-content">
+    <h3>Claude Code</h3>
+    <h2>How I used it. What surprised me.</h2>
+    <div class="card-grid">
+      <div class="card">
+        <span class="tag tag-accent">EXPLORE</span>
+        <h4>Codebase Deep Dive</h4>
+        <p>Launched an Explore agent to read all 9 existing layers, the store, hooks, and sidebar. Returned a complete architecture map in one shot. This meant the implementation was right the first time.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">PARALLEL</span>
+        <h4>Concurrent Research</h4>
+        <p>Ran two agents simultaneously: one exploring WorldView architecture, one researching Singapore transport APIs. Both returned results in parallel &mdash; huge time savings.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-amber">PLAN MODE</span>
+        <h4>Design Before Code</h4>
+        <p>Used Plan Mode to design the full 8-file implementation plan. Caught the LTA pagination requirement and location parsing edge cases before writing a single line.</p>
+      </div>
+    </div>
+    <div style="margin-top: 24px;">
+      <div class="card">
+        <h4>What surprised me most</h4>
+        <p>Claude read an unfamiliar 10,000+ line codebase and replicated its exact architectural patterns &mdash; matching naming conventions, file organization, Cesium entity lifecycle, and Zustand integration. The carpark layer is indistinguishable from the original 9.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 7: What's Next -->
+<div class="slide" id="slide-7">
+  <div class="slide-content">
+    <h3>Next Steps</h3>
+    <h2>If I had another day.</h2>
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <span class="tag tag-green">HIGH PRIORITY</span>
+        <h4>Real-Time Taxi Positions</h4>
+        <p>LTA Taxi-Availability API returns GPS positions of all available taxis. Thousands of green dots swarming across Singapore. The visual showstopper.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-green">HIGH PRIORITY</span>
+        <h4>MRT Crowd Density</h4>
+        <p>LTA PCDRealTime endpoint. Color-coded MRT stations showing crowding levels. Useful and unique.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-amber">NICE TO HAVE</span>
+        <h4>Capacity Percentages</h4>
+        <p>Integrate total carpark capacity dataset so colors show percentage full, not just absolute lot counts.</p>
+      </div>
+      <div class="card">
+        <span class="tag tag-amber">NICE TO HAVE</span>
+        <h4>Historical Replay</h4>
+        <p>Cache carpark snapshots and replay them via the timeline slider. See parking patterns emerge over hours.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 8: Thank You -->
+<div class="slide" id="slide-8">
+  <div class="slide-content" style="text-align: center;">
+    <h3>Thank You</h3>
+    <h1>10 layers. <span class="accent">129 carparks.</span><br>One afternoon.</h1>
+    <p class="subtitle" style="margin: 16px auto 0;">github.com/matthewgjohnson/worldview_oss</p>
+    <div class="badge-row" style="justify-content: center; margin-top: 32px;">
+      <span class="badge" style="border-color: var(--anthropic-accent); color: var(--anthropic-accent);">Built with Claude Code</span>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="anthropic-mark">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.827 3.52h3.603L24 19.83h-3.603L13.827 3.52zM6.57 3.52l-6.57 16.31h3.712l1.204-3.166h6.644l1.204 3.166H16.476L9.905 3.52H6.57zm-.753 10.2l2.42-6.353 2.42 6.352H5.817z"/></svg>
+    Anthropic
+  </span>
+  <span>Claude Code Hackathon &mdash; Singapore 2026</span>
+</div>
+
+<div class="slide-counter" id="counter">1 / 8</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('counter');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    counter.textContent = `${current + 1} / 8`;
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); show(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); show(current - 1); }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (e.clientX > window.innerWidth / 2) show(current + 1);
+    else show(current - 1);
+  });
+</script>
+
+</body>
+</html>
