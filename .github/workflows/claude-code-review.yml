@@ -1,0 +1,23 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          direct_prompt: |
+            Please review this pull request and provide feedback on:
+            1. Code quality and best practices
+            2. Potential bugs or issues
+            3. Security concerns
+            4. Performance considerations
+            5. Suggestions for improvement
