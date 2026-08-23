@@ -8,6 +8,65 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <!-- Submitted Restocking Orders Section -->
+      <div v-if="restockingOrders.length > 0" class="card submitted-orders-section">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders ({{ restockingOrders.length }})</h3>
+          <p class="section-description">Recently submitted restocking orders with delivery lead times</p>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-customer">Type</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-lead-time">Lead Time</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id" class="restocking-order-row">
+                <td class="col-order-number">
+                  <strong>{{ order.order_number }}</strong>
+                  <span class="new-badge">NEW</span>
+                </td>
+                <td class="col-customer">
+                  <span class="badge info">{{ order.customer }}</span>
+                </td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-lead-time">
+                  <span class="lead-time-badge">{{ calculateLeadTime(order.order_date, order.expected_delivery) }} days</span>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +154,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -121,6 +181,20 @@ export default {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
         loading.value = false
+      }
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        const fetchedRestockingOrders = await api.getRestockingOrders()
+        // Sort by order date (most recent first)
+        restockingOrders.value = fetchedRestockingOrders.sort((a, b) => {
+          const dateA = new Date(a.order_date)
+          const dateB = new Date(b.order_date)
+          return dateB - dateA
+        })
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
       }
     }
 
@@ -153,16 +227,30 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    // Calculate lead time in days between two dates
+    const calculateLeadTime = (orderDate, expectedDelivery) => {
+      const startDate = new Date(orderDate)
+      const endDate = new Date(expectedDelivery)
+      const diffTime = Math.abs(endDate - startDate)
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      return diffDays
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      calculateLeadTime,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -172,6 +260,48 @@ export default {
 </script>
 
 <style scoped>
+/* Submitted Orders Section */
+.submitted-orders-section {
+  margin-bottom: 2rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.section-description {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.restocking-order-row {
+  background-color: #f0f9ff;
+}
+
+.new-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.5rem;
+  background: #3b82f6;
+  color: white;
+  font-size: 0.625rem;
+  font-weight: 600;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+.col-lead-time {
+  width: 100px;
+}
+
+.lead-time-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.813rem;
+  font-weight: 500;
+  border-radius: 4px;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
@@ -180,27 +310,27 @@ export default {
 
 /* Column widths */
 .col-order-number {
-  width: 130px;
-}
-
-.col-customer {
-  width: 180px;
-}
-
-.col-items {
-  width: 200px;
-}
-
-.col-status {
-  width: 130px;
-}
-
-.col-date {
   width: 140px;
 }
 
-.col-value {
+.col-customer {
+  width: 160px;
+}
+
+.col-items {
+  width: 180px;
+}
+
+.col-status {
   width: 120px;
+}
+
+.col-date {
+  width: 120px;
+}
+
+.col-value {
+  width: 110px;
 }
 
 /* Items details styling */
