@@ -62,7 +62,10 @@
                   </details>
                 </td>
                 <td class="col-status">
-                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                  <span v-if="order.source === 'restocking'" class="badge restocking-badge">
+                    Restocking
+                  </span>
+                  <span v-else :class="['badge', getOrderStatusClass(order.status)]">
                     {{ t(`status.${order.status.toLowerCase()}`) }}
                   </span>
                 </td>
@@ -275,5 +278,10 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-badge {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 </style>
