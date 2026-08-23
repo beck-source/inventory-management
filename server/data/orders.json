@@ -6180,5 +6180,113 @@
     "expected_delivery": "2025-11-19T12:30:00",
     "total_value": 9125.0,
     "actual_delivery": "2025-11-18T12:30:00"
+  },
+  {
+    "id": "RSTO-0251",
+    "order_number": "RSTO-2026-0251",
+    "customer": "Restocking System",
+    "items": [
+      {
+        "sku": "FLT-405",
+        "name": "Oil Filter Cartridge",
+        "quantity": 150,
+        "unit_price": 18.9,
+        "trend": "increasing",
+        "lead_time_days": 7
+      },
+      {
+        "sku": "WDG-001",
+        "name": "Industrial Widget Type A",
+        "quantity": 100,
+        "unit_price": 45.0,
+        "trend": "increasing",
+        "lead_time_days": 7
+      }
+    ],
+    "status": "Processing",
+    "warehouse": "San Francisco",
+    "category": "Mixed",
+    "order_date": "2026-03-20T03:56:29.179375",
+    "expected_delivery": "2026-03-27T03:56:29.179375",
+    "total_value": 7335.0,
+    "actual_delivery": null
+  },
+  {
+    "id": "RSTO-0252",
+    "order_number": "RSTO-2026-0252",
+    "customer": "Restocking System",
+    "items": [
+      {
+        "sku": "WDG-001",
+        "name": "Industrial Widget Type A",
+        "quantity": 150,
+        "unit_price": 45.0,
+        "trend": "increasing",
+        "lead_time_days": 7
+      },
+      {
+        "sku": "FLT-405",
+        "name": "Oil Filter Cartridge",
+        "quantity": 150,
+        "unit_price": 18.9,
+        "trend": "increasing",
+        "lead_time_days": 7
+      },
+      {
+        "sku": "GSK-203",
+        "name": "High-Temperature Gasket",
+        "quantity": 100,
+        "unit_price": 12.75,
+        "trend": "increasing",
+        "lead_time_days": 7
+      },
+      {
+        "sku": "BRG-102",
+        "name": "Steel Bearing Assembly",
+        "quantity": 2,
+        "unit_price": 28.5,
+        "trend": "stable",
+        "lead_time_days": 14
+      },
+      {
+        "sku": "PSU-501",
+        "name": "5V 10A Switching Power Supply",
+        "quantity": 2,
+        "unit_price": 89.99,
+        "trend": "stable",
+        "lead_time_days": 14
+      },
+      {
+        "sku": "SNR-420",
+        "name": "Temperature Sensor Module",
+        "quantity": 2,
+        "unit_price": 54.5,
+        "trend": "stable",
+        "lead_time_days": 14
+      },
+      {
+        "sku": "VLV-506",
+        "name": "Pressure Relief Valve",
+        "quantity": 1,
+        "unit_price": 67.25,
+        "trend": "stable",
+        "lead_time_days": 14
+      },
+      {
+        "sku": "CTL-330",
+        "name": "Logic Controller Board",
+        "quantity": 1,
+        "unit_price": 142.0,
+        "trend": "stable",
+        "lead_time_days": 14
+      }
+    ],
+    "status": "Processing",
+    "warehouse": "San Francisco",
+    "category": "Mixed",
+    "order_date": "2026-03-20T03:56:49.268144",
+    "expected_delivery": "2026-04-03T03:56:49.268144",
+    "total_value": 11415.23,
+    "actual_delivery": null
   }
 ]

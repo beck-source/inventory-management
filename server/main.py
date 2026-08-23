@@ -3,6 +3,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+import json
+from pathlib import Path
+from datetime import datetime, timedelta
+
+DATA_DIR = Path(__file__).parent / "data"
+
+def save_json_file(filename: str, data):
+    with open(DATA_DIR / filename, "w") as f:
+        json.dump(data, f, indent=2)
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +98,19 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+    trend: str
+
+class CreateRestockOrderRequest(BaseModel):
+    items: List[RestockOrderItem]
+    warehouse: str = "San Francisco"
+    budget: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -303,6 +325,52 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+LEAD_TIME_BY_TREND = {"increasing": 7, "stable": 14, "decreasing": 21}
+
+@app.post("/api/restock/orders")
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Create a restocking order from demand forecast recommendations"""
+    items = []
+    total_value = 0.0
+    max_lead_time = 0
+
+    for item in request.items:
+        lead_days = LEAD_TIME_BY_TREND.get(item.trend, 14)
+        max_lead_time = max(max_lead_time, lead_days)
+        subtotal = item.quantity * item.unit_price
+        total_value += subtotal
+        items.append({
+            "sku": item.sku,
+            "name": item.name,
+            "quantity": item.quantity,
+            "unit_price": item.unit_price,
+            "trend": item.trend,
+            "lead_time_days": lead_days,
+        })
+
+    now = datetime.utcnow()
+    expected = now + timedelta(days=max_lead_time)
+    new_id = f"RSTO-{len(orders) + 1:04d}"
+    order_number = f"RSTO-{now.year}-{len(orders) + 1:04d}"
+
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "customer": "Restocking System",
+        "items": items,
+        "status": "Processing",
+        "warehouse": request.warehouse,
+        "category": "Mixed",
+        "order_date": now.isoformat(),
+        "expected_delivery": expected.isoformat(),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+    }
+
+    orders.append(new_order)
+    save_json_file("orders.json", orders)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn

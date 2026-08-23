@@ -74,6 +74,58 @@
           </table>
         </div>
       </div>
+
+      <div class="card restock-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders ({{ restockOrders.length }})</h3>
+        </div>
+        <div v-if="restockOrders.length === 0" class="empty-restock">
+          No restocking orders placed yet.
+        </div>
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order #</th>
+                <th class="col-date">Placed</th>
+                <th class="col-items">Items</th>
+                <th class="col-status">Status</th>
+                <th class="col-date">Est. Delivery</th>
+                <th class="col-value">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-items">
+                  <div class="restock-items">
+                    <div v-for="(item, idx) in order.items" :key="idx" class="restock-item-line">
+                      <span>{{ item.name }} x{{ item.quantity }}</span>
+                      <span
+                        :class="[
+                          'badge',
+                          'lead-badge',
+                          item.lead_time_days === 7 ? 'success' :
+                          item.lead_time_days === 14 ? 'info' :
+                          item.lead_time_days === 21 ? 'warning' : 'info'
+                        ]"
+                      >{{ item.lead_time_days }} days</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -143,6 +195,11 @@ export default {
       return statusMap[status] || 'info'
     }
 
+    // Filter orders that were submitted via the restock flow
+    const restockOrders = computed(() => {
+      return orders.value.filter(order => order.order_number.startsWith('RSTO-'))
+    })
+
     const formatDate = (dateString) => {
       const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
@@ -160,6 +217,7 @@ export default {
       loading,
       error,
       orders,
+      restockOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -276,4 +334,10 @@ export default {
   font-size: 0.813rem;
   color: #64748b;
 }
+
+.restock-card { margin-top: 1.25rem; }
+.restock-items { display: flex; flex-direction: column; gap: 0.375rem; }
+.restock-item-line { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #334155; }
+.lead-badge { font-size: 0.7rem; padding: 0.1rem 0.4rem; }
+.empty-restock { padding: 2rem; text-align: center; color: #64748b; font-size: 0.9rem; }
 </style>
