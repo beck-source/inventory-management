@@ -8,6 +8,57 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <div v-if="restockingOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            {{ t('restocking.submittedOrders') }}
+            <span class="badge info" style="margin-left: 0.5rem; vertical-align: middle;">{{ restockingOrders.length }}</span>
+          </h3>
+        </div>
+        <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1rem;">{{ t('restocking.submittedOrdersDescription') }}</p>
+        <div class="table-container">
+          <table class="submitted-orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('restocking.table.sku') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-total">{{ t('restocking.totalCost') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('restocking.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="submitted-item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">
+                          Qty: {{ item.forecasted_demand }} &bull; ${{ item.unit_cost }}/unit
+                        </span>
+                        <span class="item-meta">
+                          {{ t('restocking.delivery') }}: {{ formatEstimatedDelivery(order.created_date, item.lead_time_days) }}
+                        </span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-total"><strong>${{ order.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-date">{{ formatDate(order.created_date) }}</td>
+                <td class="col-status">
+                  <span class="badge info">{{ order.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -95,6 +146,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,16 +205,41 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const formatEstimatedDelivery = (createdDate, leadTimeDays) => {
+      const { currentLocale } = useI18n()
+      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
+      const date = new Date(createdDate)
+      date.setDate(date.getDate() + leadTimeDays)
+      return date.toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    }
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatEstimatedDelivery,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +352,27 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Submitted restocking orders table */
+.submitted-orders-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.col-total {
+  width: 140px;
+}
+
+.submitted-item-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.submitted-item-entry:last-child {
+  border-bottom: none;
 }
 </style>

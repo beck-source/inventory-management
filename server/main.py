@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+import uuid
+from datetime import datetime
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -119,6 +121,39 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingItem(BaseModel):
+    item_sku: str
+    item_name: str
+    trend: str
+    forecasted_demand: int
+    unit_cost: float
+    total_cost: float
+    category: str
+    lead_time_days: int
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingItem]
+    total_cost: float
+    status: str
+    created_date: str
+
+class SubmitRestockingOrderRequest(BaseModel):
+    items: List[RestockingItem]
+
+# Lead time by category (days)
+LEAD_TIMES = {
+    "Circuit Boards": 7,
+    "Sensors": 3,
+    "Actuators": 5,
+    "Controllers": 4,
+    "Power Supplies": 2,
+}
+
+# In-memory storage for restocking orders
+restocking_orders: List[dict] = []
 
 # API endpoints
 @app.get("/")
@@ -303,6 +338,72 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(budget: float = 0):
+    """Get restocking recommendations based on available budget"""
+    # Build a lookup of inventory by SKU for unit_cost and category
+    inventory_by_sku = {item["sku"]: item for item in inventory_items}
+
+    # Enrich forecasts with unit_cost, category, lead_time_days, total_cost
+    enriched = []
+    for forecast in demand_forecasts:
+        inv = inventory_by_sku.get(forecast["item_sku"])
+        if not inv:
+            continue
+        category = inv["category"]
+        unit_cost = inv["unit_cost"]
+        total_cost = round(forecast["forecasted_demand"] * unit_cost, 2)
+        lead_time = LEAD_TIMES.get(category, 5)
+        enriched.append({
+            "item_sku": forecast["item_sku"],
+            "item_name": forecast["item_name"],
+            "trend": forecast["trend"],
+            "forecasted_demand": forecast["forecasted_demand"],
+            "unit_cost": unit_cost,
+            "total_cost": total_cost,
+            "category": category,
+            "lead_time_days": lead_time,
+        })
+
+    # Sort: increasing first, then stable, then decreasing; within each group by total_cost ascending
+    trend_order = {"increasing": 0, "stable": 1, "decreasing": 2}
+    enriched.sort(key=lambda x: (trend_order.get(x["trend"], 9), x["total_cost"]))
+
+    # Select items that fit within budget
+    selected = []
+    remaining = budget
+    for item in enriched:
+        if item["total_cost"] <= remaining:
+            selected.append(item)
+            remaining = round(remaining - item["total_cost"], 2)
+
+    total_cost = round(sum(i["total_cost"] for i in selected), 2)
+    return {
+        "items": selected,
+        "total_cost": total_cost,
+        "remaining_budget": round(budget - total_cost, 2),
+    }
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder)
+def submit_restocking_order(request: SubmitRestockingOrderRequest):
+    """Submit a restocking order"""
+    order_number = f"RESTOCK-2026-{str(len(restocking_orders) + 1).zfill(4)}"
+    order = {
+        "id": str(uuid.uuid4()),
+        "order_number": order_number,
+        "items": [item.model_dump() for item in request.items],
+        "total_cost": round(sum(item.total_cost for item in request.items), 2),
+        "status": "Submitted",
+        "created_date": datetime.utcnow().isoformat() + "Z",
+    }
+    restocking_orders.append(order)
+    return order
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
