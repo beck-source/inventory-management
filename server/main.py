@@ -120,6 +120,17 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class CreateOrderRequest(BaseModel):
+    order_number: str
+    customer: str
+    items: List[dict]
+    status: str
+    order_date: str
+    expected_delivery: str
+    total_value: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
 # API endpoints
 @app.get("/")
 def root():
@@ -160,6 +171,28 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order)
+def create_order(order_data: CreateOrderRequest):
+    """Create a new order (used for restocking submissions)"""
+    # Generate next numeric ID based on existing orders
+    existing_ids = [int(o["id"]) for o in orders if o["id"].isdigit()]
+    new_id = str(max(existing_ids) + 1) if existing_ids else "1"
+    new_order = {
+        "id": new_id,
+        "order_number": order_data.order_number,
+        "customer": order_data.customer,
+        "items": order_data.items,
+        "status": order_data.status,
+        "order_date": order_data.order_date,
+        "expected_delivery": order_data.expected_delivery,
+        "total_value": round(order_data.total_value, 2),
+        "actual_delivery": None,
+        "warehouse": order_data.warehouse,
+        "category": order_data.category,
+    }
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
