@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,8 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    leadTimeDays: '{days} days',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +128,8 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -188,6 +192,25 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and restock high-demand items',
+    budgetLabel: 'Available Budget',
+    budgetHint: 'Drag to set how much you can spend on restocking',
+    recommendations: 'Recommended Restock',
+    noRecommendations: 'No items need restocking for the current filters.',
+    qtyToOrder: 'Qty to Order',
+    unitCost: 'Unit Cost',
+    lineTotal: 'Line Total',
+    selectedTotal: 'Order Total',
+    remaining: 'Remaining Budget',
+    itemsSelected: '{count} items within budget',
+    placeOrder: 'Place Order',
+    orderPlaced: 'Restock order {orderNumber} submitted. View it in the Orders tab.',
+    estimatedNote: 'Estimated unit cost (no matching inventory item); based on the average inventory unit cost.'
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +227,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
