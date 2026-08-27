@@ -11,6 +11,17 @@ app = FastAPI(title="Factory Inventory Management System")
 # In-memory store for restocking orders submitted from the Restocking tab
 restock_orders: List[dict] = []
 
+# In-memory store for tasks created via the Tasks modal (separate from the
+# mock tasks baked into the user profile in the frontend)
+api_tasks: List[dict] = []
+_next_task_id = 1000
+
+def _generate_task_id() -> str:
+    global _next_task_id
+    task_id = str(_next_task_id)
+    _next_task_id += 1
+    return task_id
+
 # Quarter mapping for date filtering
 QUARTER_MAP = {
     'Q1-2025': ['2025-01', '2025-02', '2025-03'],
@@ -154,6 +165,18 @@ class RestockOrder(BaseModel):
     lead_time_days: int
     expected_delivery: str
 
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str
+    dueDate: str
+
 # API endpoints
 @app.get("/")
 def root():
@@ -255,6 +278,42 @@ def get_backlog():
         result.append(item_dict)
     return result
 
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all tasks created via the Tasks modal"""
+    return api_tasks
+
+@app.post("/api/tasks", response_model=Task)
+def create_task(request: CreateTaskRequest):
+    """Create a new task"""
+    new_task = {
+        "id": _generate_task_id(),
+        "title": request.title,
+        "priority": request.priority,
+        "dueDate": request.dueDate,
+        "status": "pending"
+    }
+    api_tasks.append(new_task)
+    return new_task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    """Delete a task"""
+    task = next((t for t in api_tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    api_tasks.remove(task)
+    return {"message": "Task deleted"}
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task's completion status between pending and completed"""
+    task = next((t for t in api_tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
     warehouse: Optional[str] = None,
@@ -304,12 +363,17 @@ def get_recent_transactions():
     return recent_transactions
 
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None
+):
     """Get quarterly performance reports"""
     # Calculate quarterly statistics from orders
+    filtered_orders = apply_filters(orders, warehouse, category, status)
     quarters = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         # Determine quarter
         if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
@@ -350,11 +414,16 @@ def get_quarterly_reports():
     return result
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None
+):
     """Get month-over-month trends"""
+    filtered_orders = apply_filters(orders, warehouse, category, status)
     months = {}
 
-    for order in orders:
+    for order in filtered_orders:
         order_date = order.get('order_date', '')
         if not order_date:
             continue
