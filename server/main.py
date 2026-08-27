@@ -1,5 +1,8 @@
+import os
 import random
+import re
 from datetime import datetime, timedelta
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -11,16 +14,45 @@ app = FastAPI(title="Factory Inventory Management System")
 # In-memory store for restocking orders submitted from the Restocking tab
 restock_orders: List[dict] = []
 
-# In-memory store for tasks created via the Tasks modal (separate from the
-# mock tasks baked into the user profile in the frontend)
-api_tasks: List[dict] = []
-_next_task_id = 1000
+# Tasks created via the Tasks modal are backed by GitHub Issues on this repo,
+# rather than an in-memory store, so they persist and are visible outside the demo.
+GITHUB_API_BASE = "https://api.github.com"
+TASKS_REPO_OWNER = "dWhisper"
+TASKS_REPO_NAME = "inventory-management"
+TASKS_LABEL = "task"
+TASKS_COMPLETED_LABEL = "task-completed"
+TASKS_DUE_DATE_RE = re.compile(r"Due:\s*(\d{4}-\d{2}-\d{2})")
 
-def _generate_task_id() -> str:
-    global _next_task_id
-    task_id = str(_next_task_id)
-    _next_task_id += 1
-    return task_id
+def _github_headers() -> dict:
+    """Auth headers for the GitHub REST API, read from the environment at request time."""
+    token = os.environ.get("GITHUB_PERSONAL_ACCESS_TOKEN")
+    if not token:
+        raise HTTPException(status_code=500, detail="GITHUB_PERSONAL_ACCESS_TOKEN is not set on the server")
+    return {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+def _issue_to_task(issue: dict) -> dict:
+    """Map a GitHub issue onto the Task shape the Tasks modal expects."""
+    label_names = [label["name"] for label in issue.get("labels", [])]
+    priority = "medium"
+    for name in label_names:
+        if name.startswith("priority:"):
+            priority = name.split(":", 1)[1]
+            break
+
+    match = TASKS_DUE_DATE_RE.search(issue.get("body") or "")
+    due_date = match.group(1) if match else issue["created_at"][:10]
+
+    return {
+        "id": str(issue["number"]),
+        "title": issue["title"],
+        "priority": priority,
+        "dueDate": due_date,
+        "status": "completed" if TASKS_COMPLETED_LABEL in label_names else "pending",
+    }
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -279,40 +311,78 @@ def get_backlog():
     return result
 
 @app.get("/api/tasks", response_model=List[Task])
-def get_tasks():
-    """Get all tasks created via the Tasks modal"""
-    return api_tasks
+async def get_tasks():
+    """Get all open tasks, backed by GitHub Issues labeled 'task' on this repo"""
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"{GITHUB_API_BASE}/repos/{TASKS_REPO_OWNER}/{TASKS_REPO_NAME}/issues",
+            headers=_github_headers(),
+            params={"labels": TASKS_LABEL, "state": "open", "per_page": 100},
+        )
+    if response.status_code != 200:
+        raise HTTPException(status_code=502, detail="Failed to fetch tasks from GitHub")
+    return [_issue_to_task(issue) for issue in response.json()]
 
 @app.post("/api/tasks", response_model=Task)
-def create_task(request: CreateTaskRequest):
-    """Create a new task"""
-    new_task = {
-        "id": _generate_task_id(),
-        "title": request.title,
-        "priority": request.priority,
-        "dueDate": request.dueDate,
-        "status": "pending"
-    }
-    api_tasks.append(new_task)
-    return new_task
+async def create_task(request: CreateTaskRequest):
+    """Create a task by opening a GitHub issue"""
+    body = f"Due: {request.dueDate}\n\nCreated via the Tasks modal in the Factory Inventory Management demo."
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            f"{GITHUB_API_BASE}/repos/{TASKS_REPO_OWNER}/{TASKS_REPO_NAME}/issues",
+            headers=_github_headers(),
+            json={
+                "title": request.title,
+                "body": body,
+                "labels": [TASKS_LABEL, f"priority:{request.priority}"],
+            },
+        )
+    if response.status_code != 201:
+        raise HTTPException(status_code=502, detail="Failed to create task on GitHub")
+    return _issue_to_task(response.json())
 
 @app.delete("/api/tasks/{task_id}")
-def delete_task(task_id: str):
-    """Delete a task"""
-    task = next((t for t in api_tasks if t["id"] == task_id), None)
-    if not task:
+async def delete_task(task_id: str):
+    """Delete a task by closing its GitHub issue (as not planned)"""
+    async with httpx.AsyncClient() as client:
+        response = await client.patch(
+            f"{GITHUB_API_BASE}/repos/{TASKS_REPO_OWNER}/{TASKS_REPO_NAME}/issues/{task_id}",
+            headers=_github_headers(),
+            json={"state": "closed", "state_reason": "not_planned"},
+        )
+    if response.status_code == 404:
         raise HTTPException(status_code=404, detail="Task not found")
-    api_tasks.remove(task)
+    if response.status_code != 200:
+        raise HTTPException(status_code=502, detail="Failed to delete task on GitHub")
     return {"message": "Task deleted"}
 
 @app.patch("/api/tasks/{task_id}", response_model=Task)
-def toggle_task(task_id: str):
-    """Toggle a task's completion status between pending and completed"""
-    task = next((t for t in api_tasks if t["id"] == task_id), None)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    task["status"] = "completed" if task["status"] == "pending" else "pending"
-    return task
+async def toggle_task(task_id: str):
+    """Toggle a task's completion status by adding/removing the completed label"""
+    async with httpx.AsyncClient() as client:
+        get_response = await client.get(
+            f"{GITHUB_API_BASE}/repos/{TASKS_REPO_OWNER}/{TASKS_REPO_NAME}/issues/{task_id}",
+            headers=_github_headers(),
+        )
+        if get_response.status_code == 404:
+            raise HTTPException(status_code=404, detail="Task not found")
+        if get_response.status_code != 200:
+            raise HTTPException(status_code=502, detail="Failed to fetch task from GitHub")
+
+        label_names = [label["name"] for label in get_response.json().get("labels", [])]
+        if TASKS_COMPLETED_LABEL in label_names:
+            new_labels = [name for name in label_names if name != TASKS_COMPLETED_LABEL]
+        else:
+            new_labels = label_names + [TASKS_COMPLETED_LABEL]
+
+        patch_response = await client.patch(
+            f"{GITHUB_API_BASE}/repos/{TASKS_REPO_OWNER}/{TASKS_REPO_NAME}/issues/{task_id}",
+            headers=_github_headers(),
+            json={"labels": new_labels},
+        )
+    if patch_response.status_code != 200:
+        raise HTTPException(status_code=502, detail="Failed to update task on GitHub")
+    return _issue_to_task(patch_response.json())
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
