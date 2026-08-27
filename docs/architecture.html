@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Architecture — Factory Inventory Management System</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --accent: #2563eb;
+    --accent-soft: #eff6ff;
+    --green: #16a34a;
+    --green-soft: #f0fdf4;
+    --amber: #b45309;
+    --amber-soft: #fffbeb;
+    --red: #dc2626;
+    --red-soft: #fef2f2;
+    --radius: 10px;
+    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+  }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+
+  header.page-head {
+    margin-bottom: 40px;
+  }
+
+  header.page-head h1 {
+    font-size: 28px;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+
+  header.page-head p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 15px;
+    max-width: 62ch;
+  }
+
+  .ports {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .port-chip {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 12px;
+    color: var(--ink-soft);
+  }
+
+  section {
+    margin-bottom: 44px;
+  }
+
+  h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin: 0 0 16px;
+    font-weight: 700;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  /* Tech stack */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .stack-card {
+    padding: 18px 20px;
+  }
+
+  .stack-card .role {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .stack-card h3 {
+    margin: 0 0 10px;
+    font-size: 16px;
+  }
+
+  .stack-card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .stack-card li {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .stack-card li:first-child { border-top: none; }
+
+  .stack-card li span:last-child {
+    font-family: var(--mono);
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  /* Diagram */
+  .diagram {
+    padding: 28px;
+    overflow-x: auto;
+  }
+
+  .flow-row {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-width: 900px;
+  }
+
+  .flow-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+    min-width: 150px;
+  }
+
+  .flow-col .col-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .node {
+    background: var(--accent-soft);
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12.5px;
+    text-align: center;
+    color: #1e3a8a;
+    font-weight: 600;
+  }
+
+  .node.neutral {
+    background: #f1f5f9;
+    border-color: var(--line);
+    color: var(--ink-soft);
+  }
+
+  .node.green {
+    background: var(--green-soft);
+    border-color: #bbf7d0;
+    color: #166534;
+  }
+
+  .node small {
+    display: block;
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 2px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+  }
+
+  .connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    color: var(--muted);
+    font-size: 18px;
+    align-self: center;
+  }
+
+  /* Endpoints table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    font-weight: 700;
+    background: #f8fafc;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .method {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    background: var(--green-soft);
+    border-radius: 4px;
+    padding: 2px 6px;
+  }
+
+  code, .path {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    color: var(--ink);
+  }
+
+  .desc { color: var(--ink-soft); }
+  .filters { color: var(--muted); font-family: var(--mono); font-size: 11.5px; }
+
+  /* Notes / deviations */
+  .note {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    margin-bottom: 10px;
+    border: 1px solid;
+  }
+
+  .note.warn {
+    background: var(--amber-soft);
+    border-color: #fde68a;
+    color: #78350f;
+  }
+
+  .note .tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    padding-top: 2px;
+    letter-spacing: 0.04em;
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 12.5px;
+  }
+
+  @media (max-width: 640px) {
+    .flow-row { flex-direction: column; min-width: 0; }
+    .connector { transform: rotate(90deg); padding: 6px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>Factory Inventory Management System</h1>
+    <p>A full-stack demo application for inventory, orders, demand forecasting, and spending analytics across factory warehouses. Vue 3 frontend, FastAPI backend, in-memory JSON data — no database.</p>
+    <div class="ports">
+      <span class="port-chip">frontend :3000</span>
+      <span class="port-chip">backend :8001</span>
+      <span class="port-chip">/docs — OpenAPI</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Tech Stack</h2>
+    <div class="stack-grid">
+      <div class="card stack-card">
+        <div class="role">Frontend</div>
+        <h3>Vue 3 + Vite</h3>
+        <ul>
+          <li><span>vue</span><span>^3.4.21</span></li>
+          <li><span>vue-router</span><span>^4.3.0</span></li>
+          <li><span>axios</span><span>^1.6.7</span></li>
+          <li><span>vite</span><span>^5.2.0</span></li>
+        </ul>
+      </div>
+      <div class="card stack-card">
+        <div class="role">Backend</div>
+        <h3>Python + FastAPI</h3>
+        <ul>
+          <li><span>fastapi</span><span>&gt;=0.110.0</span></li>
+          <li><span>uvicorn</span><span>&gt;=0.24.0</span></li>
+          <li><span>pydantic</span><span>&gt;=2.5.0</span></li>
+          <li><span>python</span><span>&gt;=3.11 (uv)</span></li>
+        </ul>
+      </div>
+      <div class="card stack-card">
+        <div class="role">Data</div>
+        <h3>In-memory JSON</h3>
+        <ul>
+          <li><span>Storage</span><span>server/data/*.json</span></li>
+          <li><span>Loaded</span><span>once, at import</span></li>
+          <li><span>Persistence</span><span>none (resets on restart)</span></li>
+          <li><span>Database</span><span>none</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Data Flow</h2>
+    <div class="card diagram">
+      <div class="flow-row">
+        <div class="flow-col">
+          <div class="col-label">UI</div>
+          <div class="node">Vue view<small>Dashboard, Orders, …</small></div>
+          <div class="node neutral">FilterBar<small>useFilters() singleton</small></div>
+        </div>
+        <div class="connector">&rarr;</div>
+        <div class="flow-col">
+          <div class="col-label">Client</div>
+          <div class="node neutral">api.js<small>axios, URLSearchParams</small></div>
+        </div>
+        <div class="connector">&rarr;</div>
+        <div class="flow-col">
+          <div class="col-label">Server</div>
+          <div class="node">FastAPI route<small>main.py</small></div>
+          <div class="node neutral">apply_filters()<small>warehouse / category / status / month</small></div>
+        </div>
+        <div class="connector">&rarr;</div>
+        <div class="flow-col">
+          <div class="col-label">Data</div>
+          <div class="node green">mock_data.py<small>in-memory lists</small></div>
+          <div class="node neutral">*.json files<small>server/data/</small></div>
+        </div>
+        <div class="connector">&larr;</div>
+        <div class="flow-col">
+          <div class="col-label">Response</div>
+          <div class="node">Pydantic model<small>validate + serialize</small></div>
+          <div class="node neutral">computed()<small>view renders</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>API Endpoints</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Filters</th><th>Returns</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/inventory</td><td class="filters">warehouse, category</td><td class="desc">List of inventory items</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/inventory/{id}</td><td class="filters">—</td><td class="desc">Single inventory item (404 if missing)</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/orders</td><td class="filters">warehouse, category, status, month</td><td class="desc">List of orders</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/orders/{id}</td><td class="filters">—</td><td class="desc">Single order (404 if missing)</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/demand</td><td class="filters">none</td><td class="desc">Demand forecasts</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/backlog</td><td class="filters">none</td><td class="desc">Backlog items (+ computed has_purchase_order)</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/dashboard/summary</td><td class="filters">warehouse, category, status, month</td><td class="desc">Aggregated dashboard stats</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/spending/summary</td><td class="filters">none</td><td class="desc">Spending summary</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/spending/monthly</td><td class="filters">none</td><td class="desc">Monthly spending</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/spending/categories</td><td class="filters">none</td><td class="desc">Spending by category</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/spending/transactions</td><td class="filters">none</td><td class="desc">Recent transactions</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/reports/quarterly</td><td class="filters">none (unfiltered)</td><td class="desc">Per-quarter order/revenue stats</td></tr>
+          <tr><td><span class="method">GET</span></td><td class="path">/api/reports/monthly-trends</td><td class="filters">none (unfiltered)</td><td class="desc">Per-month order/revenue stats</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Frontend Routes</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr><th>Path</th><th>View</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="path">/</td><td class="desc">Dashboard.vue</td><td class="desc">Overview + key metrics</td></tr>
+          <tr><td class="path">/inventory</td><td class="desc">Inventory.vue</td><td class="desc">Inventory listing</td></tr>
+          <tr><td class="path">/orders</td><td class="desc">Orders.vue</td><td class="desc">Order tracking</td></tr>
+          <tr><td class="path">/demand</td><td class="desc">Demand.vue</td><td class="desc">Demand forecasting</td></tr>
+          <tr><td class="path">/spending</td><td class="desc">Spending.vue</td><td class="desc">Spending analytics</td></tr>
+          <tr><td class="path">/reports</td><td class="desc">Reports.vue</td><td class="desc">Quarterly / monthly trend reports</td></tr>
+          <tr><td class="path">—</td><td class="desc">Backlog.vue</td><td class="desc">Exists but not registered in the router — unreachable from the UI</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Known Deviations</h2>
+    <div class="note warn"><span class="tag">Dead route</span> Backlog.vue has no router entry and no nav link — it's built but unreachable in the running app.</div>
+    <div class="note warn"><span class="tag">Missing API</span> client/src/api.js calls <code>/api/tasks</code> and <code>/api/purchase-orders</code>, but neither exists in main.py — these requests fail at runtime; task state instead falls back to local mock data in the auth composable.</div>
+    <div class="note warn"><span class="tag">Unfiltered</span> /api/reports/quarterly and /api/reports/monthly-trends ignore the global filter bar entirely — they always compute over the full unfiltered order set.</div>
+    <div class="note warn"><span class="tag">Dev-only CORS</span> Backend allows all origins, methods, and headers (<code>allow_origins=["*"]</code>) — fine for this local demo, not production-safe.</div>
+  </section>
+
+  <footer>
+    Generated from a code investigation of the repository at <code>inventory-management/</code>. Demo application — in-memory data, no auth, no database.
+  </footer>
+
+</div>
+</body>
+</html>
