@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再入荷',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,6 +127,20 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    restocking: {
+      title: '提出済み注文',
+      description: '需要予測の推奨に基づいて提出された再入荷注文',
+      noOrders: 'まだ再入荷注文は提出されていません。',
+      table: {
+        orderNumber: '注文番号',
+        items: '品目',
+        orderDate: '注文日',
+        leadTime: 'リードタイム',
+        expectedDelivery: '予定配達日',
+        totalCost: '合計コスト',
+        status: 'ステータス'
+      }
     }
   },
 
@@ -188,6 +203,36 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '予算を設定し、推奨品目の再入荷注文を行います',
+    recommendationsTitle: '推奨再入荷品目',
+    budgetLabel: '予算',
+    budgetHint: 'スライダーをドラッグして再入荷予算を調整してください',
+    stats: {
+      recommendedItems: '推奨品目数',
+      totalCost: '合計コスト',
+      remainingBudget: '残り予算'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      trend: 'トレンド',
+      currentDemand: '現在の需要',
+      forecastedDemand: '予測需要',
+      suggestedQuantity: '推奨数量',
+      unitCost: '単価',
+      subtotal: '小計'
+    },
+    noRecommendations: '選択した予算に収まる品目がありません。予算を増やして推奨品目を確認してください。',
+    placeOrder: '注文する',
+    placingOrder: '注文中...',
+    validationNoItems: '注文する前に少なくとも1つの品目を選択してください。',
+    successMessage: '注文{orderNumber}が{total}で確定されました。予定配達日数は{days}日です。',
+    viewInOrders: '注文で確認する'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -206,7 +251,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    ordered: '注文済み'
   },
 
   // Trends

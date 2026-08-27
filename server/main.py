@@ -1,3 +1,5 @@
+import random
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -5,6 +7,9 @@ from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# In-memory store for restocking orders submitted from the Restocking tab
+restock_orders: List[dict] = []
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -89,6 +94,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +125,34 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItemRequest(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderItemRequest]
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    subtotal: float
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockOrderItem]
+    budget: float
+    total_cost: float
+    status: str
+    order_date: str
+    lead_time_days: int
+    expected_delivery: str
 
 # API endpoints
 @app.get("/")
@@ -165,6 +199,48 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get all submitted restocking orders"""
+    return restock_orders
+
+@app.post("/api/restock-orders", response_model=RestockOrder)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order built from demand forecast recommendations"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Restocking order must include at least one item")
+
+    order_items = []
+    total_cost = 0.0
+    for item in request.items:
+        subtotal = round(item.quantity * item.unit_cost, 2)
+        total_cost += subtotal
+        order_items.append({
+            "item_sku": item.item_sku,
+            "item_name": item.item_name,
+            "quantity": item.quantity,
+            "unit_cost": item.unit_cost,
+            "subtotal": subtotal
+        })
+
+    order_date = datetime.now()
+    lead_time_days = random.randint(3, 14)
+    expected_delivery = order_date + timedelta(days=lead_time_days)
+
+    new_order = {
+        "id": str(len(restock_orders) + 1),
+        "order_number": f"RSK-{order_date.strftime('%Y%m%d')}-{len(restock_orders) + 1:03d}",
+        "items": order_items,
+        "budget": request.budget,
+        "total_cost": round(total_cost, 2),
+        "status": "Ordered",
+        "order_date": order_date.isoformat(),
+        "lead_time_days": lead_time_days,
+        "expected_delivery": expected_delivery.isoformat()
+    }
+    restock_orders.append(new_order)
+    return new_order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():
