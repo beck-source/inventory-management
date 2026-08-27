@@ -1,30 +1,36 @@
 <template>
   <div class="restocking">
     <div class="page-header">
-      <h2>{{ t('restocking.title') }}</h2>
-      <p>{{ t('restocking.description') }}</p>
+      <h2>{{ t("restocking.title") }}</h2>
+      <p>{{ t("restocking.description") }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
+    <div v-if="loading" class="loading">{{ t("common.loading") }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div v-if="submittedOrder" class="success-banner">
         <div class="success-content">
           <p>{{ successMessage }}</p>
           <router-link to="/orders" class="view-orders-link">
-            {{ t('restocking.viewInOrders') }}
+            {{ t("restocking.viewInOrders") }}
           </router-link>
         </div>
-        <button type="button" class="dismiss-btn" @click="submittedOrder = null">&times;</button>
+        <button
+          type="button"
+          class="dismiss-btn"
+          @click="submittedOrder = null"
+        >
+          &times;
+        </button>
       </div>
 
       <div v-if="submitError" class="error">{{ submitError }}</div>
 
       <div class="card budget-card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('restocking.budgetLabel') }}</h3>
+          <h3 class="card-title">{{ t("restocking.budgetLabel") }}</h3>
         </div>
-        <p class="budget-hint">{{ t('restocking.budgetHint') }}</p>
+        <p class="budget-hint">{{ t("restocking.budgetHint") }}</p>
         <div class="budget-slider-row">
           <input
             type="range"
@@ -40,40 +46,52 @@
 
       <div class="stats-grid">
         <div class="stat-card info">
-          <div class="stat-label">{{ t('restocking.stats.recommendedItems') }}</div>
+          <div class="stat-label">
+            {{ t("restocking.stats.recommendedItems") }}
+          </div>
           <div class="stat-value">{{ selectedItems.length }}</div>
         </div>
         <div class="stat-card success">
-          <div class="stat-label">{{ t('restocking.stats.totalCost') }}</div>
-          <div class="stat-value">{{ formatCurrencyWithDecimals(totalSelectedCost) }}</div>
+          <div class="stat-label">{{ t("restocking.stats.totalCost") }}</div>
+          <div class="stat-value">
+            {{ formatCurrencyWithDecimals(totalSelectedCost) }}
+          </div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">{{ t('restocking.stats.remainingBudget') }}</div>
-          <div class="stat-value">{{ formatCurrencyWithDecimals(remainingBudget) }}</div>
+          <div class="stat-label">
+            {{ t("restocking.stats.remainingBudget") }}
+          </div>
+          <div class="stat-value">
+            {{ formatCurrencyWithDecimals(remainingBudget) }}
+          </div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('restocking.recommendationsTitle') }} ({{ recommendations.length }})</h3>
+          <h3 class="card-title">
+            {{ t("restocking.recommendationsTitle") }} ({{
+              recommendations.length
+            }})
+          </h3>
         </div>
 
         <div v-if="recommendations.length === 0" class="empty-state">
-          {{ t('restocking.noRecommendations') }}
+          {{ t("restocking.noRecommendations") }}
         </div>
         <div v-else class="table-container">
           <table>
             <thead>
               <tr>
                 <th class="col-checkbox"></th>
-                <th>{{ t('restocking.table.sku') }}</th>
-                <th>{{ t('restocking.table.itemName') }}</th>
-                <th>{{ t('restocking.table.trend') }}</th>
-                <th>{{ t('restocking.table.currentDemand') }}</th>
-                <th>{{ t('restocking.table.forecastedDemand') }}</th>
-                <th>{{ t('restocking.table.suggestedQuantity') }}</th>
-                <th>{{ t('restocking.table.unitCost') }}</th>
-                <th>{{ t('restocking.table.subtotal') }}</th>
+                <th>{{ t("restocking.table.sku") }}</th>
+                <th>{{ t("restocking.table.itemName") }}</th>
+                <th>{{ t("restocking.table.trend") }}</th>
+                <th>{{ t("restocking.table.currentDemand") }}</th>
+                <th>{{ t("restocking.table.forecastedDemand") }}</th>
+                <th>{{ t("restocking.table.suggestedQuantity") }}</th>
+                <th>{{ t("restocking.table.unitCost") }}</th>
+                <th>{{ t("restocking.table.subtotal") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -81,7 +99,9 @@
                 <td class="col-checkbox">
                   <input type="checkbox" v-model="included[item.item_sku]" />
                 </td>
-                <td><strong>{{ item.item_sku }}</strong></td>
+                <td>
+                  <strong>{{ item.item_sku }}</strong>
+                </td>
                 <td>{{ item.item_name }}</td>
                 <td>
                   <span :class="['badge', item.trend]">
@@ -90,7 +110,9 @@
                 </td>
                 <td>{{ item.current_demand }}</td>
                 <td>{{ item.forecasted_demand }}</td>
-                <td><strong>{{ item.quantity }}</strong></td>
+                <td>
+                  <strong>{{ item.quantity }}</strong>
+                </td>
                 <td>{{ formatCurrencyWithDecimals(item.unit_cost) }}</td>
                 <td>{{ formatCurrencyWithDecimals(item.subtotal) }}</td>
               </tr>
@@ -107,155 +129,171 @@
         :disabled="selectedItems.length === 0 || submitting"
         @click="handlePlaceOrder"
       >
-        {{ submitting ? t('restocking.placingOrder') : t('restocking.placeOrder') }}
+        {{
+          submitting ? t("restocking.placingOrder") : t("restocking.placeOrder")
+        }}
       </button>
     </div>
   </div>
 </template>
 
 <script>
-import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { api } from '../api'
-import { useI18n } from '../composables/useI18n'
+import { ref, reactive, computed, watch, onMounted } from "vue";
+import { api } from "../api";
+import { useI18n } from "../composables/useI18n";
 import {
   formatCurrency as formatCurrencyUtil,
-  formatCurrencyWithDecimals as formatCurrencyWithDecimalsUtil
-} from '../utils/currency'
+  formatCurrencyWithDecimals as formatCurrencyWithDecimalsUtil,
+} from "../utils/currency";
 
 const TREND_PRIORITY = {
   increasing: 3,
   stable: 2,
-  decreasing: 1
-}
+  decreasing: 1,
+};
 
 export default {
-  name: 'Restocking',
+  name: "Restocking",
   setup() {
-    const { t, currentCurrency } = useI18n()
+    const { t, currentCurrency } = useI18n();
 
-    const loading = ref(true)
-    const error = ref(null)
-    const allForecasts = ref([])
+    const loading = ref(true);
+    const error = ref(null);
+    const allForecasts = ref([]);
 
-    const budget = ref(0)
-    const included = reactive({})
+    const budget = ref(0);
+    const included = reactive({});
 
-    const submitting = ref(false)
-    const submitError = ref(null)
-    const submittedOrder = ref(null)
-    const validationMessage = ref(null)
+    const submitting = ref(false);
+    const submitError = ref(null);
+    const submittedOrder = ref(null);
+    const validationMessage = ref(null);
 
-    const formatCurrency = (amount) => formatCurrencyUtil(amount, currentCurrency.value)
-    const formatCurrencyWithDecimals = (amount) => formatCurrencyWithDecimalsUtil(amount, currentCurrency.value, 2)
+    const formatCurrency = (amount) =>
+      formatCurrencyUtil(amount, currentCurrency.value);
+    const formatCurrencyWithDecimals = (amount) =>
+      formatCurrencyWithDecimalsUtil(amount, currentCurrency.value, 2);
 
     // Maximum cost to fully satisfy every actionable recommendation
     const maxBudget = computed(() => {
       const raw = allForecasts.value.reduce((sum, f) => {
-        const gap = f.forecasted_demand - f.current_demand
-        return gap > 0 ? sum + gap * f.unit_cost : sum
-      }, 0)
-      return Math.ceil(raw / 100) * 100
-    })
+        const gap = f.forecasted_demand - f.current_demand;
+        return gap > 0 ? sum + gap * f.unit_cost : sum;
+      }, 0);
+      return Math.ceil(raw / 100) * 100;
+    });
 
     const recommendations = computed(() => {
       const candidates = allForecasts.value
-        .map(f => ({ ...f, gap: Math.max(f.forecasted_demand - f.current_demand, 0) }))
-        .filter(f => f.gap > 0)
+        .map((f) => ({
+          ...f,
+          gap: Math.max(f.forecasted_demand - f.current_demand, 0),
+        }))
+        .filter((f) => f.gap > 0)
         .sort((a, b) => {
-          const priorityDiff = (TREND_PRIORITY[b.trend] || 0) - (TREND_PRIORITY[a.trend] || 0)
-          if (priorityDiff !== 0) return priorityDiff
-          return b.gap - a.gap
-        })
+          const priorityDiff =
+            (TREND_PRIORITY[b.trend] || 0) - (TREND_PRIORITY[a.trend] || 0);
+          if (priorityDiff !== 0) return priorityDiff;
+          return b.gap - a.gap;
+        });
 
-      const result = []
-      let remaining = budget.value
+      const result = [];
+      let remaining = budget.value;
 
       for (const candidate of candidates) {
-        const cost = candidate.gap * candidate.unit_cost
+        const cost = candidate.gap * candidate.unit_cost;
         if (cost <= remaining) {
           result.push({
             ...candidate,
             quantity: candidate.gap,
-            subtotal: cost
-          })
-          remaining -= cost
+            subtotal: cost,
+          });
+          remaining -= cost;
         }
       }
 
-      return result
-    })
+      return result;
+    });
 
     // Backfill inclusion state for newly seen SKUs without resetting user choices
-    watch(recommendations, (newRecs) => {
-      newRecs.forEach(item => {
-        if (!(item.item_sku in included)) {
-          included[item.item_sku] = true
-        }
-      })
-    }, { immediate: true })
+    watch(
+      recommendations,
+      (newRecs) => {
+        newRecs.forEach((item) => {
+          if (!(item.item_sku in included)) {
+            included[item.item_sku] = true;
+          }
+        });
+      },
+      { immediate: true },
+    );
 
     const selectedItems = computed(() => {
-      return recommendations.value.filter(item => included[item.item_sku] !== false)
-    })
+      return recommendations.value.filter(
+        (item) => included[item.item_sku] !== false,
+      );
+    });
 
     const totalSelectedCost = computed(() => {
-      return selectedItems.value.reduce((sum, item) => sum + item.subtotal, 0)
-    })
+      return selectedItems.value.reduce((sum, item) => sum + item.subtotal, 0);
+    });
 
-    const remainingBudget = computed(() => budget.value - totalSelectedCost.value)
+    const remainingBudget = computed(
+      () => budget.value - totalSelectedCost.value,
+    );
 
     const successMessage = computed(() => {
-      if (!submittedOrder.value) return ''
-      return t('restocking.successMessage', {
+      if (!submittedOrder.value) return "";
+      return t("restocking.successMessage", {
         orderNumber: submittedOrder.value.order_number,
         total: formatCurrency(submittedOrder.value.total_cost),
-        days: submittedOrder.value.lead_time_days
-      })
-    })
+        days: submittedOrder.value.lead_time_days,
+      });
+    });
 
     const loadForecasts = async () => {
       try {
-        loading.value = true
-        error.value = null
-        allForecasts.value = await api.getDemandForecasts()
+        loading.value = true;
+        error.value = null;
+        allForecasts.value = await api.getDemandForecasts();
         // Initialize budget to roughly half of the max once data is loaded
-        budget.value = Math.round((maxBudget.value / 2) / 50) * 50
+        budget.value = Math.round(maxBudget.value / 2 / 50) * 50;
       } catch (err) {
-        error.value = 'Failed to load demand forecasts: ' + err.message
+        error.value = "Failed to load demand forecasts: " + err.message;
       } finally {
-        loading.value = false
+        loading.value = false;
       }
-    }
+    };
 
     const handlePlaceOrder = async () => {
       if (selectedItems.value.length === 0) {
-        validationMessage.value = t('restocking.validationNoItems')
-        return
+        validationMessage.value = t("restocking.validationNoItems");
+        return;
       }
 
-      validationMessage.value = null
-      submitError.value = null
-      submitting.value = true
+      validationMessage.value = null;
+      submitError.value = null;
+      submitting.value = true;
 
       try {
         const payload = {
           budget: budget.value,
-          items: selectedItems.value.map(item => ({
+          items: selectedItems.value.map((item) => ({
             item_sku: item.item_sku,
             item_name: item.item_name,
             quantity: item.quantity,
-            unit_cost: item.unit_cost
-          }))
-        }
-        submittedOrder.value = await api.createRestockOrder(payload)
+            unit_cost: item.unit_cost,
+          })),
+        };
+        submittedOrder.value = await api.createRestockOrder(payload);
       } catch (err) {
-        submitError.value = 'Failed to place restock order: ' + err.message
+        submitError.value = "Failed to place restock order: " + err.message;
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
-    }
+    };
 
-    onMounted(loadForecasts)
+    onMounted(loadForecasts);
 
     return {
       t,
@@ -275,10 +313,10 @@ export default {
       validationMessage,
       handlePlaceOrder,
       formatCurrency,
-      formatCurrencyWithDecimals
-    }
-  }
-}
+      formatCurrencyWithDecimals,
+    };
+  },
+};
 </script>
 
 <style scoped>
@@ -325,7 +363,7 @@ export default {
   text-align: center;
 }
 
-.col-checkbox input[type='checkbox'] {
+.col-checkbox input[type="checkbox"] {
   width: 16px;
   height: 16px;
   accent-color: #3b82f6;

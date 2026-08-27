@@ -7,6 +7,7 @@ Factory Inventory Management System Demo with GitHub integration - Full-stack ap
 ## Critical Tool Usage Rules
 
 ### Subagents
+
 Use the Task tool with these specialized subagents for appropriate tasks:
 
 - **vue-expert**: Use for Vue 3 frontend features, UI components, styling, and client-side functionality
@@ -17,15 +18,18 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 - **general-purpose**: Use for complex multi-step tasks or when other agents don't fit
 
 ### Skills
+
 - **backend-api-test** skill: Use when writing or modifying tests in `tests/backend` directory with pytest and FastAPI TestClient
 
 ### MCP Tools
+
 - **ALWAYS use GitHub MCP tools** (`mcp__github__*`) for ALL GitHub operations
   - Exception: Local branches only - use `git checkout -b` instead of `mcp__github__create_branch`
 - **ALWAYS use Playwright MCP tools** (`mcp__playwright__*`) for browser testing
   - Test against: `http://localhost:3000` (frontend), `http://localhost:8001` (API)
 
 ## Stack
+
 - **Frontend**: Vue 3 + Composition API + Vite (port 3000)
 - **Backend**: Python FastAPI (port 8001)
 - **Data**: JSON files in `server/data/` loaded via `server/mock_data.py`
@@ -49,6 +53,7 @@ npm install && npm run dev
 **Reactivity**: Raw data in refs (`allOrders`, `inventoryItems`), derived data in computed properties
 
 ## API Endpoints
+
 - `GET /api/inventory` - Filters: warehouse, category
 - `GET /api/orders` - Filters: warehouse, category, status, month
 - `GET /api/dashboard/summary` - All filters
@@ -56,6 +61,7 @@ npm install && npm run dev
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
 
 ## Common Issues
+
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
 2. Validate dates before `.getMonth()` calls
 3. Update Pydantic models when changing JSON data structure
@@ -63,6 +69,7 @@ npm install && npm run dev
 5. Revenue goals: $800K/month single, $9.6M YTD all months
 
 ## File Locations
+
 - Views: `client/src/views/*.vue`
 - API Client: `client/src/api.js`
 - Backend: `server/main.py`, `server/mock_data.py`
@@ -70,6 +77,7 @@ npm install && npm run dev
 - Styles: `client/src/App.vue`
 
 ## Design System
+
 - Colors: Slate/gray (#0f172a, #64748b, #e2e8f0)
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts

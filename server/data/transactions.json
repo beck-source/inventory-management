@@ -5,7 +5,7 @@
     "description": "Steel Bearing Assembly Purchase",
     "category": "Components",
     "warehouse": "B",
-    "amount": 13425.00,
+    "amount": 13425.0,
     "vendor": "Industrial Supply Co",
     "type": "Purchase"
   },
@@ -15,7 +15,7 @@
     "description": "Manufacturing Labor - Week 35",
     "category": "Labor",
     "warehouse": "A",
-    "amount": 15800.00,
+    "amount": 15800.0,
     "vendor": "Internal",
     "type": "Operational"
   },
@@ -25,7 +25,7 @@
     "description": "Oil Filter Cartridge Bulk Order",
     "category": "Consumables",
     "warehouse": "A",
-    "amount": 6600.00,
+    "amount": 6600.0,
     "vendor": "FilterMax Inc",
     "type": "Purchase"
   },
@@ -45,7 +45,7 @@
     "description": "High-Temperature Gasket Stock",
     "category": "Components",
     "warehouse": "A",
-    "amount": 10837.50,
+    "amount": 10837.5,
     "vendor": "Gasket Solutions Ltd",
     "type": "Purchase"
   },
@@ -55,7 +55,7 @@
     "description": "Equipment Maintenance",
     "category": "Operational",
     "warehouse": "C",
-    "amount": 3850.00,
+    "amount": 3850.0,
     "vendor": "TechMaintain Pro",
     "type": "Operational"
   },
@@ -65,7 +65,7 @@
     "description": "Industrial Widget Type A Restock",
     "category": "Widgets",
     "warehouse": "A",
-    "amount": 7497.00,
+    "amount": 7497.0,
     "vendor": "Widget World Inc",
     "type": "Purchase"
   },
@@ -75,7 +75,7 @@
     "description": "Warehouse Insurance Premium",
     "category": "Overhead",
     "warehouse": "B",
-    "amount": 5200.00,
+    "amount": 5200.0,
     "vendor": "SecureGuard Insurance",
     "type": "Overhead"
   },
@@ -85,7 +85,7 @@
     "description": "Electric Motor 5HP Purchase",
     "category": "Equipment",
     "warehouse": "C",
-    "amount": 8900.00,
+    "amount": 8900.0,
     "vendor": "MotorTech Solutions",
     "type": "Purchase"
   },
@@ -95,7 +95,7 @@
     "description": "Safety Equipment & Supplies",
     "category": "Operational",
     "warehouse": "A",
-    "amount": 2150.50,
+    "amount": 2150.5,
     "vendor": "SafeWork Inc",
     "type": "Operational"
   },
@@ -105,7 +105,7 @@
     "description": "Pressure Relief Valve Stock",
     "category": "Components",
     "warehouse": "B",
-    "amount": 7800.00,
+    "amount": 7800.0,
     "vendor": "Valve Systems Corp",
     "type": "Purchase"
   },
@@ -115,7 +115,7 @@
     "description": "IT Infrastructure Support",
     "category": "Overhead",
     "warehouse": "A",
-    "amount": 3500.00,
+    "amount": 3500.0,
     "vendor": "TechSupport Plus",
     "type": "Overhead"
   },
@@ -125,7 +125,7 @@
     "description": "Gasket Variety Pack",
     "category": "Components",
     "warehouse": "B",
-    "amount": 5100.00,
+    "amount": 5100.0,
     "vendor": "Gasket Solutions Ltd",
     "type": "Purchase"
   },
@@ -135,7 +135,7 @@
     "description": "Manufacturing Labor - Week 36",
     "category": "Labor",
     "warehouse": "B",
-    "amount": 16200.00,
+    "amount": 16200.0,
     "vendor": "Internal",
     "type": "Operational"
   },
@@ -145,7 +145,7 @@
     "description": "Forklift Maintenance Service",
     "category": "Operational",
     "warehouse": "B",
-    "amount": 1850.00,
+    "amount": 1850.0,
     "vendor": "Industrial Equipment Services",
     "type": "Operational"
   },
@@ -155,7 +155,7 @@
     "description": "Steel Bearing Bulk Order",
     "category": "Components",
     "warehouse": "B",
-    "amount": 8950.00,
+    "amount": 8950.0,
     "vendor": "Industrial Supply Co",
     "type": "Purchase"
   },
@@ -175,7 +175,7 @@
     "description": "Filter Cartridges Assortment",
     "category": "Consumables",
     "warehouse": "A",
-    "amount": 12375.00,
+    "amount": 12375.0,
     "vendor": "FilterMax Inc",
     "type": "Purchase"
   },
@@ -185,7 +185,7 @@
     "description": "Building Maintenance",
     "category": "Operational",
     "warehouse": "C",
-    "amount": 2950.00,
+    "amount": 2950.0,
     "vendor": "Facility Care Services",
     "type": "Operational"
   },
@@ -195,7 +195,7 @@
     "description": "Electric Motors Various HP",
     "category": "Equipment",
     "warehouse": "C",
-    "amount": 11125.00,
+    "amount": 11125.0,
     "vendor": "MotorTech Solutions",
     "type": "Purchase"
   },
@@ -205,7 +205,7 @@
     "description": "Warehouse Security Services",
     "category": "Overhead",
     "warehouse": "B",
-    "amount": 4100.00,
+    "amount": 4100.0,
     "vendor": "SecureWatch Inc",
     "type": "Overhead"
   },
@@ -215,7 +215,7 @@
     "description": "Valve Assembly Purchase",
     "category": "Components",
     "warehouse": "B",
-    "amount": 9360.00,
+    "amount": 9360.0,
     "vendor": "Valve Systems Corp",
     "type": "Purchase"
   },
@@ -225,7 +225,7 @@
     "description": "Packaging Materials",
     "category": "Consumables",
     "warehouse": "A",
-    "amount": 3250.00,
+    "amount": 3250.0,
     "vendor": "PackPro Supplies",
     "type": "Purchase"
   },
@@ -235,7 +235,7 @@
     "description": "Widget Type A & B Stock",
     "category": "Widgets",
     "warehouse": "A",
-    "amount": 6247.50,
+    "amount": 6247.5,
     "vendor": "Widget World Inc",
     "type": "Purchase"
   },
@@ -245,7 +245,7 @@
     "description": "Quality Control Services",
     "category": "Operational",
     "warehouse": "A",
-    "amount": 5500.00,
+    "amount": 5500.0,
     "vendor": "QC Experts LLC",
     "type": "Operational"
   },
@@ -255,7 +255,7 @@
     "description": "Gasket Specialty Order",
     "category": "Components",
     "warehouse": "A",
-    "amount": 8925.00,
+    "amount": 8925.0,
     "vendor": "Gasket Solutions Ltd",
     "type": "Purchase"
   },
@@ -265,7 +265,7 @@
     "description": "Manufacturing Labor - Week 37",
     "category": "Labor",
     "warehouse": "C",
-    "amount": 15900.00,
+    "amount": 15900.0,
     "vendor": "Internal",
     "type": "Operational"
   },
@@ -275,7 +275,7 @@
     "description": "HVAC System Maintenance",
     "category": "Operational",
     "warehouse": "B",
-    "amount": 3200.00,
+    "amount": 3200.0,
     "vendor": "Climate Control Pro",
     "type": "Operational"
   },
@@ -285,7 +285,7 @@
     "description": "Bearing Assembly Large Order",
     "category": "Components",
     "warehouse": "B",
-    "amount": 10740.00,
+    "amount": 10740.0,
     "vendor": "Industrial Supply Co",
     "type": "Purchase"
   },
@@ -295,7 +295,7 @@
     "description": "Property Tax Payment",
     "category": "Overhead",
     "warehouse": "A",
-    "amount": 8500.00,
+    "amount": 8500.0,
     "vendor": "County Tax Authority",
     "type": "Overhead"
   },
@@ -305,7 +305,7 @@
     "description": "Filter Cartridge Restock",
     "category": "Consumables",
     "warehouse": "A",
-    "amount": 7425.00,
+    "amount": 7425.0,
     "vendor": "FilterMax Inc",
     "type": "Purchase"
   },
@@ -315,7 +315,7 @@
     "description": "Waste Management Services",
     "category": "Operational",
     "warehouse": "C",
-    "amount": 1850.00,
+    "amount": 1850.0,
     "vendor": "EcoWaste Solutions",
     "type": "Operational"
   },
@@ -325,7 +325,7 @@
     "description": "Electric Motor Special Order",
     "category": "Equipment",
     "warehouse": "C",
-    "amount": 13350.00,
+    "amount": 13350.0,
     "vendor": "MotorTech Solutions",
     "type": "Purchase"
   },
@@ -335,7 +335,7 @@
     "description": "Training & Development",
     "category": "Labor",
     "warehouse": "A",
-    "amount": 4200.00,
+    "amount": 4200.0,
     "vendor": "SkillUp Training Corp",
     "type": "Operational"
   },
@@ -345,7 +345,7 @@
     "description": "Valve Components Bulk",
     "category": "Components",
     "warehouse": "B",
-    "amount": 14040.00,
+    "amount": 14040.0,
     "vendor": "Valve Systems Corp",
     "type": "Purchase"
   },
@@ -355,7 +355,7 @@
     "description": "Telecommunications Services",
     "category": "Overhead",
     "warehouse": "B",
-    "amount": 2100.00,
+    "amount": 2100.0,
     "vendor": "TechComm Services",
     "type": "Overhead"
   },
@@ -365,7 +365,7 @@
     "description": "Industrial Widget Premium Line",
     "category": "Widgets",
     "warehouse": "A",
-    "amount": 5497.80,
+    "amount": 5497.8,
     "vendor": "Widget World Inc",
     "type": "Purchase"
   },
@@ -375,7 +375,7 @@
     "description": "Equipment Calibration Service",
     "category": "Operational",
     "warehouse": "C",
-    "amount": 3750.00,
+    "amount": 3750.0,
     "vendor": "Precision Calibration Inc",
     "type": "Operational"
   },
@@ -385,7 +385,7 @@
     "description": "Gasket High-Temp Series",
     "category": "Components",
     "warehouse": "B",
-    "amount": 7012.50,
+    "amount": 7012.5,
     "vendor": "Gasket Solutions Ltd",
     "type": "Purchase"
   },
@@ -395,7 +395,7 @@
     "description": "Manufacturing Labor - Week 38",
     "category": "Labor",
     "warehouse": "A",
-    "amount": 16500.00,
+    "amount": 16500.0,
     "vendor": "Internal",
     "type": "Operational"
   },
@@ -405,7 +405,7 @@
     "description": "Fire Safety Inspection",
     "category": "Operational",
     "warehouse": "A",
-    "amount": 1250.00,
+    "amount": 1250.0,
     "vendor": "SafeWork Inc",
     "type": "Operational"
   },
@@ -415,7 +415,7 @@
     "description": "Bearing Assembly Premium",
     "category": "Components",
     "warehouse": "B",
-    "amount": 12530.00,
+    "amount": 12530.0,
     "vendor": "Industrial Supply Co",
     "type": "Purchase"
   },
@@ -425,7 +425,7 @@
     "description": "Accounting & Payroll Services",
     "category": "Overhead",
     "warehouse": "A",
-    "amount": 6200.00,
+    "amount": 6200.0,
     "vendor": "FinancePro Services",
     "type": "Overhead"
   },
@@ -435,7 +435,7 @@
     "description": "Oil Filter Mega Pack",
     "category": "Consumables",
     "warehouse": "A",
-    "amount": 9900.00,
+    "amount": 9900.0,
     "vendor": "FilterMax Inc",
     "type": "Purchase"
   },
@@ -445,7 +445,7 @@
     "description": "Loading Dock Repairs",
     "category": "Operational",
     "warehouse": "B",
-    "amount": 4500.00,
+    "amount": 4500.0,
     "vendor": "Facility Care Services",
     "type": "Operational"
   },
@@ -455,7 +455,7 @@
     "description": "Electric Motor Emergency Stock",
     "category": "Equipment",
     "warehouse": "C",
-    "amount": 15575.00,
+    "amount": 15575.0,
     "vendor": "MotorTech Solutions",
     "type": "Purchase"
   },
@@ -465,7 +465,7 @@
     "description": "Legal & Compliance Services",
     "category": "Overhead",
     "warehouse": "A",
-    "amount": 5800.00,
+    "amount": 5800.0,
     "vendor": "LegalEase LLC",
     "type": "Overhead"
   },
@@ -475,7 +475,7 @@
     "description": "Valve System Complete Kit",
     "category": "Components",
     "warehouse": "B",
-    "amount": 15600.00,
+    "amount": 15600.0,
     "vendor": "Valve Systems Corp",
     "type": "Purchase"
   },
@@ -485,7 +485,7 @@
     "description": "Facility Utilities",
     "category": "Operational",
     "warehouse": "B",
-    "amount": 4850.50,
+    "amount": 4850.5,
     "vendor": "PowerGrid Services",
     "type": "Operational"
   },
@@ -505,7 +505,7 @@
     "description": "Pest Control Services",
     "category": "Operational",
     "warehouse": "C",
-    "amount": 850.00,
+    "amount": 850.0,
     "vendor": "SafeGuard Pest Control",
     "type": "Operational"
   },
@@ -515,7 +515,7 @@
     "description": "Spring & Hardware Assortment",
     "category": "Components",
     "warehouse": "A",
-    "amount": 4200.00,
+    "amount": 4200.0,
     "vendor": "Industrial Supply Co",
     "type": "Purchase"
   },
@@ -525,7 +525,7 @@
     "description": "Manufacturing Labor - Week 39",
     "category": "Labor",
     "warehouse": "B",
-    "amount": 17100.00,
+    "amount": 17100.0,
     "vendor": "Internal",
     "type": "Operational"
   },
@@ -535,7 +535,7 @@
     "description": "Inventory Management Software",
     "category": "Overhead",
     "warehouse": "A",
-    "amount": 7500.00,
+    "amount": 7500.0,
     "vendor": "TechSolutions Inc",
     "type": "Overhead"
   },
@@ -545,7 +545,7 @@
     "description": "Consumables Variety Pack",
     "category": "Consumables",
     "warehouse": "A",
-    "amount": 8950.00,
+    "amount": 8950.0,
     "vendor": "FilterMax Inc",
     "type": "Purchase"
   },
@@ -555,7 +555,7 @@
     "description": "End of Month Inventory Audit",
     "category": "Operational",
     "warehouse": "A",
-    "amount": 3200.00,
+    "amount": 3200.0,
     "vendor": "AuditPro Services",
     "type": "Operational"
   }

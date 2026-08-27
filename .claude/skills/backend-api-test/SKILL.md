@@ -23,11 +23,13 @@ tests/backend/
 ## File Organization
 
 ### 1. File Naming
+
 - Use `test_<feature>.py` format (e.g., `test_inventory.py`, `test_orders.py`)
 - Group related endpoints in the same file
 - Create new files for distinct API feature areas
 
 ### 2. Test Class Structure
+
 Organize tests within a class using descriptive names:
 
 ```python
@@ -102,6 +104,7 @@ def test_get_orders_multiple_filters(self, client):
 ```
 
 **Common filters to test:**
+
 - `warehouse` - Filter by warehouse location
 - `category` - Filter by product category
 - `status` - Filter by order status (orders only)
@@ -311,6 +314,7 @@ Use descriptive names that clearly indicate what is being tested:
 ## Common Assertions
 
 ### Status Codes
+
 ```python
 assert response.status_code == 200  # Success
 assert response.status_code == 404  # Not found
@@ -318,6 +322,7 @@ assert response.status_code == 422  # Validation error
 ```
 
 ### Response Types
+
 ```python
 data = response.json()
 assert isinstance(data, list)    # Array response
@@ -326,18 +331,21 @@ assert len(data) > 0             # Has data
 ```
 
 ### Field Presence
+
 ```python
 assert "field_name" in data
 assert "detail" in error_response  # Error messages
 ```
 
 ### String Comparisons (Case-Insensitive)
+
 ```python
 assert order["status"].lower() == "delivered"
 assert item["category"].lower() == "power supplies"
 ```
 
 ### Floating Point Comparisons
+
 ```python
 # Allow small differences for float calculations
 assert abs(calculated - expected) < 0.01
@@ -346,20 +354,24 @@ assert abs(calculated - expected) < 0.01
 ## API Endpoint Reference
 
 ### Inventory Endpoints
+
 - `GET /api/inventory` - All inventory items
   - Filters: `warehouse`, `category`
 - `GET /api/inventory/{id}` - Single inventory item
 
 ### Orders Endpoints
+
 - `GET /api/orders` - All orders
   - Filters: `warehouse`, `category`, `status`, `month`
 - `GET /api/orders/{id}` - Single order
 
 ### Dashboard Endpoints
+
 - `GET /api/dashboard/summary` - Dashboard summary
   - Filters: `warehouse`, `category`, `status`, `month`
 
 ### Other Endpoints
+
 - `GET /api/demand` - Demand forecast (no filters)
 - `GET /api/backlog` - Backlog items (no filters)
 - `GET /api/spending/*` - Spending data endpoints
@@ -367,11 +379,13 @@ assert abs(calculated - expected) < 0.01
 ## Common Values for Testing
 
 ### Warehouses
+
 - San Francisco
 - London
 - Tokyo
 
 ### Categories
+
 - Circuit Boards
 - Sensors
 - Power Supplies
@@ -379,12 +393,14 @@ assert abs(calculated - expected) < 0.01
 - Mechanical Components
 
 ### Order Statuses
+
 - Delivered
 - Shipped
 - Processing
 - Backordered
 
 ### Date Formats
+
 - Single month: `2025-01`, `2025-02`, etc.
 - Quarter: `Q1-2025`, `Q2-2025`, etc.
 - All: `all`

@@ -7,7 +7,12 @@
             <h3 class="modal-title">Inventory Shortage Details</h3>
             <button class="close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M15 5L5 15M5 5L15 15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -16,12 +21,25 @@
             <div class="shortage-header">
               <div class="shortage-icon">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                  <path d="M24 8L24 28M24 34L24 36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                  <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="3"/>
+                  <path
+                    d="M24 8L24 28M24 34L24 36"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                  />
+                  <circle
+                    cx="24"
+                    cy="24"
+                    r="18"
+                    stroke="currentColor"
+                    stroke-width="3"
+                  />
                 </svg>
               </div>
               <div class="shortage-title-section">
-                <h4 class="item-name">{{ translateProductName(backlogItem.item_name) }}</h4>
+                <h4 class="item-name">
+                  {{ translateProductName(backlogItem.item_name) }}
+                </h4>
                 <div class="item-sku">SKU: {{ backlogItem.item_sku }}</div>
               </div>
               <span class="priority-badge" :class="backlogItem.priority">
@@ -36,14 +54,18 @@
               </div>
               <div class="summary-card warning">
                 <div class="summary-label">Days Delayed</div>
-                <div class="summary-value">{{ backlogItem.days_delayed }} days</div>
+                <div class="summary-value">
+                  {{ backlogItem.days_delayed }} days
+                </div>
               </div>
             </div>
 
             <div class="info-grid">
               <div class="info-item">
                 <div class="info-label">Order ID</div>
-                <div class="info-value order-id">{{ backlogItem.order_id }}</div>
+                <div class="info-value order-id">
+                  {{ backlogItem.order_id }}
+                </div>
               </div>
 
               <div class="info-item">
@@ -53,17 +75,23 @@
 
               <div class="info-item">
                 <div class="info-label">Quantity Needed</div>
-                <div class="info-value">{{ backlogItem.quantity_needed }} units</div>
+                <div class="info-value">
+                  {{ backlogItem.quantity_needed }} units
+                </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Quantity Available</div>
-                <div class="info-value">{{ backlogItem.quantity_available }} units</div>
+                <div class="info-value">
+                  {{ backlogItem.quantity_available }} units
+                </div>
               </div>
 
               <div class="info-item">
                 <div class="info-label">Expected Date</div>
-                <div class="info-value">{{ formatDate(backlogItem.expected_date) }}</div>
+                <div class="info-value">
+                  {{ formatDate(backlogItem.expected_date) }}
+                </div>
               </div>
 
               <div class="info-item">
@@ -85,42 +113,44 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useI18n } from '../composables/useI18n'
+import { computed } from "vue";
+import { useI18n } from "../composables/useI18n";
 
-const { translateProductName } = useI18n()
+const { translateProductName } = useI18n();
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
+    default: false,
   },
   backlogItem: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
 
 const shortage = computed(() => {
-  if (!props.backlogItem) return 0
-  return props.backlogItem.quantity_needed - props.backlogItem.quantity_available
-})
+  if (!props.backlogItem) return 0;
+  return (
+    props.backlogItem.quantity_needed - props.backlogItem.quantity_available
+  );
+});
 
 const close = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
-  const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 </script>
 
 <style scoped>
@@ -225,7 +255,7 @@ const formatDate = (dateString) => {
 .item-sku {
   font-size: 0.875rem;
   color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: "Monaco", "Courier New", monospace;
 }
 
 .priority-badge {
@@ -327,7 +357,7 @@ const formatDate = (dateString) => {
 
 .info-value.order-id,
 .info-value.sku {
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: "Monaco", "Courier New", monospace;
   color: #2563eb;
 }
 
