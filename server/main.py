@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -89,6 +90,11 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    # Enriched fields used by the Restocking tab for budget math and delivery estimates.
+    # Required on the model because GET /api/demand uses response_model=List[DemandForecast],
+    # which drops any field not declared here.
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +125,17 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class CreateOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateOrderRequest(BaseModel):
+    items: List[CreateOrderItem]
+    customer: Optional[str] = "Internal Restock"
+    warehouse: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -160,6 +177,43 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order)
+def create_order(req: CreateOrderRequest):
+    """Create a restocking order and append it to the in-memory orders list.
+
+    Note: in-memory only. The new order is visible to subsequent GET /api/orders
+    calls in this process, but is not written back to orders.json and resets on
+    server restart. This matches the demo's no-database design.
+    """
+    now = datetime.now()
+
+    # Order-level lead time is the longest item lead time (the delivery bottleneck),
+    # looked up from the demand forecast the item was recommended from.
+    lead_days = 0
+    total_value = 0.0
+    for it in req.items:
+        total_value += it.quantity * it.unit_price
+        forecast = next((d for d in demand_forecasts if d["item_sku"] == it.sku), None)
+        if forecast:
+            lead_days = max(lead_days, int(forecast.get("lead_time_days", 0)))
+
+    seq = len(orders) + 1
+    new_order = {
+        "id": str(seq),
+        "order_number": f"ORD-2025-{seq:04d}",
+        "customer": req.customer or "Internal Restock",
+        "items": [it.model_dump() for it in req.items],
+        "status": "Submitted",
+        "order_date": now.isoformat(timespec="seconds"),
+        "expected_delivery": (now + timedelta(days=lead_days)).isoformat(timespec="seconds"),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+        "warehouse": req.warehouse,
+        "category": None,
+    }
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
