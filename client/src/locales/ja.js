@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,6 +113,18 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: '送信済み発注',
+    submittedEmpty: '送信済みの補充発注はまだありません。補充発注タブから作成してください。',
+    submittedTable: {
+      orderNumber: '発注番号',
+      items: '品目',
+      submitted: '送信日',
+      leadTime: 'リードタイム',
+      expectedDelivery: '納品予定日',
+      totalValue: '合計金額',
+      status: 'ステータス'
+    },
+    leadTimeDays: '{count}日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -189,6 +202,43 @@ export default {
   },
 
   // Filters
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、予測不足量が最も大きい品目を補充します',
+    budget: '利用可能予算',
+    budgetHint: 'このサイクルで使用できる金額をドラッグして設定します',
+    fullCoverage: '全量充当',
+    recommended: '推奨補充リスト',
+    recommendedCount: '{total}件中{count}件を推奨',
+    allocated: '割当額',
+    remaining: '残額',
+    itemsSelected: '品目数',
+    longestLeadTime: '最長リードタイム',
+    placeOrder: '発注する',
+    submitting: '送信中...',
+    orderPlaced: '発注 {orderNumber} を送信しました。納品予定日は {date} です。',
+    viewInOrders: '注文タブで確認',
+    nothingAffordable: 'この予算では不足品目を1単位も充当できません。予算を増やしてください。',
+    noShortfall: '現在の需要を上回る予測の品目がないため、補充対象はありません。',
+    partial: '一部',
+    partialHint: '予算で{needed}単位中{quantity}単位を充当',
+    fullHint: '不足量を全量充当',
+    excluded: '推奨対象外',
+    excludedNoShortfall: '予測が現在の需要以下です',
+    excludedNoBudget: 'この品目の前に予算を使い切りました',
+    days: '{count}日',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      shortfall: '不足量',
+      unitCost: '単価',
+      quantity: '補充数量',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      coverage: '充当状況'
+    }
+  },
+
   filters: {
     timePeriod: '期間',
     location: '場所',
