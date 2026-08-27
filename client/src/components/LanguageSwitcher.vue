@@ -1,7 +1,9 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ collapsed }">
     <button
+      ref="triggerRef"
       class="language-button"
+      :title="collapsed ? localeName : null"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -17,8 +19,9 @@
         <path d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
         <path d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
       </svg>
-      <span class="language-label">{{ localeName }}</span>
+      <span v-if="!collapsed" class="language-label">{{ localeName }}</span>
       <svg
+        v-if="!collapsed"
         class="chevron"
         :class="{ 'chevron-open': isDropdownOpen }"
         width="16"
@@ -30,37 +33,48 @@
       </svg>
     </button>
 
-    <div v-if="isDropdownOpen" class="dropdown-menu">
-      <button
-        v-for="locale in availableLocales"
-        :key="locale"
-        class="dropdown-item"
-        :class="{ active: currentLocale === locale }"
-        @mousedown.prevent="selectLanguage(locale)"
-      >
-        <span class="language-name">{{ getLanguageName(locale) }}</span>
-        <svg
-          v-if="currentLocale === locale"
-          width="18"
-          height="18"
-          viewBox="0 0 18 18"
-          fill="none"
-          class="check-icon"
+    <Teleport to="body">
+      <div v-if="isDropdownOpen" class="dropdown-menu" :style="dropdownStyle">
+        <button
+          v-for="locale in availableLocales"
+          :key="locale"
+          class="dropdown-item"
+          :class="{ active: currentLocale === locale }"
+          @mousedown.prevent="selectLanguage(locale)"
         >
-          <path d="M4 9L7.5 12.5L14 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
+          <span class="language-name">{{ getLanguageName(locale) }}</span>
+          <svg
+            v-if="currentLocale === locale"
+            width="18"
+            height="18"
+            viewBox="0 0 18 18"
+            fill="none"
+            class="check-icon"
+          >
+            <path d="M4 9L7.5 12.5L14 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useI18n } from '../composables/useI18n'
+
+const props = defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
 
 const isDropdownOpen = ref(false)
+const triggerRef = ref(null)
+const dropdownStyle = ref({})
 
 const languageNames = {
   en: 'English',
@@ -71,9 +85,41 @@ const getLanguageName = (locale) => {
   return languageNames[locale] || locale
 }
 
+const updatePosition = () => {
+  const rect = triggerRef.value.getBoundingClientRect()
+  if (props.collapsed) {
+    dropdownStyle.value = {
+      left: `${rect.right + 8}px`,
+      bottom: `${window.innerHeight - rect.bottom}px`
+    }
+  } else {
+    dropdownStyle.value = {
+      left: `${rect.left}px`,
+      bottom: `${window.innerHeight - rect.top + 8}px`
+    }
+  }
+}
+
 const toggleDropdown = () => {
   isDropdownOpen.value = !isDropdownOpen.value
+  if (isDropdownOpen.value) {
+    updatePosition()
+  }
 }
+
+const closeOnScroll = () => {
+  if (isDropdownOpen.value) {
+    isDropdownOpen.value = false
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', closeOnScroll, true)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', closeOnScroll, true)
+})
 
 const handleBlur = () => {
   // Delay to allow mousedown events on dropdown items to fire first
@@ -97,33 +143,45 @@ const selectLanguage = (locale) => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.625rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
   font-size: 0.875rem;
-  color: #334155;
+  color: #e2e8f0;
+  min-width: 0;
 }
 
 .language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.language-switcher.collapsed .language-button {
+  justify-content: center;
+  padding: 0.5rem;
 }
 
 .globe-icon {
-  color: #64748b;
+  color: #94a3b8;
   flex-shrink: 0;
 }
 
 .language-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
   font-weight: 500;
 }
 
 .chevron {
-  color: #64748b;
+  color: #94a3b8;
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -133,9 +191,7 @@ const selectLanguage = (locale) => {
 }
 
 .dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  position: fixed;
   min-width: 160px;
   background: white;
   border: 1px solid #e2e8f0;
