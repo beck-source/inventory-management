@@ -27,6 +27,34 @@
         </div>
       </div>
 
+      <div v-if="restockingOrders.length > 0" class="card restocking-section">
+        <div class="card-header">
+          <span class="restocking-label">Submitted Restocking Orders</span>
+        </div>
+        <div class="table-container">
+          <table class="restocking-table">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Items</th>
+                <th>Total Value</th>
+                <th>Submitted</th>
+                <th>Expected Delivery</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.order_number">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td class="restocking-items">{{ order.items.map(i => translateProductName(i.name)).join(', ') }}</td>
+                <td><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>{{ formatDate(order.expected_delivery) }} <span class="lead-time">~7 days</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -133,6 +161,10 @@ export default {
       return orders.value.filter(order => order.status === status)
     }
 
+    const restockingOrders = computed(() => {
+      return orders.value.filter(order => order.order_number.startsWith('RST-'))
+    })
+
     const getOrderStatusClass = (status) => {
       const statusMap = {
         'Delivered': 'success',
@@ -160,6 +192,7 @@ export default {
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +308,48 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Submitted restocking orders section */
+.restocking-section {
+  border-left: 4px solid #3b82f6;
+}
+
+.restocking-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e40af;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.restocking-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.restocking-table th,
+.restocking-table td {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.restocking-table th {
+  font-weight: 600;
+  color: #64748b;
+  font-size: 0.813rem;
+  background-color: #f8fafc;
+}
+
+.restocking-items {
+  color: #475569;
+}
+
+.lead-time {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-left: 0.375rem;
 }
 </style>
