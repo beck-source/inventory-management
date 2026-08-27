@@ -307,7 +307,7 @@
     "warehouse": "London",
     "quantity_on_hand": 350,
     "reorder_point": 200,
-    "unit_cost": 22.50,
+    "unit_cost": 22.5,
     "location": "Warehouse B-16",
     "last_updated": "2025-09-27T13:20:00"
   },
@@ -343,7 +343,7 @@
     "warehouse": "London",
     "quantity_on_hand": 145,
     "reorder_point": 120,
-    "unit_cost": 67.50,
+    "unit_cost": 67.5,
     "location": "Warehouse B-17",
     "last_updated": "2025-09-24T09:00:00"
   },
@@ -367,7 +367,7 @@
     "warehouse": "San Francisco",
     "quantity_on_hand": 95,
     "reorder_point": 80,
-    "unit_cost": 125.00,
+    "unit_cost": 125.0,
     "location": "Warehouse A-17",
     "last_updated": "2025-09-22T11:30:00"
   },
@@ -379,7 +379,7 @@
     "warehouse": "Tokyo",
     "quantity_on_hand": 75,
     "reorder_point": 100,
-    "unit_cost": 185.50,
+    "unit_cost": 185.5,
     "location": "Warehouse C-11",
     "last_updated": "2025-09-21T15:20:00"
   }

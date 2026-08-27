@@ -5,6 +5,7 @@ description: Switch to main and delete previous branch
 Switch back to main branch and delete the branch you were on, discarding all commits and changes. Also closes any upstream pull requests for the deleted branch.
 
 Steps:
+
 1. Check current branch with `git branch --show-current`
 2. If already on main/master, inform user no reset needed
 3. If on feature branch:
