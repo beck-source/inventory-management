@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Factory Inventory Management — System Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2ea;
+    --surface: #ffffff;
+    --surface-2: #efeade;
+    --ink: #1d2230;
+    --ink-soft: #3a4152;
+    --muted: #6b7284;
+    --line: #d9d2bf;
+    --line-strong: #b9b096;
+    --accent: #b8500f;
+    --accent-soft: #f0d9c4;
+    --good: #1a7a52;
+    --good-soft: #d7ecdf;
+    --warn: #9a6b06;
+    --warn-soft: #f3e6c4;
+    --code-bg: #ece6d6;
+    --shadow: 0 1px 2px rgba(29, 34, 48, 0.06);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14161c;
+      --surface: #1b1e27;
+      --surface-2: #21252f;
+      --ink: #e9e6dc;
+      --ink-soft: #c7c3b6;
+      --muted: #8d93a3;
+      --line: #2d313d;
+      --line-strong: #40465580;
+      --accent: #e2924f;
+      --accent-soft: #3a2c1e;
+      --good: #5cc394;
+      --good-soft: #1c2f27;
+      --warn: #e0b355;
+      --warn-soft: #332a13;
+      --code-bg: #23262f;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14161c;
+    --surface: #1b1e27;
+    --surface-2: #21252f;
+    --ink: #e9e6dc;
+    --ink-soft: #c7c3b6;
+    --muted: #8d93a3;
+    --line: #2d313d;
+    --line-strong: #40465580;
+    --accent: #e2924f;
+    --accent-soft: #3a2c1e;
+    --good: #5cc394;
+    --good-soft: #1c2f27;
+    --warn: #e0b355;
+    --warn-soft: #332a13;
+    --code-bg: #23262f;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .sheet {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 2.5rem 1.75rem 6rem;
+  }
+
+  code, .mono { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  h1, h2, h3 {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    color: var(--ink);
+    text-wrap: balance;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  /* ---- Title block, drafting-table style ---- */
+  .titleblock {
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    padding: 1.5rem 1.75rem;
+    margin-bottom: 2.5rem;
+  }
+  .titleblock .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  .titleblock h1 {
+    font-size: 1.7rem;
+    margin: 0 0 0.3rem;
+  }
+  .titleblock .dek {
+    color: var(--muted);
+    font-size: 0.95rem;
+    max-width: 62ch;
+  }
+  .meta-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    margin-top: 1.4rem;
+  }
+  .meta-cell {
+    background: var(--surface);
+    padding: 0.55rem 0.85rem;
+  }
+  .meta-cell .k {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.2rem;
+  }
+  .meta-cell .v {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+  }
+
+  /* ---- Section numbering: real sequence (request travels frontend -> backend -> data) ---- */
+  section.step { margin-bottom: 3rem; }
+  .step-head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.85rem;
+    border-bottom: 1px solid var(--line-strong);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.1rem;
+  }
+  .step-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .step-head h2 { font-size: 1.25rem; margin: 0; }
+  .step-head .step-sub {
+    margin-left: auto;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  p { margin: 0 0 0.9rem; max-width: 72ch; }
+  ul, ol { margin: 0 0 0.9rem; padding-left: 1.3rem; }
+  li { margin-bottom: 0.35rem; max-width: 68ch; }
+
+  /* ---- Figures ---- */
+  figure {
+    margin: 1.2rem 0 1.6rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+  figure .fig-scroll {
+    overflow-x: auto;
+    padding: 1rem 1rem 0.5rem;
+  }
+  figure svg { display: block; max-width: 100%; height: auto; min-width: 560px; }
+  figcaption {
+    font-size: 0.82rem;
+    color: var(--muted);
+    padding: 0.65rem 1rem 0.85rem;
+    border-top: 1px solid var(--line);
+  }
+  figcaption strong { color: var(--ink-soft); }
+
+  .lbl-flow { fill: var(--ink-soft); }
+  .lbl-dim { fill: var(--muted); }
+  .lbl-accent { fill: var(--accent); }
+  .box-fill { fill: var(--surface-2); }
+  .box-stroke { stroke: var(--line-strong); }
+
+  /* ---- Tables ---- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow); margin-bottom: 1.6rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 480px; }
+  thead th {
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--surface-2);
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid var(--line-strong);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-soft);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td.mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: var(--ink); white-space: nowrap; }
+
+  .pill {
+    display: inline-block;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .pill.get { background: var(--good-soft); color: var(--good); }
+  .pill.post { background: var(--accent-soft); color: var(--accent); }
+  .pill.patch, .pill.delete { background: var(--warn-soft); color: var(--warn); }
+
+  /* ---- Callouts ---- */
+  .note {
+    border: 1px solid var(--line-strong);
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    padding: 0.85rem 1rem;
+    margin: 0 0 1.6rem;
+    font-size: 0.88rem;
+  }
+  .note .note-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+  }
+  .note p:last-child { margin-bottom: 0; }
+  .note code { background: var(--surface); padding: 0.05rem 0.35rem; border-radius: 3px; border: 1px solid var(--line); }
+
+  /* ---- File tree ---- */
+  .tree {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.83rem;
+    background: var(--code-bg);
+    border: 1px solid var(--line);
+    padding: 1rem 1.2rem;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+  .tree .dim { color: var(--muted); }
+  .tree .hi { color: var(--accent); font-weight: 600; }
+  .tree .fn { color: var(--ink); }
+
+  code.inline { background: var(--code-bg); border: 1px solid var(--line); padding: 0.05rem 0.4rem; border-radius: 3px; font-size: 0.85em; color: var(--ink); }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--line-strong);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    section.step { animation: rise 0.4s ease-out both; }
+    section.step:nth-of-type(2) { animation-delay: 0.03s; }
+    section.step:nth-of-type(3) { animation-delay: 0.06s; }
+    section.step:nth-of-type(4) { animation-delay: 0.09s; }
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="titleblock">
+    <div class="eyebrow">System Architecture — Reference Sheet</div>
+    <h1>Factory Inventory Management System</h1>
+    <p class="dek">A Vue 3 SPA talking to a stateless FastAPI service, backed entirely by JSON files read into memory at startup. No database, no auth, no persistence between restarts — built for a Claude Code workshop, not production.</p>
+    <div class="meta-row">
+      <div class="meta-cell"><div class="k">Frontend</div><div class="v">Vue 3 + Vite · :3000</div></div>
+      <div class="meta-cell"><div class="k">Backend</div><div class="v">FastAPI + Uvicorn · :8001</div></div>
+      <div class="meta-cell"><div class="k">Data store</div><div class="v">7 JSON files, in-memory</div></div>
+      <div class="meta-cell"><div class="k">Persistence</div><div class="v">None — resets on restart</div></div>
+    </div>
+  </div>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-num">01</span>
+      <h2>System overview</h2>
+      <span class="step-sub">three tiers, one process each</span>
+    </div>
+    <p>The browser and the API are two separate dev servers talking over plain HTTP; the API has no tier behind it beyond the Python process's own memory. <code class="inline">mock_data.py</code> reads all seven JSON files once, at import time — every request afterward filters that same in-memory list, and nothing ever writes back to disk.</p>
+
+    <figure>
+      <div class="fig-scroll">
+        <svg viewBox="0 0 860 300" role="img" aria-label="Browser running the Vue SPA on port 3000 sends HTTP JSON requests to FastAPI on port 8001, which filters data already loaded into memory from JSON files at startup; CORS is wide open in both directions.">
+          <defs>
+            <marker id="arrow1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <g class="lbl-flow" style="color:var(--ink-soft)">
+            <!-- Browser box -->
+            <rect x="30" y="70" width="200" height="110" rx="3" class="box-fill box-stroke" stroke-width="1.5"/>
+            <text x="130" y="100" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="var(--ink)">Browser</text>
+            <text x="130" y="122" text-anchor="middle" font-family="IBM Plex Sans" font-size="11.5" fill="var(--ink-soft)">Vue 3 SPA</text>
+            <text x="130" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">vue-router · axios</text>
+            <text x="130" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--accent)">localhost:3000</text>
+
+            <!-- API box -->
+            <rect x="330" y="70" width="200" height="110" rx="3" class="box-fill box-stroke" stroke-width="1.5"/>
+            <text x="430" y="100" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="var(--ink)">FastAPI</text>
+            <text x="430" y="122" text-anchor="middle" font-family="IBM Plex Sans" font-size="11.5" fill="var(--ink-soft)">main.py</text>
+            <text x="430" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">Pydantic · CORS *</text>
+            <text x="430" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--accent)">localhost:8001</text>
+
+            <!-- Data box -->
+            <rect x="630" y="70" width="200" height="110" rx="3" class="box-fill box-stroke" stroke-width="1.5" stroke-dasharray="3 2"/>
+            <text x="730" y="100" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" font-weight="600" fill="var(--ink)">In-memory data</text>
+            <text x="730" y="122" text-anchor="middle" font-family="IBM Plex Sans" font-size="11.5" fill="var(--ink-soft)">mock_data.py</text>
+            <text x="730" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">7 JSON files</text>
+            <text x="730" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="var(--muted)">server/data/*.json</text>
+
+            <!-- arrows -->
+            <line x1="232" y1="105" x2="326" y2="105" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow1)"/>
+            <text x="279" y="97" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" class="lbl-dim">GET /api/*</text>
+            <line x1="326" y1="145" x2="232" y2="145" stroke="currentColor" stroke-width="1.5" marker-end="url(#arrow1)"/>
+            <text x="279" y="163" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" class="lbl-dim">JSON response</text>
+
+            <line x1="532" y1="125" x2="626" y2="125" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow1)"/>
+            <text x="579" y="117" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" class="lbl-dim">json.load()</text>
+            <text x="579" y="140" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="var(--muted)">once, at import</text>
+
+            <!-- footer captions -->
+            <text x="130" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">npm run dev</text>
+            <text x="430" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">uv run python main.py</text>
+            <text x="730" y="215" text-anchor="middle" font-family="IBM Plex Mono" font-size="10.5" fill="var(--muted)">read-only per request</text>
+
+            <text x="130" y="250" text-anchor="middle" font-family="IBM Plex Sans" font-size="10.5" fill="var(--muted)" >renders views + modals</text>
+            <text x="430" y="250" text-anchor="middle" font-family="IBM Plex Sans" font-size="10.5" fill="var(--muted)">filters + validates</text>
+            <text x="730" y="250" text-anchor="middle" font-family="IBM Plex Sans" font-size="10.5" fill="var(--muted)">no writes reach disk</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><strong>Fig. 1 —</strong> The only per-request hop is browser ↔ API; the API ↔ data hop happens once at process startup, so every "live" request is really filtering a list already sitting in RAM.</figcaption>
+    </figure>
+
+    <div class="note">
+      <div class="note-label">Nothing survives a restart</div>
+      <p>Any <code>POST</code>/<code>PATCH</code>/<code>DELETE</code> the API accepts mutates the in-memory Python list for that process only. Restarting <code>main.py</code> reloads straight from <code>server/data/*.json</code> and silently discards it.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-num">02</span>
+      <h2>Filter → request → render</h2>
+      <span class="step-sub">how one filter change reaches the screen</span>
+    </div>
+    <p>All four global filters — <em>Time Period, Warehouse, Category, Order Status</em> — live in one place: <code class="inline">useFilters.js</code> holds them as module-level <code class="inline">ref()</code>s, so every component that calls <code class="inline">useFilters()</code> shares the same four values rather than getting its own copy. Changing a dropdown in <code class="inline">FilterBar.vue</code> is therefore visible to every view simultaneously.</p>
+
+    <figure>
+      <div class="fig-scroll">
+        <svg viewBox="0 0 820 420" role="img" aria-label="Sequence: FilterBar updates shared refs in useFilters, a view's watcher calls api.js, axios hits a FastAPI route, the route runs apply_filters and filter_by_month over the in-memory list, Pydantic validates the response_model, and the view's computed properties re-render.">
+          <defs>
+            <marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <g style="color:var(--ink-soft)">
+            <!-- lane boxes -->
+            <!-- 1 FilterBar -->
+            <rect x="20" y="10" width="230" height="46" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="135" y="38" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--ink)">FilterBar.vue</text>
+
+            <line x1="135" y1="56" x2="135" y2="94" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="150" y="80" font-family="IBM Plex Mono" font-size="10" class="lbl-dim">v-model set</text>
+
+            <!-- 2 useFilters -->
+            <rect x="20" y="94" width="230" height="52" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="135" y="116" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--ink)">useFilters()</text>
+            <text x="135" y="134" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="var(--muted)">shared refs (singleton)</text>
+
+            <line x1="135" y1="146" x2="135" y2="184" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="163" y="170" font-family="IBM Plex Mono" font-size="10" class="lbl-dim">watch() fires</text>
+
+            <!-- 3 View -->
+            <rect x="20" y="184" width="230" height="52" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="135" y="206" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--ink)">View component</text>
+            <text x="135" y="224" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="var(--muted)">Dashboard / Orders / …</text>
+
+            <line x1="135" y1="236" x2="135" y2="274" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="150" y="260" font-family="IBM Plex Mono" font-size="10" class="lbl-dim">getCurrentFilters()</text>
+
+            <!-- 4 api.js -->
+            <rect x="20" y="274" width="230" height="52" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="135" y="296" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--ink)">api.js</text>
+            <text x="135" y="314" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="var(--muted)">axios.get(...?params)</text>
+
+            <!-- horizontal arrow to server column -->
+            <line x1="250" y1="300" x2="470" y2="300" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="360" y="292" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" class="lbl-dim">HTTP GET</text>
+
+            <!-- server column -->
+            <rect x="470" y="184" width="250" height="52" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="595" y="206" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--ink)">route handler</text>
+            <text x="595" y="224" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="var(--muted)">@app.get("/api/…")</text>
+
+            <line x1="595" y1="236" x2="595" y2="264" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="618" y="254" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" class="lbl-dim">list filter</text>
+
+            <rect x="470" y="264" width="250" height="56" rx="3" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.3"/>
+            <text x="595" y="286" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="var(--accent)">apply_filters()</text>
+            <text x="595" y="302" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="var(--accent)">filter_by_month()</text>
+
+            <line x1="595" y1="320" x2="595" y2="348" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="628" y="338" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" class="lbl-dim">validate</text>
+
+            <rect x="470" y="348" width="250" height="46" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="595" y="376" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--ink)">response_model</text>
+
+            <!-- return arrow up the right, across, into view -->
+            <line x1="470" y1="371" x2="270" y2="371" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <line x1="270" y1="371" x2="270" y2="300" stroke="currentColor" stroke-width="1.3"/>
+            <line x1="270" y1="300" x2="254" y2="300" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+            <text x="360" y="363" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" class="lbl-dim">JSON body</text>
+
+            <!-- computed re-render -->
+            <rect x="20" y="358" width="230" height="46" rx="3" fill="var(--good-soft)" stroke="var(--good)" stroke-width="1.3"/>
+            <text x="135" y="386" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--good)">computed() re-renders</text>
+            <line x1="135" y1="326" x2="135" y2="356" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow2)"/>
+          </g>
+        </svg>
+      </div>
+      <figcaption><strong>Fig. 2 —</strong> Raw data lands in <code class="inline">ref()</code>s; every derived number or table row is a <code class="inline">computed()</code> over that ref, so it recalculates automatically once <code class="inline">api.js</code> resolves — no manual re-render call anywhere in this path.</figcaption>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-num">03</span>
+      <h2>Frontend composition</h2>
+      <span class="step-sub">client/src — one shell, six routed views</span>
+    </div>
+    <p><code class="inline">main.js</code> mounts a single <code class="inline">App.vue</code> shell that never unmounts; <code class="inline">router-view</code> is the only part that swaps as the six top-level routes change. Three views open a detail modal on row-click, which fetches its own record rather than reusing the list already in memory.</p>
+
+    <figure>
+      <div class="fig-scroll">
+        <svg viewBox="0 0 800 300" role="img" aria-label="main.js mounts App.vue, which always renders FilterBar, ProfileMenu, LanguageSwitcher and TasksModal, plus a router-view that swaps between six views: Dashboard, Inventory, Orders, Demand, Spending, Reports. Inventory, Orders and Spending each open their own detail modal.">
+          <defs>
+            <marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+            </marker>
+          </defs>
+          <g style="color:var(--ink-soft)">
+            <rect x="15" y="120" width="120" height="50" rx="3" class="box-fill box-stroke" stroke-width="1.3"/>
+            <text x="75" y="141" text-anchor="middle" font-family="IBM Plex Mono" font-size="11.5" fill="var(--ink)">main.js</text>
+            <text x="75" y="158" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" fill="var(--muted)">createApp</text>
+
+            <line x1="135" y1="145" x2="173" y2="145" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow3)"/>
+
+            <rect x="173" y="95" width="150" height="100" rx="3" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.3"/>
+            <text x="248" y="118" text-anchor="middle" font-family="IBM Plex Mono" font-size="12" fill="var(--accent)">App.vue</text>
+            <text x="248" y="136" text-anchor="middle" font-family="IBM Plex Sans" font-size="9.5" fill="var(--ink-soft)">FilterBar</text>
+            <text x="248" y="150" text-anchor="middle" font-family="IBM Plex Sans" font-size="9.5" fill="var(--ink-soft)">ProfileMenu → TasksModal</text>
+            <text x="248" y="164" text-anchor="middle" font-family="IBM Plex Sans" font-size="9.5" fill="var(--ink-soft)">LanguageSwitcher</text>
+            <text x="248" y="180" text-anchor="middle" font-family="IBM Plex Mono" font-size="9" fill="var(--muted)">(always mounted)</text>
+
+            <line x1="323" y1="145" x2="361" y2="145" stroke="currentColor" stroke-width="1.3" marker-end="url(#arrow3)"/>
+            <text x="342" y="137" text-anchor="middle" font-family="IBM Plex Mono" font-size="9.5" class="lbl-dim">router-view</text>
+
+            <!-- 6 view boxes stacked -->
+            <g font-family="IBM Plex Mono" font-size="11">
+              <rect x="361" y="10" width="150" height="34" rx="3" class="box-fill box-stroke" stroke-width="1.2"/>
+              <text x="436" y="31" text-anchor="middle" fill="var(--ink)">Dashboard</text>
+              <rect x="361" y="52" width="150" height="34" rx="3" class="box-fill box-stroke" stroke-width="1.2"/>
+              <text x="436" y="73" text-anchor="middle" fill="var(--ink)">Inventory</text>
+              <rect x="361" y="94" width="150" height="34" rx="3" class="box-fill box-stroke" stroke-width="1.2"/>
+              <text x="436" y="115" text-anchor="middle" fill="var(--ink)">Orders</text>
+              <rect x="361" y="136" width="150" height="34" rx="3" class="box-fill box-stroke" stroke-width="1.2"/>
+              <text x="436" y="157" text-anchor="middle" fill="var(--ink)">Demand</text>
+              <rect x="361" y="178" width="150" height="34" rx="3" class="box-fill box-stroke" stroke-width="1.2"/>
+              <text x="436" y="199" text-anchor="middle" fill="var(--ink)">Spending</text>
+              <rect x="361" y="220" width="150" height="34" rx="3" class="box-fill box-stroke" stroke-width="1.2"/>
+              <text x="436" y="241" text-anchor="middle" fill="var(--ink)">Reports</text>
+            </g>
+
+            <!-- connectors from router-view spine -->
+            <path d="M 361 145 L 351 145 L 351 27 L 361 27" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path d="M 361 145 L 351 145 L 351 69 L 361 69" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path d="M 361 145 L 351 145 L 351 111 L 361 111" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path d="M 361 145 L 351 145 L 351 153 L 361 153" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path d="M 361 145 L 351 145 L 351 195 L 361 195" fill="none" stroke="currentColor" stroke-width="1"/>
+            <path d="M 361 145 L 351 145 L 351 237 L 361 237" fill="none" stroke="currentColor" stroke-width="1"/>
+
+            <!-- modals fanning from Inventory / Orders / Spending -->
+            <line x1="511" y1="69" x2="549" y2="45" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arrow3)"/>
+            <line x1="511" y1="111" x2="549" y2="111" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arrow3)"/>
+            <line x1="511" y1="195" x2="549" y2="219" stroke="currentColor" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arrow3)"/>
+
+            <rect x="549" y="18" width="220" height="30" rx="3" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="2 2"/>
+            <text x="659" y="37" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">InventoryDetailModal.vue</text>
+
+            <rect x="549" y="96" width="220" height="30" rx="3" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="2 2"/>
+            <text x="659" y="115" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">ProductDetailModal.vue</text>
+
+            <rect x="549" y="204" width="220" height="30" rx="3" fill="var(--surface)" stroke="var(--line-strong)" stroke-width="1" stroke-dasharray="2 2"/>
+            <text x="659" y="223" text-anchor="middle" font-family="IBM Plex Mono" font-size="10" fill="var(--muted)">CostDetailModal.vue</text>
+
+            <text x="659" y="270" text-anchor="middle" font-family="IBM Plex Sans" font-size="10" fill="var(--muted)">Backlog view uses BacklogDetailModal.vue directly (not routed above)</text>
+          </g>
+        </svg>
+      </div>
+      <figcaption><strong>Fig. 3 —</strong> Everything outside the dashed <code class="inline">router-view</code> spine — filters, profile, tasks, language — persists across navigation; only the six view components remount.</figcaption>
+    </figure>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-num">04</span>
+      <h2>API surface</h2>
+      <span class="step-sub">endpoints actually defined in <code class="inline">server/main.py</code></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>Query filters</th><th>Returns</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/inventory</td><td>warehouse, category</td><td>List[InventoryItem]</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/inventory/{id}</td><td>—</td><td>InventoryItem</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/orders</td><td>warehouse, category, status, month</td><td>List[Order]</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/orders/{id}</td><td>—</td><td>Order</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/demand</td><td>none</td><td>List[DemandForecast]</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/backlog</td><td>none</td><td>List[BacklogItem] <span class="mono" style="color:var(--muted)">+ has_purchase_order</span></td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/dashboard/summary</td><td>warehouse, category, status, month</td><td>summary stats object</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/spending/summary</td><td>none</td><td>spending_summary object</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/spending/monthly</td><td>none</td><td>List[monthly breakdown]</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/spending/categories</td><td>none</td><td>List[category breakdown]</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/spending/transactions</td><td>none</td><td>List[transaction]</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/reports/quarterly</td><td>none</td><td>List[quarterly stats], computed from orders</td></tr>
+          <tr><td><span class="pill get">GET</span></td><td class="mono">/api/reports/monthly-trends</td><td>none</td><td>List[monthly stats], computed from orders</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <div class="note-label">Frontend/backend drift</div>
+      <p><code class="inline">client/src/api.js</code> also calls <code>/api/tasks</code> (GET/POST/DELETE/PATCH) and <code>/api/purchase-orders</code> (GET/POST) — but <strong>neither exists in <code class="inline">server/main.py</code></strong>. <code class="inline">App.vue</code>'s <code>loadTasks()</code> catches the failure silently and falls back to <code class="inline">useAuth.js</code>'s hardcoded mock tasks, which is why the Tasks modal still appears to work. Anything that calls <code class="inline">createPurchaseOrder</code> from the Backlog view will surface a real 404.</p>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-num">05</span>
+      <h2>Data files</h2>
+      <span class="step-sub">server/data — loaded once by mock_data.py</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>File</th><th>Exposed as</th><th>Consumed by</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">inventory.json</td><td class="mono">inventory_items</td><td>/api/inventory, dashboard summary</td></tr>
+          <tr><td class="mono">orders.json</td><td class="mono">orders</td><td>/api/orders, dashboard summary, reports/*</td></tr>
+          <tr><td class="mono">demand_forecasts.json</td><td class="mono">demand_forecasts</td><td>/api/demand</td></tr>
+          <tr><td class="mono">backlog_items.json</td><td class="mono">backlog_items</td><td>/api/backlog</td></tr>
+          <tr><td class="mono">purchase_orders.json</td><td class="mono">purchase_orders</td><td>joined into /api/backlog's has_purchase_order flag</td></tr>
+          <tr><td class="mono">spending.json</td><td class="mono">spending_summary, monthly_spending, category_spending</td><td>/api/spending/*</td></tr>
+          <tr><td class="mono">transactions.json</td><td class="mono">recent_transactions</td><td>/api/spending/transactions</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="step">
+    <div class="step-head">
+      <span class="step-num">06</span>
+      <h2>Key files</h2>
+      <span class="step-sub">where to make a given change</span>
+    </div>
+    <div class="tree">
+<span class="dim">inventory-management/</span>
+├── <span class="hi">server/</span>
+│&nbsp;&nbsp;├── <span class="fn">main.py</span>            <span class="dim">— all FastAPI routes + Pydantic models</span>
+│&nbsp;&nbsp;├── <span class="fn">mock_data.py</span>      <span class="dim">— loads server/data/*.json into module-level lists</span>
+│&nbsp;&nbsp;├── <span class="fn">generate_data.py</span>  <span class="dim">— regenerates the JSON fixtures</span>
+│&nbsp;&nbsp;└── <span class="fn">data/*.json</span>       <span class="dim">— the actual demo dataset (7 files)</span>
+├── <span class="hi">client/src/</span>
+│&nbsp;&nbsp;├── <span class="fn">main.js</span>           <span class="dim">— router table, app mount</span>
+│&nbsp;&nbsp;├── <span class="fn">App.vue</span>           <span class="dim">— shell: nav, FilterBar, modals, global styles</span>
+│&nbsp;&nbsp;├── <span class="fn">api.js</span>            <span class="dim">— single axios client, one function per endpoint</span>
+│&nbsp;&nbsp;├── <span class="fn">composables/useFilters.js</span> <span class="dim">— shared filter refs (singleton)</span>
+│&nbsp;&nbsp;├── <span class="fn">composables/useAuth.js</span>    <span class="dim">— mock current user + mock tasks</span>
+│&nbsp;&nbsp;├── <span class="fn">views/*.vue</span>       <span class="dim">— Dashboard (1271 lines), Spending, Reports, Orders, Demand, Inventory, Backlog</span>
+│&nbsp;&nbsp;└── <span class="fn">components/*.vue</span>  <span class="dim">— FilterBar, 4 detail modals, ProfileMenu, TasksModal, LanguageSwitcher</span>
+├── <span class="hi">tests/backend/</span>        <span class="dim">— pytest + FastAPI TestClient</span>
+└── <span class="hi">scripts/</span>              <span class="dim">— start.sh / stop.sh (macOS/Linux one-command dev)</span>
+    </div>
+  </section>
+
+  <footer>
+    <span>Generated for the workshop repo, reflects the code as of the current <code class="mono">workshop</code> branch.</span>
+    <span>No database · no auth · in-memory only</span>
+  </footer>
+
+</div>
+</body>
+</html>

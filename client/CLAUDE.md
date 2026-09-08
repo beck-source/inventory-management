@@ -10,6 +10,10 @@ npm run dev
 # Runs on http://localhost:3000
 ```
 
+## Styling Direction
+
+> **Preference: Tailwind over custom CSS.** Tailwind is not yet installed in this project (no dependency, no config), and the styling guidance below still describes the current scoped-CSS approach. Before writing new styles, check whether Tailwind should be installed first — don't set it up unprompted.
+
 ## Development Best Practices
 
 ### Vue 3 Composition API Patterns

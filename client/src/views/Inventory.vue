@@ -40,7 +40,18 @@
                 <th>{{ t('inventory.table.sku') }}</th>
                 <th>{{ t('inventory.table.itemName') }}</th>
                 <th>{{ t('inventory.table.category') }}</th>
-                <th>{{ t('inventory.table.quantityOnHand') }}</th>
+                <th
+                  class="sortable-header"
+                  @click="toggleQuantitySort"
+                >
+                  {{ t('inventory.table.quantityOnHand') }}
+                  <span class="sort-indicator">
+                    <template v-if="sortColumn === 'quantityOnHand'">
+                      {{ sortDirection === 'asc' ? '▲' : '▼' }}
+                    </template>
+                    <template v-else>⇅</template>
+                  </span>
+                </th>
                 <th>{{ t('inventory.table.reorderPoint') }}</th>
                 <th>{{ t('inventory.table.unitCost') }}</th>
                 <th>{{ t('inventory.table.totalValue') }}</th>
@@ -107,6 +118,23 @@ export default {
     const items = ref([])
     const searchQuery = ref('')
 
+    // Column sort state (null = use default stock-status sort)
+    const sortColumn = ref(null)
+    const sortDirection = ref('asc')
+
+    const toggleQuantitySort = () => {
+      if (sortColumn.value !== 'quantityOnHand') {
+        sortColumn.value = 'quantityOnHand'
+        sortDirection.value = 'asc'
+      } else if (sortDirection.value === 'asc') {
+        sortDirection.value = 'desc'
+      } else {
+        // Third click resets to default stock-status sort
+        sortColumn.value = null
+        sortDirection.value = 'asc'
+      }
+    }
+
     // Modal state
     const showItemModal = ref(false)
     const selectedItem = ref(null)
@@ -138,6 +166,15 @@ export default {
         filtered = filtered.filter(item =>
           item.name.toLowerCase().includes(query)
         )
+      }
+
+      // If a quantity-on-hand sort is active, it overrides the default sort
+      if (sortColumn.value === 'quantityOnHand') {
+        return filtered.slice().sort((a, b) => {
+          return sortDirection.value === 'asc'
+            ? a.quantity_on_hand - b.quantity_on_hand
+            : b.quantity_on_hand - a.quantity_on_hand
+        })
       }
 
       // Sort by stock status: Low Stock first, then Adequate, then In Stock
@@ -209,6 +246,9 @@ export default {
       error,
       items,
       searchQuery,
+      sortColumn,
+      sortDirection,
+      toggleQuantitySort,
       filteredItems,
       getStockStatus,
       getStockStatusClass,
@@ -335,5 +375,27 @@ export default {
 
 .clickable-row:hover {
   background: #eff6ff !important;
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.sortable-header:hover {
+  color: #3b82f6;
+}
+
+.sort-indicator {
+  display: inline-block;
+  margin-left: 0.25rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.sortable-header:hover .sort-indicator {
+  color: #3b82f6;
 }
 </style>
