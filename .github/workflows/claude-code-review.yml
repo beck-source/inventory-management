@@ -1,0 +1,32 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+      id-token: write
+      actions: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review this pull request for the Factory Inventory Management System
+            (Vue 3 + Composition API frontend, FastAPI backend, in-memory mock data).
+            Focus on: correctness bugs, Vue reactivity pitfalls, v-for keys,
+            date validation before .getMonth(), Pydantic models matching JSON data,
+            and adherence to the patterns in CLAUDE.md. Leave inline comments on
+            specific lines. Be concise and only flag real issues.
