@@ -6,6 +6,18 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
+    skipToContent: 'Skip to content',
+    groupGeneral: 'General',
+    groupOperations: 'Operations',
+    groupInsights: 'Insights',
+    primaryNavigation: 'Primary',
+    collapseSidebar: 'Collapse navigation',
+    expandSidebar: 'Expand navigation',
+    openMenu: 'Open navigation',
+    closeMenu: 'Close navigation',
+    demoEnvironment: 'Demo environment',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +118,8 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    leadTimeDays: '{count} days',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +139,8 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -189,13 +204,67 @@ export default {
   },
 
   // Filters
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and restock the items the forecast says you will run short on',
+    budgetTitle: 'Available Budget',
+    fullCoverage: 'Closing every forecast shortfall would cost {amount}',
+    recommendedItems: 'Recommended Items',
+    recommendedUnits: 'Units to Order',
+    plannedSpend: 'Planned Spend',
+    longestLeadTime: 'Longest Lead Time',
+    recommendations: 'Recommended Restocking',
+    noRecommendations: 'This budget does not cover a single unit of the highest-priority item.',
+    partial: 'Partial',
+    partialNote: 'The last line is limited by the remaining budget, so it covers only part of the shortfall.',
+    unpricedNotice: '{count} forecast item(s) were excluded because inventory has no matching SKU, so no unit cost could be resolved: {skus}',
+    placeOrder: 'Place Order',
+    placing: 'Placing...',
+    orderPlaced: 'Order {orderNumber} submitted',
+    orderPlacedDetail: '{units} units for {amount}, arriving in {days} days',
+    viewInOrders: 'View in Orders',
+    days: '{count} days',
+    loadFailed: 'Failed to load restocking recommendations: {message}',
+    submitFailed: 'Failed to place the order: {message}',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      category: 'Category',
+      currentDemand: 'Current',
+      forecastedDemand: 'Forecast',
+      gap: 'Shortfall',
+      quantity: 'Order Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
+    }
+  },
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    viewTitle: 'Purchase Order',
+    poNumber: 'PO Number',
+    supplier: 'Supplier',
+    quantity: 'Quantity',
+    unitCost: 'Unit Cost',
+    total: 'Total',
+    status: 'Status',
+    expectedDelivery: 'Expected Delivery',
+    notes: 'Notes',
+    shortage: '{count} units short',
+    submit: 'Create Order',
+    submitting: 'Creating...',
+    loadFailed: 'Failed to load the purchase order: {message}',
+    submitFailed: 'Failed to create the purchase order: {message}'
+  },
   filters: {
     timePeriod: 'Time Period',
     location: 'Location',
     category: 'Category',
     orderStatus: 'Order Status',
     all: 'All',
-    allMonths: 'All Months'
+    allMonths: 'All Months',
+    title: 'Filters',
+    reset: 'Reset filters'
   },
 
   // Statuses
@@ -204,6 +273,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
