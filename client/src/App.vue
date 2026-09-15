@@ -1,42 +1,93 @@
 <template>
   <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
+    <aside class="sidebar" :class="{ collapsed: isCollapsed }">
+      <div class="sidebar-header">
         <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+          <span v-if="isCollapsed" class="logo-mark">{{ companyInitial }}</span>
+          <template v-else>
+            <h1>{{ t('nav.companyName') }}</h1>
+            <span class="subtitle">{{ t('nav.subtitle') }}</span>
+          </template>
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
-        <LanguageSwitcher />
+        <button
+          class="sidebar-toggle"
+          @click="toggleSidebar"
+          :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+          :aria-label="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+            <path d="M12.5 5L7.5 10L12.5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="nav-links">
+        <router-link to="/" :class="{ active: $route.path === '/' }" :title="t('nav.overview')">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="2.5" width="6" height="6" rx="1"/>
+            <rect x="11.5" y="2.5" width="6" height="6" rx="1"/>
+            <rect x="2.5" y="11.5" width="6" height="6" rx="1"/>
+            <rect x="11.5" y="11.5" width="6" height="6" rx="1"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.overview') }}</span>
+        </router-link>
+        <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }" :title="t('nav.inventory')">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 2.5L17 6.25V13.75L10 17.5L3 13.75V6.25L10 2.5Z"/>
+            <path d="M3 6.25L10 10L17 6.25"/>
+            <path d="M10 10V17.5"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.inventory') }}</span>
+        </router-link>
+        <router-link to="/orders" :class="{ active: $route.path === '/orders' }" :title="t('nav.orders')">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="3.5" width="12" height="14" rx="1.5"/>
+            <path d="M7.5 2.5H12.5V4.5H7.5V2.5Z"/>
+            <path d="M7 9H13M7 12H13M7 15H10.5"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.orders') }}</span>
+        </router-link>
+        <router-link to="/spending" :class="{ active: $route.path === '/spending' }" :title="t('nav.finance')">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10" cy="10" r="7.5"/>
+            <path d="M10 5.5V14.5"/>
+            <path d="M12.5 7.5C12.5 6.5 11.4 6 10 6C8.6 6 7.5 6.8 7.5 7.9C7.5 10.1 12.5 9 12.5 11.6C12.5 12.9 11.3 13.5 10 13.5C8.7 13.5 7.5 13 7.5 12"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.finance') }}</span>
+        </router-link>
+        <router-link to="/demand" :class="{ active: $route.path === '/demand' }" :title="t('nav.demandForecast')">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 13.5L8 8.5L11 11.5L17 5.5"/>
+            <path d="M12.5 5.5H17V10"/>
+          </svg>
+          <span class="nav-label">{{ t('nav.demandForecast') }}</span>
+        </router-link>
+        <router-link to="/reports" :class="{ active: $route.path === '/reports' }" title="Reports">
+          <svg class="nav-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2.5H12L15.5 6V17C15.5 17.2761 15.2761 17.5 15 17.5H6C5.72386 17.5 5.5 17.2761 5.5 17V3C5.5 2.72386 5.72386 2.5 6 2.5Z"/>
+            <path d="M12 2.5V6H15.5"/>
+            <path d="M7.5 10H12.5M7.5 13H12.5"/>
+          </svg>
+          <span class="nav-label">Reports</span>
+        </router-link>
+      </nav>
+
+      <div class="sidebar-footer">
+        <LanguageSwitcher :collapsed="isCollapsed" />
         <ProfileMenu
+          :collapsed="isCollapsed"
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+    </aside>
+
+    <div class="content-area" :class="{ collapsed: isCollapsed }">
+      <FilterBar />
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,7 +106,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -80,6 +131,58 @@ export default {
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
+
+    // Sidebar collapse/expand state
+    const SIDEBAR_STORAGE_KEY = 'sidebar-collapsed'
+    const SIDEBAR_BREAKPOINT = 1024
+
+    const readStoredSidebarPreference = () => {
+      try {
+        const stored = window.localStorage.getItem(SIDEBAR_STORAGE_KEY)
+        if (stored === 'true') return true
+        if (stored === 'false') return false
+      } catch (err) {
+        console.error('Failed to read sidebar preference:', err)
+      }
+      return null
+    }
+
+    const writeStoredSidebarPreference = (value) => {
+      try {
+        window.localStorage.setItem(SIDEBAR_STORAGE_KEY, String(value))
+      } catch (err) {
+        console.error('Failed to persist sidebar preference:', err)
+      }
+    }
+
+    const breakpointQuery = typeof window !== 'undefined' && window.matchMedia
+      ? window.matchMedia(`(max-width: ${SIDEBAR_BREAKPOINT - 1}px)`)
+      : null
+
+    const storedSidebarPreference = readStoredSidebarPreference()
+    const hasManualSidebarOverride = ref(storedSidebarPreference !== null)
+    const isCollapsed = ref(
+      storedSidebarPreference !== null
+        ? storedSidebarPreference
+        : (breakpointQuery ? breakpointQuery.matches : false)
+    )
+
+    const companyInitial = computed(() => {
+      const name = t('nav.companyName') || ''
+      return name.trim().charAt(0).toUpperCase() || 'I'
+    })
+
+    const handleBreakpointChange = (event) => {
+      if (!hasManualSidebarOverride.value) {
+        isCollapsed.value = event.matches
+      }
+    }
+
+    const toggleSidebar = () => {
+      isCollapsed.value = !isCollapsed.value
+      hasManualSidebarOverride.value = true
+      writeStoredSidebarPreference(isCollapsed.value)
+    }
 
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
@@ -146,7 +249,28 @@ export default {
       }
     }
 
-    onMounted(loadTasks)
+    onMounted(() => {
+      loadTasks()
+
+      if (breakpointQuery) {
+        if (typeof breakpointQuery.addEventListener === 'function') {
+          breakpointQuery.addEventListener('change', handleBreakpointChange)
+        } else if (typeof breakpointQuery.addListener === 'function') {
+          // Legacy fallback (older Safari)
+          breakpointQuery.addListener(handleBreakpointChange)
+        }
+      }
+    })
+
+    onUnmounted(() => {
+      if (breakpointQuery) {
+        if (typeof breakpointQuery.removeEventListener === 'function') {
+          breakpointQuery.removeEventListener('change', handleBreakpointChange)
+        } else if (typeof breakpointQuery.removeListener === 'function') {
+          breakpointQuery.removeListener(handleBreakpointChange)
+        }
+      }
+    })
 
     return {
       t,
@@ -155,7 +279,10 @@ export default {
       tasks,
       addTask,
       deleteTask,
-      toggleTask
+      toggleTask,
+      isCollapsed,
+      toggleSidebar,
+      companyInitial
     }
   }
 }
@@ -178,92 +305,194 @@ body {
 
 .app {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
+/* Sidebar */
+.sidebar {
+  position: fixed;
   top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
   z-index: 100;
+  transition: width 0.2s ease;
 }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+.sidebar.collapsed {
+  width: 72px;
+}
+
+.sidebar-header {
+  padding: 24px 24px 16px;
   display: flex;
   align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
+.sidebar.collapsed .sidebar-header {
+  flex-direction: column;
+  padding: 20px 12px 16px;
 }
 
 .logo {
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .logo h1 {
-  font-size: 1.375rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.025em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  letter-spacing: -0.025em;
+  flex-shrink: 0;
 }
 
 .subtitle {
-  font-size: 0.813rem;
+  font-size: 0.75rem;
   color: #64748b;
   font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+  white-space: nowrap;
 }
 
-.nav-tabs {
+.sidebar-toggle {
   display: flex;
-  gap: 0.25rem;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
+.sidebar-toggle:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.sidebar-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+.sidebar.collapsed .sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 16px;
+  flex: 1;
+}
+
+.sidebar.collapsed .nav-links {
+  padding: 8px 12px;
+  align-items: center;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
   color: #64748b;
   text-decoration: none;
   font-weight: 500;
   font-size: 0.938rem;
-  border-radius: 6px;
+  border-radius: 8px;
+  border-left: 3px solid transparent;
   transition: all 0.2s ease;
-  position: relative;
 }
 
-.nav-tabs a:hover {
+.sidebar.collapsed .nav-links a {
+  justify-content: center;
+  padding: 0.625rem;
+  width: 48px;
+}
+
+.nav-icon {
+  flex-shrink: 0;
+}
+
+.nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .nav-label {
+  display: none;
+}
+
+.nav-links a:hover {
   color: #0f172a;
   background: #f1f5f9;
 }
 
-.nav-tabs a.active {
+.nav-links a.active {
   color: #2563eb;
   background: #eff6ff;
+  border-left-color: #2563eb;
+  font-weight: 600;
 }
 
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.sidebar.collapsed .sidebar-footer {
+  padding: 16px 12px 20px;
+  align-items: center;
+}
+
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  margin-left: 240px;
+  width: calc(100% - 240px);
+  transition: margin-left 0.2s ease, width 0.2s ease;
+}
+
+.content-area.collapsed {
+  margin-left: 72px;
+  width: calc(100% - 72px);
 }
 
 .main-content {

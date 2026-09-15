@@ -1,15 +1,17 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" :class="{ collapsed }">
     <button
       class="profile-button"
       @click="toggleDropdown"
       @blur="handleBlur"
+      :title="collapsed ? currentUser.name : null"
     >
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
       </div>
-      <span class="profile-name">{{ currentUser.name }}</span>
+      <span v-if="!collapsed" class="profile-name">{{ currentUser.name }}</span>
       <svg
+        v-if="!collapsed"
         class="chevron"
         :class="{ 'chevron-open': isDropdownOpen }"
         width="16"
@@ -78,6 +80,13 @@ import { ref, computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
 
+defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false
+  }
+})
+
 const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
 
@@ -123,6 +132,7 @@ const handleLogout = () => {
 .profile-button {
   display: flex;
   align-items: center;
+  width: 100%;
   gap: 0.625rem;
   padding: 0.5rem 0.875rem;
   background: white;
@@ -136,6 +146,13 @@ const handleLogout = () => {
 .profile-button:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
+}
+
+.profile-menu.collapsed .profile-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
 }
 
 .avatar {
@@ -156,6 +173,11 @@ const handleLogout = () => {
   font-size: 0.875rem;
   font-weight: 500;
   color: #0f172a;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
 }
 
 .chevron {
@@ -169,7 +191,7 @@ const handleLogout = () => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  bottom: calc(100% + 0.5rem);
   right: 0;
   min-width: 280px;
   background: white;

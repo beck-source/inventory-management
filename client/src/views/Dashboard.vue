@@ -762,7 +762,13 @@ export default {
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  padding: 1rem;
+  padding: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.kpi-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .kpi-header {
@@ -815,6 +821,15 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   gap: 1.25rem;
   margin-bottom: 1.5rem;
+}
+
+.chart-card {
+  transition: all 0.2s ease;
+}
+
+.chart-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .chart-card.full-width {

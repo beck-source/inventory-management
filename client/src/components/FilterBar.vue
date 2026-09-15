@@ -106,7 +106,7 @@ export default {
   border-bottom: 1px solid #e2e8f0;
   padding: 0.75rem 0;
   position: sticky;
-  top: 70px;
+  top: 0;
   z-index: 90;
 }
 
