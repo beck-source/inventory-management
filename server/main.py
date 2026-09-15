@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restock_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -13,6 +14,20 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Supplier lead time by product category, in calendar days.
+# The dataset has no per-item lead time, so category is the only signal available;
+# these values are demo constants, not sourced from a supplier contract.
+CATEGORY_LEAD_TIME_DAYS = {
+    'Circuit Boards': 10,
+    'Sensors': 7,
+    'Actuators': 21,
+    'Controllers': 14,
+    'Power Supplies': 12
+}
+
+# Used when an item's category is missing from the table above.
+DEFAULT_LEAD_TIME_DAYS = 14
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -100,6 +115,9 @@ class BacklogItem(BaseModel):
     days_delayed: int
     priority: str
     has_purchase_order: Optional[bool] = False
+    # The client keys its "Create PO" / "View PO" branch off this id, not off the
+    # boolean above, so both have to be sent or the button never flips.
+    purchase_order_id: Optional[str] = None
 
 class PurchaseOrder(BaseModel):
     id: str
@@ -119,6 +137,66 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockRecommendation(BaseModel):
+    item_sku: str
+    item_name: str
+    category: str
+    warehouse: str
+    unit_cost: float
+    current_demand: int
+    forecasted_demand: int
+    demand_gap: int
+    recommended_quantity: int
+    line_total: float
+    is_partial: bool
+    lead_time_days: int
+    quantity_on_hand: int
+    reorder_point: int
+
+class RestockPlan(BaseModel):
+    budget: float
+    total_cost: float
+    remaining_budget: float
+    item_count: int
+    total_units: int
+    lead_time_days: int
+    full_coverage_cost: float
+    recommendations: List[RestockRecommendation]
+    # Forecast SKUs dropped because inventory.json has no matching record, so no
+    # unit_cost could be resolved. Surfaced instead of silently omitted, otherwise
+    # the UI would show a shorter list than the Demand tab with no explanation.
+    unpriced_skus: List[str]
+
+class RestockOrderLine(BaseModel):
+    item_sku: str
+    item_name: str
+    category: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    status: str
+    created_date: str
+    expected_delivery: str
+    lead_time_days: int
+    budget: float
+    total_value: float
+    item_count: int
+    total_units: int
+    lines: List[RestockOrderLine]
+
+class RestockOrderLineRequest(BaseModel):
+    item_sku: str
+    quantity: int
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    lines: List[RestockOrderLineRequest]
 
 # API endpoints
 @app.get("/")
@@ -174,8 +252,9 @@ def get_backlog():
     for item in backlog_items:
         item_dict = dict(item)
         # Check if this backlog item has a purchase order
-        has_po = any(po["backlog_item_id"] == item["id"] for po in purchase_orders)
-        item_dict["has_purchase_order"] = has_po
+        existing_po = next((po for po in purchase_orders if po["backlog_item_id"] == item["id"]), None)
+        item_dict["has_purchase_order"] = existing_po is not None
+        item_dict["purchase_order_id"] = existing_po["id"] if existing_po else None
         result.append(item_dict)
     return result
 
@@ -303,6 +382,231 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+# ---------------------------------------------------------------------------
+# Restocking
+# ---------------------------------------------------------------------------
+
+def lead_time_for_category(category: str) -> int:
+    """Look up supplier lead time in days for a product category."""
+    return CATEGORY_LEAD_TIME_DAYS.get(category, DEFAULT_LEAD_TIME_DAYS)
+
+def build_restock_plan(budget: float) -> dict:
+    """Recommend what to restock within `budget`, largest demand gap first.
+
+    Demand forecasts carry no price, so each forecast is joined to inventory on
+    SKU to resolve unit_cost and category. Forecasts with no inventory match are
+    reported separately rather than dropped quietly.
+    """
+    inventory_by_sku = {item["sku"]: item for item in inventory_items}
+
+    candidates = []
+    unpriced_skus = []
+    for forecast in demand_forecasts:
+        gap = forecast["forecasted_demand"] - forecast["current_demand"]
+        if gap <= 0:
+            # Demand is flat or shrinking - nothing to restock.
+            continue
+
+        item = inventory_by_sku.get(forecast["item_sku"])
+        if not item:
+            unpriced_skus.append(forecast["item_sku"])
+            continue
+
+        candidates.append((forecast, item, gap))
+
+    # Largest gap first. Ties break to the cheaper unit so the same budget closes
+    # more of the shortfall; SKU is the final key purely to keep ordering stable
+    # across runs when gap and unit_cost are identical.
+    candidates.sort(key=lambda c: (-c[2], c[1]["unit_cost"], c[0]["item_sku"]))
+
+    remaining = float(budget)
+    recommendations = []
+    for forecast, item, gap in candidates:
+        unit_cost = item["unit_cost"]
+
+        # Epsilon guards against a float remainder like 4018.6599999 flooring one
+        # unit short of what the budget can actually cover.
+        affordable_quantity = int((remaining + 1e-9) // unit_cost)
+        if affordable_quantity <= 0:
+            break
+
+        quantity = min(gap, affordable_quantity)
+        line_total = round(quantity * unit_cost, 2)
+        is_partial = quantity < gap
+
+        recommendations.append({
+            "item_sku": forecast["item_sku"],
+            "item_name": forecast["item_name"],
+            "category": item["category"],
+            "warehouse": item["warehouse"],
+            "unit_cost": unit_cost,
+            "current_demand": forecast["current_demand"],
+            "forecasted_demand": forecast["forecasted_demand"],
+            "demand_gap": gap,
+            "recommended_quantity": quantity,
+            "line_total": line_total,
+            "is_partial": is_partial,
+            "lead_time_days": lead_time_for_category(item["category"]),
+            "quantity_on_hand": item["quantity_on_hand"],
+            "reorder_point": item["reorder_point"]
+        })
+        remaining = round(remaining - line_total, 2)
+
+        if is_partial:
+            # The budget ran out mid-line. Stop here rather than skipping ahead to
+            # cheaper items - the ranking is by priority, not by what still fits.
+            break
+
+    total_cost = round(sum(r["line_total"] for r in recommendations), 2)
+    full_coverage_cost = round(sum(gap * item["unit_cost"] for _, item, gap in candidates), 2)
+
+    return {
+        "budget": round(float(budget), 2),
+        "total_cost": total_cost,
+        "remaining_budget": round(float(budget) - total_cost, 2),
+        "item_count": len(recommendations),
+        "total_units": sum(r["recommended_quantity"] for r in recommendations),
+        # A shipment is only complete when its slowest line arrives.
+        "lead_time_days": max((r["lead_time_days"] for r in recommendations), default=0),
+        "full_coverage_cost": full_coverage_cost,
+        "recommendations": recommendations,
+        "unpriced_skus": unpriced_skus
+    }
+
+@app.get("/api/restock/recommendations", response_model=RestockPlan)
+def get_restock_recommendations(budget: float = 0):
+    """Recommend restocking quantities that fit within the given budget."""
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must not be negative")
+    return build_restock_plan(budget)
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get all submitted restocking orders, newest first."""
+    return list(reversed(restock_orders))
+
+@app.post("/api/restock-orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order.
+
+    Quantities come from the client but prices do not - every line is re-priced
+    from inventory so a tampered or stale client payload cannot set its own cost.
+    """
+    if not request.lines:
+        raise HTTPException(status_code=400, detail="A restocking order needs at least one line")
+
+    inventory_by_sku = {item["sku"]: item for item in inventory_items}
+
+    lines = []
+    for requested in request.lines:
+        if requested.quantity <= 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Quantity for {requested.item_sku} must be greater than zero"
+            )
+
+        item = inventory_by_sku.get(requested.item_sku)
+        if not item:
+            raise HTTPException(status_code=404, detail=f"Unknown SKU: {requested.item_sku}")
+
+        lines.append({
+            "item_sku": item["sku"],
+            "item_name": item["name"],
+            "category": item["category"],
+            "quantity": requested.quantity,
+            "unit_cost": item["unit_cost"],
+            "line_total": round(requested.quantity * item["unit_cost"], 2),
+            "lead_time_days": lead_time_for_category(item["category"])
+        })
+
+    total_value = round(sum(line["line_total"] for line in lines), 2)
+
+    # Tolerance of one cent absorbs rounding drift between the client's running
+    # total and the server's re-priced total; anything larger is a real overspend.
+    if total_value > request.budget + 0.01:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Order total {total_value} exceeds budget {request.budget}"
+        )
+
+    lead_time_days = max(line["lead_time_days"] for line in lines)
+    created = datetime.now()
+
+    order = {
+        "id": str(len(restock_orders) + 1),
+        "order_number": f"RO-{len(restock_orders) + 1:04d}",
+        "status": "Submitted",
+        "created_date": created.isoformat(timespec="seconds"),
+        "expected_delivery": (created + timedelta(days=lead_time_days)).isoformat(timespec="seconds"),
+        "lead_time_days": lead_time_days,
+        "budget": round(request.budget, 2),
+        "total_value": total_value,
+        "item_count": len(lines),
+        "total_units": sum(line["quantity"] for line in lines),
+        "lines": lines
+    }
+
+    # Mutate in place: main.py and mock_data.py bind the same list object, so
+    # appending keeps both views consistent. Rebinding would desynchronise them.
+    restock_orders.append(order)
+    return order
+
+# ---------------------------------------------------------------------------
+# Purchase orders (raised against a backlog shortage)
+# ---------------------------------------------------------------------------
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order(backlog_item_id: str):
+    """Get the purchase order raised for a backlog item."""
+    po = next((po for po in purchase_orders if po["backlog_item_id"] == backlog_item_id), None)
+    if not po:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No purchase order for backlog item {backlog_item_id}"
+        )
+    return po
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Raise a purchase order against a backlog shortage."""
+    if not any(item["id"] == request.backlog_item_id for item in backlog_items):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Unknown backlog item: {request.backlog_item_id}"
+        )
+
+    if any(po["backlog_item_id"] == request.backlog_item_id for po in purchase_orders):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Backlog item {request.backlog_item_id} already has a purchase order"
+        )
+
+    if request.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be greater than zero")
+
+    if request.unit_cost < 0:
+        raise HTTPException(status_code=400, detail="Unit cost must not be negative")
+
+    if not request.supplier_name.strip():
+        raise HTTPException(status_code=400, detail="Supplier name is required")
+
+    purchase_order = {
+        "id": f"PO-{len(purchase_orders) + 1:04d}",
+        "backlog_item_id": request.backlog_item_id,
+        "supplier_name": request.supplier_name.strip(),
+        "quantity": request.quantity,
+        "unit_cost": request.unit_cost,
+        "expected_delivery_date": request.expected_delivery_date,
+        "status": "Ordered",
+        "created_date": datetime.now().isoformat(timespec="seconds"),
+        "notes": request.notes
+    }
+
+    # get_backlog() reads this same list object by reference, so appending here is
+    # what makes the item's has_purchase_order flag flip on the next request.
+    purchase_orders.append(purchase_order)
+    return purchase_order
 
 if __name__ == "__main__":
     import uvicorn

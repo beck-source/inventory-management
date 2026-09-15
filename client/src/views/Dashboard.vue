@@ -147,10 +147,9 @@
               <div v-for="cat in categoryData" :key="cat.name" class="h-bar-item">
                 <div class="h-bar-label">{{ translateCategory(cat.name) }}</div>
                 <div class="h-bar-container">
-                  <div class="h-bar" :style="{ width: (cat.value / maxCategoryValue * 100) + '%', background: cat.color }">
-                    <span class="h-bar-value">{{ selectedCurrency === 'JPY' ? formatCurrency(cat.value, selectedCurrency) : `$${(cat.value / 1000).toFixed(1)}K` }}</span>
-                  </div>
+                  <div class="h-bar" :style="{ width: (cat.value / maxCategoryValue * 100) + '%', background: cat.color }"></div>
                 </div>
+                <span class="h-bar-value">{{ selectedCurrency === 'JPY' ? formatCurrency(cat.value, selectedCurrency) : `$${(cat.value / 1000).toFixed(1)}K` }}</span>
               </div>
             </div>
             <div v-else class="no-data">{{ t('dashboard.inventoryShortages.noData') }}</div>
@@ -304,12 +303,14 @@ import { useI18n } from '../composables/useI18n'
 import { formatCurrency } from '../utils/currency'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
 import BacklogDetailModal from '../components/BacklogDetailModal.vue'
+import PurchaseOrderModal from '../components/PurchaseOrderModal.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     ProductDetailModal,
     BacklogDetailModal,
+    PurchaseOrderModal,
   },
   setup() {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
@@ -985,17 +986,19 @@ export default {
 
 .h-bar {
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 0.75rem;
   transition: width 0.6s ease;
 }
 
+/* Sits outside .h-bar-container: inside the bar it was clipped by the
+   container's overflow:hidden whenever the bar was shorter than the label. */
 .h-bar-value {
+  width: 72px;
+  flex-shrink: 0;
+  text-align: right;
   font-size: 0.813rem;
   font-weight: 700;
-  color: white;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
 }
 
 .line-chart {
