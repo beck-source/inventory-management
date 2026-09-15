@@ -35,5 +35,9 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Personal to-do tasks created from the profile menu. Same in-memory contract as
+# the other mutable datasets: seeded from JSON, never written back.
+tasks = load_json_file('tasks.json')
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
