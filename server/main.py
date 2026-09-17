@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -80,6 +81,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    order_type: Optional[str] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -119,6 +121,12 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[dict]
+    total_value: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -160,6 +168,27 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order"""
+    now = datetime.now()
+    new_order = {
+        "id": f"order-{len(orders) + 1}",
+        "order_number": f"ORD-2026-{len(orders)+1:04d}",
+        "customer": "Internal Restocking",
+        "items": request.items,
+        "status": "Processing",
+        "order_date": now.isoformat(),
+        "expected_delivery": (now + timedelta(days=7)).isoformat(),
+        "total_value": request.total_value,
+        "actual_delivery": None,
+        "warehouse": request.warehouse,
+        "category": request.category,
+        "order_type": "restocking"
+    }
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
