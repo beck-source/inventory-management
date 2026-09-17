@@ -65,23 +65,38 @@ class TestDemandEndpoints:
                 assert percent_change < 2.0, \
                     f"Item {item['item_name']} has {percent_change:.2f}% change, expected < 2%"
 
-    def test_demand_forecast_has_new_items(self, client):
-        """Test that new demand forecast items exist."""
+    def test_demand_forecast_has_restocking_items(self, client):
+        """Test that demand forecast items used by the Restocking feature exist."""
         response = client.get("/api/demand")
         data = response.json()
 
-        # Check for the new items we added
+        # Check for items used to demo the restocking recommendation algorithm
         skus = [item["item_sku"] for item in data]
 
-        # Should have Temperature Sensor Module and Logic Controller Board
-        assert "SNR-420" in skus, "Missing Temperature Sensor Module"
-        assert "CTL-330" in skus, "Missing Logic Controller Board"
+        # Should have 8-bit Microcontroller and Gyroscope Module
+        assert "MCU-401" in skus, "Missing 8-bit Microcontroller"
+        assert "GYR-207" in skus, "Missing Gyroscope Module"
 
         # Verify they are marked as stable
         for item in data:
-            if item["item_sku"] in ["SNR-420", "CTL-330"]:
+            if item["item_sku"] in ["MCU-401", "GYR-207"]:
                 assert item["trend"].lower() == "stable", \
-                    f"New item {item['item_name']} should have stable trend"
+                    f"Item {item['item_name']} should have stable trend"
+
+    def test_demand_forecast_has_restocking_fields(self, client):
+        """Test that demand forecast items carry the fields needed for restocking recommendations."""
+        response = client.get("/api/demand")
+        data = response.json()
+
+        assert len(data) > 0
+
+        for item in data:
+            assert "unit_cost" in item
+            assert "warehouse" in item
+            assert "category" in item
+            assert isinstance(item["unit_cost"], (int, float))
+            assert item["unit_cost"] > 0
+            assert item["warehouse"] in ["San Francisco", "London", "Tokyo"]
 
 
 class TestBacklogEndpoints:
