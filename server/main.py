@@ -2,7 +2,11 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
+import uuid
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+
+restock_orders = []
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -80,6 +84,8 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    order_type: Optional[str] = None
+    estimated_delivery_days: Optional[int] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -303,6 +309,147 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+class RestockItemRequest(BaseModel):
+    sku: str
+    name: str
+    category: str
+    quantity: int
+    unit_cost: float
+
+class PlaceRestockOrderRequest(BaseModel):
+    items: List[RestockItemRequest]
+    budget: float
+
+def _po_delivery_by_sku() -> dict:
+    result = {}
+    for po in purchase_orders:
+        bl = next((b for b in backlog_items if b["id"] == po["backlog_item_id"]), None)
+        if bl:
+            result[bl["item_sku"]] = po["expected_delivery_date"]
+    return result
+
+def _lead_time_days(sku: str, po_map: dict) -> int:
+    if sku in po_map:
+        try:
+            delivery = datetime.strptime(po_map[sku], "%Y-%m-%d")
+            days = (delivery - datetime.now()).days
+            return max(1, days)
+        except Exception:
+            pass
+    return 7
+
+@app.get("/api/restock/recommendations")
+def get_restock_recommendations(budget: float = 25000):
+    backlog_skus = {item["item_sku"] for item in backlog_items}
+    po_map = _po_delivery_by_sku()
+    forecast_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+
+    candidates = []
+    for inv in inventory_items:
+        sku = inv["sku"]
+        forecast = forecast_by_sku.get(sku)
+        qty = inv["quantity_on_hand"]
+        reorder = inv["reorder_point"]
+        cost = inv["unit_cost"]
+
+        if forecast:
+            demand_gap = max(0, forecast["forecasted_demand"] - forecast["current_demand"])
+            demand_gap_score = demand_gap / max(forecast["forecasted_demand"], 1)
+        else:
+            demand_gap = 0
+            demand_gap_score = 0.0
+
+        below_reorder = qty <= reorder
+        stock_score = max(0.0, (reorder - qty) / reorder) if reorder > 0 else 0.0
+        in_backlog = sku in backlog_skus
+        backlog_score = 1.0 if in_backlog else 0.0
+
+        combined = (demand_gap_score * 0.4) + (stock_score * 0.4) + (backlog_score * 0.2)
+
+        if combined == 0:
+            continue
+
+        qty_recommended = max(demand_gap, max(0, reorder * 2 - qty))
+        if qty_recommended == 0:
+            qty_recommended = max(reorder, 1)
+
+        total_cost = round(qty_recommended * cost, 2)
+
+        candidates.append({
+            "sku": sku,
+            "name": inv["name"],
+            "category": inv["category"],
+            "warehouse": inv["warehouse"],
+            "quantity_recommended": qty_recommended,
+            "unit_cost": cost,
+            "total_cost": total_cost,
+            "combined_score": round(combined, 3),
+            "demand_gap": demand_gap,
+            "is_in_backlog": in_backlog,
+            "below_reorder_point": below_reorder,
+            "estimated_delivery_days": _lead_time_days(sku, po_map),
+        })
+
+    candidates.sort(key=lambda x: x["combined_score"], reverse=True)
+
+    selected = []
+    remaining = budget
+    for c in candidates:
+        if c["total_cost"] <= remaining:
+            selected.append(c)
+            remaining -= c["total_cost"]
+
+    spent = round(budget - remaining, 2)
+    return {"recommendations": selected, "total_cost": spent, "remaining_budget": round(remaining, 2)}
+
+@app.post("/api/restock/orders")
+def place_restock_order(req: PlaceRestockOrderRequest):
+    po_map = _po_delivery_by_sku()
+    now = datetime.now()
+
+    order_items = []
+    total_value = 0.0
+    max_days = 0
+
+    for item in req.items:
+        days = _lead_time_days(item.sku, po_map)
+        max_days = max(max_days, days)
+        line = round(item.quantity * item.unit_cost, 2)
+        total_value += line
+        order_items.append({
+            "name": item.name,
+            "sku": item.sku,
+            "quantity": item.quantity,
+            "unit_price": item.unit_cost,
+            "total": line,
+        })
+
+    if max_days == 0:
+        max_days = 7
+
+    expected_delivery = (now + timedelta(days=max_days)).strftime("%Y-%m-%dT%H:%M:%S")
+    order_id = str(uuid.uuid4())
+    order_num = f"RST-{now.strftime('%Y%m%d')}-{order_id[:4].upper()}"
+
+    new_order = {
+        "id": order_id,
+        "order_number": order_num,
+        "customer": "Internal Restock",
+        "items": order_items,
+        "status": "Processing",
+        "order_type": "Restock",
+        "order_date": now.strftime("%Y-%m-%dT%H:%M:%S"),
+        "expected_delivery": expected_delivery,
+        "total_value": round(total_value, 2),
+        "warehouse": "All Warehouses",
+        "category": "Restock",
+        "estimated_delivery_days": max_days,
+    }
+
+    restock_orders.append(new_order)
+    orders.append(new_order)
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn

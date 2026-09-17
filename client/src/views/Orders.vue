@@ -45,9 +45,12 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
-                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
-                <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
+              <tr v-for="order in orders" :key="order.id" :class="{ 'restock-row': order.order_type === 'Restock' }">
+                <td class="col-order-number">
+                  <strong>{{ order.order_number }}</strong>
+                  <span v-if="order.order_type === 'Restock'" class="restock-badge">RESTOCK</span>
+                </td>
+                <td class="col-customer">{{ order.order_type === 'Restock' ? 'Internal Restock' : translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
                   <details class="items-details">
                     <summary class="items-summary">
@@ -67,7 +70,10 @@
                   </span>
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
-                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-date">
+                  {{ formatDate(order.expected_delivery) }}
+                  <span v-if="order.order_type === 'Restock'" class="lead-time">{{ order.estimated_delivery_days }}d lead</span>
+                </td>
                 <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
               </tr>
             </tbody>
@@ -275,5 +281,29 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restock-row {
+  background: #fafbff;
+}
+
+.restock-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: #ede9fe;
+  color: #5b21b6;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+.lead-time {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
 }
 </style>
