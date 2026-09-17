@@ -82,6 +82,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    supplier_name: Optional[str] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -436,7 +437,8 @@ def create_restocking_order(request: RestockingOrderRequest):
         expected_delivery=expected_delivery,
         total_value=round(total_value, 2),
         warehouse=request.items[0].get('warehouse', 'San Francisco') if request.items else 'San Francisco',
-        category="Mixed"
+        category="Mixed",
+        supplier_name=supplier['name']
     )
 
     # Add to orders list

@@ -114,6 +114,10 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: '提出済み注文',
+    supplier: 'サプライヤー',
+    collapse: '折りたたむ',
+    expand: '展開',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -208,7 +212,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    restockingOrder: '再入荷注文'
   },
 
   // Trends

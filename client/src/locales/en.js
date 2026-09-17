@@ -114,6 +114,10 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    supplier: 'Supplier',
+    collapse: 'Collapse',
+    expand: 'Expand',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -208,7 +212,8 @@ export default {
     backordered: 'Backordered',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
-    adequate: 'Adequate'
+    adequate: 'Adequate',
+    restockingOrder: 'Restocking Order'
   },
 
   // Trends
