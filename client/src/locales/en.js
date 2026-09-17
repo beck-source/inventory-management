@@ -6,6 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    reports: 'Reports',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -304,11 +306,72 @@ export default {
     noTasks: 'No tasks yet. Add your first task above!'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Optimize inventory replenishment with budget constraints',
+    budget: 'Available Budget',
+    slider: 'Budget Slider',
+    supplier: 'Select Supplier',
+    recommendations: 'Recommended Items',
+    critical: 'Critical',
+    highDemand: 'High Demand',
+    itemName: 'Item Name',
+    sku: 'SKU',
+    currentStock: 'Current Stock',
+    reorderPoint: 'Reorder Point',
+    suggestedQty: 'Suggested Qty',
+    unitCost: 'Unit Cost',
+    itemCost: 'Item Cost',
+    totalSelectedCost: 'Total Selected Cost',
+    placeOrder: 'Place Order',
+    orderSuccess: 'Restocking order placed successfully!',
+    orderFailed: 'Failed to place restocking order',
+    selectSupplier: 'Please select a supplier',
+    selectItems: 'Please select at least one item',
+    budgetExceeded: 'Total cost exceeds available budget',
+    leadTime: 'Lead Time',
+    days: 'days',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No submitted orders yet'
+  },
+
   // Language
   language: {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Budget-Constrained Restocking',
+    description: 'Generate restocking recommendations based on available budget and demand forecasts',
+    budget: 'Budget',
+    supplier: 'Supplier',
+    selectSupplier: 'Select a supplier',
+    recommendations: 'Recommended Items',
+    noRecommendations: 'No recommendations available for the current budget and filters',
+    reasonCritical: 'Critical',
+    reasonHighDemand: 'High Demand',
+    table: {
+      select: 'Select',
+      itemName: 'Item Name',
+      sku: 'SKU',
+      currentStock: 'Current Stock',
+      suggestedQty: 'Suggested Qty',
+      unitCost: 'Unit Cost',
+      itemCost: 'Item Cost',
+      reason: 'Reason'
+    },
+    totalSelectedCost: 'Total Selected Cost',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    orderSuccess: 'Restocking order placed successfully',
+    orderError: 'Failed to place restocking order',
+    selectSupplierError: 'Please select a supplier before placing an order',
+    overBudget: 'Selected items exceed the available budget',
+    noItemsSelected: 'Select at least one item to place an order'
   },
 
   // Common
