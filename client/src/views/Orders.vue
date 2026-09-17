@@ -74,6 +74,57 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedOrders') }} ({{ restockingOrders.length }})</h3>
+        </div>
+        <div v-if="loadingRestocking" class="loading">{{ t('common.loading') }}</div>
+        <div v-else-if="restockingError" class="error">{{ restockingError }}</div>
+        <div v-else-if="restockingOrders.length === 0" class="loading">{{ t('restocking.noSubmittedOrders') }}</div>
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-lead-time">{{ t('restocking.leadTime') }}</th>
+                <th class="col-date">{{ t('restocking.expectedDelivery') }}</th>
+                <th class="col-value">{{ t('restocking.totalCost') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockingOrders" :key="ro.id">
+                <td class="col-order-number"><strong>{{ ro.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: ro.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in ro.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.item_name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span :class="['badge', getRestockingStatusClass(ro.status)]">
+                    {{ ro.status }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(ro.order_date) }}</td>
+                <td class="col-lead-time">{{ t('restocking.daysCount', { count: ro.lead_time_days }) }}</td>
+                <td class="col-date">{{ formatDate(ro.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ ro.total_cost.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +146,10 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+
+    const restockingOrders = ref([])
+    const loadingRestocking = ref(true)
+    const restockingError = ref(null)
 
     // Use shared filters
     const {
@@ -129,6 +184,24 @@ export default {
       loadOrders()
     })
 
+    const loadRestockingOrders = async () => {
+      try {
+        loadingRestocking.value = true
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        restockingError.value = 'Failed to load submitted orders: ' + err.message
+      } finally {
+        loadingRestocking.value = false
+      }
+    }
+
+    const getRestockingStatusClass = (status) => {
+      const statusMap = {
+        'Processing': 'warning'
+      }
+      return statusMap[status] || 'warning'
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -154,6 +227,7 @@ export default {
     }
 
     onMounted(loadOrders)
+    onMounted(loadRestockingOrders)
 
     return {
       t,
@@ -165,7 +239,11 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders,
+      loadingRestocking,
+      restockingError,
+      getRestockingStatusClass
     }
   }
 }
@@ -197,6 +275,10 @@ export default {
 
 .col-date {
   width: 140px;
+}
+
+.col-lead-time {
+  width: 110px;
 }
 
 .col-value {
