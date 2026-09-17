@@ -6180,5 +6180,31 @@
     "expected_delivery": "2025-11-19T12:30:00",
     "total_value": 9125.0,
     "actual_delivery": "2025-11-18T12:30:00"
+  },
+  {
+    "id": "251",
+    "order_number": "RESTOCK-0001",
+    "customer": "Internal Restocking",
+    "items": [
+      {
+        "sku": "WDG-001",
+        "name": "Industrial Widget Type A",
+        "quantity": 300,
+        "unit_price": 15.99
+      },
+      {
+        "sku": "FLT-405",
+        "name": "Oil Filter Cartridge",
+        "quantity": 500,
+        "unit_price": 5.50
+      }
+    ],
+    "status": "Restocking Order",
+    "warehouse": "San Francisco",
+    "category": "Mixed",
+    "order_date": "2025-09-17T10:00:00",
+    "expected_delivery": "2025-09-24T10:00:00",
+    "total_value": 7270.00,
+    "supplier_name": "PremiumCorp"
   }
 ]

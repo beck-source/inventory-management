@@ -1,0 +1,26 @@
+[
+  {
+    "id": "SUPP-001",
+    "name": "FastSupply",
+    "lead_time_days": 3,
+    "cost_modifier": 1.1
+  },
+  {
+    "id": "SUPP-002",
+    "name": "PremiumCorp",
+    "lead_time_days": 7,
+    "cost_modifier": 0.95
+  },
+  {
+    "id": "SUPP-003",
+    "name": "Standard Logistics",
+    "lead_time_days": 14,
+    "cost_modifier": 0.85
+  },
+  {
+    "id": "SUPP-004",
+    "name": "Budget Wholesale",
+    "lead_time_days": 21,
+    "cost_modifier": 0.75
+  }
+]

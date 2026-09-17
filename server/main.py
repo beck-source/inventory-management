@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+from uuid import uuid4
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, suppliers
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -80,6 +82,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    supplier_name: Optional[str] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -119,6 +122,29 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    id: str
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    quantity_on_hand: int
+    reorder_point: int
+    unit_cost: float
+    suggested_quantity: int
+    total_cost: float
+    reason: str
+
+class RestockingOrderRequest(BaseModel):
+    items: List[dict]
+    supplier_id: str
+
+class Supplier(BaseModel):
+    id: str
+    name: str
+    lead_time_days: int
+    cost_modifier: Optional[float] = 1.0
 
 # API endpoints
 @app.get("/")
@@ -303,6 +329,122 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/suppliers", response_model=List[Supplier])
+def get_suppliers():
+    """Get all suppliers with lead times"""
+    return suppliers
+
+@app.post("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(budget: float):
+    """Generate restocking recommendations based on budget and demand"""
+    recommendations = []
+
+    # Find critical items (below reorder point) and high-demand items
+    critical_items = []
+    high_demand_items = []
+
+    for inventory in inventory_items:
+        sku = inventory['sku']
+
+        # Find corresponding demand forecast
+        demand = next((d for d in demand_forecasts if d['item_sku'] == sku), None)
+        forecasted_demand = demand['forecasted_demand'] if demand else 0
+
+        # Check if critical (below reorder point)
+        if inventory['quantity_on_hand'] <= inventory['reorder_point']:
+            critical_items.append((inventory, forecasted_demand, 'critical'))
+        elif forecasted_demand > 0:
+            high_demand_items.append((inventory, forecasted_demand, 'high_demand'))
+
+    # Sort by demand
+    critical_items.sort(key=lambda x: x[1], reverse=True)
+    high_demand_items.sort(key=lambda x: x[1], reverse=True)
+
+    # Combine lists (critical first, then high-demand)
+    all_candidates = critical_items + high_demand_items
+
+    # Build recommendations until budget is exceeded
+    total_cost = 0
+    for inventory, forecasted_demand, reason in all_candidates:
+        # Calculate suggested quantity: (reorder_point * 1.5) - quantity_on_hand
+        suggested_qty = max(1, int((inventory['reorder_point'] * 1.5) - inventory['quantity_on_hand']))
+        item_cost = suggested_qty * inventory['unit_cost']
+
+        # Only add if within budget
+        if total_cost + item_cost <= budget:
+            rec = RestockingRecommendation(
+                id=str(uuid4()),
+                sku=inventory['sku'],
+                name=inventory['name'],
+                category=inventory['category'],
+                warehouse=inventory['warehouse'],
+                quantity_on_hand=inventory['quantity_on_hand'],
+                reorder_point=inventory['reorder_point'],
+                unit_cost=inventory['unit_cost'],
+                suggested_quantity=suggested_qty,
+                total_cost=round(item_cost, 2),
+                reason=reason
+            )
+            recommendations.append(rec)
+            total_cost += item_cost
+
+    return recommendations
+
+@app.post("/api/orders", response_model=Order)
+def create_restocking_order(request: RestockingOrderRequest):
+    """Create a new restocking order"""
+    # Find supplier
+    supplier = next((s for s in suppliers if s['id'] == request.supplier_id), None)
+    if not supplier:
+        raise HTTPException(status_code=404, detail="Supplier not found")
+
+    # Calculate total value and prepare items
+    items = []
+    total_value = 0
+    for item_data in request.items:
+        sku = item_data['sku']
+        quantity = item_data['quantity']
+
+        # Find inventory item to get unit cost
+        inv_item = next((i for i in inventory_items if i['sku'] == sku), None)
+        if not inv_item:
+            raise HTTPException(status_code=404, detail=f"Item {sku} not found")
+
+        unit_price = inv_item['unit_cost']
+        item_total = quantity * unit_price
+
+        items.append({
+            'sku': sku,
+            'name': inv_item['name'],
+            'quantity': quantity,
+            'unit_price': unit_price
+        })
+        total_value += item_total
+
+    # Calculate expected delivery date
+    today = datetime.now().isoformat()
+    expected_delivery = (datetime.now() + timedelta(days=supplier['lead_time_days'])).isoformat()
+
+    # Create order
+    new_order = Order(
+        id=str(uuid4()),
+        order_number=f"RESTOCK-{len([o for o in orders if 'RESTOCK' in o['order_number']]) + 1:04d}",
+        customer="Internal Restocking",
+        items=items,
+        status="Restocking Order",
+        order_date=today,
+        expected_delivery=expected_delivery,
+        total_value=round(total_value, 2),
+        warehouse=request.items[0].get('warehouse', 'San Francisco') if request.items else 'San Francisco',
+        category="Mixed",
+        supplier_name=supplier['name']
+    )
+
+    # Add to orders list
+    orders.append(new_order.dict())
+
+    return new_order
 
 if __name__ == "__main__":
     import uvicorn
