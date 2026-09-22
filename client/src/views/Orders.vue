@@ -74,6 +74,58 @@
           </table>
         </div>
       </div>
+
+      <!-- Submitted Orders section (from Restocking tab) -->
+      <div v-if="submittedOrders.length > 0" class="card submitted-orders-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders ({{ submittedOrders.length }}) - From Restocking</h3>
+          <p class="card-subtitle">Orders placed through the Restocking tab with expected lead times</p>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order Number</th>
+                <th class="col-customer">Customer</th>
+                <th class="col-items">Items</th>
+                <th class="col-status">Status</th>
+                <th class="col-date">Order Date</th>
+                <th class="col-date">Expected Delivery</th>
+                <th class="col-lead-time">Lead Time</th>
+                <th class="col-value">Total Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-customer">{{ order.customer }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span class="badge badge-submitted">{{ order.status }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-lead-time">
+                  <span class="lead-time-badge">{{ order.lead_time }} days</span>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -104,6 +156,12 @@ export default {
       selectedStatus,
       getCurrentFilters
     } = useFilters()
+
+    // Load submitted orders from localStorage
+    const submittedOrders = computed(() => {
+      const stored = localStorage.getItem('submitted_orders')
+      return stored ? JSON.parse(stored) : []
+    })
 
     const loadOrders = async () => {
       try {
@@ -160,6 +218,7 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +334,52 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Submitted Orders section styling */
+.submitted-orders-card {
+  margin-top: 1.5rem;
+  border: 2px solid var(--color-info-bg);
+  background: linear-gradient(135deg, rgba(219, 234, 254, 0.3) 0%, rgba(224, 242, 254, 0.3) 100%);
+}
+
+.submitted-orders-card .card-header {
+  background: var(--color-info-bg);
+}
+
+.submitted-orders-card .card-title {
+  color: var(--color-info-text);
+}
+
+.card-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+  font-weight: 400;
+}
+
+.badge-submitted {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+  padding: 0.313rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.lead-time-badge {
+  display: inline-block;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.col-lead-time {
+  width: 100px;
 }
 </style>
