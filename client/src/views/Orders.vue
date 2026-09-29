@@ -29,7 +29,7 @@
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length - submittedOrders.length }})</h3>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -45,7 +45,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
+              <tr v-for="order in orders.filter(o => o.order_type !== 'restocking' && o.category !== 'Restocking')" :key="order.id">
                 <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
                 <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
@@ -68,6 +68,55 @@
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Submitted Orders Section -->
+      <div v-if="submittedOrders.length > 0" class="card submitted-orders-section">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedOrders') }}</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('restocking.orderNumber') }}</th>
+                <th class="col-customer">{{ t('orders.table.customer') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('restocking.status') }}</th>
+                <th class="col-date">{{ t('restocking.orderDate') }}</th>
+                <th class="col-date">{{ t('restocking.expectedDelivery') }}</th>
+                <th class="col-value">{{ t('restocking.totalBudget') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-customer">{{ order.customer }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.name }} ({{ item.sku }})</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span class="badge warning">
+                    {{ t('restocking.processing') }}
+                  </span>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }} ({{ t('restocking.deliveryLeadTime') }})</td>
                 <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
               </tr>
             </tbody>
@@ -129,8 +178,16 @@ export default {
       loadOrders()
     })
 
+    // Separate regular orders from submitted restocking orders
+    const submittedOrders = computed(() => {
+      return orders.value.filter(order => order.order_type === 'restocking' || order.category === 'Restocking')
+    })
+
     const getOrdersByStatus = (status) => {
-      return orders.value.filter(order => order.status === status)
+      // Only count regular orders for status cards
+      return orders.value.filter(order =>
+        order.status === status && order.order_type !== 'restocking' && order.category !== 'Restocking'
+      )
     }
 
     const getOrderStatusClass = (status) => {
@@ -160,6 +217,7 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,

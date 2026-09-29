@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import json
+import os
+import uuid
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -45,6 +49,14 @@ def apply_filters(items: list, warehouse: Optional[str] = None, category: Option
         filtered = [item for item in filtered if item.get('status', '').lower() == status.lower()]
 
     return filtered
+
+def save_purchase_orders():
+    """Save purchase orders to JSON file"""
+    # Data file path is relative to this script's location
+    data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
+    filepath = os.path.join(data_dir, 'purchase_orders.json')
+    with open(filepath, 'w') as f:
+        json.dump(purchase_orders, f, indent=2)
 
 # CORS middleware
 app.add_middleware(
@@ -120,6 +132,18 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockingItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    total_cost: float
+
+class RestockingOrderRequest(BaseModel):
+    selected_items: List[RestockingItem]
+    total_budget: float
+    notes: Optional[str] = None
+
 # API endpoints
 @app.get("/")
 def root():
@@ -148,8 +172,10 @@ def get_orders(
     status: Optional[str] = None,
     month: Optional[str] = None
 ):
-    """Get all orders with optional filtering"""
-    filtered_orders = apply_filters(orders, warehouse, category, status)
+    """Get all orders (including restocking orders) with optional filtering"""
+    # Combine regular orders with restocking orders from purchase_orders
+    all_orders = orders + purchase_orders
+    filtered_orders = apply_filters(all_orders, warehouse, category, status)
     filtered_orders = filter_by_month(filtered_orders, month)
     return filtered_orders
 
@@ -303,6 +329,51 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", response_model=dict)
+def create_restocking_order(request: RestockingOrderRequest):
+    """Submit a restocking order based on budget and demand forecasts"""
+    # Generate unique order ID
+    order_id = str(uuid.uuid4())
+
+    # Generate order number with date and sequence (RST-YYYY-MM-DD-####)
+    today = datetime.now()
+    date_str = today.strftime('%Y-%m-%d')
+    sequence = str(len(purchase_orders) + 1).zfill(4)
+    order_number = f"RST-{date_str}-{sequence}"
+
+    # Calculate expected delivery date (14 days from now)
+    expected_delivery = (today + timedelta(days=14)).strftime('%Y-%m-%d')
+
+    # Create order object with restocking details
+    restocking_order = {
+        "id": order_id,
+        "order_number": order_number,
+        "customer": "Auto-Restocking System",
+        "items": [
+            {
+                "name": item.item_name,
+                "sku": item.item_sku,
+                "quantity": item.quantity,
+                "unit_price": item.unit_cost
+            }
+            for item in request.selected_items
+        ],
+        "status": "Processing",
+        "order_date": today.strftime('%Y-%m-%d'),
+        "expected_delivery": expected_delivery,
+        "total_value": request.total_budget,
+        "warehouse": "Central",
+        "category": "Restocking",
+        "order_type": "restocking",
+        "notes": request.notes
+    }
+
+    # Add to purchase_orders list and save to file
+    purchase_orders.append(restocking_order)
+    save_purchase_orders()
+
+    return restocking_order
 
 if __name__ == "__main__":
     import uvicorn

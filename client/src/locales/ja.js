@@ -304,6 +304,44 @@ export default {
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
   },
 
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '需要予測に基づいて補充発注を計画・実施',
+    budgetControl: '予算管理',
+    budgetLabel: '利用可能予算',
+    budgetAvailable: '利用可能予算: {amount}',
+    allocated: '配分予算',
+    remaining: '残りの予算',
+    recommendations: '補充推奨アイテム',
+    recommendationsDescription: '最高需要予測のアイテムから順に優先度順にソート',
+    table: {
+      sku: 'SKU',
+      itemName: 'アイテム名',
+      currentDemand: '現在の需要',
+      forecastedDemand: '予測需要',
+      unitCost: '単価',
+      quantity: '補充数',
+      totalCost: '合計金額'
+    },
+    placeOrder: '発注を送信',
+    notes: '発注メモ（オプション）',
+    notesLabel: '発注メモ（オプション）',
+    noRecommendations: '予算内のアイテムがありません。予算を増やしてください。',
+    submittedOrders: '送信済み発注',
+    submittedOrdersEmpty: '送信された補充発注がまだありません',
+    orderNumber: '発注番号',
+    orderDate: '発注日',
+    expectedDelivery: '期待配送日',
+    deliveryLeadTime: '14日配送',
+    status: 'ステータス',
+    processing: '処理中',
+    totalBudget: '合計予算',
+    success: '補充発注が正常に送信されました！',
+    error: '補充発注の送信に失敗しました。もう一度お試しください。',
+    submitting: '発注を送信中...'
+  },
+
   // Language
   language: {
     english: 'English',

@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "id": "dd454b57-9411-40f3-ad75-55311917e78b",
+    "order_number": "RST-2026-09-17-0001",
+    "customer": "Auto-Restocking System",
+    "items": [
+      {
+        "name": "Industrial Widget Type A",
+        "sku": "WDG-001",
+        "quantity": 50,
+        "unit_price": 100.0
+      }
+    ],
+    "status": "Processing",
+    "order_date": "2026-09-17",
+    "expected_delivery": "2026-10-01",
+    "total_value": 5000.0,
+    "warehouse": "Central",
+    "category": "Restocking",
+    "order_type": "restocking",
+    "notes": "Test restocking order"
+  },
+  {
+    "id": "5c939ab9-7d0d-4f6b-b5dc-54e57c0c089d",
+    "order_number": "RST-2026-09-17-0002",
+    "customer": "Auto-Restocking System",
+    "items": [
+      {
+        "name": "5V 10A Switching Power",
+        "sku": "PSU-501",
+        "quantity": 100,
+        "unit_price": 19.0
+      }
+    ],
+    "status": "Processing",
+    "order_date": "2026-09-17",
+    "expected_delivery": "2026-10-01",
+    "total_value": 1900.0,
+    "warehouse": "Central",
+    "category": "Restocking",
+    "order_type": "restocking",
+    "notes": ""
+  }
+]

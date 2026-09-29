@@ -304,6 +304,44 @@ export default {
     noTasks: 'No tasks yet. Add your first task above!'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan and place restocking orders based on demand forecasts',
+    budgetControl: 'Budget Control',
+    budgetLabel: 'Available Budget',
+    budgetAvailable: 'Budget Available: {amount}',
+    allocated: 'Budget Allocated',
+    remaining: 'Budget Remaining',
+    recommendations: 'Restocking Recommendations',
+    recommendationsDescription: 'Items sorted by highest forecasted demand to maximize priority',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      currentDemand: 'Current Demand',
+      forecastedDemand: 'Forecasted Demand',
+      unitCost: 'Unit Cost',
+      quantity: 'Quantity to Restock',
+      totalCost: 'Total Cost'
+    },
+    placeOrder: 'Place Order',
+    notes: 'Order Notes (Optional)',
+    notesLabel: 'Order Notes (Optional)',
+    noRecommendations: 'No items available within your budget. Try increasing the budget.',
+    submittedOrders: 'Submitted Orders',
+    submittedOrdersEmpty: 'No restocking orders submitted yet',
+    orderNumber: 'Order Number',
+    orderDate: 'Order Date',
+    expectedDelivery: 'Expected Delivery',
+    deliveryLeadTime: '14-day delivery',
+    status: 'Status',
+    processing: 'Processing',
+    totalBudget: 'Total Budget',
+    success: 'Restocking order submitted successfully!',
+    error: 'Failed to submit restocking order. Please try again.',
+    submitting: 'Submitting order...'
+  },
+
   // Language
   language: {
     english: 'English',
