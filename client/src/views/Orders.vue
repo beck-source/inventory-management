@@ -74,6 +74,46 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ restockingOrders.length }})</h3>
+        </div>
+        <div v-if="restockingOrders.length === 0" class="empty-state">
+          {{ t('orders.noSubmittedOrders') }}
+        </div>
+        <div v-else class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('orders.table.totalValue') }}</th>
+                <th>{{ t('orders.table.orderDate') }}</th>
+                <th>{{ t('orders.table.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ t('orders.itemsCount', { count: order.items.length }) }}</td>
+                <td><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>
+                  {{ formatDate(order.expected_delivery) }}
+                  <span class="lead-time-note">({{ t('restocking.leadTime', { days: order.lead_time_days }) }})</span>
+                </td>
+                <td>
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +135,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -124,9 +165,22 @@ export default {
       }
     }
 
+    const loadRestockingOrders = async () => {
+      try {
+        const filters = getCurrentFilters()
+        restockingOrders.value = await api.getRestockingOrders({
+          warehouse: filters.warehouse,
+          category: filters.category
+        })
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
+      loadRestockingOrders()
     })
 
     const getOrdersByStatus = (status) => {
@@ -153,13 +207,17 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +333,19 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.lead-time-note {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.125rem;
 }
 </style>
