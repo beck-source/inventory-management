@@ -382,5 +382,89 @@
     "unit_cost": 185.50,
     "location": "Warehouse C-11",
     "last_updated": "2025-09-21T15:20:00"
+  },
+  {
+    "id": "33",
+    "sku": "IWD-001",
+    "name": "Industrial Widget Type A",
+    "category": "Components",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 80,
+    "reorder_point": 150,
+    "unit_cost": 35.99,
+    "location": "Warehouse A-18",
+    "last_updated": "2025-09-30T10:00:00"
+  },
+  {
+    "id": "34",
+    "sku": "SBA-001",
+    "name": "Steel Bearing Assembly",
+    "category": "Mechanical",
+    "warehouse": "London",
+    "quantity_on_hand": 120,
+    "reorder_point": 200,
+    "unit_cost": 45.50,
+    "location": "Warehouse B-18",
+    "last_updated": "2025-09-30T09:45:00"
+  },
+  {
+    "id": "35",
+    "sku": "GAK-001",
+    "name": "High-Temperature Gasket",
+    "category": "Seals",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 250,
+    "reorder_point": 300,
+    "unit_cost": 12.75,
+    "location": "Warehouse C-12",
+    "last_updated": "2025-09-30T11:30:00"
+  },
+  {
+    "id": "36",
+    "sku": "MOT-001",
+    "name": "Electric Motor 5HP",
+    "category": "Motors",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 15,
+    "reorder_point": 25,
+    "unit_cost": 285.99,
+    "location": "Warehouse A-19",
+    "last_updated": "2025-09-29T14:15:00"
+  },
+  {
+    "id": "37",
+    "sku": "FLT-001",
+    "name": "Oil Filter Cartridge",
+    "category": "Filters",
+    "warehouse": "London",
+    "quantity_on_hand": 500,
+    "reorder_point": 400,
+    "unit_cost": 8.49,
+    "location": "Warehouse B-19",
+    "last_updated": "2025-09-28T10:20:00"
+  },
+  {
+    "id": "38",
+    "sku": "PRV-001",
+    "name": "Pressure Relief Valve",
+    "category": "Valves",
+    "warehouse": "Tokyo",
+    "quantity_on_hand": 180,
+    "reorder_point": 250,
+    "unit_cost": 22.99,
+    "location": "Warehouse C-13",
+    "last_updated": "2025-09-27T16:45:00"
+  },
+  {
+    "id": "39",
+    "sku": "LCB-001",
+    "name": "Logic Controller Board",
+    "category": "Electronics",
+    "warehouse": "San Francisco",
+    "quantity_on_hand": 200,
+    "reorder_point": 300,
+    "unit_cost": 78.50,
+    "location": "Warehouse A-20",
+    "last_updated": "2025-09-30T08:30:00"
   }
 ]

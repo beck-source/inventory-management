@@ -74,6 +74,60 @@
           </table>
         </div>
       </div>
+
+      <div class="card submitted-orders-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+        </div>
+
+        <div v-if="restockingOrders.length === 0" class="empty-state">
+          No restocking orders submitted yet.
+        </div>
+
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order ID</th>
+                <th class="col-date">Date</th>
+                <th class="col-items">Items</th>
+                <th class="col-value">Total Cost</th>
+                <th class="col-date">Est. Delivery</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.id }}</strong></td>
+                <td class="col-date">{{ formatDate(order.createdAt) }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">{{ order.itemCount }} unit(s)</summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unitCost.toFixed(2) }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-value">
+                  <strong>{{ currencySymbol }}{{ order.totalCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong>
+                </td>
+                <td class="col-date">{{ formatDate(order.estimatedDelivery) }}</td>
+                <td class="col-status">
+                  <span :class="['badge', order.synced ? 'success' : 'warning']">
+                    {{ order.synced ? '✓ Synced' : 'Unsaved' }}
+                  </span>
+                  <button v-if="!order.synced" class="sync-link" @click="syncRestockingOrder(order.id)">
+                    Sync Now
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -83,6 +137,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { useRestocking } from '../composables/useRestocking'
 
 export default {
   name: 'Orders',
@@ -95,6 +150,19 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+
+    // Restocking orders (from Restocking view, persisted in localStorage)
+    const { getRestockingOrders, markOrderAsSaved } = useRestocking()
+    const restockingOrders = ref([])
+
+    const loadRestockingOrders = () => {
+      restockingOrders.value = getRestockingOrders()
+    }
+
+    const syncRestockingOrder = (orderId) => {
+      markOrderAsSaved(orderId)
+      loadRestockingOrders()
+    }
 
     // Use shared filters
     const {
@@ -154,12 +222,15 @@ export default {
     }
 
     onMounted(loadOrders)
+    onMounted(loadRestockingOrders)
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
+      syncRestockingOrder,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +346,38 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Submitted restocking orders */
+.submitted-orders-card {
+  margin-top: 1.5rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
+.col-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sync-link {
+  background: transparent;
+  border: none;
+  color: #2563eb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.sync-link:hover {
+  color: #1d4ed8;
 }
 </style>
