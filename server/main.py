@@ -1,7 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from datetime import datetime, timedelta
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
-from pydantic import BaseModel
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +90,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: Optional[float] = None
+    lead_time_days: Optional[int] = None
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +122,101 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+MAX_RESTOCK_BUDGET = 10_000_000
+MAX_RESTOCK_QUANTITY = 100_000
+
+class RestockRecommendation(BaseModel):
+    item_sku: str
+    item_name: str
+    trend: str
+    forecasted_demand: int
+    quantity_on_hand: int
+    quantity_on_order: int
+    shortfall: int
+    recommended_quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+    partial: bool
+
+class RestockRecommendationResponse(BaseModel):
+    budget: float
+    total_cost: float
+    remaining_budget: float
+    full_restock_cost: float
+    items: List[RestockRecommendation]
+
+class RestockOrderLine(BaseModel):
+    item_sku: str
+    quantity: int = Field(gt=0, le=MAX_RESTOCK_QUANTITY)
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float = Field(gt=0, le=MAX_RESTOCK_BUDGET)
+    items: List[RestockOrderLine] = Field(min_length=1)
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockOrderItem]
+    total_value: float
+    budget: float
+    status: str
+    submitted_date: str
+    lead_time_days: int
+    expected_delivery: str
+
+class CreateTaskRequest(BaseModel):
+    title: str = Field(min_length=1)
+    priority: Literal['high', 'medium', 'low'] = 'medium'
+    dueDate: str
+
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+# Restocking orders submitted this session (in memory; reset on server restart)
+restock_orders: List[dict] = []
+
+# User tasks created this session (in memory; reset on server restart)
+tasks: List[dict] = []
+next_task_id = 1
+
+TREND_PRIORITY = {'increasing': 0, 'stable': 1, 'decreasing': 2}
+
+def get_on_hand_quantity(sku: str) -> int:
+    """Total quantity on hand for a SKU across all warehouses (0 if not stocked)"""
+    return sum(item['quantity_on_hand'] for item in inventory_items if item['sku'] == sku)
+
+def get_on_order_quantity(sku: str) -> int:
+    """Total quantity of a SKU in restocking orders submitted this session"""
+    return sum(line['quantity'] for order in restock_orders for line in order['items'] if line['item_sku'] == sku)
+
+def get_restock_candidates() -> list:
+    """Demand forecast items whose forecasted demand exceeds stock on hand plus stock on order, highest priority first"""
+    candidates = []
+    for forecast in demand_forecasts:
+        if forecast.get('unit_cost') is None or forecast.get('lead_time_days') is None:
+            continue
+        on_hand = get_on_hand_quantity(forecast['item_sku'])
+        on_order = get_on_order_quantity(forecast['item_sku'])
+        shortfall = forecast['forecasted_demand'] - on_hand - on_order
+        if shortfall <= 0:
+            continue
+        candidates.append({**forecast, 'quantity_on_hand': on_hand, 'quantity_on_order': on_order, 'shortfall': shortfall})
+    candidates.sort(key=lambda c: (TREND_PRIORITY.get(c['trend'], 3), -c['shortfall'] * c['unit_cost']))
+    return candidates
 
 # API endpoints
 @app.get("/")
@@ -165,6 +263,90 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restocking/recommendations", response_model=RestockRecommendationResponse)
+def get_restocking_recommendations(budget: float = Query(gt=0, le=MAX_RESTOCK_BUDGET)):
+    """Recommend demand forecast items to restock, filling the budget in priority order"""
+    candidates = get_restock_candidates()
+    remaining = budget
+    items = []
+    for c in candidates:
+        affordable = int(remaining // c['unit_cost'])
+        quantity = min(c['shortfall'], affordable)
+        if quantity <= 0:
+            continue
+        line_total = round(quantity * c['unit_cost'], 2)
+        remaining = round(remaining - line_total, 2)
+        items.append({
+            'item_sku': c['item_sku'],
+            'item_name': c['item_name'],
+            'trend': c['trend'],
+            'forecasted_demand': c['forecasted_demand'],
+            'quantity_on_hand': c['quantity_on_hand'],
+            'quantity_on_order': c['quantity_on_order'],
+            'shortfall': c['shortfall'],
+            'recommended_quantity': quantity,
+            'unit_cost': c['unit_cost'],
+            'line_total': line_total,
+            'lead_time_days': c['lead_time_days'],
+            'partial': quantity < c['shortfall'],
+        })
+    total_cost = round(sum(i['line_total'] for i in items), 2)
+    return {
+        'budget': budget,
+        'total_cost': total_cost,
+        'remaining_budget': round(budget - total_cost, 2),
+        'full_restock_cost': round(sum(c['shortfall'] * c['unit_cost'] for c in candidates), 2),
+        'items': items,
+    }
+
+@app.get("/api/restocking/orders", response_model=List[RestockOrder])
+def get_restocking_orders():
+    """Get submitted restocking orders, newest first"""
+    return list(reversed(restock_orders))
+
+@app.post("/api/restocking/orders", response_model=RestockOrder, status_code=201)
+def create_restocking_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order; prices and lead times come from the demand forecast, not the client"""
+    forecasts_by_sku = {f['item_sku']: f for f in demand_forecasts}
+    seen = set()
+    items = []
+    for line in request.items:
+        if line.item_sku in seen:
+            raise HTTPException(status_code=400, detail=f"Duplicate item {line.item_sku} in order")
+        seen.add(line.item_sku)
+        forecast = forecasts_by_sku.get(line.item_sku)
+        if not forecast or forecast.get('unit_cost') is None or forecast.get('lead_time_days') is None:
+            raise HTTPException(status_code=400, detail=f"Item {line.item_sku} is not available for restocking")
+        items.append({
+            'item_sku': forecast['item_sku'],
+            'item_name': forecast['item_name'],
+            'quantity': line.quantity,
+            'unit_cost': forecast['unit_cost'],
+            'line_total': round(line.quantity * forecast['unit_cost'], 2),
+            'lead_time_days': forecast['lead_time_days'],
+        })
+
+    total_value = round(sum(i['line_total'] for i in items), 2)
+    if total_value > request.budget:
+        raise HTTPException(status_code=400, detail=f"Order total {total_value} exceeds budget {request.budget}")
+
+    submitted = datetime.now().replace(microsecond=0)
+    lead_time_days = max(i['lead_time_days'] for i in items)
+    order_id = str(len(restock_orders) + 1)
+    order = {
+        'id': order_id,
+        'order_number': f"RST-{submitted.year}-{order_id.zfill(4)}",
+        'items': items,
+        'total_value': total_value,
+        'budget': request.budget,
+        'status': 'Submitted',
+        'submitted_date': submitted.isoformat(),
+        'lead_time_days': lead_time_days,
+        'expected_delivery': (submitted + timedelta(days=lead_time_days)).isoformat(),
+    }
+    restock_orders.append(order)
+    return order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():
@@ -227,25 +409,34 @@ def get_recent_transactions():
     """Get recent transactions"""
     return recent_transactions
 
+def parse_order_month(order_date: str) -> Optional[tuple]:
+    """Return (year, month) from a YYYY-MM-DD order_date, or None if malformed"""
+    try:
+        parsed = datetime.strptime(order_date[:7], '%Y-%m')
+    except (TypeError, ValueError):
+        return None
+    return parsed.year, parsed.month
+
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
-    """Get quarterly performance reports"""
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get quarterly performance reports with optional filtering"""
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     # Calculate quarterly statistics from orders
     quarters = {}
 
-    for order in orders:
-        order_date = order.get('order_date', '')
-        # Determine quarter
-        if '2025-01' in order_date or '2025-02' in order_date or '2025-03' in order_date:
-            quarter = 'Q1-2025'
-        elif '2025-04' in order_date or '2025-05' in order_date or '2025-06' in order_date:
-            quarter = 'Q2-2025'
-        elif '2025-07' in order_date or '2025-08' in order_date or '2025-09' in order_date:
-            quarter = 'Q3-2025'
-        elif '2025-10' in order_date or '2025-11' in order_date or '2025-12' in order_date:
-            quarter = 'Q4-2025'
-        else:
+    for order in filtered_orders:
+        parsed = parse_order_month(order.get('order_date', ''))
+        if not parsed:
             continue
+        year, order_month = parsed
+        quarter = f"Q{(order_month - 1) // 3 + 1}-{year}"
 
         if quarter not in quarters:
             quarters[quarter] = {
@@ -269,40 +460,94 @@ def get_quarterly_reports():
             data['fulfillment_rate'] = round((data['delivered_orders'] / data['total_orders']) * 100, 1)
         result.append(data)
 
-    # Sort by quarter
-    result.sort(key=lambda x: x['quarter'])
+    # Sort chronologically (year, then quarter number)
+    result.sort(key=lambda x: (x['quarter'][3:], x['quarter'][:2]))
     return result
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
-    """Get month-over-month trends"""
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get month-over-month trends with optional filtering"""
+    filtered_orders = apply_filters(orders, warehouse, category, status)
+    filtered_orders = filter_by_month(filtered_orders, month)
+
     months = {}
 
-    for order in orders:
-        order_date = order.get('order_date', '')
-        if not order_date:
+    for order in filtered_orders:
+        parsed = parse_order_month(order.get('order_date', ''))
+        if not parsed:
             continue
+        year, order_month = parsed
+        month_key = f"{year}-{order_month:02d}"
 
-        # Extract month (format: YYYY-MM-DD)
-        month = order_date[:7]  # Gets YYYY-MM
-
-        if month not in months:
-            months[month] = {
-                'month': month,
+        if month_key not in months:
+            months[month_key] = {
+                'month': month_key,
                 'order_count': 0,
                 'revenue': 0,
                 'delivered_count': 0
             }
 
-        months[month]['order_count'] += 1
-        months[month]['revenue'] += order.get('total_value', 0)
+        months[month_key]['order_count'] += 1
+        months[month_key]['revenue'] += order.get('total_value', 0)
         if order.get('status') == 'Delivered':
-            months[month]['delivered_count'] += 1
+            months[month_key]['delivered_count'] += 1
 
     # Convert to list and sort
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+def find_task(task_id: str) -> dict:
+    task = next((t for t in tasks if t['id'] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    return task
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get tasks created this session, newest first"""
+    return list(reversed(tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a pending task"""
+    global next_task_id
+    title = request.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Task title cannot be blank")
+    try:
+        datetime.strptime(request.dueDate, '%Y-%m-%d')
+    except ValueError:
+        raise HTTPException(status_code=400, detail="dueDate must be YYYY-MM-DD")
+    task = {
+        'id': f"task-{next_task_id}",
+        'title': title,
+        'priority': request.priority,
+        'dueDate': request.dueDate,
+        'status': 'pending',
+    }
+    next_task_id += 1
+    tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task between pending and completed"""
+    task = find_task(task_id)
+    task['status'] = 'completed' if task['status'] == 'pending' else 'pending'
+    return task
+
+@app.delete("/api/tasks/{task_id}", response_model=Task)
+def delete_task(task_id: str):
+    """Delete a task and return it"""
+    task = find_task(task_id)
+    tasks.remove(task)
+    return task
 
 if __name__ == "__main__":
     import uvicorn

@@ -56,6 +56,28 @@ grep "Tool: Bash" .claude/logs/*.log
 - Lints JavaScript/Vue files with `eslint`
 - Blocks commits if linting fails
 
+### 3. Pre-Deploy Build Check (`predeploy-precheck.sh`)
+
+**Purpose**: Runs the frontend build before deploy-related commands and blocks them if the build fails.
+
+**Trigger**: `PreToolUse` on `Bash`. Acts only when the command actually *executes* a deploy step, in any part of a `;`/`&&`/`||`/`|` chain or a `bash -c "..."` string:
+- `git push` (including `git -C dir push`)
+- `npm`/`pnpm`/`yarn` running the `build`, `deploy`, `deploy:*`, or `deploy-*` script
+- `make deploy`
+- a deploy script, e.g. `./scripts/deploy.sh`, `bash deploy.sh`, `deploy-prod`
+
+Mentions of these in arguments, grep patterns, echo text, commit messages, file names, or JSON strings (e.g. `grep "deploy"`, `cat deploy.sh`, `echo git push`) do not trigger it. The command is tokenized with Python's `shlex`; if `python3` is missing or the command can't be parsed, the hook falls back to a loose text match so a deploy is never silently skipped.
+
+**Configuration**: Registered in `.claude/settings.json` under `hooks.PreToolUse`.
+
+**Behavior**:
+- Runs `npm run build` in `client/` (timeout 300s)
+- On failure, denies the command and shows the exit code plus the last 30 lines of build output
+- Also blocks, with an explanation, if `npm` is missing or `client/node_modules` is not installed
+- On success, exits silently so the normal permission prompts still apply
+
+**Requirements**: `jq`, Node/npm, `python3` (for command parsing)
+
 ## Disabling Hooks
 
 To temporarily disable a hook, you can:
