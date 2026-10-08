@@ -70,18 +70,18 @@ class TestDemandEndpoints:
         response = client.get("/api/demand")
         data = response.json()
 
-        # Check for the new items we added
+        # Check for the items in demand forecast
         skus = [item["item_sku"] for item in data]
 
-        # Should have Temperature Sensor Module and Logic Controller Board
-        assert "SNR-420" in skus, "Missing Temperature Sensor Module"
-        assert "CTL-330" in skus, "Missing Logic Controller Board"
+        # Should have Microcontroller and Digital Signal Processor (stable demand items)
+        assert "MCU-401" in skus, "Missing 8-bit Microcontroller"
+        assert "DSP-403" in skus, "Missing Digital Signal Processor"
 
         # Verify they are marked as stable
         for item in data:
-            if item["item_sku"] in ["SNR-420", "CTL-330"]:
+            if item["item_sku"] in ["MCU-401", "DSP-403"]:
                 assert item["trend"].lower() == "stable", \
-                    f"New item {item['item_name']} should have stable trend"
+                    f"Item {item['item_name']} should have stable trend"
 
 
 class TestBacklogEndpoints:
