@@ -7,7 +7,10 @@
     "quantity_needed": 1200,
     "quantity_available": 850,
     "days_delayed": 3,
-    "priority": "medium"
+    "priority": "medium",
+    "category": "Actuators",
+    "unit_cost": 9.25,
+    "warehouse": "San Francisco"
   },
   {
     "id": "2",
@@ -17,7 +20,10 @@
     "quantity_needed": 45,
     "quantity_available": 35,
     "days_delayed": 2,
-    "priority": "high"
+    "priority": "high",
+    "category": "Actuators",
+    "unit_cost": 650.00,
+    "warehouse": "Tokyo"
   },
   {
     "id": "3",
@@ -27,7 +33,10 @@
     "quantity_needed": 180,
     "quantity_available": 100,
     "days_delayed": 1,
-    "priority": "high"
+    "priority": "high",
+    "category": "Actuators",
+    "unit_cost": 42.00,
+    "warehouse": "London"
   },
   {
     "id": "4",
@@ -37,6 +46,9 @@
     "quantity_needed": 450,
     "quantity_available": 275,
     "days_delayed": 5,
-    "priority": "medium"
+    "priority": "medium",
+    "category": "Actuators",
+    "unit_cost": 55.00,
+    "warehouse": "Tokyo"
   }
 ]

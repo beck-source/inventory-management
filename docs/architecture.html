@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Factory Inventory Management System — Architecture</title>
+<style>
+  :root {
+    --ink: #0f172a;
+    --slate: #64748b;
+    --line: #e2e8f0;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --accent: #3b82f6;
+    --green: #16a34a;
+    --blue: #2563eb;
+    --yellow: #ca8a04;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.5;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  header.page {
+    margin-bottom: 40px;
+  }
+  header.page h1 {
+    font-size: 28px;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  header.page p {
+    margin: 0;
+    color: var(--slate);
+    font-size: 15px;
+  }
+
+  section { margin-bottom: 48px; }
+  h2 {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--slate);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 10px;
+    margin: 0 0 20px;
+  }
+
+  /* Tech stack cards */
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .stack-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .stack-card .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 8px;
+    border-radius: 5px;
+    margin-bottom: 12px;
+  }
+  .tag.frontend { background: #dbeafe; color: var(--blue); }
+  .tag.backend { background: #dcfce7; color: var(--green); }
+  .tag.data { background: #fef9c3; color: var(--yellow); }
+  .stack-card ul {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 14px;
+  }
+  .stack-card li { margin-bottom: 4px; }
+  .stack-card li b { color: var(--ink); }
+  .stack-card .port {
+    font-size: 12px;
+    color: var(--slate);
+    margin-top: 10px;
+  }
+  .stack-card .port code {
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+  }
+
+  /* Architecture diagram */
+  .diagram {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px;
+  }
+
+  /* File structure */
+  .filetree {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 13px;
+    color: #334155;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .filetree .dir { color: var(--blue); font-weight: 600; }
+  .filetree .comment { color: var(--slate); }
+
+  /* Endpoint table */
+  table.endpoints {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    font-size: 13.5px;
+  }
+  table.endpoints th, table.endpoints td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.endpoints th {
+    background: var(--bg);
+    color: var(--slate);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  table.endpoints tr:last-child td { border-bottom: none; }
+  table.endpoints code {
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    font-size: 12.5px;
+  }
+  .method {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  /* Patterns grid */
+  .pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .pattern-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+  .pattern-card h3 {
+    margin: 0 0 8px;
+    font-size: 14.5px;
+  }
+  .pattern-card p {
+    margin: 0;
+    font-size: 13.5px;
+    color: #334155;
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--slate);
+  }
+
+  @media (max-width: 720px) {
+    .stack-grid, .pattern-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page">
+    <h1>Factory Inventory Management System</h1>
+    <p>Architecture overview — Vue 3 SPA + FastAPI backend, in-memory demo data (no database)</p>
+  </header>
+
+  <section>
+    <h2>Tech Stack</h2>
+    <div class="stack-grid">
+      <div class="stack-card">
+        <span class="tag frontend">Frontend</span>
+        <ul>
+          <li><b>Vue 3</b> — Composition API</li>
+          <li><b>Vite</b> — dev server &amp; bundler</li>
+          <li><b>Vue Router</b> — client-side routing</li>
+          <li><b>Axios</b> — HTTP client</li>
+        </ul>
+        <div class="port">Runs on <code>localhost:3000</code></div>
+      </div>
+      <div class="stack-card">
+        <span class="tag backend">Backend</span>
+        <ul>
+          <li><b>FastAPI</b> — REST API framework</li>
+          <li><b>Pydantic</b> — request/response validation</li>
+          <li><b>Uvicorn</b> — ASGI server</li>
+        </ul>
+        <div class="port">Runs on <code>localhost:8001</code> · docs at <code>/docs</code></div>
+      </div>
+      <div class="stack-card">
+        <span class="tag data">Data</span>
+        <ul>
+          <li><b>Static JSON files</b> in <code>server/data/</code></li>
+          <li>Loaded into memory at startup</li>
+          <li>No database — changes don't persist</li>
+        </ul>
+        <div class="port">Loaded via <code>server/mock_data.py</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>System Architecture &amp; Data Flow</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 340" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+            <path d="M0,0 L8,4 L0,8 Z" fill="#64748b"/>
+          </marker>
+        </defs>
+
+        <!-- Browser -->
+        <rect x="20" y="30" width="200" height="70" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+        <text x="120" y="58" text-anchor="middle" font-size="13" font-weight="600" fill="#0f172a">Browser</text>
+        <text x="120" y="76" text-anchor="middle" font-size="11" fill="#64748b">localhost:3000</text>
+
+        <!-- Vue SPA -->
+        <rect x="20" y="140" width="200" height="90" rx="8" fill="#dbeafe" stroke="#93c5fd"/>
+        <text x="120" y="163" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">Vue 3 SPA</text>
+        <text x="120" y="180" text-anchor="middle" font-size="11" fill="#1e40af">Views · Components</text>
+        <text x="120" y="196" text-anchor="middle" font-size="11" fill="#1e40af">useFilters composable</text>
+        <text x="120" y="212" text-anchor="middle" font-size="11" fill="#1e40af">Vite dev server</text>
+
+        <!-- api.js -->
+        <rect x="290" y="140" width="180" height="90" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+        <text x="380" y="168" text-anchor="middle" font-size="13" font-weight="600" fill="#1e3a8a">api.js</text>
+        <text x="380" y="186" text-anchor="middle" font-size="11" fill="#1e40af">Axios client</text>
+        <text x="380" y="202" text-anchor="middle" font-size="11" fill="#1e40af">Builds query params</text>
+        <text x="380" y="218" text-anchor="middle" font-size="11" fill="#1e40af">from active filters</text>
+
+        <!-- FastAPI -->
+        <rect x="540" y="140" width="200" height="90" rx="8" fill="#dcfce7" stroke="#86efac"/>
+        <text x="640" y="163" text-anchor="middle" font-size="13" font-weight="600" fill="#14532d">FastAPI backend</text>
+        <text x="640" y="180" text-anchor="middle" font-size="11" fill="#166534">main.py — REST routes</text>
+        <text x="640" y="196" text-anchor="middle" font-size="11" fill="#166534">Filter functions</text>
+        <text x="640" y="212" text-anchor="middle" font-size="11" fill="#166534">Pydantic response models</text>
+
+        <!-- mock_data.py -->
+        <rect x="790" y="140" width="190" height="90" rx="8" fill="#fef9c3" stroke="#fde047"/>
+        <text x="885" y="168" text-anchor="middle" font-size="13" font-weight="600" fill="#713f12">mock_data.py</text>
+        <text x="885" y="186" text-anchor="middle" font-size="11" fill="#854d0e">Loads JSON at startup</text>
+        <text x="885" y="202" text-anchor="middle" font-size="11" fill="#854d0e">Held in-memory</text>
+
+        <!-- JSON files -->
+        <rect x="790" y="30" width="190" height="70" rx="8" fill="#fefce8" stroke="#fef08a"/>
+        <text x="885" y="58" text-anchor="middle" font-size="13" font-weight="600" fill="#713f12">server/data/*.json</text>
+        <text x="885" y="76" text-anchor="middle" font-size="11" fill="#854d0e">inventory, orders, demand…</text>
+
+        <!-- Arrows -->
+        <line x1="120" y1="100" x2="120" y2="138" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="220" y1="185" x2="288" y2="185" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="470" y1="185" x2="538" y2="185" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="740" y1="185" x2="788" y2="185" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <line x1="885" y1="138" x2="885" y2="102" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <text x="254" y="176" text-anchor="middle" font-size="10" fill="#64748b">HTTP GET</text>
+        <text x="504" y="176" text-anchor="middle" font-size="10" fill="#64748b">HTTP/JSON</text>
+        <text x="764" y="176" text-anchor="middle" font-size="10" fill="#64748b">filter()</text>
+        <text x="908" y="120" text-anchor="middle" font-size="10" fill="#64748b">read once</text>
+
+        <!-- Steps legend -->
+        <text x="20" y="280" font-size="12" font-weight="600" fill="#0f172a">Request cycle:</text>
+        <text x="20" y="300" font-size="11.5" fill="#334155">1. User changes a filter (Time Period, Warehouse, Category, Order Status) in the FilterBar / useFilters composable.</text>
+        <text x="20" y="317" font-size="11.5" fill="#334155">2. View calls api.js, which appends the active filters as query params and issues an Axios GET request.</text>
+        <text x="520" y="300" font-size="11.5" fill="#334155">3. FastAPI applies filters in-memory (Python list comprehensions) and validates the response with Pydantic models.</text>
+        <text x="520" y="317" font-size="11.5" fill="#334155">4. JSON returns to the view; raw data is stored in refs, derived values are exposed via computed properties.</text>
+      </svg>
+    </div>
+  </section>
+
+  <section>
+    <h2>Frontend Structure</h2>
+    <div class="filetree">client/src/
+├── main.js                <span class="comment"># Vue app entry — creates router, mounts #app</span>
+├── App.vue                <span class="comment"># Shell: top nav, FilterBar, router-view, modals</span>
+├── api.js                 <span class="comment"># Centralized Axios client — one function per endpoint</span>
+├── <span class="dir">views/</span>                <span class="comment"># One component per route</span>
+│   ├── Dashboard.vue       <span class="comment">/</span>
+│   ├── Inventory.vue       <span class="comment">/inventory</span>
+│   ├── Orders.vue          <span class="comment">/orders</span>
+│   ├── Demand.vue          <span class="comment">/demand</span>
+│   ├── Spending.vue        <span class="comment">/spending</span>
+│   └── Reports.vue         <span class="comment">/reports</span>
+├── <span class="dir">components/</span>           <span class="comment"># Reusable UI: FilterBar, detail modals, ProfileMenu…</span>
+├── <span class="dir">composables/</span>
+│   ├── useFilters.js       <span class="comment"># Shared filter state (singleton refs) + getCurrentFilters()</span>
+│   ├── useAuth.js          <span class="comment"># Mock current-user / session (no real auth)</span>
+│   └── useI18n.js          <span class="comment"># English / Japanese locale switching</span>
+└── <span class="dir">locales/</span>               <span class="comment"># en.js, ja.js translation strings</span></div>
+  </section>
+
+  <section>
+    <h2>Backend Structure</h2>
+    <div class="filetree">server/
+├── main.py                <span class="comment"># FastAPI app, Pydantic models, all /api/* routes</span>
+├── mock_data.py            <span class="comment"># Loads JSON files into module-level lists/dicts at import time</span>
+├── generate_data.py        <span class="comment"># Script used to (re)generate the sample JSON dataset</span>
+└── <span class="dir">data/</span>                  <span class="comment"># Source of truth for demo data</span>
+    ├── inventory.json
+    ├── orders.json
+    ├── demand_forecasts.json
+    ├── backlog_items.json
+    ├── purchase_orders.json
+    ├── spending.json
+    └── transactions.json</div>
+  </section>
+
+  <section>
+    <h2>Key API Endpoints</h2>
+    <table class="endpoints">
+      <tr><th>Method</th><th>Path</th><th>Filters</th><th>Purpose</th></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/inventory</code></td><td>warehouse, category</td><td>List inventory items</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/orders</code></td><td>warehouse, category, status, month</td><td>List orders</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/dashboard/summary</code></td><td>all four filters</td><td>Aggregate KPIs for the dashboard</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/demand</code></td><td>—</td><td>Demand forecasts</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/backlog</code></td><td>—</td><td>Backlog items + purchase-order status</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/spending/*</code></td><td>—</td><td>Summary, monthly, category &amp; transaction spend</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/reports/quarterly</code></td><td>—</td><td>Quarterly revenue &amp; fulfillment stats</td></tr>
+      <tr><td><span class="method">GET</span></td><td><code>/api/reports/monthly-trends</code></td><td>—</td><td>Month-over-month order trends</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h2>Key Patterns</h2>
+    <div class="pattern-grid">
+      <div class="pattern-card">
+        <h3>Shared filter state</h3>
+        <p><code>useFilters.js</code> holds refs at module scope, so every component that imports the composable reads/writes the same singleton state — no prop drilling, no Pinia/Vuex needed for this scope.</p>
+      </div>
+      <div class="pattern-card">
+        <h3>Raw vs. derived data</h3>
+        <p>Views keep server responses in plain refs (e.g. <code>allOrders</code>) and compute everything else — totals, chart series, filtered subsets — in <code>computed()</code> so it recalculates only when inputs change.</p>
+      </div>
+      <div class="pattern-card">
+        <h3>In-memory filtering</h3>
+        <p>The backend has no database: <code>apply_filters()</code> and <code>filter_by_month()</code> in <code>main.py</code> filter Python lists on each request, then Pydantic validates the shape of the response.</p>
+      </div>
+      <div class="pattern-card">
+        <h3>Mock auth &amp; i18n</h3>
+        <p><code>useAuth.js</code> returns a hardcoded current user (no login flow); <code>useI18n.js</code> swaps between <code>en.js</code>/<code>ja.js</code> locale files, and mock user data itself is language-aware.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated from a static read of the repository (server/main.py, mock_data.py, client/src/*) — not a live diagram. Demo application: in-memory data only, no authentication, not production-ready.
+  </footer>
+
+</div>
+</body>
+</html>

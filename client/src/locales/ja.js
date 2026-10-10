@@ -6,8 +6,12 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再発注',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
-    subtitle: '在庫管理システム'
+    subtitle: '在庫管理システム',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開する'
   },
 
   // Dashboard
@@ -125,8 +129,13 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
-    }
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
+    },
+    submittedOrders: '提出済み注文',
+    submittedOrdersDescription: '再発注タブから発注されたリクエスト',
+    noSubmittedOrders: '提出された再発注注文はまだありません。',
+    daysCount: '{count}日'
   },
 
   // Finance/Spending
@@ -185,6 +194,33 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再発注',
+    description: '予算を設定すると、バックログの緊急度と需要予測に基づいて再発注が推奨されます',
+    budgetLabel: '利用可能な予算',
+    allocated: '割り当て済み',
+    remaining: '残り',
+    recommendedItems: '推奨品目',
+    noRecommendations: 'この予算では推奨できる品目がありません。予算を増やしてください。',
+    placeOrder: '発注する',
+    placingOrder: '発注中...',
+    orderSuccess: '注文 {orderNumber} が正常に発注されました。予定納期は{days}日後です。',
+    viewInOrders: '注文タブでご確認いただけます。',
+    reasonBacklog: '{days}日遅延（優先度: {priority}）',
+    reasonDemand: '需要+{count}単位（増加傾向）',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      reason: '理由',
+      quantity: '数量',
+      unitCost: '単価',
+      subtotal: '小計'
     }
   },
 

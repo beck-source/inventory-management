@@ -6,8 +6,12 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System'
+    subtitle: 'Inventory Management System',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar'
   },
 
   // Dashboard
@@ -125,8 +129,13 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
-    }
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
+    },
+    submittedOrders: 'Submitted Orders',
+    submittedOrdersDescription: 'Restocking orders placed from the Restocking tab',
+    noSubmittedOrders: 'No restocking orders submitted yet.',
+    daysCount: '{count} days'
   },
 
   // Finance/Spending
@@ -185,6 +194,33 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and get recommended items to restock based on backlog urgency and demand forecasts',
+    budgetLabel: 'Available Budget',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    recommendedItems: 'Recommended Items',
+    noRecommendations: 'No items recommended for this budget. Try increasing it.',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    orderSuccess: 'Order {orderNumber} placed successfully. Expected delivery in {days} days.',
+    viewInOrders: 'View it in the Orders tab.',
+    reasonBacklog: 'Backlogged {days}d ({priority} priority)',
+    reasonDemand: 'Demand +{count} units (increasing)',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      reason: 'Reason',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      subtotal: 'Subtotal'
     }
   },
 
