@@ -74,6 +74,56 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            Submitted Restocking Orders
+            <span class="badge info" style="margin-left: 0.5rem; font-size: 0.75rem;">{{ restockingOrders.length }}</span>
+          </h3>
+        </div>
+        <div v-if="restockingOrders.length === 0" class="empty-restock">
+          No restocking orders submitted yet.
+        </div>
+        <div v-else class="table-container">
+          <table class="restock-orders-table">
+            <thead>
+              <tr>
+                <th class="rst-col-number">Order #</th>
+                <th class="rst-col-date">Order Date</th>
+                <th class="rst-col-items">Items</th>
+                <th class="rst-col-status">Status</th>
+                <th class="rst-col-delivery">Est. Delivery</th>
+                <th class="rst-col-lead">Lead Time</th>
+                <th class="rst-col-cost">Total Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="rst-col-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="rst-col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="rst-col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">{{ order.items.length }} items</summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">{{ item.sku }} &mdash; Qty: {{ item.quantity }} @ ${{ item.unit_cost.toFixed(2) }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="rst-col-status">
+                  <span class="badge info">{{ order.status }}</span>
+                </td>
+                <td class="rst-col-delivery">{{ formatDate(order.estimated_delivery) }}</td>
+                <td class="rst-col-lead">{{ order.lead_time_days }} days</td>
+                <td class="rst-col-cost"><strong>${{ order.total_cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +145,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +204,26 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
+      loadRestockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +339,46 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Restocking orders table */
+.restock-orders-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.rst-col-number {
+  width: 180px;
+}
+
+.rst-col-date {
+  width: 130px;
+}
+
+.rst-col-items {
+  width: 160px;
+}
+
+.rst-col-status {
+  width: 120px;
+}
+
+.rst-col-delivery {
+  width: 130px;
+}
+
+.rst-col-lead {
+  width: 100px;
+}
+
+.rst-col-cost {
+  width: 140px;
+}
+
+.empty-restock {
+  padding: 1.5rem 0.75rem;
+  color: #64748b;
+  font-size: 0.938rem;
+  font-style: italic;
 }
 </style>
