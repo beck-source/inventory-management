@@ -125,7 +125,50 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
+    },
+    submittedOrders: '発注済み注文',
+    submittedEmpty: '補充注文はまだありません。補充タブから作成してください。',
+    leadTimeDays: '{days}日',
+    units: '{count}個'
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、需要予測から優先度の高い品目を発注します',
+    budget: '利用可能予算',
+    budgetHint: 'スライダーで今サイクルの予算を設定',
+    allocated: '割当額',
+    remaining: '残額',
+    itemsRecommended: '推奨品目数',
+    totalUnits: '合計数量',
+    longestLeadTime: '最長リードタイム',
+    leadTimeDays: '{days}日',
+    recommended: '推奨補充',
+    recommendedEmpty: '予算が少なすぎるため、対象品目がありません。',
+    partial: '一部',
+    full: '全量',
+    unfunded: 'この予算では未手配',
+    placeOrder: '発注する',
+    placing: '送信中...',
+    orderPlaced: '補充注文 {orderNumber} を送信しました。注文タブで確認できます。',
+    orderFailed: '補充注文の送信に失敗しました',
+    table: {
+      sku: 'SKU',
+      item: '品目',
+      category: 'カテゴリ',
+      trend: '傾向',
+      onHand: '在庫数',
+      forecast: '予測',
+      shortfall: '不足数',
+      orderQty: '発注数',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      coverage: '充足',
+      shortfallCost: '充足必要額'
     }
   },
 
@@ -206,7 +249,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    submitted: '発注済み'
   },
 
   // Trends
