@@ -4,6 +4,8 @@
       <h2>{{ t('dashboard.title') }}</h2>
     </div>
 
+    <FilterBar />
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -304,12 +306,14 @@ import { useI18n } from '../composables/useI18n'
 import { formatCurrency } from '../utils/currency'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
 import BacklogDetailModal from '../components/BacklogDetailModal.vue'
+import FilterBar from '../components/FilterBar.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     ProductDetailModal,
     BacklogDetailModal,
+    FilterBar,
   },
   setup() {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()

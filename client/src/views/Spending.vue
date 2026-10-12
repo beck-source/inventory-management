@@ -5,6 +5,8 @@
       <p>{{ t('finance.description') }}</p>
     </div>
 
+    <FilterBar />
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -178,11 +180,13 @@ import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency as formatCurrencyUtil } from '../utils/currency'
 import CostDetailModal from '../components/CostDetailModal.vue'
+import FilterBar from '../components/FilterBar.vue'
 
 export default {
   name: 'Spending',
   components: {
-    CostDetailModal
+    CostDetailModal,
+    FilterBar
   },
   setup() {
     const { t, currentCurrency } = useI18n()
