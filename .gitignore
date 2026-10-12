@@ -28,6 +28,9 @@ yarn-error.log*
 *~
 .DS_Store
 
+# Claude Code local settings (personal overrides, not shared with the team)
+.claude/settings.local.json
+
 # UV/Python package managers
 uv.lock
 *.lock
