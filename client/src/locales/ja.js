@@ -6,6 +6,8 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +108,9 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
+    leadTime: 'リードタイム',
+    leadTimeDays: '{days}日',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -188,6 +193,33 @@ export default {
     }
   },
 
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期業績指標と月次トレンドを表示',
+    quarterlyPerformance: '四半期業績',
+    monthlyRevenueTrend: '月別収益トレンド',
+    monthOverMonth: '前月比分析',
+    totalRevenueYTD: '総収益（年初来）',
+    avgMonthlyRevenue: '平均月次収益',
+    totalOrdersYTD: '総注文数（年初来）',
+    bestPerformingQuarter: '最高業績の四半期',
+    loading: 'レポートを読み込み中...',
+    loadError: 'レポートの読み込みに失敗しました',
+    table: {
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率',
+      month: '月',
+      orders: '注文数',
+      revenue: '収益',
+      change: '変化',
+      growthRate: '成長率'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,9 +236,42 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、需要予測に基づいた補充注文を送信します。',
+    budgetLabel: '利用可能な予算',
+    budgetHelp: 'この期間の補充に使える金額をスライダーで設定してください。',
+    recommendations: '推奨補充品',
+    recommendationsHelp: '需要ギャップの大きい品目を優先（増加トレンド優先）して選定しています。',
+    placeOrder: '注文を確定',
+    placing: '送信中...',
+    cartTotal: 'カート合計',
+    budgetRemaining: '残り予算',
+    overBudgetWarning: 'カート合計が予算を超えています。数量を減らすか、品目を外してください。',
+    noEligibleItems: 'この予算では補充対象となる品目がありません。',
+    successTitle: '注文を送信しました',
+    successMessage: '注文 {orderNumber} を送信しました。配達予定は14日後です。',
+    viewInOrders: '注文を確認',
+    placeAnother: 'もう一件送信',
+    table: {
+      include: '対象',
+      sku: 'SKU',
+      name: '品目',
+      trend: 'トレンド',
+      forecast: '予測',
+      current: '現在',
+      gap: 'ギャップ',
+      quantity: '数量',
+      unitCost: '単価',
+      lineTotal: '小計'
+    }
   },
 
   // Trends
@@ -364,6 +429,7 @@ export default {
 
   // Customer Names
   customerNames: {
+    'Internal Restock': '内部補充',
     'MegaCorp Industries': 'メガコープ工業',
     'Elite Systems Corp': 'エリートシステムズ',
     'Horizon Technologies': 'ホライズン技術',
