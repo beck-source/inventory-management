@@ -1,42 +1,41 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
-        </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
+  <div class="app-shell">
+    <AppSidebar
+      :nav-items="navItems"
+      v-model:collapsed="sidebarCollapsed"
+      v-model:mobile-open="mobileNavOpen"
+    >
+      <template #brand>
+        <h1 class="sidebar-brand-label">{{ t('nav.companyName') }}</h1>
+        <span class="sidebar-brand-subtitle">{{ t('nav.subtitle') }}</span>
+      </template>
+      <template #footer>
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
+      </template>
+    </AppSidebar>
+
+    <div class="app-content">
+      <div class="content-topbar">
+        <button
+          type="button"
+          class="mobile-nav-toggle"
+          aria-label="Open navigation"
+          @click="mobileNavOpen = true"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 6H17M3 10H17M3 14H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <FilterBar />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -64,6 +63,7 @@ import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
 import TasksModal from './components/TasksModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
+import AppSidebar from './components/AppSidebar.vue'
 
 export default {
   name: 'App',
@@ -72,7 +72,8 @@ export default {
     ProfileMenu,
     ProfileDetailsModal,
     TasksModal,
-    LanguageSwitcher
+    LanguageSwitcher,
+    AppSidebar
   },
   setup() {
     const { currentUser } = useAuth()
@@ -80,6 +81,19 @@ export default {
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
+    const sidebarCollapsed = ref(false)
+    const mobileNavOpen = ref(false)
+
+    // Derived directly from the app's real routes (see main.js) — never
+    // hardcode this list separately from the router config.
+    const navItems = computed(() => [
+      { key: 'dashboard', label: t('nav.overview'), to: '/', icon: 'overview', exact: true },
+      { key: 'inventory', label: t('nav.inventory'), to: '/inventory', icon: 'inventory' },
+      { key: 'orders', label: t('nav.orders'), to: '/orders', icon: 'orders' },
+      { key: 'spending', label: t('nav.finance'), to: '/spending', icon: 'finance' },
+      { key: 'demand', label: t('nav.demandForecast'), to: '/demand', icon: 'demand' },
+      { key: 'reports', label: 'Reports', to: '/reports', icon: 'reports' }
+    ])
 
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
@@ -155,7 +169,10 @@ export default {
       tasks,
       addTask,
       deleteTask,
-      toggleTask
+      toggleTask,
+      sidebarCollapsed,
+      mobileNavOpen,
+      navItems
     }
   }
 }
@@ -176,101 +193,95 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
+:root {
+  /* Spacing scale (4px base) — introduced fresh, this app had no prior scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Sidebar layout */
+  --sidebar-width-expanded: 240px;
+  --sidebar-width-collapsed: 64px;
+  --sidebar-transition: 180ms ease;
+  --topbar-height: 60px;
+  --z-sidebar: 100;
+  --z-sidebar-backdrop: 90;
+}
+
+.app-shell {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  height: 70px;
-}
-
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
-}
-
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
-}
-
-.logo h1 {
-  font-size: 1.375rem;
+/* Content passed into AppSidebar's #brand slot renders with this file's
+   (global) style scope, not AppSidebar's scoped styles, so it needs its
+   own rules here even though the class names mirror AppSidebar's. */
+.sidebar-brand-label {
+  display: block;
+  font-size: 1.125rem;
   font-weight: 700;
   color: #0f172a;
   letter-spacing: -0.025em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.subtitle {
-  font-size: 0.813rem;
+.sidebar-brand-subtitle {
+  display: block;
+  font-size: 0.75rem;
   color: #64748b;
   font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+  white-space: nowrap;
 }
 
-.nav-tabs {
+.app-content {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
 }
 
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
+.content-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: #f8fafc;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
+.mobile-nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--topbar-height);
+  height: var(--topbar-height);
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: #334155;
+  cursor: pointer;
+}
+
+.mobile-nav-toggle:hover {
   background: #f1f5f9;
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
-}
-
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+@media (max-width: 768px) {
+  .mobile-nav-toggle {
+    display: flex;
+  }
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
   width: 100%;
-  margin: 0 auto;
   padding: 1.5rem 2rem;
 }
 

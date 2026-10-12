@@ -94,6 +94,7 @@ const selectLanguage = (locale) => {
 }
 
 .language-button {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -108,6 +109,7 @@ const selectLanguage = (locale) => {
   color: #334155;
 }
 
+
 .language-button:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
@@ -119,6 +121,8 @@ const selectLanguage = (locale) => {
 }
 
 .language-label {
+  flex: 1;
+  text-align: left;
   font-weight: 500;
 }
 
@@ -134,8 +138,8 @@ const selectLanguage = (locale) => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
   min-width: 160px;
   background: white;
   border: 1px solid #e2e8f0;
