@@ -3,8 +3,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+import json
+import os
+from datetime import datetime, timedelta
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Data directory for persistent storage
+DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+def load_json_file(filename):
+    """Load JSON data from file"""
+    filepath = os.path.join(DATA_DIR, filename)
+    with open(filepath, 'r') as f:
+        return json.load(f)
+
+def save_json_file(filename, data):
+    """Save JSON data to file"""
+    filepath = os.path.join(DATA_DIR, filename)
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=2)
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -119,6 +137,24 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    item_sku: str
+    item_name: str
+    current_stock: int
+    recommended_quantity: int
+    unit_cost: float
+    total_cost: float
+    demand_forecast: int
+    trend: str
+    urgency_score: float
+    reason: str
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[dict]
+    budget: float
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -303,6 +339,155 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingRecommendation])
+def get_restocking_recommendations(
+    budget: float,
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    limit: int = 20
+):
+    """Get smart restocking recommendations based on budget and filters"""
+    recommendations = []
+
+    # Find max forecasted demand for normalization
+    max_demand = max([f.get('forecasted_demand', 0) for f in demand_forecasts], default=1)
+    min_cost = min([i.get('unit_cost', float('inf')) for i in inventory_items], default=1)
+
+    # Create a lookup for inventory items by SKU
+    inventory_by_sku = {item['sku']: item for item in inventory_items}
+
+    # Calculate recommendations by cross-referencing demand forecasts with inventory
+    for forecast in demand_forecasts:
+        forecast_sku = forecast.get('item_sku')
+        if forecast_sku not in inventory_by_sku:
+            continue
+
+        inventory = inventory_by_sku[forecast_sku]
+
+        # Apply warehouse filter
+        if warehouse and warehouse != 'all' and inventory.get('warehouse') != warehouse:
+            continue
+
+        # Apply category filter
+        if category and category != 'all' and inventory.get('category', '').lower() != category.lower():
+            continue
+
+        # Calculate component scores
+        # Demand score (40% weight) - normalized and trend-adjusted
+        demand_score = (forecast.get('forecasted_demand', 0) / max_demand) * 100
+        trend = forecast.get('trend', 'stable')
+        trend_multiplier = 1.2 if trend == 'increasing' else (0.7 if trend == 'decreasing' else 1.0)
+        demand_score *= trend_multiplier
+
+        # Stock score (35% weight) - how much below reorder point
+        quantity_on_hand = inventory.get('quantity_on_hand', 0)
+        reorder_point = inventory.get('reorder_point', 0)
+        stock_deficit = max(0, (reorder_point - quantity_on_hand) / reorder_point) if reorder_point > 0 else 0
+        stock_score = stock_deficit * 100
+
+        # Cost score (25% weight) - inverse of cost (cheaper = higher score)
+        unit_cost = inventory.get('unit_cost', 1)
+        cost_score = (min_cost / unit_cost) * 100 if unit_cost > 0 else 0
+
+        # Composite urgency score
+        urgency_score = (0.40 * demand_score) + (0.35 * stock_score) + (0.25 * cost_score)
+
+        # Recommended quantity: forecasted demand or enough to reach reorder point, whichever is higher
+        recommended_quantity = max(
+            forecast.get('forecasted_demand', 0),
+            max(0, reorder_point - quantity_on_hand)
+        )
+
+        if recommended_quantity == 0:
+            recommended_quantity = reorder_point or 10
+
+        total_cost = recommended_quantity * unit_cost
+
+        # Generate reason
+        reasons = []
+        if trend == 'increasing':
+            reasons.append("High demand trend")
+        if stock_deficit > 0.5:
+            reasons.append("Critical stock level")
+        elif stock_deficit > 0:
+            reasons.append("Low stock")
+        reasons.append(f"Cost: ${unit_cost:.2f}")
+        reason = " + ".join(reasons)
+
+        recommendations.append(RestockingRecommendation(
+            item_sku=forecast_sku,
+            item_name=forecast.get('item_name', 'Unknown'),
+            current_stock=quantity_on_hand,
+            recommended_quantity=recommended_quantity,
+            unit_cost=unit_cost,
+            total_cost=total_cost,
+            demand_forecast=forecast.get('forecasted_demand', 0),
+            trend=trend,
+            urgency_score=round(urgency_score, 1),
+            reason=reason
+        ))
+
+    # Sort by urgency score descending
+    recommendations.sort(key=lambda x: x.urgency_score, reverse=True)
+
+    # Apply budget constraint - greedy selection
+    selected = []
+    total_cost = 0
+    for rec in recommendations:
+        if total_cost + rec.total_cost <= budget:
+            selected.append(rec)
+            total_cost += rec.total_cost
+            if len(selected) >= limit:
+                break
+
+    return selected
+
+@app.post("/api/restocking-orders", response_model=Order, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create and persist a new restocking order"""
+    try:
+        # Reload current orders from file to get fresh state
+        orders_data = load_json_file('orders.json')
+    except:
+        orders_data = []
+
+    # Generate next ID
+    existing_ids = [int(o.get('id', '0')) for o in orders_data]
+    next_id = str(max(existing_ids) + 1 if existing_ids else 100)
+
+    # Generate order number
+    order_number = f"RST-2025-{int(next_id):04d}"
+
+    # Calculate total value
+    total_value = sum(item.get('quantity', 0) * item.get('unit_price', 0) for item in request.items)
+
+    # Calculate expected delivery: 30 days from now (from "Next 30 days" demand forecast period)
+    order_date = datetime.now().isoformat()
+    expected_delivery = (datetime.now() + timedelta(days=30)).isoformat()
+
+    # Create order object
+    order = {
+        "id": next_id,
+        "order_number": order_number,
+        "customer": "Internal Restocking",
+        "items": request.items,
+        "status": "Restocking Order",
+        "warehouse": request.warehouse or "all",
+        "category": request.category or "all",
+        "order_date": order_date,
+        "expected_delivery": expected_delivery,
+        "total_value": round(total_value, 2)
+    }
+
+    # Persist to file
+    orders_data.append(order)
+    save_json_file('orders.json', orders_data)
+
+    # Update in-memory orders list
+    orders.append(order)
+
+    return order
 
 if __name__ == "__main__":
     import uvicorn

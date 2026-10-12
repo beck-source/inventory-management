@@ -6,6 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -204,6 +206,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    restocking_order: 'Restocking Order',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -304,6 +307,105 @@ export default {
     noTasks: 'No tasks yet. Add your first task above!'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Smart Restocking',
+    description: 'Set a budget and get data-driven recommendations for what to reorder next',
+    budgetLabel: 'Restocking Budget',
+    stats: {
+      recommendedSpend: 'Recommended Spend',
+      budgetRemaining: 'Budget Remaining',
+      itemsSelected: 'Items Selected'
+    },
+    recommendationsTitle: 'Recommendations',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      currentStock: 'Current Stock',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      totalCost: 'Total Cost',
+      demandTrend: 'Demand Trend',
+      urgencyScore: 'Urgency Score',
+      reason: 'Reason'
+    },
+    selectAll: 'Select All',
+    refresh: 'Refresh',
+    placeOrder: 'Place Order ({count} items)',
+    clearSelection: 'Clear Selection',
+    noRecommendations: 'No restocking recommendations match your current budget and filters.',
+    budgetExceeded: 'Adding this item would exceed your budget.',
+    loadError: 'Failed to load restocking recommendations',
+    orderError: 'Failed to submit restocking order'
+  },
+
+  // Order Submitted Modal
+  orderSubmitted: {
+    title: 'Restocking Order Submitted',
+    orderNumber: 'Order Number',
+    totalItems: 'Total Items',
+    totalValue: 'Total Value',
+    expectedDelivery: 'Expected Delivery',
+    forecastNote: 'Based on Next 30 days demand forecast period',
+    orderItems: 'Order Items:',
+    viewInOrders: 'View in Orders Tab',
+    close: 'Close'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    error: 'Failed to load reports',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    monthly: {
+      trendTitle: 'Monthly Revenue Trend',
+      analysisTitle: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    summary: {
+      totalRevenue: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    itemsTitle: 'Backlog Items',
+    noItems: 'No backlog items - all orders can be fulfilled!',
+    unitsShort: 'units short',
+    days: 'days',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    }
+  },
+
   // Language
   language: {
     english: 'English',
@@ -322,7 +424,7 @@ export default {
     cancel: 'Cancel',
     search: 'Search',
     filter: 'Filter',
-    export: 'Export',
+    export: 'Export CSV',
     items: 'items'
   }
 }

@@ -22,8 +22,11 @@
           <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
             {{ t('nav.demandForecast') }}
           </router-link>
+          <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
+            {{ t('nav.restocking') }}
+          </router-link>
           <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
+            {{ t('nav.reports') }}
           </router-link>
         </nav>
         <LanguageSwitcher />
@@ -465,6 +468,15 @@ tbody tr:hover {
 .badge.low {
   background: #dbeafe;
   color: #1e40af;
+}
+
+.badge.restocking_order {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.stat-card.info-alt .stat-value {
+  color: #8b5cf6;
 }
 
 .loading {

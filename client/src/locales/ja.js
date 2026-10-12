@@ -6,6 +6,8 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -204,6 +206,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    restocking_order: '補充注文',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -304,6 +307,105 @@ export default {
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
   },
 
+  // Restocking
+  restocking: {
+    title: 'スマート補充',
+    description: '予算を設定し、データに基づいた再発注の推奨を確認できます',
+    budgetLabel: '補充予算',
+    stats: {
+      recommendedSpend: '推奨支出額',
+      budgetRemaining: '残り予算',
+      itemsSelected: '選択品目数'
+    },
+    recommendationsTitle: '推奨品目',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      currentStock: '現在庫数',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      totalCost: '合計金額',
+      demandTrend: '需要動向',
+      urgencyScore: '緊急度スコア',
+      reason: '理由'
+    },
+    selectAll: 'すべて選択',
+    refresh: '更新',
+    placeOrder: '注文する（{count}件）',
+    clearSelection: '選択を解除',
+    noRecommendations: '現在の予算とフィルターに一致する補充推奨品目はありません。',
+    budgetExceeded: 'この品目を追加すると予算を超えてしまいます。',
+    loadError: '補充推奨の読み込みに失敗しました',
+    orderError: '補充注文の送信に失敗しました'
+  },
+
+  // Order Submitted Modal
+  orderSubmitted: {
+    title: '補充注文が送信されました',
+    orderNumber: '注文番号',
+    totalItems: '総品目数',
+    totalValue: '合計金額',
+    expectedDelivery: '予定配達日',
+    forecastNote: '今後30日間の需要予測期間に基づく',
+    orderItems: '注文品目:',
+    viewInOrders: '注文タブで表示',
+    close: '閉じる'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期別パフォーマンス指標と月間トレンドを表示',
+    error: 'レポートの読み込みに失敗しました',
+    quarterly: {
+      title: '四半期別パフォーマンス',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率'
+    },
+    monthly: {
+      trendTitle: '月別収益トレンド',
+      analysisTitle: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '収益',
+      change: '変化',
+      growthRate: '成長率'
+    },
+    summary: {
+      totalRevenue: '総収益（年初来）',
+      avgMonthlyRevenue: '平均月間収益',
+      totalOrders: '総注文数（年初来）',
+      bestQuarter: 'パフォーマンス最高四半期'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足を追跡して解決',
+    highPriority: '高優先度',
+    mediumPriority: '中優先度',
+    lowPriority: '低優先度',
+    totalItems: 'バックログ総件数',
+    itemsTitle: 'バックログ品目',
+    noItems: 'バックログ品目なし - すべての注文を履行できます！',
+    unitsShort: '単位不足',
+    days: '日',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    }
+  },
+
   // Language
   language: {
     english: 'English',
@@ -322,7 +424,7 @@ export default {
     cancel: 'キャンセル',
     search: '検索',
     filter: 'フィルター',
-    export: 'エクスポート',
+    export: 'CSVをエクスポート',
     items: '件'
   },
 
