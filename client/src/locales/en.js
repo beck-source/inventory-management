@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,18 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    submittedEmpty: 'No restocking orders submitted yet. Create one from the Restocking tab.',
+    submittedTable: {
+      orderNumber: 'Order Number',
+      items: 'Items',
+      submitted: 'Submitted',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      totalValue: 'Total Value',
+      status: 'Status'
+    },
+    leadTimeDays: '{count} days',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -189,6 +202,43 @@ export default {
   },
 
   // Filters
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and restock the items with the largest forecast shortfall',
+    budget: 'Available Budget',
+    budgetHint: 'Drag to set how much you can spend this cycle',
+    fullCoverage: 'Full coverage',
+    recommended: 'Recommended Restock',
+    recommendedCount: '{count} of {total} items recommended',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    itemsSelected: 'Items',
+    longestLeadTime: 'Longest Lead Time',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    orderPlaced: 'Order {orderNumber} submitted. Expected delivery {date}.',
+    viewInOrders: 'View in Orders',
+    nothingAffordable: 'This budget is too small to cover a full unit of any shortfall item. Increase the budget to see recommendations.',
+    noShortfall: 'No item is forecast to exceed its current demand, so there is nothing to restock.',
+    partial: 'Partial',
+    partialHint: 'Budget covers {quantity} of {needed} units',
+    fullHint: 'Covers the full shortfall',
+    excluded: 'Not recommended',
+    excludedNoShortfall: 'Forecast is at or below current demand',
+    excludedNoBudget: 'Budget exhausted before this item',
+    days: '{count} days',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      shortfall: 'Shortfall',
+      unitCost: 'Unit Cost',
+      quantity: 'Restock Qty',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      coverage: 'Coverage'
+    }
+  },
+
   filters: {
     timePeriod: 'Time Period',
     location: 'Location',

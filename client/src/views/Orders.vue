@@ -29,6 +29,58 @@
 
       <div class="card">
         <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ restockOrders.length }})</h3>
+        </div>
+        <div v-if="restockOrdersError" class="error">{{ restockOrdersError }}</div>
+        <div v-else-if="restockOrders.length === 0" class="empty-state">
+          {{ t('orders.submittedEmpty') }}
+        </div>
+        <div v-else class="table-container">
+          <table class="restock-orders-table">
+            <thead>
+              <tr>
+                <th>{{ t('orders.submittedTable.orderNumber') }}</th>
+                <th>{{ t('orders.submittedTable.items') }}</th>
+                <th>{{ t('orders.submittedTable.submitted') }}</th>
+                <th>{{ t('orders.submittedTable.leadTime') }}</th>
+                <th>{{ t('orders.submittedTable.expectedDelivery') }}</th>
+                <th>{{ t('orders.submittedTable.totalValue') }}</th>
+                <th>{{ t('orders.submittedTable.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="restockOrder in restockOrders" :key="restockOrder.id">
+                <td><strong>{{ restockOrder.order_number }}</strong></td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: restockOrder.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in restockOrder.items" :key="item.item_sku" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.item_name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td>{{ formatDate(restockOrder.submitted_date) }}</td>
+                <td>{{ t('orders.leadTimeDays', { count: restockOrder.lead_time_days }) }}</td>
+                <td>{{ formatDate(restockOrder.expected_delivery) }}</td>
+                <td><strong>{{ currencySymbol }}{{ restockOrder.total_value.toLocaleString() }}</strong></td>
+                <td>
+                  <span :class="['badge', getOrderStatusClass(restockOrder.status)]">
+                    {{ restockOrder.status }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
         </div>
         <div class="table-container">
@@ -96,6 +148,9 @@ export default {
     const error = ref(null)
     const orders = ref([])
 
+    const restockOrders = ref([])
+    const restockOrdersError = ref(null)
+
     // Use shared filters
     const {
       selectedPeriod,
@@ -125,9 +180,20 @@ export default {
     }
 
     // Watch for filter changes and reload data
+    // Restock orders carry no warehouse/category/status/date dimension,
+    // so they must NOT be reloaded when the global filters change.
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
     })
+
+    const loadRestockOrders = async () => {
+      try {
+        restockOrdersError.value = null
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        restockOrdersError.value = 'Failed to load submitted orders: ' + err.message
+      }
+    }
 
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
@@ -138,7 +204,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
     }
@@ -153,13 +220,18 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockOrders,
+      restockOrdersError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +347,16 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
+.restock-orders-table {
+  width: 100%;
 }
 </style>
