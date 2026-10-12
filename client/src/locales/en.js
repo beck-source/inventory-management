@@ -3,6 +3,7 @@ export default {
   nav: {
     overview: 'Overview',
     inventory: 'Inventory',
+    restocking: 'Restocking',
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
@@ -126,6 +127,21 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submittedOrders: {
+      title: 'Submitted Restock Orders',
+      description: 'Restocking orders placed from the Restocking tab',
+      noOrders: 'No restock orders have been submitted yet',
+      table: {
+        orderNumber: 'Order Number',
+        items: 'Items',
+        status: 'Status',
+        totalCost: 'Total Cost',
+        budget: 'Budget',
+        createdDate: 'Created',
+        expectedDelivery: 'Expected Delivery',
+        leadTime: 'Lead Time'
+      }
     }
   },
 
@@ -186,6 +202,40 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and let the system recommend items to restock from demand forecasts',
+    budgetCard: {
+      title: 'Available Budget',
+      hint: 'Adjusting the budget recalculates suggestions'
+    },
+    stats: {
+      budget: 'Budget',
+      selectedTotal: 'Selected Total',
+      itemsSelected: 'Items Selected'
+    },
+    checklist: {
+      title: 'Recommended Items',
+      itemsSelectedCount: '{count} selected'
+    },
+    table: {
+      item: 'Item',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      quantity: 'Quantity',
+      lineCost: 'Cost',
+      leadTime: 'Lead Time'
+    },
+    days: '{count} days',
+    overBudget: 'Total exceeds budget — reduce quantities to place your order',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    orderPlaced: 'Order {orderNumber} placed successfully',
+    viewInOrders: 'View it in the Orders tab',
+    noItemsSelected: 'Select at least one item to place an order'
   },
 
   // Filters
