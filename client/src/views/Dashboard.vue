@@ -409,7 +409,7 @@ export default {
       const categoryMap = {}
 
       // Use a single neutral slate/gray color for all categories
-      const singleColor = '#64748b' // Neutral slate gray color
+      const singleColor = '#4b5563' // Neutral slate gray color
 
       // Get SKUs from orders in the filtered time period
       const orderedSkus = new Set()
@@ -558,16 +558,27 @@ export default {
       return allBacklogItems.value.filter(b => validSkus.has(b.item_sku))
     })
 
+    const debounce = (fn, delay) => {
+      let t
+      return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay) }
+    }
+
+    let abortController = null
+
     const loadData = async () => {
+      if (abortController) abortController.abort()
+      abortController = new AbortController()
+      const { signal } = abortController
+      loading.value = true
+      error.value = null
       try {
-        loading.value = true
         const filters = getCurrentFilters()
 
         const [summaryData, ordersData, inventoryData, backlogData] = await Promise.all([
-          api.getDashboardSummary(filters),
-          api.getOrders(filters),
-          api.getInventory(filters),
-          api.getBacklog()
+          api.getDashboardSummary(filters, { signal }),
+          api.getOrders(filters, { signal }),
+          api.getInventory(filters, { signal }),
+          api.getBacklog({ signal })
         ])
 
         summary.value = summaryData
@@ -575,9 +586,10 @@ export default {
         inventoryItems.value = inventoryData
         allBacklogItems.value = backlogData
       } catch (err) {
+        if (err.name === 'CanceledError' || err.name === 'AbortError') return
         error.value = 'Failed to load dashboard data: ' + err.message
       } finally {
-        loading.value = false
+        if (!signal.aborted) loading.value = false
       }
     }
 
@@ -672,10 +684,8 @@ export default {
       showPOModal.value = false
     }
 
-    // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadData()
-    })
+    // Watch for filter changes and reload data (debounced to prevent rapid re-fetches)
+    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], debounce(loadData, 250))
 
     onMounted(loadData)
 
@@ -736,7 +746,7 @@ export default {
 
 .header-meta {
   font-size: 0.813rem;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .kpi-section {
@@ -772,7 +782,7 @@ export default {
 .kpi-label {
   font-size: 0.813rem;
   font-weight: 600;
-  color: #64748b;
+  color: #4b5563;
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
@@ -787,7 +797,7 @@ export default {
 
 .kpi-goal {
   font-size: 0.813rem;
-  color: #64748b;
+  color: #4b5563;
   margin-bottom: 0.75rem;
 }
 
@@ -883,7 +893,7 @@ export default {
 
 .donut-center-label {
   font-size: 12px;
-  fill: #64748b;
+  fill: #4b5563;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -928,7 +938,7 @@ export default {
 
 .health-metric-label {
   font-size: 0.688rem;
-  color: #64748b;
+  color: #4b5563;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1070,7 +1080,7 @@ export default {
 .line-bar-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: #4b5563;
   white-space: nowrap;
 }
 
@@ -1164,7 +1174,7 @@ export default {
 .no-tasks {
   text-align: center;
   padding: 2rem;
-  color: #64748b;
+  color: #4b5563;
   font-style: italic;
 }
 
@@ -1259,7 +1269,7 @@ export default {
 }
 
 .po-button.view {
-  background: #64748b;
+  background: #4b5563;
   color: white;
 }
 

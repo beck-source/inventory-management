@@ -141,7 +141,7 @@ const formatDate = (dateString) => {
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #4b5563;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -201,7 +201,7 @@ const formatDate = (dateString) => {
 
 .profile-job-title {
   font-size: 1rem;
-  color: #64748b;
+  color: #4b5563;
   margin: 0;
 }
 
@@ -222,7 +222,7 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #4b5563;
 }
 
 .info-value {

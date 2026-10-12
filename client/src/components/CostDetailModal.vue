@@ -194,7 +194,7 @@ const close = () => {
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #4b5563;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -332,7 +332,7 @@ const close = () => {
 
 .cost-percentage {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #4b5563;
   font-weight: 500;
 }
 

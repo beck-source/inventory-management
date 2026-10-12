@@ -159,7 +159,7 @@ const handleLogout = () => {
 }
 
 .chevron {
-  color: #64748b;
+  color: #4b5563;
   transition: transform 0.2s ease;
 }
 
@@ -217,7 +217,7 @@ const handleLogout = () => {
 
 .user-email {
   font-size: 0.813rem;
-  color: #64748b;
+  color: #4b5563;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -251,7 +251,7 @@ const handleLogout = () => {
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: #4b5563;
   flex-shrink: 0;
 }
 

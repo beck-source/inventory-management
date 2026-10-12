@@ -64,7 +64,9 @@ const isDropdownOpen = ref(false)
 
 const languageNames = {
   en: 'English',
-  ja: '日本語'
+  ja: '日本語',
+  sw: '🚀 Galactic Basic',
+  mc: '⛏️ ᒲ╎リᒷᓵ∷ᔑ⎓ℸ'
 }
 
 const getLanguageName = (locale) => {
@@ -114,7 +116,7 @@ const selectLanguage = (locale) => {
 }
 
 .globe-icon {
-  color: #64748b;
+  color: #4b5563;
   flex-shrink: 0;
 }
 
@@ -123,7 +125,7 @@ const selectLanguage = (locale) => {
 }
 
 .chevron {
-  color: #64748b;
+  color: #4b5563;
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }

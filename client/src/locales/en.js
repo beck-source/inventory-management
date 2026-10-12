@@ -6,6 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    reports: 'Reports',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -324,5 +326,54 @@ export default {
     filter: 'Filter',
     export: 'Export',
     items: 'items'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'Quarterly and monthly performance analytics',
+    quarterlyTitle: 'Quarterly Performance',
+    monthlyTitle: 'Monthly Revenue Trend',
+    momTitle: 'Month-over-Month Analysis',
+    quarter: 'Quarter',
+    totalOrders: 'Total Orders',
+    totalRevenue: 'Total Revenue',
+    delivered: 'Delivered',
+    avgOrderValue: 'Avg Order Value',
+    fulfillmentRate: 'Fulfillment Rate',
+    month: 'Month',
+    orderCount: 'Order Count',
+    revenue: 'Revenue',
+    deliveredCount: 'Delivered Count',
+    change: 'Change',
+    growthRate: 'Growth Rate',
+    ytdRevenue: 'Total Revenue (YTD)',
+    ytdOrders: 'Total Orders (YTD)',
+    avgFulfillment: 'Avg Fulfillment Rate',
+    avgMonthlyRevenue: 'Avg Monthly Revenue',
+    ytdDelivered: 'Delivered Orders (YTD)',
+    bestQuarter: 'Best Performing Quarter'
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    items: 'Backlog Items',
+    noItems: 'No backlog items - all orders can be fulfilled!',
+    orderId: 'Order ID',
+    sku: 'SKU',
+    itemName: 'Item Name',
+    quantityNeeded: 'Quantity Needed',
+    quantityAvailable: 'Quantity Available',
+    shortage: 'Shortage',
+    daysDelayed: 'Days Delayed',
+    priority: 'Priority',
+    unitsShort: 'units short',
+    days: 'days'
   }
 }
