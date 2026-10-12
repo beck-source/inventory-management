@@ -304,6 +304,119 @@ def get_monthly_trends():
     result.sort(key=lambda x: x['month'])
     return result
 
+# ── Restocking ──────────────────────────────────────────────────────────────
+
+# Fallback unit costs for demand-forecast SKUs not in inventory
+FALLBACK_UNIT_COSTS = {
+    "WDG-001": 45.00,
+    "BRG-102": 28.50,
+    "GSK-203": 12.00,
+    "MTR-304": 850.00,
+    "FLT-405": 8.25,
+    "VLV-506": 65.00,
+    "PSU-501": 35.00,
+    "SNR-420": 18.00,
+    "CTL-330": 95.00,
+}
+
+# In-memory store for submitted restocking orders
+restocking_orders: list = []
+
+class RestockingItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    total_cost: float
+    trend: str
+    forecasted_demand: int
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingItem]
+    total_value: float
+    notes: Optional[str] = None
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingItem]
+    total_value: float
+    status: str
+    order_date: str
+    expected_delivery: str
+    notes: Optional[str] = None
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations():
+    """
+    Return demand forecasts enriched with unit cost and recommended restock quantity.
+    Unit cost is sourced from inventory when the SKU matches; otherwise falls back
+    to a static lookup table so the frontend always has pricing data.
+    Sorted by forecasted_demand descending (highest priority first).
+    """
+    # Build a quick SKU → unit_cost map from live inventory
+    inventory_cost_map = {item.get("sku"): item.get("unit_cost", 0) for item in inventory_items}
+
+    enriched = []
+    for forecast in demand_forecasts:
+        sku = forecast.get("item_sku", "")
+        # Prefer live inventory cost, fall back to static table, then 0
+        unit_cost = inventory_cost_map.get(sku) or FALLBACK_UNIT_COSTS.get(sku, 0.0)
+
+        # Recommended quantity = gap between forecasted and current demand (min 1)
+        recommended_qty = max(1, forecast.get("forecasted_demand", 0) - forecast.get("current_demand", 0))
+
+        enriched.append({
+            "id": forecast.get("id"),
+            "sku": sku,
+            "name": forecast.get("item_name", ""),
+            "current_demand": forecast.get("current_demand", 0),
+            "forecasted_demand": forecast.get("forecasted_demand", 0),
+            "trend": forecast.get("trend", "stable"),
+            "period": forecast.get("period", ""),
+            "unit_cost": unit_cost,
+            "recommended_qty": recommended_qty,
+            "estimated_cost": round(unit_cost * recommended_qty, 2),
+        })
+
+    # Sort by forecasted_demand descending — highest demand items first
+    enriched.sort(key=lambda x: x["forecasted_demand"], reverse=True)
+    return enriched
+
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order. Assigns a 7-day delivery lead time."""
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    order_date = now.strftime("%Y-%m-%d")
+    expected_delivery = (now + timedelta(days=7)).strftime("%Y-%m-%d")
+
+    # Generate order number: RST-<timestamp>
+    order_id = f"rst-{int(now.timestamp())}"
+    order_number = f"RST-{now.strftime('%Y%m%d%H%M%S')}"
+
+    new_order = {
+        "id": order_id,
+        "order_number": order_number,
+        "items": [item.dict() for item in request.items],
+        "total_value": round(request.total_value, 2),
+        "status": "Processing",
+        "order_date": order_date,
+        "expected_delivery": expected_delivery,
+        "notes": request.notes,
+    }
+    restocking_orders.append(new_order)
+    return new_order
+
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Return all submitted restocking orders, newest first."""
+    return list(reversed(restocking_orders))
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
