@@ -4,6 +4,7 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    restocking: '在庫補充',
     finance: '財務',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
@@ -106,12 +107,15 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み補充注文',
+    internalRestocking: '内部補充',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    days: '日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,7 +129,8 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -223,6 +228,32 @@ export default {
     low: '低'
   },
 
+  // Restocking
+  restocking: {
+    title: '在庫補充',
+    description: '在庫レベルと需要予測に基づいて補充注文を計画・提出',
+    budgetConfiguration: '予算設定',
+    availableBudget: '利用可能予算',
+    recommendations: '推奨アイテム',
+    items: 'アイテム',
+    noRecommendations: '現在の予算レベルで補充が必要なアイテムはありません',
+    placeOrder: '補充注文を発注',
+    submitting: '注文を送信中...',
+    orderSuccess: '補充注文{orderNumber}が正常に送信されました！',
+    viewOrders: '注文を表示',
+    table: {
+      sku: 'SKU',
+      itemName: '品名',
+      currentStock: '現在の在庫',
+      reorderPoint: '発注点',
+      forecastedDemand: '予測需要',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      subtotal: '小計',
+      priority: '優先度'
+    }
+  },
+
   // Categories
   categories: {
     circuitBoards: '回路基板',
@@ -311,10 +342,39 @@ export default {
     selectLanguage: '言語を選択'
   },
 
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期業績指標と月次トレンドを表示',
+    quarterlyPerformance: '四半期業績',
+    monthlyRevenueTrend: '月次収益トレンド',
+    monthlyRevenueTrendAria: '月次収益トレンドを示す棒グラフ',
+    monthOverMonthAnalysis: '前月比分析',
+    table: {
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率',
+      month: '月',
+      orders: '注文数',
+      revenue: '収益',
+      change: '変化',
+      growthRate: '成長率'
+    },
+    stats: {
+      totalRevenueYTD: '総収益（年初来）',
+      avgMonthlyRevenue: '平均月次収益',
+      totalOrdersYTD: '総注文数（年初来）',
+      bestPerformingQuarter: '最高業績四半期'
+    }
+  },
+
   // Common
   common: {
     loading: '読み込み中...',
     error: 'エラー',
+    errorLoading: 'データの読み込みに失敗しました。もう一度お試しください。',
     noData: 'データがありません',
     viewDetails: '詳細を見る',
     close: '閉じる',

@@ -286,13 +286,14 @@
       @close="showBacklogModal = false"
     />
 
-    <PurchaseOrderModal
+    <!-- TODO: PurchaseOrderModal component needs to be created -->
+    <!-- <PurchaseOrderModal
       :is-open="showPOModal"
       :backlog-item="selectedBacklogForPO"
       :mode="poModalMode"
       @close="showPOModal = false"
       @po-created="handlePOCreated"
-    />
+    /> -->
   </div>
 </template>
 

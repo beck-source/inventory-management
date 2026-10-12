@@ -27,9 +27,30 @@
         </div>
       </div>
 
+      <!-- Section Tabs -->
+      <div class="section-tabs">
+        <button
+          @click="activeSection = 'all'"
+          :class="{ active: activeSection === 'all' }"
+          class="tab-button"
+        >
+          {{ t('orders.allOrders') }} ({{ regularOrders.length }})
+        </button>
+        <button
+          @click="activeSection = 'restocking'"
+          :class="{ active: activeSection === 'restocking' }"
+          class="tab-button"
+        >
+          {{ t('orders.submittedOrders') }} ({{ restockingOrders.length }})
+        </button>
+      </div>
+
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <h3 class="card-title">
+            {{ activeSection === 'all' ? t('orders.allOrders') : t('orders.submittedOrders') }}
+            ({{ displayedOrders.length }})
+          </h3>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -41,13 +62,14 @@
                 <th class="col-status">{{ t('orders.table.status') }}</th>
                 <th class="col-date">{{ t('orders.table.orderDate') }}</th>
                 <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th v-if="activeSection === 'restocking'" class="col-leadtime">{{ t('orders.table.leadTime') }}</th>
                 <th class="col-value">{{ t('orders.table.totalValue') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
+              <tr v-for="order in displayedOrders" :key="order.id">
                 <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
-                <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
+                <td class="col-customer">{{ order.customer ? translateCustomerName(order.customer) : t('orders.internalRestocking') }}</td>
                 <td class="col-items">
                   <details class="items-details">
                     <summary class="items-summary">
@@ -56,7 +78,7 @@
                     <div class="items-dropdown">
                       <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
                         <span class="item-name">{{ translateProductName(item.name) }}</span>
-                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price || item.unit_cost }}</span>
                       </div>
                     </div>
                   </details>
@@ -68,6 +90,9 @@
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td v-if="activeSection === 'restocking'" class="col-leadtime">
+                  {{ order.lead_time_days }} {{ t('orders.days') }}
+                </td>
                 <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
               </tr>
             </tbody>
@@ -95,6 +120,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const activeSection = ref('all')
 
     // Use shared filters
     const {
@@ -104,6 +130,19 @@ export default {
       selectedStatus,
       getCurrentFilters
     } = useFilters()
+
+    // Separate regular orders from restocking orders
+    const regularOrders = computed(() => {
+      return orders.value.filter(order => !order.order_number.startsWith('RST-'))
+    })
+
+    const restockingOrders = computed(() => {
+      return orders.value.filter(order => order.order_number.startsWith('RST-'))
+    })
+
+    const displayedOrders = computed(() => {
+      return activeSection.value === 'all' ? regularOrders.value : restockingOrders.value
+    })
 
     const loadOrders = async () => {
       try {
@@ -160,6 +199,10 @@ export default {
       loading,
       error,
       orders,
+      activeSection,
+      regularOrders,
+      restockingOrders,
+      displayedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -172,6 +215,36 @@ export default {
 </script>
 
 <style scoped>
+.section-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 0.938rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  color: #0f172a;
+  background: #f8fafc;
+}
+
+.tab-button.active {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;
@@ -197,6 +270,10 @@ export default {
 
 .col-date {
   width: 140px;
+}
+
+.col-leadtime {
+  width: 100px;
 }
 
 .col-value {

@@ -2,7 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import random
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -45,6 +47,22 @@ def apply_filters(items: list, warehouse: Optional[str] = None, category: Option
         filtered = [item for item in filtered if item.get('status', '').lower() == status.lower()]
 
     return filtered
+
+def calculate_lead_time(total_quantity: int) -> int:
+    """Calculate delivery lead time based on order quantity.
+    Larger quantities take longer to fulfill, simulating bulk processing constraints."""
+    if total_quantity < 100:
+        base_days = random.randint(5, 7)
+    elif total_quantity < 500:
+        base_days = random.randint(7, 10)
+    elif total_quantity < 1000:
+        base_days = random.randint(10, 15)
+    else:
+        base_days = random.randint(15, 20)
+
+    # Add random variance (±1 day) for realism
+    variance = random.choice([-1, 0, 1])
+    return base_days + variance
 
 # CORS middleware
 app.add_middleware(
@@ -120,6 +138,12 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class CreateRestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[dict]
+    total_cost: float
+    warehouse: str
+
 # API endpoints
 @app.get("/")
 def root():
@@ -146,11 +170,19 @@ def get_orders(
     warehouse: Optional[str] = None,
     category: Optional[str] = None,
     status: Optional[str] = None,
-    month: Optional[str] = None
+    month: Optional[str] = None,
+    order_type: Optional[str] = None
 ):
-    """Get all orders with optional filtering"""
+    """Get all orders with optional filtering. Filter by order_type='restocking' for restocking orders."""
     filtered_orders = apply_filters(orders, warehouse, category, status)
     filtered_orders = filter_by_month(filtered_orders, month)
+
+    # Filter by order type (restocking vs regular orders identified by order_number prefix)
+    if order_type == 'restocking':
+        filtered_orders = [o for o in filtered_orders if o.get('order_number', '').startswith('RST-')]
+    elif order_type == 'regular':
+        filtered_orders = [o for o in filtered_orders if not o.get('order_number', '').startswith('RST-')]
+
     return filtered_orders
 
 @app.get("/api/orders/{order_id}", response_model=Order)
@@ -303,6 +335,43 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking")
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Create a new restocking order based on recommended items and budget"""
+    # Calculate total quantity across all items
+    total_quantity = sum(item.get('quantity', 0) for item in request.items)
+
+    # Calculate lead time based on quantity
+    lead_time = calculate_lead_time(total_quantity)
+
+    # Generate unique order number
+    order_number = f"RST-2026-{str(len(restocking_orders) + 1).zfill(4)}"
+
+    # Calculate dates
+    order_date = datetime.now()
+    expected_delivery = order_date + timedelta(days=lead_time)
+
+    # Create restocking order object
+    order = {
+        "id": str(len(orders) + len(restocking_orders) + 1),
+        "order_number": order_number,
+        "customer": None,
+        "items": request.items,
+        "status": "Processing",
+        "order_date": order_date.isoformat(),
+        "expected_delivery": expected_delivery.isoformat(),
+        "lead_time_days": lead_time,
+        "total_value": request.total_cost,
+        "warehouse": request.warehouse if request.warehouse != 'all' else "Multiple",
+        "category": "mixed"
+    }
+
+    # Store the order in both lists
+    restocking_orders.append(order)
+    orders.append(order)
+
+    return order
 
 if __name__ == "__main__":
     import uvicorn

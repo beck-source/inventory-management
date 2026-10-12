@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -106,12 +107,15 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Restocking Orders',
+    internalRestocking: 'Internal Restocking',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    days: 'days',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -125,7 +129,8 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -223,6 +228,32 @@ export default {
     low: 'Low'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Inventory Restocking',
+    description: 'Plan and submit restocking orders based on inventory levels and demand forecasts',
+    budgetConfiguration: 'Budget Configuration',
+    availableBudget: 'Available Budget',
+    recommendations: 'Recommended Items',
+    items: 'items',
+    noRecommendations: 'No items need restocking at current budget level',
+    placeOrder: 'Place Restocking Order',
+    submitting: 'Submitting Order...',
+    orderSuccess: 'Restocking order {orderNumber} successfully submitted!',
+    viewOrders: 'View Orders',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      currentStock: 'Current Stock',
+      reorderPoint: 'Reorder Point',
+      forecastedDemand: 'Forecasted Demand',
+      recommendedQty: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      subtotal: 'Subtotal',
+      priority: 'Priority'
+    }
+  },
+
   // Categories
   categories: {
     circuitBoards: 'Circuit Boards',
@@ -311,10 +342,39 @@ export default {
     selectLanguage: 'Select Language'
   },
 
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthlyRevenueTrendAria: 'Bar chart showing monthly revenue trends',
+    monthOverMonthAnalysis: 'Month-over-Month Analysis',
+    table: {
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    stats: {
+      totalRevenueYTD: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrdersYTD: 'Total Orders (YTD)',
+      bestPerformingQuarter: 'Best Performing Quarter'
+    }
+  },
+
   // Common
   common: {
     loading: 'Loading...',
     error: 'Error',
+    errorLoading: 'Failed to load data. Please try again.',
     noData: 'No data available',
     viewDetails: 'View Details',
     close: 'Close',

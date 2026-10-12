@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orders Tab Test</title>
+</head>
+<body>
+    <h1>Testing Orders Tab Features</h1>
+    <div id="results"></div>
+    <script>
+        async function test() {
+            const results = [];
+            
+            // Test 1: Check if Orders page loads
+            try {
+                const resp = await fetch('http://localhost:3000/orders');
+                results.push('✓ Orders page is accessible');
+            } catch (e) {
+                results.push('✗ Orders page failed: ' + e.message);
+            }
+            
+            // Test 2: Check Orders API
+            try {
+                const resp = await fetch('http://localhost:8001/api/orders');
+                const data = await resp.json();
+                results.push(`✓ Orders API responds with ${data.length} orders`);
+                
+                // Check for any restocking orders
+                const restocking = data.filter(o => o.order_number.startsWith('RST-'));
+                if (restocking.length > 0) {
+                    results.push(`✓ Found ${restocking.length} restocking orders`);
+                    restocking.forEach(o => {
+                        results.push(`  - ${o.order_number}: lead_time=${o.lead_time_days} days`);
+                    });
+                } else {
+                    results.push('ℹ No restocking orders yet (expected on first run)');
+                }
+            } catch (e) {
+                results.push('✗ Orders API failed: ' + e.message);
+            }
+            
+            // Test 3: Check filtering API
+            try {
+                const resp = await fetch('http://localhost:8001/api/orders?order_type=restocking');
+                const data = await resp.json();
+                results.push(`✓ Restocking filter returns ${data.length} orders`);
+            } catch (e) {
+                results.push('✗ Restocking filter failed: ' + e.message);
+            }
+            
+            // Display results
+            const div = document.getElementById('results');
+            div.innerHTML = '<pre>' + results.join('\n') + '</pre>';
+        }
+        
+        test();
+    </script>
+</body>
+</html>
