@@ -1,8 +1,13 @@
+import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+
+# In-memory store for restock orders submitted from the Restocking tab.
+# Matches the app's mock-data pattern: lives for the process lifetime, cleared on restart.
+submitted_orders: List[dict] = []
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -45,6 +50,57 @@ def apply_filters(items: list, warehouse: Optional[str] = None, category: Option
         filtered = [item for item in filtered if item.get('status', '').lower() == status.lower()]
 
     return filtered
+
+# --- Restocking helpers -----------------------------------------------------
+# Simulated delivery lead time (in days) per product category. Real supply-chain
+# lead times vary by product type, so we model that instead of a single default.
+CATEGORY_LEAD_TIME_DAYS = {
+    "Circuit Boards": 10,
+    "Sensors": 7,
+    "Actuators": 21,
+    "Controllers": 14,
+    "Power Supplies": 12,
+}
+DEFAULT_LEAD_TIME_DAYS = 9
+
+def infer_category(item_name: str, sku: str) -> str:
+    """Best-effort category for a demand-forecast item.
+
+    Most demand SKUs are not present in the inventory dataset, so we fall back to
+    keyword matching on the item name when no inventory record exists.
+    """
+    inv = next((i for i in inventory_items if i["sku"] == sku), None)
+    if inv:
+        return inv["category"]
+
+    name = item_name.lower()
+    if any(k in name for k in ("motor", "servo", "stepper", "actuator")):
+        return "Actuators"
+    if "sensor" in name:
+        return "Sensors"
+    if any(k in name for k in ("controller", "board", "logic")):
+        return "Controllers"
+    if "power supply" in name or "psu" in name:
+        return "Power Supplies"
+    if "pcb" in name or "circuit" in name:
+        return "Circuit Boards"
+    return "General"
+
+def estimate_unit_cost(sku: str) -> float:
+    """Unit cost from inventory when the SKU exists there; otherwise a stable estimate.
+
+    The estimate is derived deterministically from the SKU string so the same item
+    always prices the same across requests (no randomness).
+    """
+    inv = next((i for i in inventory_items if i["sku"] == sku), None)
+    if inv:
+        return float(inv["unit_cost"])
+    base = sum(ord(c) for c in sku)
+    return round(15 + (base % 200), 2)
+
+def lead_time_for(category: str) -> int:
+    """Delivery lead time in days for a given category."""
+    return CATEGORY_LEAD_TIME_DAYS.get(category, DEFAULT_LEAD_TIME_DAYS)
 
 # CORS middleware
 app.add_middleware(
@@ -120,6 +176,42 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class RestockCandidate(BaseModel):
+    item_sku: str
+    item_name: str
+    category: str
+    current_demand: int
+    forecasted_demand: int
+    recommended_quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class RestockOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    category: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderItem]
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    status: str
+    order_date: str
+    expected_delivery: str
+    lead_time_days: int
+    budget: float
+    total_value: float
+    item_count: int
+    items: List[RestockOrderItem]
+
 # API endpoints
 @app.get("/")
 def root():
@@ -165,6 +257,78 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restock/candidates", response_model=List[RestockCandidate])
+def get_restock_candidates():
+    """Restock recommendations derived from the demand forecast.
+
+    Includes only items with a positive demand gap (forecasted > current). Each item
+    is enriched with an estimated unit cost, the recommended quantity (the gap), the
+    resulting line total, and a simulated delivery lead time. Sorted by largest gap
+    first so the frontend can greedily fill a budget starting with the biggest shortfalls.
+    """
+    candidates = []
+    for f in demand_forecasts:
+        gap = f["forecasted_demand"] - f["current_demand"]
+        if gap <= 0:
+            continue
+        category = infer_category(f["item_name"], f["item_sku"])
+        unit_cost = estimate_unit_cost(f["item_sku"])
+        candidates.append({
+            "item_sku": f["item_sku"],
+            "item_name": f["item_name"],
+            "category": category,
+            "current_demand": f["current_demand"],
+            "forecasted_demand": f["forecasted_demand"],
+            "recommended_quantity": gap,
+            "unit_cost": unit_cost,
+            "line_total": round(gap * unit_cost, 2),
+            "lead_time_days": lead_time_for(category),
+        })
+    candidates.sort(key=lambda c: c["recommended_quantity"], reverse=True)
+    return candidates
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get all submitted restock orders, newest first."""
+    return list(reversed(submitted_orders))
+
+@app.post("/api/restock-orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restock order.
+
+    Validates the order is non-empty and within budget, then stamps it with an order
+    number, submission date, and expected delivery date. The order's overall lead time
+    is the longest lead time among its items (everything has arrived by then). The
+    resulting order is surfaced in the Orders tab's Submitted Orders section.
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Restock order must contain at least one item")
+
+    total_value = round(sum(item.line_total for item in request.items), 2)
+    # Small epsilon guards against float rounding when the total exactly equals the budget.
+    if total_value > request.budget + 0.001:
+        raise HTTPException(status_code=400, detail="Order total exceeds the available budget")
+
+    max_lead = max(item.lead_time_days for item in request.items)
+    order_date = datetime.date.today()
+    expected_delivery = order_date + datetime.timedelta(days=max_lead)
+    seq = len(submitted_orders) + 1
+
+    order = {
+        "id": f"restock-{seq}",
+        "order_number": f"RO-{1000 + seq}",
+        "status": "Submitted",
+        "order_date": order_date.isoformat(),
+        "expected_delivery": expected_delivery.isoformat(),
+        "lead_time_days": max_lead,
+        "budget": round(request.budget, 2),
+        "total_value": total_value,
+        "item_count": len(request.items),
+        "items": [item.model_dump() for item in request.items],
+    }
+    submitted_orders.append(order)
+    return order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():
