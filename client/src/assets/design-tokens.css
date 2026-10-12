@@ -1,0 +1,370 @@
+/* ============================================================
+   EPAM UUI Design System — Design Tokens
+   Source: claude.ai/design project 7097e02d-a822-4704-8af9-4591f841d406
+   Two themes: light (default) and dark ([data-theme="dark"] on <html>)
+   ============================================================ */
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ─────────────────────────────────────
+     PRIMITIVE PALETTE
+     ───────────────────────────────────── */
+
+  /* Neutral (night) */
+  --uui-white:      #ffffff;
+  --uui-night-50:   #fafafc;
+  --uui-night-100:  #f5f6fa;
+  --uui-night-200:  #ebedf5;
+  --uui-night-300:  #e1e3eb;
+  --uui-night-400:  #ced0db;
+  --uui-night-500:  #acafbf;
+  --uui-night-600:  #6c6f80;
+  --uui-night-700:  #474a59;
+  --uui-night-800:  #303240;
+  --uui-night-900:  #1d1e26;
+
+  /* Blue (primary) */
+  --uui-blue-10:  #eff6ff;
+  --uui-blue-20:  #cee3fc;
+  --uui-blue-30:  #a1c9f4;
+  --uui-blue-50:  #2b97f0;
+  --uui-blue-60:  #0c8ce9;
+  --uui-blue-70:  #0a68f1;
+  --uui-blue-80:  #0a5dc2;
+  --uui-blue-90:  #08489a;
+
+  /* Violet (accent) */
+  --uui-violet-10: #f0ecff;
+  --uui-violet-20: #d9d1ff;
+  --uui-violet-30: #bdb0ff;
+  --uui-violet-50: #8871ff;
+  --uui-violet-60: #7b61ff;
+  --uui-violet-70: #614dc9;
+  --uui-violet-90: #3f3185;
+
+  /* Cyan (info) */
+  --uui-cyan-10: #e1f4fb;
+  --uui-cyan-30: #80d4ee;
+  --uui-cyan-60: #009ecc;
+  --uui-cyan-70: #0079a1;
+
+  /* Green (success) */
+  --uui-green-10: #edf6de;
+  --uui-green-30: #b6db8a;
+  --uui-green-60: #67a300;
+  --uui-green-70: #528500;
+
+  /* Amber (warning) */
+  --uui-amber-10: #fff3de;
+  --uui-amber-30: #ffd789;
+  --uui-amber-60: #ffa000;
+  --uui-amber-70: #cc8000;
+
+  /* Fire (error/critical) */
+  --uui-fire-10: #fceeec;
+  --uui-fire-30: #ffb3ac;
+  --uui-fire-50: #ff4242;
+  --uui-fire-60: #e5452d;
+  --uui-fire-70: #c42e12;
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — SURFACES
+     ───────────────────────────────────── */
+  --uui-surface-app:      var(--uui-night-100);
+  --uui-surface-main:     var(--uui-white);
+  --uui-surface-higher:   var(--uui-white);
+  --uui-surface-lowest:   var(--uui-night-50);
+  --uui-surface-sunken:   var(--uui-night-100);
+  --uui-surface-contrast: var(--uui-night-800);
+  --uui-overlay:          rgba(29, 30, 38, 0.45);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — TEXT
+     ───────────────────────────────────── */
+  --uui-text-primary:   var(--uui-night-800);
+  --uui-text-secondary: var(--uui-night-600);
+  --uui-text-tertiary:  var(--uui-night-500);
+  --uui-text-disabled:  var(--uui-night-400);
+  --uui-text-brand:     var(--uui-blue-70);
+  --uui-text-contrast:  var(--uui-white);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — ICONS
+     ───────────────────────────────────── */
+  --uui-icon:          var(--uui-night-600);
+  --uui-icon-active:   var(--uui-night-800);
+  --uui-icon-disabled: var(--uui-night-400);
+  --uui-icon-contrast: var(--uui-white);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — CONTROLS
+     ───────────────────────────────────── */
+  --uui-control-bg:           var(--uui-white);
+  --uui-control-bg-disabled:  var(--uui-night-100);
+  --uui-control-border:       var(--uui-night-400);
+  --uui-control-border-hover: var(--uui-night-500);
+  --uui-control-placeholder:  var(--uui-night-500);
+  --uui-control-text:         var(--uui-night-800);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — LINKS
+     ───────────────────────────────────── */
+  --uui-link:         var(--uui-blue-70);
+  --uui-link-hover:   var(--uui-blue-80);
+  --uui-link-visited: var(--uui-violet-70);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — BORDERS
+     ───────────────────────────────────── */
+  --uui-border:        var(--uui-night-300);
+  --uui-border-subtle: var(--uui-night-200);
+  --uui-border-strong: var(--uui-night-400);
+  --uui-divider:       var(--uui-night-200);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — BRAND / PRIMARY
+     ───────────────────────────────────── */
+  --uui-primary:        var(--uui-blue-60);
+  --uui-primary-hover:  var(--uui-blue-70);
+  --uui-primary-active: var(--uui-blue-80);
+  --uui-primary-subtle: var(--uui-blue-10);
+
+  /* Accent */
+  --uui-accent:        var(--uui-violet-60);
+  --uui-accent-hover:  var(--uui-violet-70);
+  --uui-accent-subtle: var(--uui-violet-10);
+
+  /* ─────────────────────────────────────
+     SEMANTIC TOKENS — STATUS
+     ───────────────────────────────────── */
+  --uui-info:           var(--uui-cyan-60);
+  --uui-info-subtle:    var(--uui-cyan-10);
+  --uui-success:        var(--uui-green-60);
+  --uui-success-subtle: var(--uui-green-10);
+  --uui-warning:        var(--uui-amber-60);
+  --uui-warning-subtle: var(--uui-amber-10);
+  --uui-error:          var(--uui-fire-60);
+  --uui-error-hover:    var(--uui-fire-70);
+  --uui-error-subtle:   var(--uui-fire-10);
+
+  /* Focus ring */
+  --uui-focus: var(--uui-blue-60);
+
+  /* ─────────────────────────────────────
+     TYPOGRAPHY
+     ───────────────────────────────────── */
+  --uui-font:      "Source Sans 3", "Source Sans Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --uui-font-ui:   "Inter", "Source Sans 3", system-ui, sans-serif;
+  --uui-font-mono: "Roboto Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --uui-fw-regular:  400;
+  --uui-fw-semibold: 600;
+  --uui-fw-bold:     700;
+
+  --uui-display-size: 48px; --uui-display-lh: 60px; --uui-display-fw: 700;
+  --uui-h1-size: 36px;      --uui-h1-lh: 48px;      --uui-h1-fw: 700;
+  --uui-h2-size: 30px;      --uui-h2-lh: 42px;      --uui-h2-fw: 700;
+  --uui-h3-size: 24px;      --uui-h3-lh: 30px;      --uui-h3-fw: 600;
+  --uui-h4-size: 18px;      --uui-h4-lh: 24px;      --uui-h4-fw: 600;
+  --uui-h5-size: 16px;      --uui-h5-lh: 24px;      --uui-h5-fw: 600;
+
+  --uui-text-l-size:  18px; --uui-text-l-lh:  24px;
+  --uui-text-m-size:  16px; --uui-text-m-lh:  24px;
+  --uui-text-s-size:  14px; --uui-text-s-lh:  18px;
+  --uui-text-xs-size: 12px; --uui-text-xs-lh: 18px;
+
+  --uui-overline-size: 12px; --uui-overline-lh: 18px; --uui-overline-tracking: 0.06em;
+  --uui-mono-size: 14px;     --uui-mono-lh: 24px;
+
+  /* ─────────────────────────────────────
+     SPACING (6px grid)
+     ───────────────────────────────────── */
+  --uui-space-0:   0;
+  --uui-space-3:   3px;
+  --uui-space-6:   6px;
+  --uui-space-12:  12px;
+  --uui-space-18:  18px;
+  --uui-space-24:  24px;
+  --uui-space-30:  30px;
+  --uui-space-36:  36px;
+  --uui-space-48:  48px;
+  --uui-space-60:  60px;
+  --uui-space-72:  72px;
+  --uui-space-90:  90px;
+  --uui-space-120: 120px;
+
+  --uui-size-24: 24px;
+  --uui-size-30: 30px;
+  --uui-size-36: 36px;
+  --uui-size-42: 42px;
+  --uui-size-48: 48px;
+
+  --uui-page-gutter: 24px;
+  --uui-content-max: 1280px;
+
+  /* ─────────────────────────────────────
+     BORDER RADIUS
+     ───────────────────────────────────── */
+  --uui-radius-0:    0;
+  --uui-radius-2:    2px;
+  --uui-radius-3:    3px;
+  --uui-radius-6:    6px;
+  --uui-radius-12:   12px;
+  --uui-radius-18:   18px;
+  --uui-radius-24:   24px;
+  --uui-radius-full: 9999px;
+
+  /* ─────────────────────────────────────
+     ELEVATION / SHADOWS
+     ───────────────────────────────────── */
+  --uui-shadow-100: 0 1px 3px rgba(29, 30, 38, 0.10);
+  --uui-shadow-200: 0 3px 6px rgba(29, 30, 38, 0.10), 0 1px 2px rgba(29, 30, 38, 0.06);
+  --uui-shadow-300: 0 6px 18px rgba(29, 30, 38, 0.12), 0 2px 4px rgba(29, 30, 38, 0.06);
+  --uui-shadow-400: 0 12px 36px rgba(29, 30, 38, 0.18), 0 3px 8px rgba(29, 30, 38, 0.08);
+  --uui-shadow-focus: 0 0 0 3px rgba(12, 140, 233, 0.30);
+
+  /* Z-index scale */
+  --uui-z-base:     0;
+  --uui-z-sticky:   100;
+  --uui-z-dropdown: 400;
+  --uui-z-overlay:  900;
+  --uui-z-modal:    1000;
+  --uui-z-tooltip:  1500;
+  --uui-z-toast:    2000;
+}
+
+/* ============================================================
+   LIGHT / DARK COLOR-SCHEME HINT
+   Tells the browser to style native UI (scrollbars, form controls)
+   to match the active theme.
+   ============================================================ */
+:root {
+  color-scheme: light dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* ============================================================
+   DARK THEME — semantic token overrides
+   Two triggers (DRY note: kept intentionally explicit):
+   1. OS/browser prefers dark AND the user hasn't forced light
+   2. User has manually forced dark via [data-theme="dark"]
+   ============================================================ */
+
+/* ── Trigger 1: OS / browser dark preference ── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --uui-surface-app:      #14151c;
+    --uui-surface-main:     var(--uui-night-900);
+    --uui-surface-higher:   var(--uui-night-800);
+    --uui-surface-lowest:   #0f1015;
+    --uui-surface-sunken:   #14151c;
+    --uui-surface-contrast: var(--uui-white);
+    --uui-overlay:          rgba(0, 0, 0, 0.65);
+
+    --uui-text-primary:   var(--uui-white);
+    --uui-text-secondary: var(--uui-night-400);
+    --uui-text-tertiary:  var(--uui-night-500);
+    --uui-text-disabled:  var(--uui-night-600);
+    --uui-text-brand:     var(--uui-blue-50);
+
+    --uui-icon:          var(--uui-night-400);
+    --uui-icon-active:   var(--uui-white);
+    --uui-icon-disabled: var(--uui-night-600);
+
+    --uui-control-bg:           var(--uui-night-800);
+    --uui-control-bg-disabled:  var(--uui-night-900);
+    --uui-control-border:       var(--uui-night-600);
+    --uui-control-border-hover: var(--uui-night-500);
+    --uui-control-placeholder:  var(--uui-night-500);
+    --uui-control-text:         var(--uui-white);
+
+    --uui-link:        var(--uui-blue-50);
+    --uui-link-hover:  var(--uui-blue-30);
+
+    --uui-border:        var(--uui-night-700);
+    --uui-border-subtle: var(--uui-night-800);
+    --uui-border-strong: var(--uui-night-600);
+    --uui-divider:       var(--uui-night-700);
+
+    --uui-primary-subtle: rgba(12, 140, 233, 0.18);
+    --uui-accent-subtle:  rgba(123, 97, 255, 0.18);
+
+    --uui-info-subtle:    rgba(0, 158, 204, 0.18);
+    --uui-success-subtle: rgba(103, 163, 0,  0.18);
+    --uui-warning-subtle: rgba(255, 160, 0,  0.18);
+    --uui-error-subtle:   rgba(229, 69,  45, 0.18);
+
+    --uui-info:    var(--uui-cyan-30);
+    --uui-success: var(--uui-green-30);
+    --uui-warning: var(--uui-amber-30);
+    --uui-error:   var(--uui-fire-30);
+
+    --uui-shadow-100: 0 1px 3px rgba(0, 0, 0, 0.40);
+    --uui-shadow-200: 0 3px 6px rgba(0, 0, 0, 0.40), 0 1px 2px rgba(0, 0, 0, 0.25);
+    --uui-shadow-300: 0 6px 18px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.25);
+    --uui-shadow-400: 0 12px 36px rgba(0, 0, 0, 0.60), 0 3px 8px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ── Trigger 2: manually forced dark (overrides system light) ── */
+:root[data-theme="dark"] {
+  --uui-surface-app:      #14151c;
+  --uui-surface-main:     var(--uui-night-900);
+  --uui-surface-higher:   var(--uui-night-800);
+  --uui-surface-lowest:   #0f1015;
+  --uui-surface-sunken:   #14151c;
+  --uui-surface-contrast: var(--uui-white);
+  --uui-overlay:          rgba(0, 0, 0, 0.65);
+
+  --uui-text-primary:   var(--uui-white);
+  --uui-text-secondary: var(--uui-night-400);
+  --uui-text-tertiary:  var(--uui-night-500);
+  --uui-text-disabled:  var(--uui-night-600);
+  --uui-text-brand:     var(--uui-blue-50);
+
+  --uui-icon:          var(--uui-night-400);
+  --uui-icon-active:   var(--uui-white);
+  --uui-icon-disabled: var(--uui-night-600);
+
+  --uui-control-bg:           var(--uui-night-800);
+  --uui-control-bg-disabled:  var(--uui-night-900);
+  --uui-control-border:       var(--uui-night-600);
+  --uui-control-border-hover: var(--uui-night-500);
+  --uui-control-placeholder:  var(--uui-night-500);
+  --uui-control-text:         var(--uui-white);
+
+  --uui-link:        var(--uui-blue-50);
+  --uui-link-hover:  var(--uui-blue-30);
+
+  --uui-border:        var(--uui-night-700);
+  --uui-border-subtle: var(--uui-night-800);
+  --uui-border-strong: var(--uui-night-600);
+  --uui-divider:       var(--uui-night-700);
+
+  --uui-primary-subtle: rgba(12, 140, 233, 0.18);
+  --uui-accent-subtle:  rgba(123, 97, 255, 0.18);
+
+  --uui-info-subtle:    rgba(0, 158, 204, 0.18);
+  --uui-success-subtle: rgba(103, 163, 0,  0.18);
+  --uui-warning-subtle: rgba(255, 160, 0,  0.18);
+  --uui-error-subtle:   rgba(229, 69,  45, 0.18);
+
+  --uui-info:    var(--uui-cyan-30);
+  --uui-success: var(--uui-green-30);
+  --uui-warning: var(--uui-amber-30);
+  --uui-error:   var(--uui-fire-30);
+
+  --uui-shadow-100: 0 1px 3px rgba(0, 0, 0, 0.40);
+  --uui-shadow-200: 0 3px 6px rgba(0, 0, 0, 0.40), 0 1px 2px rgba(0, 0, 0, 0.25);
+  --uui-shadow-300: 0 6px 18px rgba(0, 0, 0, 0.45), 0 2px 4px rgba(0, 0, 0, 0.25);
+  --uui-shadow-400: 0 12px 36px rgba(0, 0, 0, 0.60), 0 3px 8px rgba(0, 0, 0, 0.35);
+}

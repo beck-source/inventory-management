@@ -102,93 +102,98 @@ export default {
 
 <style scoped>
 .filters-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 0;
+  background: var(--uui-surface-main);
+  border-bottom: 1px solid var(--uui-border);
+  padding: var(--uui-space-12) 0;
   position: sticky;
-  top: 70px;
-  z-index: 90;
+  top: 60px;
+  z-index: calc(var(--uui-z-sticky) - 10);
 }
 
 .filters-container {
   max-width: 1600px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--uui-space-24);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--uui-space-12);
 }
 
 .filters-grid {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--uui-space-12);
   flex: 1;
 }
 
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--uui-space-6);
 }
 
 .filter-group label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
+  font-size: var(--uui-overline-size);
+  font-weight: var(--uui-fw-semibold);
+  color: var(--uui-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: var(--uui-overline-tracking);
   white-space: nowrap;
 }
 
 .filter-select {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.813rem;
-  color: #0f172a;
-  background: white;
+  height: var(--uui-size-30);
+  padding: 0 var(--uui-space-12);
+  border: 1px solid var(--uui-control-border);
+  border-radius: var(--uui-radius-6);
+  font-family: var(--uui-font);
+  font-size: var(--uui-text-s-size);
+  font-weight: var(--uui-fw-semibold);
+  color: var(--uui-control-text);
+  background: var(--uui-control-bg);
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
+  transition: border-color 0.12s, box-shadow 0.12s;
   min-width: 140px;
 }
 
 .filter-select:hover {
-  border-color: #94a3b8;
+  border-color: var(--uui-control-border-hover);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--uui-focus);
+  box-shadow: var(--uui-shadow-focus);
 }
 
 .reset-filters-btn {
+  width: var(--uui-size-30);
+  height: var(--uui-size-30);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  color: #64748b;
+  background: var(--uui-control-bg);
+  border: 1px solid var(--uui-border);
+  border-radius: var(--uui-radius-6);
+  color: var(--uui-icon);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.12s;
   flex-shrink: 0;
 }
 
 .reset-filters-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: var(--uui-night-100);
+  border-color: var(--uui-border-strong);
+  color: var(--uui-icon-active);
 }
 
 .reset-filters-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 .reset-filters-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
 }
 </style>

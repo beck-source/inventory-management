@@ -146,7 +146,7 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .modal-container {
-  background: white;
+  background: var(--uui-surface-main);
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 700px;
@@ -162,20 +162,20 @@ const getStockBadgeClass = (stockLevel) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--uui-border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--uui-text-primary);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--uui-text-secondary);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -186,8 +186,8 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--uui-surface-sunken);
+  color: var(--uui-text-primary);
 }
 
 .modal-body {
@@ -201,14 +201,14 @@ const getStockBadgeClass = (stockLevel) => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--uui-border);
   margin-bottom: 2rem;
 }
 
 .product-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--uui-primary) 0%, var(--uui-primary-hover) 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -225,13 +225,13 @@ const getStockBadgeClass = (stockLevel) => {
 .product-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--uui-text-primary);
   margin: 0 0 0.5rem 0;
 }
 
 .product-sku {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--uui-text-secondary);
   font-family: 'Monaco', 'Courier New', monospace;
 }
 
@@ -246,18 +246,18 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--uui-success-subtle);
+  color: var(--uui-success);
 }
 
 .stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--uui-warning-subtle);
+  color: var(--uui-warning);
 }
 
 .stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--uui-error-subtle);
+  color: var(--uui-error);
 }
 
 .info-grid {
@@ -277,18 +277,18 @@ const getStockBadgeClass = (stockLevel) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--uui-text-secondary);
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--uui-text-primary);
   font-weight: 500;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--uui-border);
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -296,20 +296,20 @@ const getStockBadgeClass = (stockLevel) => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--uui-surface-sunken);
+  border: 1px solid var(--uui-border);
   border-radius: 8px;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: var(--uui-text-primary);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--uui-surface-sunken);
+  border-color: var(--uui-border);
 }
 
 /* Modal transition animations */
