@@ -25,6 +25,10 @@ Use the Task tool with these specialized subagents for appropriate tasks:
 - **ALWAYS use Playwright MCP tools** (`mcp__playwright__*`) for browser testing
   - Test against: `http://localhost:3000` (frontend), `http://localhost:8001` (API)
 
+## Development Standards
+
+- **Always document non-obvious logic changes with comments** - Add clear explanations for complex algorithms, business logic, or non-intuitive code patterns
+
 ## Stack
 - **Frontend**: Vue 3 + Composition API + Vite (port 3000)
 - **Backend**: Python FastAPI (port 8001)

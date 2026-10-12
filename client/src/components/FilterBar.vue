@@ -1,6 +1,6 @@
 <template>
   <div class="filters-bar">
-    <div class="filters-container">
+    <div class="filters-container" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
       <div class="filters-grid">
         <div class="filter-group">
           <label>{{ t('filters.timePeriod') }}</label>
@@ -47,6 +47,7 @@
           <label>{{ t('filters.orderStatus') }}</label>
           <select v-model="selectedStatus" class="filter-select">
             <option value="all">{{ t('filters.all') }}</option>
+            <option value="submitted">{{ t('status.submitted') }}</option>
             <option value="delivered">{{ t('status.delivered') }}</option>
             <option value="shipped">{{ t('status.shipped') }}</option>
             <option value="processing">{{ t('status.processing') }}</option>
@@ -72,6 +73,7 @@
 <script>
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { useSidebar } from '../composables/useSidebar'
 
 export default {
   name: 'FilterBar',
@@ -86,6 +88,7 @@ export default {
     } = useFilters()
 
     const { t } = useI18n()
+    const { isCollapsed: isSidebarCollapsed } = useSidebar()
 
     return {
       t,
@@ -94,7 +97,8 @@ export default {
       selectedCategory,
       selectedStatus,
       hasActiveFilters,
-      resetFilters
+      resetFilters,
+      isSidebarCollapsed
     }
   }
 }
@@ -111,12 +115,23 @@ export default {
 }
 
 .filters-container {
-  max-width: 1600px;
+  max-width: calc(1600px + 240px);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 2rem 0 calc(2rem + 240px);
   display: flex;
   align-items: center;
   gap: 1rem;
+  transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filters-container.sidebar-collapsed {
+  padding-left: calc(2rem + 70px);
+}
+
+@media (max-width: 1024px) {
+  .filters-container {
+    padding-left: calc(2rem + 70px);
+  }
 }
 
 .filters-grid {
