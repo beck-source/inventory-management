@@ -64,6 +64,7 @@ const isDropdownOpen = ref(false)
 
 const languageNames = {
   en: 'English',
+  fr: 'Français',
   ja: '日本語'
 }
 

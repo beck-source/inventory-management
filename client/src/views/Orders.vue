@@ -74,6 +74,40 @@
           </table>
         </div>
       </div>
+
+      <div class="card restocking-section">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.restockingOrders') }}</h3>
+          <span class="restocking-count">{{ restockingOrders.length }}</span>
+        </div>
+        <div v-if="restockingOrders.length === 0" class="no-restocking">
+          {{ t('orders.noRestockingOrders') }}
+        </div>
+        <div v-else class="table-container">
+          <table class="orders-table restocking-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.submittedAt') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">{{ t('orders.itemsCount', { count: order.items.length }) }}</td>
+                <td class="col-status"><span class="badge warning">{{ t('status.' + order.status.toLowerCase()) }}</span></td>
+                <td class="col-date">{{ formatDate(order.submitted_at) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -87,11 +121,7 @@ import { useI18n } from '../composables/useI18n'
 export default {
   name: 'Orders',
   setup() {
-    const { t, currentCurrency, translateProductName, translateCustomerName } = useI18n()
-
-    const currencySymbol = computed(() => {
-      return currentCurrency.value === 'JPY' ? '¥' : '$'
-    })
+    const { t, currencySymbol, translateProductName, translateCustomerName } = useI18n()
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
@@ -144,22 +174,35 @@ export default {
     }
 
     const formatDate = (dateString) => {
-      const { currentLocale } = useI18n()
-      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
-      return new Date(dateString).toLocaleDateString(locale, {
+      const { dateLocale } = useI18n()
+      return new Date(dateString).toLocaleDateString(dateLocale.value, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       })
     }
 
-    onMounted(loadOrders)
+    const restockingOrders = ref([])
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +318,29 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.restocking-section {
+  margin-top: 1.5rem;
+}
+
+.restocking-count {
+  background: #e2e8f0;
+  color: #475569;
+  border-radius: 9999px;
+  padding: 0.125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.no-restocking {
+  color: #64748b;
+  font-size: 0.875rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.restocking-table {
+  table-layout: auto;
 }
 </style>

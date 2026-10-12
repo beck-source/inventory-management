@@ -185,7 +185,7 @@ export default {
     CostDetailModal
   },
   setup() {
-    const { t, currentCurrency } = useI18n()
+    const { t, currentCurrency, currencySymbol } = useI18n()
     const loading = ref(true)
     const error = ref(null)
     const allMonthlySpending = ref([])
@@ -378,10 +378,6 @@ export default {
     const formatCurrency = (value) => {
       return formatCurrencyUtil(value, currentCurrency.value)
     }
-
-    const currencySymbol = computed(() => {
-      return currentCurrency.value === 'JPY' ? '¥' : '$'
-    })
 
     const getBarHeight = (value) => {
       const maxValue = 25000

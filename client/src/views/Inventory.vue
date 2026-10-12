@@ -96,11 +96,7 @@ export default {
     InventoryDetailModal
   },
   setup() {
-    const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
-
-    const currencySymbol = computed(() => {
-      return currentCurrency.value === 'JPY' ? '¥' : '$'
-    })
+    const { t, currencySymbol, translateProductName, translateWarehouse } = useI18n()
 
     const loading = ref(true)
     const error = ref(null)

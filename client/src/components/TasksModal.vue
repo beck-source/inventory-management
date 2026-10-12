@@ -136,7 +136,7 @@ export default {
   },
   emits: ['close', 'add-task', 'delete-task', 'toggle-task'],
   setup(props, { emit }) {
-    const { t, currentLocale } = useI18n()
+    const { t, currentLocale, dateLocale } = useI18n()
     const newTask = ref({
       title: '',
       priority: 'medium',
@@ -185,8 +185,7 @@ export default {
       if (diffDays < 0) return isJapanese ? `${Math.abs(diffDays)}日前` : `${Math.abs(diffDays)} days ago`
       if (diffDays < 7) return isJapanese ? `${diffDays}日後` : `in ${diffDays} days`
 
-      const locale = isJapanese ? 'ja-JP' : 'en-US'
-      return date.toLocaleDateString(locale, {
+      return date.toLocaleDateString(dateLocale.value, {
         month: 'short',
         day: 'numeric',
         year: date.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
