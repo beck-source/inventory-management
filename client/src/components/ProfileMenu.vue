@@ -2,23 +2,29 @@
   <div class="profile-menu">
     <button
       class="profile-button"
+      :class="{ collapsed }"
+      :title="collapsed ? currentUser.name : null"
+      :aria-label="collapsed ? currentUser.name : null"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
       </div>
-      <span class="profile-name">{{ currentUser.name }}</span>
-      <svg
-        class="chevron"
-        :class="{ 'chevron-open': isDropdownOpen }"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-      >
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <template v-if="!collapsed">
+        <span class="profile-name">{{ currentUser.name }}</span>
+        <svg
+          class="chevron"
+          :class="{ 'chevron-open': isDropdownOpen }"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </template>
     </button>
 
     <div v-if="isDropdownOpen" class="dropdown-menu">
@@ -78,6 +84,10 @@ import { ref, computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
 
+defineProps({
+  collapsed: { type: Boolean, default: false }
+})
+
 const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
 
@@ -121,28 +131,41 @@ const handleLogout = () => {
 }
 
 .profile-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+}
+
+.profile-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Icon-only rail: just the avatar circle, no name/chevron overflow */
+.profile-button.collapsed {
+  width: 36px;
+  justify-content: center;
+  padding: var(--space-2);
 }
 
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -150,49 +173,57 @@ const handleLogout = () => {
   font-weight: 600;
   font-size: 0.75rem;
   letter-spacing: 0.025em;
+  flex-shrink: 0;
 }
 
 .profile-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-text-strong);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
+  color: var(--color-text-muted);
   transition: transform 0.2s ease;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 .chevron-open {
   transform: rotate(180deg);
 }
 
+/* Sidebar footer sits at the bottom of the viewport - open upward/rightward so the
+   dropdown isn't clipped below the fold. */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
   overflow: hidden;
 }
 
 .dropdown-header {
-  padding: 1rem;
+  padding: var(--space-4);
   display: flex;
-  gap: 0.875rem;
+  gap: var(--space-3);
   align-items: center;
-  background: #f8fafc;
+  background: var(--color-bg);
 }
 
 .avatar-large {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -210,14 +241,14 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text-strong);
   font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-1);
 }
 
 .user-email {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--color-text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,16 +256,16 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+  background: var(--color-border);
+  margin: var(--space-2) 0;
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
@@ -243,24 +274,29 @@ const handleLogout = () => {
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--color-text);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--color-bg);
+}
+
+.dropdown-item:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
 .dropdown-item.logout {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .dropdown-item.logout svg {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .dropdown-item.logout:hover {
@@ -269,12 +305,12 @@ const handleLogout = () => {
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
+  background: var(--color-primary);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
   min-width: 20px;
   text-align: center;
 }
