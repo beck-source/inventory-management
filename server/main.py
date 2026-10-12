@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+import uuid
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -119,6 +121,17 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    item_sku: str
+    item_name: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    total_cost: float
+    warehouse: str
 
 # API endpoints
 @app.get("/")
@@ -303,6 +316,114 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(budget: float):
+    """
+    Get restocking recommendations based on budget.
+    Prioritizes items by highest forecasted demand.
+    """
+    # Get demand forecasts sorted by forecasted demand (highest first)
+    sorted_forecasts = sorted(
+        demand_forecasts,
+        key=lambda x: x.get('forecasted_demand', 0),
+        reverse=True
+    )
+
+    recommendations = []
+    remaining_budget = budget
+
+    for forecast in sorted_forecasts:
+        item_sku = forecast.get('item_sku')
+        # Find corresponding inventory item to get unit cost
+        inventory_item = next(
+            (item for item in inventory_items if item['sku'] == item_sku),
+            None
+        )
+
+        if not inventory_item:
+            continue
+
+        quantity = forecast.get('forecasted_demand', 0)
+        unit_cost = inventory_item.get('unit_cost', 0)
+        total_cost = quantity * unit_cost
+
+        # Only include if within budget
+        if total_cost <= remaining_budget:
+            recommendations.append({
+                'item_sku': item_sku,
+                'item_name': forecast.get('item_name'),
+                'quantity': quantity,
+                'unit_cost': unit_cost,
+                'total_cost': round(total_cost, 2),
+                'current_demand': forecast.get('current_demand'),
+                'forecasted_demand': forecast.get('forecasted_demand'),
+                'trend': forecast.get('trend'),
+                'warehouse': inventory_item.get('warehouse'),
+                'category': inventory_item.get('category')
+            })
+            remaining_budget -= total_cost
+
+    return {
+        'recommendations': recommendations,
+        'total_cost': round(budget - remaining_budget, 2),
+        'remaining_budget': round(remaining_budget, 2)
+    }
+
+@app.post("/api/restocking/orders")
+def create_restocking_order(order_request: CreateRestockingOrderRequest):
+    """
+    Create a new restocking order.
+    Returns the created order with 14-day delivery lead time.
+    """
+    order_id = str(uuid.uuid4())
+    order_number = f"RST-{datetime.now().strftime('%Y%m%d')}-{len(orders) + 1:04d}"
+    order_date = datetime.now().strftime('%Y-%m-%d')
+    # Fixed 14-day delivery lead time
+    expected_delivery = (datetime.now() + timedelta(days=14)).strftime('%Y-%m-%d')
+
+    # Create order items list
+    items = [
+        {
+            'sku': item.item_sku,
+            'name': item.item_name,
+            'quantity': item.quantity,
+            'unit_cost': item.unit_cost
+        }
+        for item in order_request.items
+    ]
+
+    new_order = {
+        'id': order_id,
+        'order_number': order_number,
+        'customer': 'Internal Restocking',
+        'items': items,
+        'status': 'Processing',
+        'order_date': order_date,
+        'expected_delivery': expected_delivery,
+        'total_value': order_request.total_cost,
+        'warehouse': order_request.warehouse,
+        'category': 'Restocking',
+        'order_type': 'restocking'  # Special flag to identify restocking orders
+    }
+
+    # Add to orders list (in-memory, will reset on server restart)
+    orders.append(new_order)
+
+    return {
+        'success': True,
+        'order': new_order,
+        'lead_time_days': 14
+    }
+
+@app.get("/api/restocking/orders")
+def get_restocking_orders():
+    """Get all restocking orders"""
+    restocking_orders = [
+        order for order in orders
+        if order.get('order_type') == 'restocking'
+    ]
+    return restocking_orders
 
 if __name__ == "__main__":
     import uvicorn
