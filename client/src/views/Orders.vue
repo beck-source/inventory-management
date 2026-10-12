@@ -27,6 +27,40 @@
         </div>
       </div>
 
+      <div v-if="submittedOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="submitted-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order #</th>
+                <th class="col-submitted-items">Items</th>
+                <th class="col-value">Total Cost</th>
+                <th class="col-date">Submitted</th>
+                <th class="col-lead">Lead Time</th>
+                <th class="col-date">Expected Delivery</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-submitted-items">{{ order.item_count }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-date">{{ formatSafeDate(order.created_date) }}</td>
+                <td class="col-lead">{{ order.lead_time_days }} days</td>
+                <td class="col-date">{{ formatSafeDate(order.expected_delivery) }}</td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">{{ order.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +129,9 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    // Restocking orders submitted from the Restocking tab. Held separately from
+    // `orders` because they come from a different endpoint and are not customer orders.
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +190,37 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    // Guarded formatter: submitted orders carry server-generated timestamps, so an
+    // unparseable value should render a dash rather than "Invalid Date".
+    const formatSafeDate = (dateString) => {
+      if (!dateString) return '—'
+      const parsed = new Date(dateString)
+      if (isNaN(parsed.getTime())) return '—'
+      return formatDate(dateString)
+    }
+
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        // A missing restocking feed must not blank out the customer orders table.
+        console.error('Failed to load submitted restocking orders:', err)
+        submittedOrders.value = []
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
+      formatSafeDate,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
