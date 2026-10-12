@@ -27,6 +27,53 @@
         </div>
       </div>
 
+      <div class="card" v-if="submittedOrders.length">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="submitted-orders-table">
+            <thead>
+              <tr>
+                <th class="sub-col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="sub-col-customer">{{ t('orders.table.customer') }}</th>
+                <th class="sub-col-items">{{ t('orders.table.items') }}</th>
+                <th class="sub-col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="sub-col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="sub-col-lead-time">{{ t('orders.table.leadTime') }}</th>
+                <th class="sub-col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="sub-col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="sub-col-customer">{{ translateCustomerName(order.customer) }}</td>
+                <td class="sub-col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="sub-col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="sub-col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="sub-col-lead-time">
+                  <span v-if="order.lead_time_days != null">{{ t('orders.leadTimeDays', { days: order.lead_time_days }) }}</span>
+                  <span v-else>&mdash;</span>
+                </td>
+                <td class="sub-col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -133,12 +180,15 @@ export default {
       return orders.value.filter(order => order.status === status)
     }
 
+    const submittedOrders = computed(() => orders.value.filter(o => o.status === 'Submitted'))
+
     const getOrderStatusClass = (status) => {
       const statusMap = {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
     }
@@ -160,6 +210,7 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -200,6 +251,36 @@ export default {
 }
 
 .col-value {
+  width: 120px;
+}
+
+/* Submitted orders table */
+.submitted-orders-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.sub-col-order-number {
+  width: 130px;
+}
+
+.sub-col-customer {
+  width: 180px;
+}
+
+.sub-col-items {
+  width: 200px;
+}
+
+.sub-col-date {
+  width: 140px;
+}
+
+.sub-col-lead-time {
+  width: 110px;
+}
+
+.sub-col-value {
   width: 120px;
 }
 

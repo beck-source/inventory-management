@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta, timezone
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
@@ -80,6 +81,7 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    lead_time_days: Optional[int] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -89,6 +91,9 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    warehouse: str
+    category: str
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +124,27 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+# Approximate delivery lead time per warehouse, used to compute expected_delivery
+# for restocking orders (no lead-time field exists in the source data)
+WAREHOUSE_LEAD_TIME_DAYS = {
+    "San Francisco": 7,
+    "London": 10,
+    "Tokyo": 12
+}
+DEFAULT_LEAD_TIME_DAYS = 10
+
+class RestockOrderItemRequest(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    warehouse: str
+    category: str
+
+class RestockOrderRequest(BaseModel):
+    items: List[RestockOrderItemRequest]
+    budget: Optional[float] = None
 
 # API endpoints
 @app.get("/")
@@ -160,6 +186,56 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/restock-orders", response_model=Order, status_code=201)
+def create_restock_order(payload: RestockOrderRequest):
+    """Submit a restocking order built from selected demand-forecast recommendations"""
+    if not payload.items:
+        raise HTTPException(status_code=400, detail="At least one item is required to place a restocking order")
+
+    order_items = [
+        {"sku": item.sku, "name": item.name, "quantity": item.quantity, "unit_price": item.unit_cost}
+        for item in payload.items
+    ]
+    total_value = round(sum(item.quantity * item.unit_cost for item in payload.items), 2)
+
+    warehouses = {item.warehouse for item in payload.items}
+    categories = {item.category for item in payload.items}
+    order_warehouse = next(iter(warehouses)) if len(warehouses) == 1 else None
+    order_category = next(iter(categories)) if len(categories) == 1 else None
+
+    # Conservative: the order isn't complete until the slowest warehouse ships
+    lead_time_days = max(WAREHOUSE_LEAD_TIME_DAYS.get(w, DEFAULT_LEAD_TIME_DAYS) for w in warehouses)
+
+    # Keep the naive-UTC ISO format the rest of orders.json already uses (no +00:00 suffix)
+    order_date = datetime.now(timezone.utc).replace(tzinfo=None)
+    expected_delivery = order_date + timedelta(days=lead_time_days)
+
+    # orders.json has duplicate ids in places, so the next id must come from the max, not the count
+    next_id = str(max((int(o["id"]) for o in orders), default=0) + 1)
+    existing_seqs = [
+        int(o["order_number"].rsplit("-", 1)[-1])
+        for o in orders
+        if o.get("order_number", "").startswith("ORD-2025-")
+    ]
+    next_seq = (max(existing_seqs) if existing_seqs else 0) + 1
+
+    new_order = {
+        "id": next_id,
+        "order_number": f"ORD-2025-{next_seq:04d}",
+        "customer": "Internal Restocking",
+        "items": order_items,
+        "status": "Submitted",
+        "order_date": order_date.isoformat(),
+        "expected_delivery": expected_delivery.isoformat(),
+        "total_value": total_value,
+        "actual_delivery": None,
+        "warehouse": order_warehouse,
+        "category": order_category,
+        "lead_time_days": lead_time_days
+    }
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():

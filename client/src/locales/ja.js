@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,12 +107,14 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '提出済み注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    leadTimeDays: '{days}日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,7 +128,8 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -188,6 +192,36 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '再発注',
+    description: '需要予測に基づく再発注の推奨を確認し、予算内で注文する',
+    budgetLabel: '予算',
+    recommendedItems: '推奨品目',
+    noItems: '現在のフィルターに該当する再発注候補はありません',
+    table: {
+      select: '選択',
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      currentStock: '現在庫数',
+      reorderPoint: '再注文点',
+      trend: 'トレンド',
+      recommendedQty: '推奨発注数量',
+      unitCost: '単価',
+      lineTotal: '小計'
+    },
+    selectedTotal: '選択合計',
+    remainingBudget: '残り予算',
+    placeOrder: '注文を確定',
+    placingOrder: '注文処理中...',
+    noSelectionWarning: '注文を確定する前に少なくとも1つの品目を選択してください',
+    orderSuccess: '再発注 {orderNumber} を送信しました',
+    viewInOrders: '注文一覧で見る',
+    orderError: '再発注の送信に失敗しました'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -206,7 +240,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    submitted: '提出済み'
   },
 
   // Trends
