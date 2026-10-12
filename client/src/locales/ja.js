@@ -6,8 +6,40 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
+  },
+
+  // Reports
+  reports: {
+    title: '業績レポート',
+    description: '四半期の業績指標と月次トレンドを表示',
+    quarterly: {
+      title: '四半期業績',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総売上高',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '達成率'
+    },
+    monthlyTrend: {
+      title: '月次売上推移'
+    },
+    monthOverMonth: {
+      title: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '売上',
+      change: '変化',
+      growthRate: '成長率'
+    },
+    stats: {
+      totalRevenueYTD: '年初来総売上',
+      avgMonthlyRevenue: '月平均売上',
+      totalOrdersYTD: '年初来総注文数',
+      bestQuarter: '最高業績四半期'
+    }
   },
 
   // Dashboard
