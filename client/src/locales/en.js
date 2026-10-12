@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,7 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Restock Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +127,11 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      submittedDate: 'Submitted',
+      leadTime: 'Lead Time',
+      estimatedDelivery: 'Est. Delivery',
+      totalCost: 'Total Cost'
     }
   },
 
@@ -206,7 +212,44 @@ export default {
     backordered: 'Backordered',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
-    adequate: 'Adequate'
+    adequate: 'Adequate',
+    submitted: 'Submitted'
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and review recommended items to restock',
+    budgetLabel: 'Available Budget',
+    budget: 'Budget',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    itemsRecommended: 'Items Recommended',
+    recommended: 'Recommended Restock',
+    recommendedCount: '{count} items within budget',
+    skipped: 'Excluded — Over Remaining Budget',
+    skippedCount: '{count} items',
+    overBudgetBy: 'over by {amount}',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    orderPlaced: 'Restock order {orderNumber} submitted successfully.',
+    viewInOrders: 'View in Orders',
+    noRecommendations: 'No items need restocking for the current filters.',
+    budgetTooLow: 'Budget is too low to cover any single item. Increase the budget to see recommendations.',
+    days: '{count} days',
+    daysRange: '{min}-{max} days',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      quantity: 'Restock Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time',
+      priority: 'Priority'
+    }
   },
 
   // Trends

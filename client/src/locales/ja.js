@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +107,7 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み補充発注',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,7 +127,11 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      submittedDate: '送信日',
+      leadTime: 'リードタイム',
+      estimatedDelivery: '納品予定日',
+      totalCost: '合計コスト'
     }
   },
 
@@ -206,7 +212,44 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    submitted: '送信済み'
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、推奨される補充品目を確認します',
+    budgetLabel: '利用可能予算',
+    budget: '予算',
+    allocated: '割当額',
+    remaining: '残額',
+    itemsRecommended: '推奨品目数',
+    recommended: '推奨補充品目',
+    recommendedCount: '予算内 {count} 件',
+    skipped: '除外 — 残予算超過',
+    skippedCount: '{count} 件',
+    overBudgetBy: '{amount} 超過',
+    placeOrder: '発注する',
+    submitting: '送信中...',
+    orderPlaced: '補充発注 {orderNumber} を送信しました。',
+    viewInOrders: '注文で表示',
+    noRecommendations: '現在のフィルターでは補充が必要な品目はありません。',
+    budgetTooLow: '予算が低すぎるため、いずれの品目も購入できません。予算を増やしてください。',
+    days: '{count}日',
+    daysRange: '{min}〜{max}日',
+    table: {
+      sku: 'SKU',
+      item: '品目',
+      warehouse: '倉庫',
+      onHand: '在庫数',
+      reorderPoint: '発注点',
+      quantity: '補充数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      priority: '優先度'
+    }
   },
 
   // Trends
