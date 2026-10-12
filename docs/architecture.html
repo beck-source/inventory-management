@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Management — Architecture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; }
+    header { background: #0f172a; color: white; padding: 2rem 3rem; }
+    header h1 { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.025em; }
+    header p { color: #94a3b8; margin-top: 0.375rem; font-size: 0.938rem; }
+    .page { max-width: 1200px; margin: 0 auto; padding: 2.5rem 2rem; }
+    h2 { font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e2e8f0; }
+    .section { margin-bottom: 2.5rem; }
+
+    /* Stack diagram */
+    .stack-diagram { display: flex; align-items: stretch; gap: 0; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .stack-layer { flex: 1; padding: 1.5rem; border-right: 1px solid #e2e8f0; }
+    .stack-layer:last-child { border-right: none; }
+    .layer-label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+    .layer-name { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .layer-tech { font-size: 0.813rem; color: #64748b; margin-bottom: 0.875rem; }
+    .tag { display: inline-block; padding: 0.25rem 0.625rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin: 0.2rem 0.2rem 0 0; }
+    .tag-blue { background: #dbeafe; color: #1e40af; }
+    .tag-green { background: #d1fae5; color: #065f46; }
+    .tag-orange { background: #fed7aa; color: #92400e; }
+    .tag-purple { background: #ede9fe; color: #5b21b6; }
+    .tag-slate { background: #f1f5f9; color: #475569; }
+    .layer-browser { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); }
+    .layer-api { background: linear-gradient(135deg, #f0fdf4 0%, #d1fae5 100%); }
+    .layer-data { background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%); }
+
+    /* Data flow */
+    .flow { display: flex; align-items: center; gap: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .flow-step { flex: 1; padding: 1.25rem 1rem; text-align: center; font-size: 0.875rem; }
+    .flow-step strong { display: block; font-size: 0.938rem; margin-bottom: 0.25rem; color: #0f172a; }
+    .flow-step span { color: #64748b; font-size: 0.813rem; }
+    .flow-arrow { color: #94a3b8; font-size: 1.25rem; flex-shrink: 0; padding: 0 0.25rem; }
+    .flow-step.highlight { background: #eff6ff; }
+
+    /* API endpoints grid */
+    .endpoints-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; }
+    .endpoint-group { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .endpoint-group h4 { font-size: 0.875rem; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+    .endpoint { display: flex; align-items: baseline; gap: 0.625rem; padding: 0.375rem 0; border-bottom: 1px solid #f8fafc; font-size: 0.813rem; }
+    .endpoint:last-child { border-bottom: none; }
+    .method { font-weight: 700; font-size: 0.688rem; padding: 0.188rem 0.5rem; border-radius: 3px; flex-shrink: 0; }
+    .get { background: #d1fae5; color: #065f46; }
+    .post { background: #dbeafe; color: #1e40af; }
+    .patch { background: #ede9fe; color: #5b21b6; }
+    .delete { background: #fecaca; color: #991b1b; }
+    .endpoint-path { font-family: monospace; color: #0f172a; }
+    .endpoint-desc { color: #64748b; font-size: 0.75rem; margin-left: auto; }
+
+    /* Views grid */
+    .views-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    .view-card { background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.125rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .view-card .route { font-family: monospace; font-size: 0.813rem; color: #2563eb; font-weight: 600; margin-bottom: 0.375rem; }
+    .view-card .view-name { font-weight: 700; font-size: 0.938rem; margin-bottom: 0.25rem; }
+    .view-card .view-desc { font-size: 0.813rem; color: #64748b; }
+    .view-card.new { border-color: #86efac; background: #f0fdf4; }
+    .new-badge { display: inline-block; font-size: 0.688rem; font-weight: 700; background: #16a34a; color: white; padding: 0.125rem 0.5rem; border-radius: 10px; margin-left: 0.375rem; vertical-align: middle; }
+
+    /* File tree */
+    .file-tree { background: #0f172a; color: #e2e8f0; border-radius: 10px; padding: 1.5rem; font-family: monospace; font-size: 0.813rem; line-height: 1.8; }
+    .tree-dir { color: #7dd3fc; font-weight: 600; }
+    .tree-file { color: #e2e8f0; }
+    .tree-new { color: #86efac; }
+    .tree-indent { display: inline-block; }
+
+    footer { background: #0f172a; color: #475569; text-align: center; padding: 1.5rem; font-size: 0.813rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Factory Inventory Management System</h1>
+  <p>Architecture Overview &mdash; Tech Stack, Data Flow &amp; API Reference</p>
+</header>
+
+<div class="page">
+
+  <!-- Tech Stack -->
+  <div class="section">
+    <h2>Tech Stack</h2>
+    <div class="stack-diagram">
+      <div class="stack-layer layer-browser">
+        <div class="layer-label" style="color:#2563eb">Frontend</div>
+        <div class="layer-name">Vue 3 Client</div>
+        <div class="layer-tech">Runs on <strong>localhost:3000</strong></div>
+        <span class="tag tag-blue">Vue 3</span>
+        <span class="tag tag-blue">Composition API</span>
+        <span class="tag tag-blue">Vite</span>
+        <span class="tag tag-blue">Vue Router</span>
+        <span class="tag tag-blue">Axios</span>
+      </div>
+      <div class="stack-layer layer-api">
+        <div class="layer-label" style="color:#059669">Backend</div>
+        <div class="layer-name">FastAPI Server</div>
+        <div class="layer-tech">Runs on <strong>localhost:8001</strong></div>
+        <span class="tag tag-green">Python 3.14</span>
+        <span class="tag tag-green">FastAPI</span>
+        <span class="tag tag-green">Uvicorn</span>
+        <span class="tag tag-green">Pydantic v2</span>
+        <span class="tag tag-green">uv</span>
+      </div>
+      <div class="stack-layer layer-data">
+        <div class="layer-label" style="color:#d97706">Data Layer</div>
+        <div class="layer-name">JSON Mock Data</div>
+        <div class="layer-tech">In-memory at startup</div>
+        <span class="tag tag-orange">inventory.json</span>
+        <span class="tag tag-orange">orders.json</span>
+        <span class="tag tag-orange">demand_forecasts.json</span>
+        <span class="tag tag-orange">backlog_items.json</span>
+        <span class="tag tag-orange">spending.json</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Flow -->
+  <div class="section">
+    <h2>Request Data Flow</h2>
+    <div class="flow">
+      <div class="flow-step">
+        <strong>User Interaction</strong>
+        <span>Filter bar / button click</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">
+        <strong>Vue Component</strong>
+        <span>Reactive ref / computed</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <strong>api.js</strong>
+        <span>Axios HTTP call</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">
+        <strong>FastAPI Endpoint</strong>
+        <span>Filter + validate</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <strong>mock_data.py</strong>
+        <span>In-memory lists</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step highlight">
+        <strong>Pydantic Model</strong>
+        <span>Serialise &amp; return JSON</span>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <strong>Vue Template</strong>
+        <span>Render UI</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Frontend Views -->
+  <div class="section">
+    <h2>Frontend Views</h2>
+    <div class="views-grid">
+      <div class="view-card">
+        <div class="route">/</div>
+        <div class="view-name">Dashboard</div>
+        <div class="view-desc">KPI summary cards, inventory value, pending orders, backlog count</div>
+      </div>
+      <div class="view-card">
+        <div class="route">/inventory</div>
+        <div class="view-name">Inventory</div>
+        <div class="view-desc">Stock levels, reorder points, warehouse & category filters</div>
+      </div>
+      <div class="view-card">
+        <div class="route">/orders</div>
+        <div class="view-name">Orders</div>
+        <div class="view-desc">All orders by status; submitted restocking orders with lead times</div>
+      </div>
+      <div class="view-card">
+        <div class="route">/spending</div>
+        <div class="view-name">Spending</div>
+        <div class="view-desc">Monthly spend, category breakdown, recent transactions</div>
+      </div>
+      <div class="view-card">
+        <div class="route">/demand</div>
+        <div class="view-name">Demand Forecast</div>
+        <div class="view-desc">Forecasted vs current demand per SKU, trend indicators</div>
+      </div>
+      <div class="view-card">
+        <div class="route">/reports</div>
+        <div class="view-name">Reports</div>
+        <div class="view-desc">Quarterly performance, monthly trends</div>
+      </div>
+      <div class="view-card new">
+        <div class="route">/restocking <span class="new-badge">NEW</span></div>
+        <div class="view-name">Restocking</div>
+        <div class="view-desc">Budget slider, demand-driven restock recommendations, place orders</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Endpoints -->
+  <div class="section">
+    <h2>API Endpoints (localhost:8001)</h2>
+    <div class="endpoints-grid">
+      <div class="endpoint-group">
+        <h4>Inventory</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/inventory</span><span class="endpoint-desc">?warehouse &amp; category</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/inventory/{id}</span></div>
+      </div>
+      <div class="endpoint-group">
+        <h4>Orders</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/orders</span><span class="endpoint-desc">?warehouse, category, status, month</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/orders/{id}</span></div>
+      </div>
+      <div class="endpoint-group">
+        <h4>Dashboard &amp; Demand</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/dashboard/summary</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/demand</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/backlog</span></div>
+      </div>
+      <div class="endpoint-group">
+        <h4>Spending</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/spending/summary</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/spending/monthly</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/spending/categories</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/spending/transactions</span></div>
+      </div>
+      <div class="endpoint-group">
+        <h4>Reports</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/reports/quarterly</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/reports/monthly-trends</span></div>
+      </div>
+      <div class="endpoint-group" style="border-color:#86efac; background:#f0fdf4">
+        <h4 style="color:#16a34a">Restocking (NEW)</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/restocking/recommendations</span><span class="endpoint-desc">?budget=N</span></div>
+        <div class="endpoint"><span class="method post">POST</span><span class="endpoint-path">/api/restocking/orders</span></div>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/restocking/orders</span></div>
+      </div>
+      <div class="endpoint-group">
+        <h4>Tasks &amp; Purchase Orders</h4>
+        <div class="endpoint"><span class="method get">GET</span><span class="endpoint-path">/api/tasks</span></div>
+        <div class="endpoint"><span class="method post">POST</span><span class="endpoint-path">/api/tasks</span></div>
+        <div class="endpoint"><span class="method patch">PATCH</span><span class="endpoint-path">/api/tasks/{id}</span></div>
+        <div class="endpoint"><span class="method delete">DEL</span><span class="endpoint-path">/api/tasks/{id}</span></div>
+        <div class="endpoint"><span class="method post">POST</span><span class="endpoint-path">/api/purchase-orders</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- File Structure -->
+  <div class="section">
+    <h2>Project File Structure</h2>
+    <div class="file-tree">
+<span class="tree-dir">inventory-management/</span>
+├── <span class="tree-dir">client/</span>                     <span style="color:#475569"># Vue 3 + Vite frontend</span>
+│   └── <span class="tree-dir">src/</span>
+│       ├── <span class="tree-dir">views/</span>               <span style="color:#475569"># Page-level components</span>
+│       │   ├── <span class="tree-file">Dashboard.vue</span>
+│       │   ├── <span class="tree-file">Inventory.vue</span>
+│       │   ├── <span class="tree-file">Orders.vue</span>        <span style="color:#475569"># + Submitted Restocking Orders section</span>
+│       │   ├── <span class="tree-file">Demand.vue</span>
+│       │   ├── <span class="tree-file">Spending.vue</span>
+│       │   ├── <span class="tree-file">Reports.vue</span>
+│       │   └── <span class="tree-new">Restocking.vue       ← NEW</span>
+│       ├── <span class="tree-dir">components/</span>          <span style="color:#475569"># Reusable UI components</span>
+│       ├── <span class="tree-dir">composables/</span>         <span style="color:#475569"># useFilters, useAuth, useI18n</span>
+│       ├── <span class="tree-file">api.js</span>               <span style="color:#475569"># Axios API client (+ restocking methods)</span>
+│       └── <span class="tree-file">main.js</span>              <span style="color:#475569"># Router + app mount (+ /restocking route)</span>
+├── <span class="tree-dir">server/</span>                     <span style="color:#475569"># FastAPI backend</span>
+│   ├── <span class="tree-file">main.py</span>                 <span style="color:#475569"># All API endpoints (+ restocking endpoints)</span>
+│   ├── <span class="tree-file">mock_data.py</span>            <span style="color:#475569"># JSON loaders + in-memory restocking_orders</span>
+│   └── <span class="tree-dir">data/</span>                  <span style="color:#475569"># JSON source files</span>
+│       ├── <span class="tree-file">inventory.json</span>
+│       ├── <span class="tree-file">orders.json</span>
+│       ├── <span class="tree-file">demand_forecasts.json</span>
+│       ├── <span class="tree-file">backlog_items.json</span>
+│       ├── <span class="tree-file">spending.json</span>
+│       └── <span class="tree-file">transactions.json</span>
+├── <span class="tree-file">CLAUDE.md</span>                   <span style="color:#475569"># Project context for Claude Code</span>
+└── <span class="tree-new">docs/architecture.html       ← THIS FILE</span>
+    </div>
+  </div>
+
+</div>
+<footer>Factory Inventory Management System &mdash; Architecture Overview</footer>
+</body>
+</html>

@@ -74,6 +74,47 @@
           </table>
         </div>
       </div>
+      <div class="card" v-if="restockingOrders.length > 0">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Items</th>
+                <th>Total Cost</th>
+                <th>Status</th>
+                <th>Order Date</th>
+                <th>Expected Delivery</th>
+                <th>Lead Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockingOrders" :key="ro.id">
+                <td><strong>{{ ro.id.slice(0, 8).toUpperCase() }}</strong></td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">{{ ro.items.length }} item(s)</summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in ro.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">{{ item.sku }} &middot; Qty: {{ item.quantity }} @ ${{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td><strong>${{ ro.total_cost.toLocaleString() }}</strong></td>
+                <td><span class="badge warning">{{ ro.status }}</span></td>
+                <td>{{ ro.created_date }}</td>
+                <td>{{ ro.expected_delivery }}</td>
+                <td>{{ ro.delivery_lead_days }} days</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +136,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +195,25 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
