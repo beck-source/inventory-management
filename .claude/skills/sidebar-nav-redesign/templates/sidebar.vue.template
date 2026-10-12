@@ -1,0 +1,147 @@
+<!--
+  Skeleton sidebar shell. Not copy-paste-ready.
+  - Replace nav items with the app's real, complete route list (Phase 1 discovery).
+  - Replace icon placeholders with the app's existing icon library, or inline SVGs.
+  - Wire brand slot, footer slot, and collapse toggle to the app's real components
+    (existing logo markup, existing ProfileMenu-equivalent, a new useLayout composable).
+  - This assumes Composition API `<script setup>`; adapt to Options API if that's
+    the app's existing convention (check other components before choosing).
+-->
+<template>
+  <div class="app-shell" :class="{ 'app-shell--collapsed': isCollapsed }">
+    <!-- Mobile-only top bar with drawer trigger -->
+    <header class="mobile-topbar">
+      <button class="drawer-toggle" @click="isDrawerOpen = true" aria-label="Open navigation">
+        <!-- hamburger icon -->
+      </button>
+      <span class="brand-mark"><!-- reuse existing logo markup --></span>
+    </header>
+
+    <!-- Backdrop for mobile drawer -->
+    <div v-if="isDrawerOpen" class="drawer-backdrop" @click="isDrawerOpen = false" />
+
+    <aside class="sidebar" :class="{ 'sidebar--drawer-open': isDrawerOpen }">
+      <div class="sidebar-brand">
+        <!-- reuse existing logo/company-name markup -->
+      </div>
+
+      <nav class="sidebar-nav">
+        <router-link
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          class="sidebar-nav-item"
+          @click="isDrawerOpen = false"
+        >
+          <span class="sidebar-nav-icon"><!-- item.icon --></span>
+          <span class="sidebar-nav-label">{{ item.label }}</span>
+        </router-link>
+      </nav>
+
+      <button class="sidebar-collapse-toggle" @click="toggleCollapsed" aria-label="Toggle sidebar">
+        <!-- chevron icon, direction flips with isCollapsed -->
+      </button>
+
+      <div class="sidebar-footer">
+        <!-- relocated profile/account menu — dropdown opens UPWARD from here -->
+      </div>
+    </aside>
+
+    <main class="app-content">
+      <router-view />
+    </main>
+  </div>
+</template>
+
+<script setup>
+// Replace with real composable, e.g. import { useLayout } from '@/composables/useLayout'
+import { ref } from 'vue'
+
+const isCollapsed = ref(false)
+const isDrawerOpen = ref(false)
+
+function toggleCollapsed() {
+  isCollapsed.value = !isCollapsed.value
+}
+
+// Replace with the app's real, complete route/nav list (from Phase 1 discovery)
+const navItems = [
+  // { path: '/', label: 'Overview', icon: '...' },
+]
+</script>
+
+<style scoped>
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: var(--sidebar-width-expanded);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  transition: width 0.15s ease;
+}
+
+.app-shell--collapsed .sidebar {
+  width: var(--sidebar-width-collapsed);
+}
+
+.app-shell--collapsed .sidebar-nav-label {
+  display: none;
+}
+
+.sidebar-footer {
+  position: relative; /* dropdown anchors here */
+  margin-top: auto;
+}
+
+/* Example: footer dropdown opens upward, not downward */
+.sidebar-footer :deep(.dropdown) {
+  bottom: calc(100% + var(--space-2));
+  top: auto;
+  left: 0;
+  right: auto;
+}
+
+.app-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-topbar,
+.drawer-backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    transform: translateX(-100%);
+    z-index: 40;
+  }
+
+  .sidebar--drawer-open {
+    transform: translateX(0);
+  }
+
+  .mobile-topbar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 30;
+  }
+}
+</style>

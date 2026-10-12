@@ -6,6 +6,9 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    backlog: 'Backlog',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -125,8 +128,13 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
-    }
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time',
+      deliveryEstimate: 'Est. delivery in {days} days',
+      budget: 'Budget'
+    },
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No restock orders have been submitted yet'
   },
 
   // Finance/Spending
@@ -186,6 +194,49 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and get item recommendations from the demand forecast',
+    budgetLabel: 'Available Budget',
+    recommendations: 'Recommended Items',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      currentDemand: 'Current Demand',
+      forecastedDemand: 'Forecasted Demand',
+      gap: 'Gap',
+      unitCost: 'Unit Cost',
+      leadTime: 'Lead Time',
+      recommendedQty: 'Recommended Qty',
+      estimatedCost: 'Estimated Cost'
+    },
+    stats: {
+      totalBudget: 'Total Budget',
+      totalAllocated: 'Total Allocated',
+      remainingBudget: 'Remaining Budget',
+      itemsRecommended: 'Items Recommended'
+    },
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing Order...',
+    orderSuccess: 'Order {orderNumber} submitted successfully',
+    viewInOrders: 'View in Orders',
+    noRecommendations: 'No items to recommend at this budget. Try increasing it.',
+    days: 'days'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends'
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages'
   },
 
   // Filters

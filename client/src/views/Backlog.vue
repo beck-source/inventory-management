@@ -1,8 +1,8 @@
 <template>
   <div class="backlog">
     <div class="page-header">
-      <h2>Backlog Management</h2>
-      <p>Track and resolve inventory shortages</p>
+      <h2>{{ t('backlog.title') }}</h2>
+      <p>{{ t('backlog.description') }}</p>
     </div>
 
     <div v-if="loading" class="loading">Loading backlog...</div>
@@ -85,10 +85,12 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
+import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'Backlog',
   setup() {
+    const { t } = useI18n()
     const loading = ref(true)
     const error = ref(null)
     const allBacklogItems = ref([])
@@ -142,6 +144,7 @@ export default {
     onMounted(loadBacklog)
 
     return {
+      t,
       loading,
       error,
       backlogItems,

@@ -6,6 +6,9 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再入荷',
+    backlog: 'バックログ',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -125,8 +128,13 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
-    }
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム',
+      deliveryEstimate: '約{days}日で配達予定',
+      budget: '予算'
+    },
+    submittedOrders: '提出済み注文',
+    noSubmittedOrders: 'まだ再入荷注文は提出されていません'
   },
 
   // Finance/Spending
@@ -186,6 +194,49 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再入荷',
+    description: '予算を設定し、需要予測に基づいた品目の推奨を取得',
+    budgetLabel: '利用可能な予算',
+    recommendations: '推奨品目',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      currentDemand: '現在の需要',
+      forecastedDemand: '予測需要',
+      gap: '不足数',
+      unitCost: '単価',
+      leadTime: 'リードタイム',
+      recommendedQty: '推奨数量',
+      estimatedCost: '見積コスト'
+    },
+    stats: {
+      totalBudget: '総予算',
+      totalAllocated: '配分済み予算',
+      remainingBudget: '残り予算',
+      itemsRecommended: '推奨品目数'
+    },
+    placeOrder: '注文する',
+    placingOrder: '注文中...',
+    orderSuccess: '注文{orderNumber}が正常に送信されました',
+    viewInOrders: '注文で表示',
+    noRecommendations: 'この予算では推奨できる品目がありません。予算を増やしてください。',
+    days: '日'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期の業績指標と月次トレンドを表示'
+  },
+
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解消'
   },
 
   // Filters
