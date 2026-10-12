@@ -2,9 +2,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Fixed delivery lead time (in days) applied to submitted restocking orders
+LEAD_TIME_DAYS = 14
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -89,6 +93,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +124,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateRestockOrderRequest(BaseModel):
+    items: List[RestockOrderItem]
+    warehouse: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -161,6 +176,43 @@ def get_order(order_id: str):
         raise HTTPException(status_code=404, detail="Order not found")
     return order
 
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order.
+
+    Builds a new order with the "Submitted" status, appends it to the in-memory
+    orders list (so GET /api/orders immediately reflects it), and returns it.
+    Note: data is in-memory only and resets when the server restarts.
+    """
+    now = datetime.now()
+
+    # Derive the next numeric id from existing orders, then format a restock-specific
+    # order number (RST- prefix distinguishes these from customer orders).
+    next_id = max((int(o["id"]) for o in orders), default=0) + 1
+    new_id = str(next_id)
+    order_number = f"RST-2025-{next_id:04d}"
+
+    items = [item.model_dump() for item in request.items]
+    total_value = round(sum(i["quantity"] * i["unit_price"] for i in items), 2)
+
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "customer": "Internal Restock",
+        "items": items,
+        "status": "Submitted",
+        "order_date": now.isoformat(timespec="seconds"),
+        # Fixed lead time: expected delivery is LEAD_TIME_DAYS after the order date
+        "expected_delivery": (now + timedelta(days=LEAD_TIME_DAYS)).isoformat(timespec="seconds"),
+        "total_value": total_value,
+        "actual_delivery": None,
+        "warehouse": request.warehouse,
+        "category": None,
+    }
+
+    orders.append(new_order)
+    return new_order
+
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
     """Get demand forecasts"""
@@ -194,9 +246,13 @@ def get_dashboard_summary(
     filtered_orders = apply_filters(orders, warehouse, category, status)
     filtered_orders = filter_by_month(filtered_orders, month)
 
+    # Submitted restocking orders are internal procurement, not customer orders,
+    # so they are excluded from the customer-facing dashboard metrics below.
+    customer_orders = [order for order in filtered_orders if order["status"] != "Submitted"]
+
     total_inventory_value = sum(item["quantity_on_hand"] * item["unit_cost"] for item in filtered_inventory)
     low_stock_items = len([item for item in filtered_inventory if item["quantity_on_hand"] <= item["reorder_point"]])
-    pending_orders = len([order for order in filtered_orders if order["status"] in ["Processing", "Backordered"]])
+    pending_orders = len([order for order in customer_orders if order["status"] in ["Processing", "Backordered"]])
     total_backlog_items = len(backlog_items)
 
     return {
@@ -204,7 +260,7 @@ def get_dashboard_summary(
         "low_stock_items": low_stock_items,
         "pending_orders": pending_orders,
         "total_backlog_items": total_backlog_items,
-        "total_orders_value": sum(order["total_value"] for order in filtered_orders)
+        "total_orders_value": sum(order["total_value"] for order in customer_orders)
     }
 
 @app.get("/api/spending/summary")
