@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -112,6 +113,8 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Restock Orders',
+    noSubmittedOrders: 'No restock orders submitted yet',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -125,7 +128,43 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      submittedDate: 'Submitted',
+      leadTime: 'Lead Time'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the items that need restocking most',
+    availableBudget: 'Available Budget',
+    recommendedItems: 'Recommended Items',
+    budgetUsed: 'Budget Allocated',
+    budgetRemaining: 'Budget Remaining',
+    itemsRecommended: 'Items Recommended',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing order...',
+    orderPlaced: 'Restock order {orderNumber} submitted',
+    orderPlacedDetail: 'Expected delivery {date} ({days} day lead time)',
+    orderFailed: 'Failed to submit restock order',
+    viewInOrders: 'View in Orders',
+    allStocked: 'Every item is adequately stocked. Nothing needs restocking.',
+    budgetTooLow: 'Budget is below the cheapest item ({amount}). Increase the budget to see recommendations.',
+    days: '{count} days',
+    critical: 'Critical',
+    low: 'Low',
+    partial: 'Partial',
+    table: {
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      target: 'Target',
+      shortfall: 'Shortfall',
+      orderQuantity: 'Order Qty',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time',
+      priority: 'Priority'
     }
   },
 
@@ -204,6 +243,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

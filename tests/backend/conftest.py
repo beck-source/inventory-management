@@ -22,6 +22,31 @@ def client():
 
 
 @pytest.fixture
+def restock_store(tmp_path, monkeypatch):
+    """Isolate restock order writes from the repo's data directory.
+
+    POST /api/restocking/orders is the only endpoint that mutates state, and two
+    things leak without this fixture:
+
+    1. It writes server/data/restock_orders.json for real. That file is tracked in
+       git, so an unisolated test run leaves a modified data file in the working
+       tree. Redirecting DATA_DIR sends the write to tmp_path instead - which only
+       works because save_json_file() resolves DATA_DIR at call time rather than
+       capturing it as a default argument.
+    2. main.py holds a reference to mock_data.restock_orders and the test client
+       shares one imported module, so appends survive into later tests. Restoring
+       with slice assignment mutates that same list object; rebinding the name
+       would leave main.py pointing at the old one.
+    """
+    import mock_data
+
+    original = list(mock_data.restock_orders)
+    monkeypatch.setattr(mock_data, 'DATA_DIR', str(tmp_path))
+    yield tmp_path
+    mock_data.restock_orders[:] = original
+
+
+@pytest.fixture
 def sample_inventory_item():
     """Sample inventory item for testing."""
     return {
