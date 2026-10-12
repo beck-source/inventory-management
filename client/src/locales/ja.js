@@ -6,6 +6,8 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '再度在庫補充',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,12 +108,18 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '提出された注文',
+    noSubmittedOrders: 'まだ提出された再度在庫補充注文はありません',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    leadTime: 'リードタイム',
+    days: '日',
+    exportCsv: 'CSVエクスポート',
+    exportSuccess: 'CSVが正常にエクスポートされました',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -126,6 +134,34 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '再度在庫補充',
+    description: '予算を設定して、需要予測に基づくAIの在庫補充提案を受け取ります',
+    budget: '利用可能な予算',
+    recommendations: '提案',
+    noRecommendations: '予算内で在庫補充が必要な品目はありません',
+    budgetUsed: '使用済み予算',
+    remaining: '残り',
+    placeOrder: '注文を配置',
+    orderSubmitted: '再度在庫補充注文が送信されました！',
+    orderNumber: '注文番号',
+    leadTime: '予想リードタイム',
+    totalValue: '合計金額',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      trend: 'トレンド',
+      currentDemand: '現在の需要',
+      forecastedDemand: '予測需要',
+      onHand: '現在量',
+      recommended: '推奨',
+      funded: '資金提供',
+      unitCost: '単価',
+      lineTotal: '行の合計'
     }
   },
 
@@ -186,6 +222,29 @@ export default {
       trend: 'トレンド',
       period: '期間'
     }
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期ごとのパフォーマンス指標と月別トレンドを表示',
+    quarterlyPerformance: '四半期ごとのパフォーマンス',
+    monthlyRevenueTrend: '月別収益トレンド',
+    monthOverMonth: '前月比分析',
+    quarter: '四半期',
+    month: '月',
+    totalOrders: '総注文数',
+    totalRevenue: '総収益',
+    avgOrderValue: '平均注文額',
+    fulfillmentRate: '履行率',
+    orders: '注文',
+    revenue: '収益',
+    change: '変化',
+    growthRate: '成長率',
+    totalRevenueYTD: '総収益（年初来）',
+    avgMonthlyRevenue: '平均月間収益',
+    totalOrdersYTD: '総注文数（年初来）',
+    bestQuarter: '最高四半期'
   },
 
   // Filters
