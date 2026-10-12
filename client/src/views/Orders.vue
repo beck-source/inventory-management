@@ -74,6 +74,51 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div v-if="submittedOrdersError" class="error">{{ submittedOrdersError }}</div>
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-customer">{{ t('orders.table.customer') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-date">{{ t('orders.table.leadTime') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-date">{{ leadTimeDays(order) }} {{ t('orders.days') }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +140,8 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
+    const submittedOrdersError = ref(null)
 
     // Use shared filters
     const {
@@ -111,16 +158,26 @@ export default {
         const filters = getCurrentFilters()
         const fetchedOrders = await api.getOrders(filters)
 
-        // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
-          const dateA = new Date(a.order_date)
-          const dateB = new Date(b.order_date)
-          return dateA - dateB
-        })
+        // Restocking orders (status "Submitted") have their own section below, keep them out of this table
+        orders.value = fetchedOrders
+          .filter(order => order.status !== 'Submitted')
+          .sort((a, b) => {
+            const dateA = new Date(a.order_date)
+            const dateB = new Date(b.order_date)
+            return dateA - dateB
+          })
       } catch (err) {
         error.value = 'Failed to load orders: ' + err.message
       } finally {
         loading.value = false
+      }
+    }
+
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedOrders.value = await api.getOrders({ status: 'Submitted' })
+      } catch (err) {
+        submittedOrdersError.value = 'Failed to load submitted orders: ' + err.message
       }
     }
 
@@ -153,16 +210,25 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const leadTimeDays = (order) =>
+      Math.round((new Date(order.expected_delivery) - new Date(order.order_date)) / (1000 * 60 * 60 * 24))
+
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
+      submittedOrdersError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      leadTimeDays,
       currencySymbol,
       translateProductName,
       translateCustomerName

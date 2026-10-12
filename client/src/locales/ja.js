@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,12 +107,14 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '提出済み注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    days: '日',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,7 +128,8 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -188,6 +192,53 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、需要に基づいた補充提案を確認する',
+    budgetLabel: '利用可能な予算',
+    recommendations: '推奨品目',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      demandGap: '需要ギャップ',
+      unitCost: '単価',
+      quantity: '推奨数量',
+      subtotal: '小計'
+    },
+    totalCost: '合計コスト',
+    remainingBudget: '残り予算',
+    placeOrder: '注文する',
+    placingOrder: '注文中...',
+    noRecommendations: 'この予算では補充する品目がありません',
+    orderSubmitted: '注文{orderNumber}が提出されました — 注文タブでご確認ください'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    viewTitle: '発注書の詳細',
+    itemLabel: '品目',
+    skuLabel: 'SKU',
+    shortageLabel: '不足数',
+    supplierName: 'サプライヤー名',
+    supplierNamePlaceholder: 'サプライヤー名を入力...',
+    quantity: '数量',
+    unitCost: '単価',
+    totalCost: '合計コスト',
+    expectedDeliveryDate: '納品予定日',
+    notes: '備考',
+    notesPlaceholder: '備考（任意）...',
+    submit: '発注書を作成',
+    submitting: '作成中...',
+    createError: '発注書の作成に失敗しました',
+    loading: '発注書を読み込み中...',
+    notFound: 'この品目の発注書が見つかりません',
+    supplier: 'サプライヤー',
+    status: 'ステータス',
+    createdDate: '作成日'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +255,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '提出済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'

@@ -25,6 +25,8 @@ class TestDemandEndpoints:
             assert "forecasted_demand" in forecast
             assert "trend" in forecast
             assert "period" in forecast
+            assert "unit_cost" in forecast
+            assert isinstance(forecast["unit_cost"], (int, float))
 
     def test_demand_forecast_trends(self, client):
         """Test that demand forecasts have valid trend values."""
