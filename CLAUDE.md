@@ -13,11 +13,13 @@ Use the Task tool with these specialized subagents for appropriate tasks:
   - Examples: Creating components, fixing reactivity issues, performance optimization, complex state management
   - **MANDATORY RULE: ANY time you need to create or significantly modify a .vue file, you MUST delegate to vue-expert**
 - **code-reviewer**: Use after writing significant code to review quality and best practices
+- **debugger**: Use to investigate runtime errors, exceptions, and stack traces (backend or frontend); diagnoses root cause and proposes a fix but does not apply it
 - **Explore**: Use for understanding codebase structure, searching for patterns, or answering questions about how components work
 - **general-purpose**: Use for complex multi-step tasks or when other agents don't fit
 
 ### Skills
 - **backend-api-test** skill: Use when writing or modifying tests in `tests/backend` directory with pytest and FastAPI TestClient
+- **vue-component-optimizer** skill: Use when asked to review, optimize, audit, or refactor Vue components — analyzes `client/src` for performance and code-reuse issues and applies fixes via vue-expert
 
 ### MCP Tools
 - **ALWAYS use GitHub MCP tools** (`mcp__github__*`) for ALL GitHub operations
@@ -68,6 +70,10 @@ npm install && npm run dev
 - Backend: `server/main.py`, `server/mock_data.py`
 - Data: `server/data/*.json`
 - Styles: `client/src/App.vue`
+
+## Code Style
+- Always document non-obvious logic changes with comments
+- Keep comments focused on WHY, not WHAT (the code shows what it does)
 
 ## Design System
 - Colors: Slate/gray (#0f172a, #64748b, #e2e8f0)

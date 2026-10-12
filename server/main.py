@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -119,6 +120,44 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingItem(BaseModel):
+    sku: str
+    name: str
+    current_stock: int
+    forecasted_demand: int
+    unit_cost: float
+    recommended_qty: int
+    estimated_cost: float
+    warehouse: str
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    estimated_cost: float
+
+class RestockingOrderRequest(BaseModel):
+    items: List[RestockingOrderItem]
+    total_cost: float
+    budget: float
+
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str
+    dueDate: str
+
+# In-memory task store (separate from mock_data.py - user-generated, not seed data)
+tasks: List[dict] = []
+next_task_id = 1
 
 # API endpoints
 @app.get("/")
@@ -303,6 +342,138 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=List[RestockingItem])
+def get_restocking_recommendations(budget: float):
+    """Get recommended items to restock based on demand forecasts, prioritized by demand gap"""
+    recommendations = []
+
+    # Match demand with inventory and calculate gaps
+    for demand in demand_forecasts:
+        # Find matching inventory item by SKU
+        inventory = None
+        for inv in inventory_items:
+            if inv.get('sku') == demand.get('item_sku'):
+                inventory = inv
+                break
+
+        # Only include if we have matching inventory and positive demand gap
+        if inventory:
+            demand_gap = demand.get('forecasted_demand', 0) - demand.get('current_demand', 0)
+            if demand_gap > 0:
+                recommendations.append({
+                    'demand_gap': demand_gap,
+                    'demand': demand,
+                    'inventory': inventory
+                })
+
+    # Sort by demand gap (descending) - items with highest demand increase first
+    recommendations.sort(key=lambda x: x['demand_gap'], reverse=True)
+
+    # Fill budget greedily
+    result = []
+    remaining_budget = budget
+    for rec in recommendations:
+        unit_cost = rec['inventory'].get('unit_cost', 0)
+        if unit_cost > 0:
+            qty = int(remaining_budget / unit_cost)
+            if qty > 0:
+                estimated_cost = qty * unit_cost
+                result.append(RestockingItem(
+                    sku=rec['inventory']['sku'],
+                    name=rec['inventory']['name'],
+                    current_stock=rec['inventory']['quantity_on_hand'],
+                    forecasted_demand=rec['demand']['forecasted_demand'],
+                    unit_cost=unit_cost,
+                    recommended_qty=qty,
+                    estimated_cost=estimated_cost,
+                    warehouse=rec['inventory']['warehouse']
+                ))
+                remaining_budget -= estimated_cost
+                if remaining_budget < 1:
+                    break
+
+    return result
+
+@app.post("/api/restocking/orders")
+def create_restocking_order(order_request: RestockingOrderRequest):
+    """Create a new restocking order and add it to the orders list"""
+    # Validate budget
+    if order_request.total_cost > order_request.budget:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Order total ${order_request.total_cost:.2f} exceeds budget ${order_request.budget:.2f}"
+        )
+
+    # Create order record
+    order_id = len(orders) + 1
+    order_number = f"RST-2025-{order_id:04d}"
+    now = datetime.now()
+    delivery_date = now + timedelta(days=7)
+
+    new_order = {
+        'id': str(order_id),
+        'order_number': order_number,
+        'customer': 'Internal - Restocking',
+        'items': [
+            {
+                'sku': item.sku,
+                'name': item.name,
+                'quantity': item.quantity,
+                'unit_price': item.unit_cost
+            }
+            for item in order_request.items
+        ],
+        'status': 'Submitted',
+        'order_date': now.isoformat(),
+        'expected_delivery': delivery_date.isoformat(),
+        'total_value': order_request.total_cost,
+        'warehouse': order_request.items[0].sku.split('-')[0] if order_request.items else 'Unknown',
+        'category': 'Restocking'
+    }
+
+    orders.append(new_order)
+
+    return {
+        'order_number': order_number,
+        'status': 'Submitted',
+        'total_cost': order_request.total_cost,
+        'expected_delivery': delivery_date.isoformat()
+    }
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    return tasks
+
+@app.post("/api/tasks", response_model=Task)
+def create_task(task_request: CreateTaskRequest):
+    global next_task_id
+    new_task = {
+        'id': str(next_task_id),
+        'title': task_request.title,
+        'priority': task_request.priority,
+        'dueDate': task_request.dueDate,
+        'status': 'pending'
+    }
+    next_task_id += 1
+    tasks.append(new_task)
+    return new_task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    task = next((t for t in tasks if t['id'] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task['status'] = 'completed' if task['status'] == 'pending' else 'pending'
+    return task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    task = next((t for t in tasks if t['id'] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    tasks.remove(task)
+    return {'message': 'Task deleted', 'id': task_id}
 
 if __name__ == "__main__":
     import uvicorn

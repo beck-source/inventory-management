@@ -188,6 +188,35 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan and optimize inventory restocking with budget constraints',
+    setBudget: 'Set Your Budget',
+    totalBudget: 'Total Budget',
+    itemsInRecommendations: 'Items in Recommendations',
+    totalEstimatedCost: 'Total Estimated Cost',
+    budgetRemaining: 'Budget Remaining',
+    exceeded: 'EXCEEDED',
+    recommendedItems: 'Recommended Items',
+    noRecommendations: 'No recommendations available. Try adjusting your budget.',
+    placeOrder: 'Place Order',
+    loadError: 'Failed to load data',
+    recommendationsError: 'Failed to load recommendations',
+    submitError: 'Failed to submit order',
+    orderSubmitted: 'Order submitted successfully!',
+    noItemsSelected: 'Please select at least one item to order',
+    table: {
+      sku: 'SKU',
+      name: 'Item Name',
+      currentStock: 'Current Stock',
+      forecastedDemand: 'Forecasted Demand',
+      unitCost: 'Unit Cost',
+      recommendedQty: 'Recommended Qty',
+      estimatedCost: 'Estimated Cost'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
