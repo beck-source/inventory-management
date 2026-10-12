@@ -1,10 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
+from datetime import datetime, timedelta
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Standard supplier lead time applied to every restock order (demo uses a single fixed value)
+RESTOCK_LEAD_TIME_DAYS = 14
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -80,6 +84,8 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    # Set only for restock orders; seeded orders leave this null
+    lead_time_days: Optional[int] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -89,6 +95,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -118,6 +125,16 @@ class CreatePurchaseOrderRequest(BaseModel):
     quantity: int
     unit_cost: float
     expected_delivery_date: str
+    notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateRestockOrderRequest(BaseModel):
+    items: List[RestockOrderItem]
     notes: Optional[str] = None
 
 # API endpoints
@@ -160,6 +177,50 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders/restock", response_model=Order)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Create a restock order from budget-based recommendations.
+
+    The new order is appended to the in-memory `orders` list so it shows up in
+    GET /api/orders immediately. Like all demo data, it is not persisted to disk
+    and is lost on server restart.
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="A restock order must contain at least one item")
+
+    total_value = sum(item.quantity * item.unit_price for item in request.items)
+
+    # Derive the next sequential id and order number from existing orders so the
+    # new order slots in consistently with the seeded data (e.g. ORD-2025-0042).
+    max_id = max((int(o["id"]) for o in orders if str(o["id"]).isdigit()), default=0)
+    max_seq = max(
+        (int(o["order_number"].split("-")[-1]) for o in orders if o.get("order_number", "").split("-")[-1].isdigit()),
+        default=0,
+    )
+    new_id = str(max_id + 1)
+    order_number = f"ORD-2025-{max_seq + 1:04d}"
+
+    order_date = datetime.now()
+    expected_delivery = order_date + timedelta(days=RESTOCK_LEAD_TIME_DAYS)
+
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "customer": "Internal Restock",
+        "items": [item.model_dump() for item in request.items],
+        "status": "Submitted",
+        "order_date": order_date.isoformat(timespec="seconds"),
+        "expected_delivery": expected_delivery.isoformat(timespec="seconds"),
+        "total_value": round(total_value, 2),
+        "actual_delivery": None,
+        "warehouse": None,
+        "category": None,
+        "lead_time_days": RESTOCK_LEAD_TIME_DAYS,
+    }
+
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
