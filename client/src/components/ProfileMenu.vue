@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" ref="menuRef">
     <button
       class="profile-button"
       @click="toggleDropdown"
@@ -8,12 +8,12 @@
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
       </div>
-      <span class="profile-name">{{ currentUser.name }}</span>
+      <span class="profile-name nav-label">{{ currentUser.name }}</span>
       <svg
-        class="chevron"
+        class="chevron nav-label"
         :class="{ 'chevron-open': isDropdownOpen }"
-        width="16"
-        height="16"
+        width="14"
+        height="14"
         viewBox="0 0 16 16"
         fill="none"
       >
@@ -21,60 +21,62 @@
       </svg>
     </button>
 
-    <div v-if="isDropdownOpen" class="dropdown-menu">
-      <div class="dropdown-header">
-        <div class="avatar-large">
-          {{ getInitials(currentUser.name) }}
+    <Teleport to="body">
+      <div v-if="isDropdownOpen" class="dropdown-menu" :style="dropdownStyle">
+        <div class="dropdown-header">
+          <div class="avatar-large">
+            {{ getInitials(currentUser.name) }}
+          </div>
+          <div class="user-info">
+            <div class="user-name">{{ currentUser.name }}</div>
+            <div class="user-email">{{ currentUser.email }}</div>
+          </div>
         </div>
-        <div class="user-info">
-          <div class="user-name">{{ currentUser.name }}</div>
-          <div class="user-email">{{ currentUser.email }}</div>
-        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <button
+          class="dropdown-item"
+          @mousedown.prevent="showProfileDetails"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M15 15C15 12.7909 12.3137 11 9 11C5.68629 11 3 12.7909 3 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {{ t('profile.profileDetails') }}
+        </button>
+
+        <button
+          class="dropdown-item"
+          @mousedown.prevent="showTasks"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M15 3H3C2.44772 3 2 3.44772 2 4V14C2 14.5523 2.44772 15 3 15H15C15.5523 15 16 14.5523 16 14V4C16 3.44772 15.5523 3 15 3Z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M6 7L8 9L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ t('profile.myTasks') }}
+          <span v-if="pendingTaskCount > 0" class="task-badge">{{ pendingTaskCount }}</span>
+        </button>
+
+        <div class="dropdown-divider"></div>
+
+        <button
+          class="dropdown-item logout"
+          @mousedown.prevent="handleLogout"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M7 15H4C3.44772 15 3 14.5523 3 14V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M11 12L15 9M15 9L11 6M15 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ t('profile.logout') }}
+        </button>
       </div>
-
-      <div class="dropdown-divider"></div>
-
-      <button
-        class="dropdown-item"
-        @mousedown.prevent="showProfileDetails"
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M15 15C15 12.7909 12.3137 11 9 11C5.68629 11 3 12.7909 3 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        {{ t('profile.profileDetails') }}
-      </button>
-
-      <button
-        class="dropdown-item"
-        @mousedown.prevent="showTasks"
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M15 3H3C2.44772 3 2 3.44772 2 4V14C2 14.5523 2.44772 15 3 15H15C15.5523 15 16 14.5523 16 14V4C16 3.44772 15.5523 3 15 3Z" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M6 7L8 9L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {{ t('profile.myTasks') }}
-        <span v-if="pendingTaskCount > 0" class="task-badge">{{ pendingTaskCount }}</span>
-      </button>
-
-      <div class="dropdown-divider"></div>
-
-      <button
-        class="dropdown-item logout"
-        @mousedown.prevent="handleLogout"
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M7 15H4C3.44772 15 3 14.5523 3 14V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M11 12L15 9M15 9L11 6M15 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        {{ t('profile.logout') }}
-      </button>
-    </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
 
@@ -82,10 +84,25 @@ const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
 
 const isDropdownOpen = ref(false)
+const menuRef = ref(null)
+const dropdownStyle = ref({})
 const emit = defineEmits(['show-profile-details', 'show-tasks'])
 
 const pendingTaskCount = computed(() => {
   return currentUser.value.tasks.filter(task => task.status === 'pending').length
+})
+
+watch(isDropdownOpen, (val) => {
+  if (val && menuRef.value) {
+    const rect = menuRef.value.getBoundingClientRect()
+    dropdownStyle.value = {
+      position: 'fixed',
+      bottom: `${window.innerHeight - rect.top}px`,
+      left: `${rect.left}px`,
+      minWidth: '280px',
+      zIndex: '9999'
+    }
+  }
 })
 
 const toggleDropdown = () => {
@@ -117,30 +134,34 @@ const handleLogout = () => {
 
 <style scoped>
 .profile-menu {
-  position: relative;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-button {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  color: var(--sidebar-text);
+  transition: background 0.12s, color 0.12s;
   font-family: inherit;
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f1f5f9;
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
   color: white;
@@ -148,35 +169,37 @@ const handleLogout = () => {
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.025em;
+  flex-shrink: 0;
 }
 
 .profile-name {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: #0f172a;
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .chevron-open {
   transform: rotate(180deg);
 }
 
+/* Dropdown rendered via Teleport — not scoped-isolated from body but
+   Vue still applies the scoped attribute, so these selectors work */
 .dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 280px;
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   overflow: hidden;
 }
 

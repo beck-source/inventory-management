@@ -27,9 +27,57 @@
         </div>
       </div>
 
+      <div class="card" v-if="restockingOrders.length > 0">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders <span class="section-badge">Restocking</span></h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th class="col-date">Expected Delivery</th>
+                <th class="col-lead">Lead Time</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ item.name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-lead"><span class="lead-time">7 days</span></td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
+          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ regularOrders.length }})</h3>
         </div>
         <div class="table-container">
           <table class="orders-table">
@@ -45,7 +93,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="order in orders" :key="order.id">
+              <tr v-for="order in regularOrders" :key="order.id">
                 <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
                 <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
@@ -94,7 +142,17 @@ export default {
     })
     const loading = ref(true)
     const error = ref(null)
-    const orders = ref([])
+    const allOrders = ref([])
+
+    const regularOrders = computed(() =>
+      allOrders.value.filter(o => o.order_type !== 'restocking')
+    )
+
+    const restockingOrders = computed(() =>
+      allOrders.value
+        .filter(o => o.order_type === 'restocking')
+        .sort((a, b) => new Date(b.order_date) - new Date(a.order_date))
+    )
 
     // Use shared filters
     const {
@@ -111,8 +169,8 @@ export default {
         const filters = getCurrentFilters()
         const fetchedOrders = await api.getOrders(filters)
 
-        // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
+        // Sort regular orders by order_date (earliest first)
+        allOrders.value = fetchedOrders.sort((a, b) => {
           const dateA = new Date(a.order_date)
           const dateB = new Date(b.order_date)
           return dateA - dateB
@@ -130,7 +188,7 @@ export default {
     })
 
     const getOrdersByStatus = (status) => {
-      return orders.value.filter(order => order.status === status)
+      return regularOrders.value.filter(order => order.status === status)
     }
 
     const getOrderStatusClass = (status) => {
@@ -159,7 +217,8 @@ export default {
       t,
       loading,
       error,
-      orders,
+      regularOrders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +334,33 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.col-lead {
+  width: 90px;
+}
+
+.lead-time {
+  display: inline-block;
+  background: #eff6ff;
+  color: #3b82f6;
+  border-radius: 4px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.section-badge {
+  display: inline-block;
+  background: #eff6ff;
+  color: #3b82f6;
+  border-radius: 4px;
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.5rem;
+  vertical-align: middle;
 }
 </style>

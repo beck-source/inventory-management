@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Inventory Management System - Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 2px solid #3b82f6;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #3b82f6;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        section h2 {
+            font-size: 1.8rem;
+            color: #3b82f6;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 0.5rem;
+        }
+
+        section h3 {
+            font-size: 1.2rem;
+            color: #60a5fa;
+            margin-top: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+        }
+
+        .card h4 {
+            color: #60a5fa;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+        }
+
+        .card p {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .tech-item {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .tech-item strong {
+            color: #3b82f6;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+
+        .tech-item span {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+        }
+
+        .flow-diagram {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #475569;
+            border-radius: 6px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            font-family: 'Monaco', 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .flow-step {
+            color: #60a5fa;
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .flow-step::before {
+            content: '→';
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .endpoint {
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 3px solid #3b82f6;
+            padding: 1rem;
+            margin: 0.8rem 0;
+            border-radius: 4px;
+        }
+
+        .endpoint strong {
+            color: #60a5fa;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+
+        .endpoint span {
+            color: #cbd5e1;
+            display: block;
+            margin-top: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .architecture-box {
+            background: rgba(59, 130, 246, 0.05);
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .layer {
+            margin-bottom: 1rem;
+        }
+
+        .layer-label {
+            color: #3b82f6;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .layer-content {
+            color: #cbd5e1;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            padding-left: 1rem;
+            border-left: 2px solid #475569;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            color: #cbd5e1;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        code {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #475569;
+            border-radius: 3px;
+            padding: 0.2rem 0.5rem;
+            color: #60a5fa;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+
+        .highlight {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+            border-top: 1px solid #334155;
+            margin-top: 3rem;
+        }
+
+        .status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status.active {
+            background: #10b981;
+        }
+
+        .port-badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: #0f172a;
+            padding: 0.2rem 0.6rem;
+            border-radius: 3px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🏭 Factory Inventory Management System</h1>
+        <p>System Architecture & Technical Overview</p>
+    </header>
+
+    <div class="container">
+        <!-- Quick Overview -->
+        <section>
+            <h2>System Overview</h2>
+            <p style="margin-bottom: 1rem;">
+                A full-stack inventory management and analytics platform for factory operations. Tracks inventory across multiple warehouses, manages orders with demand forecasting, and provides real-time spending analytics.
+            </p>
+            <div class="grid">
+                <div class="card">
+                    <h4>📦 Inventory Tracking</h4>
+                    <p>Real-time monitoring of stock levels across warehouses with SKU-based categorization and reorder point management</p>
+                </div>
+                <div class="card">
+                    <h4>📋 Order Management</h4>
+                    <p>Complete order lifecycle tracking with status management (Delivered, Shipped, Processing, Backordered)</p>
+                </div>
+                <div class="card">
+                    <h4>🔮 Demand Forecasting</h4>
+                    <p>Predictive analytics for inventory demand with trend analysis (increasing, stable, decreasing)</p>
+                </div>
+                <div class="card">
+                    <h4>💰 Spending Analytics</h4>
+                    <p>Cost tracking by category with monthly breakdowns and transaction-level details</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tech Stack -->
+        <section>
+            <h2>Technology Stack</h2>
+
+            <h3>Frontend Layer</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <strong>Vue 3</strong>
+                    <span>Composition API for reactive UI components</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Vite</strong>
+                    <span>Fast dev server & production bundler</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Vue Router</strong>
+                    <span>Client-side navigation & routing</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Axios</strong>
+                    <span>HTTP client for API communication</span>
+                </div>
+                <div class="tech-item">
+                    <strong>CSS Grid & Flexbox</strong>
+                    <span>Responsive layouts & custom SVG charts</span>
+                </div>
+                <div class="tech-item">
+                    <strong>i18n</strong>
+                    <span>Multi-language support (composable)</span>
+                </div>
+            </div>
+
+            <h3>Backend Layer</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <strong>FastAPI</strong>
+                    <span>Modern Python web framework</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Uvicorn</strong>
+                    <span>ASGI server for running FastAPI</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Pydantic</strong>
+                    <span>Data validation & serialization</span>
+                </div>
+                <div class="tech-item">
+                    <strong>Python 3.11+</strong>
+                    <span>Runtime environment</span>
+                </div>
+            </div>
+
+            <h3>Data & Testing</h3>
+            <div class="tech-stack">
+                <div class="tech-item">
+                    <strong>JSON Files</strong>
+                    <span>In-memory mock data (no database)</span>
+                </div>
+                <div class="tech-item">
+                    <strong>pytest</strong>
+                    <span>55 automated test cases</span>
+                </div>
+                <div class="tech-item">
+                    <strong>FastAPI TestClient</strong>
+                    <span>API integration testing</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Architecture -->
+        <section>
+            <h2>System Architecture</h2>
+
+            <div class="architecture-box">
+                <div class="layer">
+                    <div class="layer-label">🖥️ Presentation Layer (Port 3000)</div>
+                    <div class="layer-content">
+                        Vue 3 Components → Dashboard, Inventory, Orders, Spending, Demand Forecasts, Reports
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-label">🔗 API Client Layer</div>
+                    <div class="layer-content">
+                        Axios HTTP Client → Query Parameter Building → Filter State Management
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-label">⚙️ Application Layer (Port 8001)</div>
+                    <div class="layer-content">
+                        FastAPI Endpoints → Request Validation → Business Logic → Response Formatting
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-label">🔍 Data Processing Layer</div>
+                    <div class="layer-content">
+                        Filter Functions → In-Memory Data Processing → Pydantic Model Serialization
+                    </div>
+                </div>
+                <div class="layer">
+                    <div class="layer-label">💾 Data Layer</div>
+                    <div class="layer-content">
+                        JSON Files (inventory.json, orders.json, demand_forecasts.json, etc.) → Loaded at Startup
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Data Flow -->
+        <section>
+            <h2>Request/Response Data Flow</h2>
+
+            <p style="margin-bottom: 1rem;"><span class="highlight">Example: User applies filters and loads inventory</span></p>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">User Action</span>
+                    <span>Selects warehouse filter in UI</span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">Vue Component</span>
+                    <span>Updates <code>useFilters()</code> composable reactive state</span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">API Client</span>
+                    <span>Calls <code>api.getInventory({ warehouse: 'West' })</code></span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">HTTP Request</span>
+                    <span><code>GET /api/inventory?warehouse=West</code> sent to backend</span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">FastAPI</span>
+                    <span>Route handler validates query params with Pydantic</span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">Filtering</span>
+                    <span><code>apply_filters()</code> processes in-memory inventory data</span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">Response</span>
+                    <span>Serializes filtered items as JSON list</span>
+                </div>
+                <div class="flow-step">
+                    <span style="color: #60a5fa; font-weight: bold;">Vue Component</span>
+                    <span>Stores data in <code>ref()</code>, computed properties render UI</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- API Endpoints -->
+        <section>
+            <h2>Core API Endpoints</h2>
+
+            <h3>Inventory</h3>
+            <div class="endpoint">
+                <strong>GET /api/inventory</strong>
+                <span>Filters: warehouse, category | Returns: List of inventory items with quantities and costs</span>
+            </div>
+
+            <h3>Orders</h3>
+            <div class="endpoint">
+                <strong>GET /api/orders</strong>
+                <span>Filters: warehouse, category, status, month | Returns: Complete order data with item details</span>
+            </div>
+
+            <h3>Dashboard</h3>
+            <div class="endpoint">
+                <strong>GET /api/dashboard/summary</strong>
+                <span>Filters: warehouse, category, status, month | Returns: KPI metrics (pending orders, low stock, inventory value)</span>
+            </div>
+
+            <h3>Analytics</h3>
+            <div class="endpoint">
+                <strong>GET /api/demand</strong>
+                <span>No filters | Returns: Demand forecasts with trends</span>
+            </div>
+            <div class="endpoint">
+                <strong>GET /api/backlog</strong>
+                <span>No filters | Returns: Backlog items with priority and delay data</span>
+            </div>
+            <div class="endpoint">
+                <strong>GET /api/spending/summary</strong>
+                <span>No filters | Returns: Spending by cost category</span>
+            </div>
+        </section>
+
+        <!-- Data Model -->
+        <section>
+            <h2>Core Data Models</h2>
+
+            <h3>InventoryItem</h3>
+            <div style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #60a5fa; padding: 1rem; margin: 0.8rem 0; border-radius: 4px; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; color: #cbd5e1;">
+                id, sku, name, category, warehouse, quantity_on_hand, reorder_point, unit_cost, location, last_updated
+            </div>
+
+            <h3>Order</h3>
+            <div style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #60a5fa; padding: 1rem; margin: 0.8rem 0; border-radius: 4px; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; color: #cbd5e1;">
+                id, order_number, customer, items[], status, order_date, expected_delivery, total_value, actual_delivery, warehouse, category
+            </div>
+
+            <h3>DemandForecast</h3>
+            <div style="background: rgba(15, 23, 42, 0.8); border-left: 3px solid #60a5fa; padding: 1rem; margin: 0.8rem 0; border-radius: 4px; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; color: #cbd5e1;">
+                id, item_sku, item_name, current_demand, forecasted_demand, trend, period
+            </div>
+        </section>
+
+        <!-- Directory Structure -->
+        <section>
+            <h2>Project Structure</h2>
+
+            <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid #475569; border-radius: 6px; padding: 1.5rem; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; line-height: 1.8; overflow-x: auto;">
+                <span style="color: #cbd5e1;">
+inventory-management/<br>
+├── <span style="color: #60a5fa;"><strong>client/</strong></span> — Vue 3 Frontend (Port 3000)<br>
+│   ├── src/<br>
+│   │   ├── views/ — Dashboard, Inventory, Orders, Spending, Demand, Reports<br>
+│   │   ├── components/ — UI components, modals, filters<br>
+│   │   ├── composables/ — useFilters, useAuth, useI18n<br>
+│   │   ├── api.js — Axios API client<br>
+│   │   ├── main.js — App entry & router setup<br>
+│   │   └── App.vue — Root component<br>
+│   └── package.json — Frontend dependencies<br>
+<br>
+├── <span style="color: #60a5fa;"><strong>server/</strong></span> — FastAPI Backend (Port 8001)<br>
+│   ├── main.py — FastAPI app & endpoints<br>
+│   ├── mock_data.py — Data loader<br>
+│   ├── data/ — JSON files (inventory, orders, forecasts, etc.)<br>
+│   └── requirements.txt — Backend dependencies<br>
+<br>
+├── <span style="color: #60a5fa;"><strong>tests/</strong></span> — Pytest Suite (55 tests)<br>
+│   └── backend/ — API endpoint tests<br>
+<br>
+└── <span style="color: #60a5fa;"><strong>docs/</strong></span> — Documentation & this architecture page
+                </span>
+            </div>
+        </section>
+
+        <!-- Key Features -->
+        <section>
+            <h2>Key Features & Patterns</h2>
+
+            <h3>✅ What's Implemented</h3>
+            <ul>
+                <li><span class="highlight">Unified Filter System</span> — 4 core filters (warehouse, category, status, month) applied consistently across all endpoints</li>
+                <li><span class="highlight">Multi-Language Support</span> — i18n composable for English/Chinese/other languages</li>
+                <li><span class="highlight">In-Memory Mock Data</span> — 7 JSON files loaded at startup, suitable for demo/testing</li>
+                <li><span class="highlight">Custom SVG Charts</span> — No charting library; responsive SVG with CSS Grid layouts</li>
+                <li><span class="highlight">Client-Side State Management</span> — Composables + refs (no Vuex/Pinia for simplicity)</li>
+                <li><span class="highlight">Comprehensive Test Coverage</span> — 55 pytest tests covering all API endpoints</li>
+                <li><span class="highlight">Full CORS Support</span> — Wildcard CORS for development convenience</li>
+            </ul>
+
+            <h3>🔄 Data Flow Principles</h3>
+            <ul>
+                <li>Filters → Query params → Backend processing → Pydantic validation → JSON response</li>
+                <li>Raw data in Vue refs, computed properties for derived/transformed data</li>
+                <li>All filtering logic on server side (single source of truth)</li>
+                <li>Unique keys for v-for loops (never index)</li>
+            </ul>
+        </section>
+
+        <!-- Development Workflow -->
+        <section>
+            <h2>Development Workflow</h2>
+
+            <h3>Running Locally</h3>
+            <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid #475569; border-radius: 6px; padding: 1.5rem; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; line-height: 1.8; overflow-x: auto; margin: 1rem 0;">
+                <span style="color: #cbd5e1;">
+# Terminal 1 - Backend<br>
+cd server<br>
+python -m pip install -r requirements.txt<br>
+python main.py  <span style="color: #475569;">  # http://localhost:8001</span><br>
+<br>
+# Terminal 2 - Frontend<br>
+cd client<br>
+npm install<br>
+npm run dev  <span style="color: #475569;">  # http://localhost:3000</span>
+                </span>
+            </div>
+
+            <h3>Running Tests</h3>
+            <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid #475569; border-radius: 6px; padding: 1.5rem; font-family: 'Monaco', 'Courier New', monospace; font-size: 0.9rem; line-height: 1.8; overflow-x: auto; margin: 1rem 0;">
+                <span style="color: #cbd5e1;">
+cd tests<br>
+python -m pytest backend/ -v  <span style="color: #475569;">  # Run all 55 tests</span><br>
+python -m pytest backend/test_inventory.py -v  <span style="color: #475569;">  # Single file</span>
+                </span>
+            </div>
+
+            <h3>Adding Features</h3>
+            <ol>
+                <li><strong>New View:</strong> Create <code>.vue</code> in <code>client/src/views/</code> → Add route in <code>main.js</code> → Add nav link in <code>App.vue</code></li>
+                <li><strong>New Endpoint:</strong> Define Pydantic model → Create handler in <code>server/main.py</code> → Write tests in <code>tests/backend/</code></li>
+                <li><strong>New Component:</strong> Create <code>.vue</code> in <code>client/src/components/</code> → Import & use in views</li>
+            </ol>
+        </section>
+
+        <!-- Performance & Scaling -->
+        <section>
+            <h2>Performance Characteristics</h2>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>Current Scale</h4>
+                    <p>
+                        ✓ 4 product categories<br>
+                        ✓ 3 warehouses<br>
+                        ✓ ~500 inventory items<br>
+                        ✓ 12 months of orders<br>
+                        ✓ All data in memory
+                    </p>
+                </div>
+                <div class="card">
+                    <h4>Advantages</h4>
+                    <p>
+                        ✓ Instant API responses<br>
+                        ✓ No database queries<br>
+                        ✓ Perfect for testing<br>
+                        ✓ No setup complexity
+                    </p>
+                </div>
+                <div class="card">
+                    <h4>To Scale to Production</h4>
+                    <p>
+                        • Replace JSON with PostgreSQL/MongoDB<br>
+                        • Add database indexing<br>
+                        • Implement pagination<br>
+                        • Add caching layer (Redis)<br>
+                        • Use async/await throughout
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Monitoring & Testing -->
+        <section>
+            <h2>Quality Assurance</h2>
+
+            <h3>Automated Testing</h3>
+            <ul>
+                <li><strong>55 pytest tests</strong> covering all API endpoints</li>
+                <li><strong>Inventory tests (10):</strong> CRUD operations, filtering, edge cases</li>
+                <li><strong>Orders tests (15):</strong> Date filtering, quarter support, status validation</li>
+                <li><strong>Dashboard tests (13):</strong> KPI calculations (pending, low stock, inventory value)</li>
+                <li><strong>Analytics tests (13):</strong> Demand forecasts, backlog, spending data</li>
+            </ul>
+
+            <h3>FastAPI Interactive Docs</h3>
+            <p>Navigate to <code>http://localhost:8001/docs</code> for Swagger UI with live endpoint testing</p>
+        </section>
+
+    </div>
+
+    <footer>
+        <p>Factory Inventory Management System — Architecture Documentation</p>
+        <p style="margin-top: 0.5rem; color: #475569;">Generated for development reference</p>
+    </footer>
+</body>
+</html>
