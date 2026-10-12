@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -106,12 +107,14 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    leadTimeDays: '{count} days',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -125,7 +128,36 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      submitted: 'Submitted',
+      leadTime: 'Lead Time'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and restock high-demand items from the forecast',
+    budgetLabel: 'Available Budget',
+    budgetHint: 'Drag to set how much you can spend on restocking',
+    recommendedTitle: 'Recommended Restock',
+    summaryItems: 'Items recommended',
+    totalCost: 'Total Cost',
+    budgetRemaining: 'Budget Remaining',
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    orderPlaced: 'Restocking order {orderNumber} submitted successfully.',
+    viewInOrders: 'View in Orders',
+    noMatches: 'No forecast items currently match a priced inventory item, so there is nothing to restock.',
+    budgetTooLow: 'No items fit within this budget. Increase the budget to see recommendations.',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      demand: 'Current → Forecast',
+      restockQty: 'Restock Qty',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost'
     }
   },
 
@@ -204,6 +236,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
