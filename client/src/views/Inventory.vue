@@ -32,6 +32,17 @@
               </svg>
             </button>
           </div>
+          <div class="stock-status-filter">
+            <label for="stock-status-select" class="visually-hidden">{{ t('inventory.stockStatusFilter') }}</label>
+            <select
+              id="stock-status-select"
+              v-model="stockStatusFilter"
+              class="stock-status-select"
+            >
+              <option value="all">{{ t('inventory.stockStatusAll') }}</option>
+              <option value="out_of_stock">{{ t('inventory.stockStatusOutOfStock') }}</option>
+            </select>
+          </div>
         </div>
         <div class="table-container">
           <table>
@@ -106,6 +117,10 @@ export default {
     const error = ref(null)
     const items = ref([])
     const searchQuery = ref('')
+    // Local filter for stock status - scoped to this component only.
+    // The global useFilters `selectedStatus` is for Order Status; inventory
+    // intentionally does not use it (see comment below in loadInventory).
+    const stockStatusFilter = ref('all')
 
     // Modal state
     const showItemModal = ref(false)
@@ -156,7 +171,8 @@ export default {
         // Inventory doesn't support month/status filters, only warehouse and category
         items.value = await api.getInventory({
           warehouse: filters.warehouse,
-          category: filters.category
+          category: filters.category,
+          stock_status: stockStatusFilter.value
         })
       } catch (err) {
         error.value = 'Failed to load inventory: ' + err.message
@@ -166,7 +182,7 @@ export default {
     }
 
     // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
+    watch([selectedLocation, selectedCategory, stockStatusFilter], () => {
       loadInventory()
     })
 
@@ -209,6 +225,7 @@ export default {
       error,
       items,
       searchQuery,
+      stockStatusFilter,
       filteredItems,
       getStockStatus,
       getStockStatusClass,
@@ -315,6 +332,41 @@ export default {
 .clear-search svg {
   width: 18px;
   height: 18px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.stock-status-filter {
+  display: flex;
+  align-items: center;
+}
+
+.stock-status-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  background: #f8fafc;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.stock-status-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .loading,

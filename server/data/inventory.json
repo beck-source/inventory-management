@@ -113,7 +113,7 @@
     "name": "Standard Servo Motor",
     "category": "Actuators",
     "warehouse": "Tokyo",
-    "quantity_on_hand": 28,
+    "quantity_on_hand": 0,
     "reorder_point": 30,
     "unit_cost": 725.0,
     "location": "Warehouse C-03",

@@ -46,6 +46,16 @@ def apply_filters(items: list, warehouse: Optional[str] = None, category: Option
 
     return filtered
 
+def filter_by_stock_status(items: list, stock_status: Optional[str] = None) -> list:
+    """Filter inventory items by stock status derived from quantity_on_hand"""
+    if not stock_status or stock_status == 'all':
+        return items
+
+    if stock_status == 'out_of_stock':
+        return [item for item in items if item.get('quantity_on_hand', 0) == 0]
+
+    return items
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -128,10 +138,12 @@ def root():
 @app.get("/api/inventory", response_model=List[InventoryItem])
 def get_inventory(
     warehouse: Optional[str] = None,
-    category: Optional[str] = None
+    category: Optional[str] = None,
+    stock_status: Optional[str] = None
 ):
     """Get all inventory items with optional filtering"""
-    return apply_filters(inventory_items, warehouse, category)
+    filtered = apply_filters(inventory_items, warehouse, category)
+    return filter_by_stock_status(filtered, stock_status)
 
 @app.get("/api/inventory/{item_id}", response_model=InventoryItem)
 def get_inventory_item(item_id: str):

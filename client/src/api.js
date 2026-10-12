@@ -7,6 +7,7 @@ export const api = {
     const params = new URLSearchParams()
     if (filters.warehouse && filters.warehouse !== 'all') params.append('warehouse', filters.warehouse)
     if (filters.category && filters.category !== 'all') params.append('category', filters.category)
+    if (filters.stock_status && filters.stock_status !== 'all') params.append('stock_status', filters.stock_status)
 
     const response = await axios.get(`${API_BASE_URL}/inventory?${params.toString()}`)
     return response.data
