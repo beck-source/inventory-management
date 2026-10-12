@@ -8,6 +8,55 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
+      <div v-if="submittedOrders.length > 0" class="card submitted-orders-card">
+        <div class="card-header submitted-orders-header" @click="showSubmittedOrders = !showSubmittedOrders">
+          <h3 class="card-title">
+            {{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})
+          </h3>
+          <button type="button" class="toggle-btn" :aria-expanded="showSubmittedOrders">
+            {{ showSubmittedOrders ? t('orders.collapse') : t('orders.expand') }}
+            <span class="toggle-icon" :class="{ open: showSubmittedOrders }">&#9662;</span>
+          </button>
+        </div>
+
+        <div v-if="showSubmittedOrders" class="table-container">
+          <table class="submitted-orders-table">
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.orderDate') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('orders.supplier') }}</th>
+                <th>{{ t('orders.table.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td>{{ order.supplier_name || '—' }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -63,7 +112,7 @@
                 </td>
                 <td class="col-status">
                   <span :class="['badge', getOrderStatusClass(order.status)]">
-                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                    {{ getOrderStatusLabel(order.status) }}
                   </span>
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
@@ -95,6 +144,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const showSubmittedOrders = ref(false)
 
     // Use shared filters
     const {
@@ -133,14 +183,27 @@ export default {
       return orders.value.filter(order => order.status === status)
     }
 
+    // Restocking orders submitted internally, shown in a separate collapsible section
+    const submittedOrders = computed(() => {
+      return orders.value.filter(order => order.status === 'Restocking Order')
+    })
+
     const getOrderStatusClass = (status) => {
       const statusMap = {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Restocking Order': 'info'
       }
       return statusMap[status] || 'info'
+    }
+
+    const getOrderStatusLabel = (status) => {
+      if (status === 'Restocking Order') {
+        return t('status.restockingOrder')
+      }
+      return t(`status.${status.toLowerCase()}`)
     }
 
     const formatDate = (dateString) => {
@@ -160,8 +223,11 @@ export default {
       loading,
       error,
       orders,
+      showSubmittedOrders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
+      getOrderStatusLabel,
       formatDate,
       currencySymbol,
       translateProductName,
@@ -172,6 +238,50 @@ export default {
 </script>
 
 <style scoped>
+/* Submitted (internal restocking) orders section */
+.submitted-orders-card {
+  background: #f8fafc;
+  border: 1px solid #bfdbfe;
+}
+
+.submitted-orders-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  background: white;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  color: #334155;
+  font-size: 0.813rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-btn:hover {
+  border-color: #94a3b8;
+  background: #f1f5f9;
+}
+
+.toggle-icon {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.toggle-icon.open {
+  transform: rotate(180deg);
+}
+
+.submitted-orders-table {
+  width: 100%;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

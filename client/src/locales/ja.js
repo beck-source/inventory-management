@@ -6,6 +6,8 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    reports: 'レポート',
+    restocking: '再入荷',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,6 +114,10 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: '提出済み注文',
+    supplier: 'サプライヤー',
+    collapse: '折りたたむ',
+    expand: '展開',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -206,7 +212,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    restockingOrder: '再入荷注文'
   },
 
   // Trends
@@ -309,6 +316,37 @@ export default {
     english: 'English',
     japanese: '日本語',
     selectLanguage: '言語を選択'
+  },
+
+  // Restocking
+  restocking: {
+    title: '予算制約付き再入荷',
+    description: '利用可能な予算と需要予測に基づいて再入荷の推奨事項を生成します',
+    budget: '予算',
+    supplier: 'サプライヤー',
+    selectSupplier: 'サプライヤーを選択',
+    recommendations: '推奨アイテム',
+    noRecommendations: '現在の予算とフィルターに一致する推奨事項はありません',
+    reasonCritical: '緊急',
+    reasonHighDemand: '需要が高い',
+    table: {
+      select: '選択',
+      itemName: 'アイテム名',
+      sku: 'SKU',
+      currentStock: '現在の在庫',
+      suggestedQty: '推奨数量',
+      unitCost: '単価',
+      itemCost: 'アイテムコスト',
+      reason: '理由'
+    },
+    totalSelectedCost: '選択合計コスト',
+    placeOrder: '注文する',
+    placingOrder: '注文中...',
+    orderSuccess: '再入荷注文が正常に作成されました',
+    orderError: '再入荷注文の作成に失敗しました',
+    selectSupplierError: '注文する前にサプライヤーを選択してください',
+    overBudget: '選択したアイテムは予算を超えています',
+    noItemsSelected: '注文するには少なくとも1つのアイテムを選択してください'
   },
 
   // Common
