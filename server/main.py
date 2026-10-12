@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+import mock_data
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +90,26 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+
+class RestockingItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+    lead_days: int  # per-item lead time based on demand trend
+
+class RestockingOrderCreate(BaseModel):
+    items: List[RestockingItem]
+    total_value: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    order_date: str
+    items: List[RestockingItem]
+    total_value: float
+    status: str = "Processing"
 
 class BacklogItem(BaseModel):
     id: str
@@ -303,6 +324,30 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(payload: RestockingOrderCreate):
+    """Submit a restocking order generated from the demand forecast planner"""
+    from datetime import datetime, timedelta
+    now = datetime.utcnow()
+    new_id = str(len(mock_data.restocking_orders) + 1)
+    order_number = f"RST-{now.year}-{new_id.zfill(4)}"
+
+    order = {
+        "id": new_id,
+        "order_number": order_number,
+        "order_date": now.isoformat(),
+        "items": [item.model_dump() for item in payload.items],
+        "total_value": payload.total_value,
+        "status": "Processing"
+    }
+    mock_data.restocking_orders.append(order)
+    return order
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get all submitted restocking orders"""
+    return mock_data.restocking_orders
 
 if __name__ == "__main__":
     import uvicorn

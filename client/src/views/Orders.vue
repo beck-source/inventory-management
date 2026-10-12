@@ -5,6 +5,56 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <!-- Submitted restocking orders pinned at top so they're always visible -->
+    <div v-if="restockingOrders.length > 0" class="restocking-section card">
+      <div class="card-header">
+        <h3 class="card-title">Submitted Restocking Orders</h3>
+        <span class="badge info">{{ restockingOrders.length }} order{{ restockingOrders.length === 1 ? '' : 's' }}</span>
+      </div>
+      <div class="table-container">
+        <table class="restocking-table">
+          <thead>
+            <tr>
+              <th class="col-order-number">Order #</th>
+              <th class="col-date">Submitted</th>
+              <th class="col-items">Items</th>
+              <th class="col-lead">Lead Time</th>
+              <th class="col-value">Total Value</th>
+              <th class="col-status">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="rOrder in restockingOrders" :key="rOrder.id">
+              <td class="col-order-number"><strong>{{ rOrder.order_number }}</strong></td>
+              <td class="col-date">{{ formatDate(rOrder.order_date) }}</td>
+              <td class="col-items">
+                <details class="items-details">
+                  <summary class="items-summary">
+                    {{ rOrder.items.length }} item{{ rOrder.items.length === 1 ? '' : 's' }}
+                  </summary>
+                  <div class="items-dropdown">
+                    <div v-for="(item, idx) in rOrder.items" :key="idx" class="item-entry">
+                      <span class="item-name">{{ item.name }}</span>
+                      <span class="item-meta">Qty: {{ item.quantity }} @ ${{ item.unit_price }} &middot; Lead: {{ item.lead_days }} days</span>
+                    </div>
+                  </div>
+                </details>
+              </td>
+              <td class="col-lead">
+                <span class="lead-range">
+                  {{ Math.min(...rOrder.items.map(i => i.lead_days)) }}–{{ Math.max(...rOrder.items.map(i => i.lead_days)) }} days
+                </span>
+              </td>
+              <td class="col-value"><strong>${{ rOrder.total_value.toLocaleString() }}</strong></td>
+              <td class="col-status">
+                <span class="badge warning">{{ rOrder.status }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -95,6 +145,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,7 +204,22 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    const formatLeadTime = (item) => {
+      return `${item.lead_days} days`
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
@@ -165,7 +231,9 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
+      restockingOrders,
+      formatLeadTime
     }
   }
 }
@@ -273,6 +341,24 @@ export default {
 }
 
 .item-meta {
+  font-size: 0.813rem;
+  color: #64748b;
+}
+
+.restocking-section {
+  border-left: 3px solid #f59e0b; /* amber accent to visually distinguish from regular orders */
+}
+
+.restocking-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.col-lead {
+  width: 120px;
+}
+
+.lead-range {
   font-size: 0.813rem;
   color: #64748b;
 }
