@@ -2,6 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
+import mock_data
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -100,6 +102,7 @@ class BacklogItem(BaseModel):
     days_delayed: int
     priority: str
     has_purchase_order: Optional[bool] = False
+    purchase_order_id: Optional[str] = None
 
 class PurchaseOrder(BaseModel):
     id: str
@@ -119,6 +122,23 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderRequest(BaseModel):
+    items: List[dict]
+    total_value: float
+    warehouse: Optional[str] = "San Francisco"
+
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str
+    dueDate: str
 
 # API endpoints
 @app.get("/")
@@ -153,6 +173,36 @@ def get_orders(
     filtered_orders = filter_by_month(filtered_orders, month)
     return filtered_orders
 
+@app.get("/api/orders/restock")
+def get_restock_orders():
+    """Get all submitted restocking orders"""
+    return mock_data.restock_orders
+
+@app.post("/api/orders/restock", status_code=201)
+def create_restock_order(request: RestockOrderRequest):
+    """Submit a restocking order from the Restocking tab"""
+    now = datetime.now()
+    new_id = f"restock-{len(mock_data.restock_orders) + 1}"
+    order_number = f"RST-{now.year}-{len(mock_data.restock_orders) + 1:04d}"
+    expected_delivery = (now + timedelta(days=14)).isoformat()
+
+    new_order = {
+        "id": new_id,
+        "order_number": order_number,
+        "customer": "Internal Restocking",
+        "items": request.items,
+        "status": "Processing",
+        "warehouse": request.warehouse,
+        "category": "Restocking",
+        "order_date": now.isoformat(),
+        "expected_delivery": expected_delivery,
+        "total_value": request.total_value,
+        "actual_delivery": None,
+        "is_restock": True
+    }
+    mock_data.restock_orders.append(new_order)
+    return new_order
+
 @app.get("/api/orders/{order_id}", response_model=Order)
 def get_order(order_id: str):
     """Get a specific order"""
@@ -160,6 +210,71 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all API-created tasks (mock user tasks live client-side)"""
+    return mock_data.tasks
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a new task from the profile menu's Tasks modal"""
+    new_task = {
+        "id": f"task-{len(mock_data.tasks) + 1}",
+        "title": request.title,
+        "priority": request.priority,
+        "dueDate": request.dueDate,
+        "status": "pending"
+    }
+    mock_data.tasks.append(new_task)
+    return new_task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: str):
+    """Delete a task"""
+    task = next((t for t in mock_data.tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    mock_data.tasks.remove(task)
+    return {"message": "Task deleted"}
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task's status between pending and completed"""
+    task = next((t for t in mock_data.tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog item"""
+    backlog_item = next((item for item in backlog_items if item["id"] == request.backlog_item_id), None)
+    if not backlog_item:
+        raise HTTPException(status_code=404, detail="Backlog item not found")
+
+    new_po = {
+        "id": f"po-{len(purchase_orders) + 1}",
+        "backlog_item_id": request.backlog_item_id,
+        "supplier_name": request.supplier_name,
+        "quantity": request.quantity,
+        "unit_cost": request.unit_cost,
+        "expected_delivery_date": request.expected_delivery_date,
+        "status": "Pending",
+        "created_date": datetime.now().isoformat(),
+        "notes": request.notes
+    }
+    purchase_orders.append(new_po)
+    return new_po
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order associated with a backlog item"""
+    po = next((po for po in purchase_orders if po["backlog_item_id"] == backlog_item_id), None)
+    if not po:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+    return po
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
@@ -174,8 +289,9 @@ def get_backlog():
     for item in backlog_items:
         item_dict = dict(item)
         # Check if this backlog item has a purchase order
-        has_po = any(po["backlog_item_id"] == item["id"] for po in purchase_orders)
-        item_dict["has_purchase_order"] = has_po
+        po = next((po for po in purchase_orders if po["backlog_item_id"] == item["id"]), None)
+        item_dict["has_purchase_order"] = po is not None
+        item_dict["purchase_order_id"] = po["id"] if po else None
         result.append(item_dict)
     return result
 
