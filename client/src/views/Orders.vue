@@ -25,6 +25,44 @@
           <div class="stat-label">{{ t('status.backordered') }}</div>
           <div class="stat-value">{{ getOrdersByStatus('Backordered').length }}</div>
         </div>
+        <div class="stat-card restocking">
+          <div class="stat-label">{{ t('status.restocking') }}</div>
+          <div class="stat-value">{{ restockingOrders.length }}</div>
+        </div>
+      </div>
+
+      <div v-if="restockingOrders.length > 0" class="card restocking-section">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('restocking.submittedOrders') }} ({{ restockingOrders.length }})</h3>
+          <span class="lead-time-badge">{{ t('restocking.leadTime') }}</span>
+        </div>
+        <div class="table-container">
+          <table class="restocking-table">
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('orders.table.warehouse') }}</th>
+                <th>{{ t('orders.table.orderDate') }}</th>
+                <th>{{ t('orders.table.expectedDelivery') }}</th>
+                <th>{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ order.items.length }} items</td>
+                <td>{{ order.warehouse || 'All' }}</td>
+                <td>{{ formatDate(order.order_date) }}</td>
+                <td>
+                  {{ formatDate(order.expected_delivery) }}
+                  <span class="delivery-lead-badge">+7 days</span>
+                </td>
+                <td><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="card">
@@ -129,6 +167,11 @@ export default {
       loadOrders()
     })
 
+    // Restocking orders are excluded from the main list and shown separately above
+    const restockingOrders = computed(() =>
+      orders.value.filter(o => o.status === 'Restocking')
+    )
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -138,7 +181,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Restocking': 'restocking'
       }
       return statusMap[status] || 'info'
     }
@@ -160,6 +204,7 @@ export default {
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -275,5 +320,33 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Restocking section styles */
+.restocking-section .card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lead-time-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.delivery-lead-badge {
+  display: inline-block;
+  margin-left: 0.375rem;
+  padding: 0.125rem 0.5rem;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-radius: 4px;
+  font-size: 0.688rem;
+  font-weight: 600;
 }
 </style>
