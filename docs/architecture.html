@@ -1,0 +1,643 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Factory Inventory Management System — Architecture</title>
+<style>
+  :root {
+    --bg: #f6f8fa;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --text: #0f172a;
+    --muted: #64748b;
+    --faint: #94a3b8;
+    --border: #e2e8f0;
+    --border-strong: #cbd5e1;
+    --accent: #1d4ed8;
+    --blue: #2563eb;
+    --green: #059669;
+    --amber: #d97706;
+    --red: #dc2626;
+    --slate: #475569;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+            "Helvetica Neue", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1120;
+      --surface: #111827;
+      --surface-alt: #0f1626;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --faint: #64748b;
+      --border: #1f2937;
+      --border-strong: #334155;
+      --accent: #60a5fa;
+      --blue: #60a5fa;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --slate: #94a3b8;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 28px 96px; }
+
+  /* ---------- masthead ---------- */
+  header.masthead {
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    padding: 56px 0 40px;
+    margin-bottom: 56px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+  h1 {
+    margin: 0 0 14px;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-weight: 680;
+  }
+  .lede { margin: 0; color: var(--muted); max-width: 66ch; font-size: 16px; }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+  .meta-item .k {
+    display: block;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 600;
+  }
+  .meta-item .v { font-size: 14px; font-weight: 600; }
+
+  /* ---------- sections ---------- */
+  section { margin-bottom: 64px; scroll-margin-top: 20px; }
+  h2 {
+    font-size: 13px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .h2-rule { height: 2px; background: var(--text); width: 34px; margin-bottom: 22px; opacity: .85; }
+  h3 { font-size: 17px; margin: 32px 0 10px; letter-spacing: -0.01em; font-weight: 650; }
+  p { max-width: 74ch; }
+  .note { color: var(--muted); font-size: 14px; max-width: 74ch; }
+
+  code, .mono { font-family: var(--mono); font-size: .875em; }
+  p code, li code, td code, .card code {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    white-space: nowrap;
+  }
+
+  /* ---------- stack diagram ---------- */
+  .stack { display: flex; flex-direction: column; gap: 0; }
+  .layer {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--lc, var(--slate));
+    border-radius: 8px;
+    padding: 18px 22px;
+  }
+  .layer-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    margin-bottom: 4px;
+  }
+  .layer-title { font-weight: 660; font-size: 15px; }
+  .layer-tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--lc, var(--slate));
+    font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .layer-desc { color: var(--muted); font-size: 13.5px; margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .chip {
+    font-family: var(--mono);
+    font-size: 11.5px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 3px 8px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chip.on { color: var(--text); border-color: var(--border-strong); }
+
+  .connector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0 6px 26px;
+    color: var(--faint);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  .connector::before {
+    content: "";
+    width: 1px;
+    height: 22px;
+    background: var(--border-strong);
+    flex: none;
+  }
+
+  /* ---------- flow ---------- */
+  .flow { counter-reset: step; display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .step {
+    counter-increment: step;
+    background: var(--surface);
+    padding: 16px 22px 16px 62px;
+    position: relative;
+  }
+  .step::before {
+    content: counter(step);
+    position: absolute;
+    left: 22px;
+    top: 16px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--surface);
+    font-size: 12px;
+    font-weight: 700;
+    display: grid;
+    place-items: center;
+    font-family: var(--mono);
+  }
+  .step b { display: block; font-size: 14.5px; font-weight: 640; margin-bottom: 2px; }
+  .step span { color: var(--muted); font-size: 13.5px; }
+  .step .where { font-family: var(--mono); font-size: 11.5px; color: var(--faint); display: block; margin-top: 4px; }
+
+  /* ---------- tables ---------- */
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  thead th {
+    font-size: 11px;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--faint);
+    font-weight: 700;
+    background: var(--surface-alt);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .verb {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
+  }
+  .verb.get { color: var(--green); }
+  .verb.post, .verb.patch, .verb.delete { color: var(--amber); }
+
+  /* ---------- cards ---------- */
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+  }
+  .card h4 { margin: 0 0 8px; font-size: 14px; font-weight: 650; }
+  .card p { margin: 0; color: var(--muted); font-size: 13.5px; }
+  .card ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 13.5px; }
+  .card li { margin-bottom: 3px; }
+
+  /* ---------- findings ---------- */
+  .finding {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--sev, var(--muted));
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+  }
+  .finding .sev {
+    font-size: 10.5px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--sev, var(--muted));
+  }
+  .finding b { display: block; margin: 3px 0 5px; font-size: 14.5px; font-weight: 640; }
+  .finding p { margin: 0; color: var(--muted); font-size: 13.5px; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding-top: 22px;
+    color: var(--faint);
+    font-size: 12.5px;
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Architecture Overview</p>
+    <h1>Factory Inventory Management System</h1>
+    <p class="lede">
+      Vue 3 の SPA と Python FastAPI による、データベースを持たないフルスタック demo。
+      サーバー起動時に JSON ファイルをメモリへ読み込み、すべての絞り込みをリスト内包表記で処理する。
+    </p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="k">Frontend</span><span class="v">Vue 3 + Vite &middot; :3000</span></div>
+      <div class="meta-item"><span class="k">Backend</span><span class="v">FastAPI + Uvicorn &middot; :8001</span></div>
+      <div class="meta-item"><span class="k">Persistence</span><span class="v">なし（in-memory）</span></div>
+      <div class="meta-item"><span class="k">Source</span><span class="v">約 9,000 行</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ========== TECH STACK ========== -->
+  <section>
+    <h2>Tech Stack</h2><div class="h2-rule"></div>
+    <div class="grid">
+      <div class="card">
+        <h4>Frontend</h4>
+        <ul>
+          <li>Vue 3.4 — Composition API（<code>setup()</code> 内に集約）</li>
+          <li>Vue Router 4.3 — <code>createWebHistory</code></li>
+          <li>Axios 1.6 — HTTP クライアント</li>
+          <li>Vite 5.4 — dev server / bundler</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Backend</h4>
+        <ul>
+          <li>Python ≥ 3.11 / パッケージ管理は <code>uv</code></li>
+          <li>FastAPI 0.141 + Uvicorn 0.53</li>
+          <li>Pydantic 2.13 — レスポンス検証</li>
+          <li>標準ライブラリのみでデータ読込</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Data &amp; Test</h4>
+        <ul>
+          <li><code>server/data/*.json</code> — 7 ファイル</li>
+          <li>ORM / マイグレーションなし</li>
+          <li>pytest 9.1 + httpx + pytest-cov</li>
+          <li><code>tests/backend</code> は TestClient 前提</li>
+        </ul>
+      </div>
+    </div>
+    <p class="note" style="margin-top:16px">
+      状態管理ライブラリ（Pinia / Vuex）は使っていない。共有状態は composable のモジュールスコープに
+      <code>ref</code> を置く singleton パターンで実現している。
+    </p>
+  </section>
+
+  <!-- ========== ARCHITECTURE ========== -->
+  <section>
+    <h2>System Architecture</h2><div class="h2-rule"></div>
+    <p class="note" style="margin-top:0;margin-bottom:22px">
+      4 層。層をまたぐ通信は一箇所（<code>client/src/api.js</code>）に集約され、
+      バックエンドは単一モジュール <code>server/main.py</code> にすべてのルートを持つ。
+    </p>
+
+    <div class="stack">
+
+      <div class="layer" style="--lc: var(--blue)">
+        <div class="layer-head">
+          <span class="layer-title">Presentation — Vue SPA</span>
+          <span class="layer-tag">client/src/</span>
+        </div>
+        <p class="layer-desc">
+          <code>App.vue</code> がシェル（トップナビ、FilterBar、モーダル群）を保持し、
+          <code>&lt;router-view&gt;</code> に各画面を差し込む。生データは <code>ref</code>、
+          派生データは <code>computed</code> という分担。
+        </p>
+        <div class="chips">
+          <span class="chip on">views/ &times;7</span>
+          <span class="chip">Dashboard</span>
+          <span class="chip">Inventory</span>
+          <span class="chip">Orders</span>
+          <span class="chip">Demand</span>
+          <span class="chip">Spending</span>
+          <span class="chip">Reports</span>
+          <span class="chip">Backlog（未ルーティング）</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">components/ &times;9</span>
+          <span class="chip">FilterBar</span>
+          <span class="chip">*DetailModal &times;4</span>
+          <span class="chip">TasksModal</span>
+          <span class="chip">ProfileMenu / ProfileDetailsModal</span>
+          <span class="chip">LanguageSwitcher</span>
+        </div>
+        <div class="chips">
+          <span class="chip on">composables/ &times;3</span>
+          <span class="chip">useFilters — 4 フィルタの共有 ref</span>
+          <span class="chip">useI18n — en / ja + localStorage</span>
+          <span class="chip">useAuth — モックユーザー</span>
+          <span class="chip">utils/currency.js</span>
+        </div>
+      </div>
+
+      <div class="connector">axios &middot; JSON over HTTP</div>
+
+      <div class="layer" style="--lc: var(--slate)">
+        <div class="layer-head">
+          <span class="layer-title">API Client — 単一の境界</span>
+          <span class="layer-tag">client/src/api.js</span>
+        </div>
+        <p class="layer-desc">
+          15 個のメソッドを持つ単一の <code>api</code> オブジェクト。<code>URLSearchParams</code> を組み立て、
+          値が <code>'all'</code> のフィルタはクエリから落とす（= サーバー側では未指定扱い）。
+          ベース URL は <code>http://localhost:8001/api</code> にハードコードされている。
+        </p>
+      </div>
+
+      <div class="connector">CORS: allow_origins=["*"]</div>
+
+      <div class="layer" style="--lc: var(--green)">
+        <div class="layer-head">
+          <span class="layer-title">API — FastAPI</span>
+          <span class="layer-tag">server/main.py &middot; 309 行</span>
+        </div>
+        <p class="layer-desc">
+          14 の GET ルート。共通処理は 2 つのヘルパーに集約されている
+          — <code>apply_filters()</code>（warehouse / category / status を大文字小文字無視で照合）と
+          <code>filter_by_month()</code>（<code>QUARTER_MAP</code> で四半期を月リストへ展開し
+          <code>order_date</code> を部分一致）。レスポンスは Pydantic モデルで検証する。
+        </p>
+        <div class="chips">
+          <span class="chip on">Pydantic models</span>
+          <span class="chip">InventoryItem</span>
+          <span class="chip">Order</span>
+          <span class="chip">DemandForecast</span>
+          <span class="chip">BacklogItem</span>
+          <span class="chip">PurchaseOrder（未使用）</span>
+          <span class="chip">CreatePurchaseOrderRequest（未使用）</span>
+        </div>
+      </div>
+
+      <div class="connector">import 時に一度だけ読み込み</div>
+
+      <div class="layer" style="--lc: var(--amber)">
+        <div class="layer-head">
+          <span class="layer-title">Data — JSON をメモリへ</span>
+          <span class="layer-tag">server/mock_data.py &rarr; server/data/</span>
+        </div>
+        <p class="layer-desc">
+          <code>mock_data.py</code> がモジュールのトップレベルで全 JSON を読み、
+          Python の <code>list</code> / <code>dict</code> としてエクスポートする。
+          読み込みはプロセス起動時の 1 回きりで、リクエストごとの I/O は発生しない。
+        </p>
+        <div class="chips">
+          <span class="chip on">orders.json — 250 件</span>
+          <span class="chip on">transactions.json — 56 件</span>
+          <span class="chip on">inventory.json — 32 件</span>
+          <span class="chip on">demand_forecasts.json — 9 件</span>
+          <span class="chip on">backlog_items.json — 4 件</span>
+          <span class="chip on">spending.json — 3 セクション</span>
+          <span class="chip on">purchase_orders.json — 0 件</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== DATA FLOW ========== -->
+  <section>
+    <h2>Data Flow — フィルタ 1 回分の往復</h2><div class="h2-rule"></div>
+    <p class="note" style="margin-top:0;margin-bottom:22px">
+      4 つのフィルタ（Time Period / Warehouse / Category / Order Status）は全画面で共有され、
+      同じ経路をたどってサーバーのクエリパラメータになる。
+    </p>
+
+    <div class="flow">
+      <div class="step">
+        <b>ユーザーが FilterBar を操作する</b>
+        <span>選択値は composable のモジュールスコープに置かれた <code>ref</code> に書き込まれる。singleton なので全画面・全コンポーネントが同じ実体を参照する。</span>
+        <span class="where">composables/useFilters.js — selectedPeriod / selectedLocation / selectedCategory / selectedStatus</span>
+      </div>
+      <div class="step">
+        <b>画面が getCurrentFilters() でプレーンオブジェクトを取り出す</b>
+        <span><code>selectedPeriod</code> だけは API 都合で <code>month</code> というキーに詰め替えられる。ここが命名のずれる唯一の箇所。</span>
+        <span class="where">views/*.vue</span>
+      </div>
+      <div class="step">
+        <b>api.js がクエリ文字列を組む</b>
+        <span>値が <code>'all'</code> のものは <code>append</code> せず落とす。結果として「全件」はパラメータの不在として表現される。</span>
+        <span class="where">client/src/api.js — URLSearchParams</span>
+      </div>
+      <div class="step">
+        <b>FastAPI が Optional なクエリパラメータとして受ける</b>
+        <span>未指定は <code>None</code>。ヘルパー側で <code>None</code> と <code>'all'</code> はどちらも「絞り込まない」に畳み込まれる。</span>
+        <span class="where">server/main.py — apply_filters() / filter_by_month()</span>
+      </div>
+      <div class="step">
+        <b>メモリ上のリストを内包表記で絞り込む</b>
+        <span>SQL もインデックスもない。最大でも 250 件のリスト走査なので、この規模では計算量が問題にならない。</span>
+        <span class="where">server/main.py</span>
+      </div>
+      <div class="step">
+        <b>Pydantic の response_model で検証してシリアライズ</b>
+        <span>JSON の構造を変えると、ここでスキーマ不一致として顕在化する。</span>
+        <span class="where">server/main.py — response_model=List[...]</span>
+      </div>
+      <div class="step">
+        <b>画面が ref に格納し、computed が表示用データを導出する</b>
+        <span>合計・ソート・グルーピングはすべて <code>computed</code> 側。<code>ref</code> はサーバーから来た生データだけを保持する。</span>
+        <span class="where">views/*.vue — allOrders / inventoryItems ほか</span>
+      </div>
+    </div>
+
+    <h3>フィルタ適用範囲</h3>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>エンドポイント</th><th>warehouse</th><th>category</th><th>status</th><th>month</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/api/inventory</code></td><td>対応</td><td>対応</td><td>—</td><td>—<span class="note"> 時間軸を持たない</span></td></tr>
+          <tr><td><code>/api/orders</code></td><td>対応</td><td>対応</td><td>対応</td><td>対応</td></tr>
+          <tr><td><code>/api/dashboard/summary</code></td><td>対応</td><td>対応</td><td>対応</td><td>対応</td></tr>
+          <tr><td><code>/api/demand</code>, <code>/api/backlog</code></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td><code>/api/spending/*</code>, <code>/api/reports/*</code></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:12px">
+      在庫は月フィルタに反応しない。データに時間の次元がないためで、バグではない。
+    </p>
+  </section>
+
+  <!-- ========== ENDPOINTS ========== -->
+  <section>
+    <h2>API Surface</h2><div class="h2-rule"></div>
+    <p class="note" style="margin-top:0;margin-bottom:22px">
+      実装済みは 14 ルート、すべて GET。書き込み系のルートは 1 つも登録されていない。
+    </p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Method</th><th>Path</th><th>返すもの</th><th>実装</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="verb get">GET</span></td><td><code>/</code></td><td>サービス名とバージョン</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/inventory</code></td><td>在庫一覧</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/inventory/{item_id}</code></td><td>在庫 1 件（無ければ 404）</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/orders</code></td><td>注文一覧</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/orders/{order_id}</code></td><td>注文 1 件（無ければ 404）</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/demand</code></td><td>需要予測</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/backlog</code></td><td>バックログ＋<code>has_purchase_order</code> を付与</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/dashboard/summary</code></td><td>在庫評価額 / 低在庫数 / 保留注文数 ほか</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/spending/summary</code></td><td>支出サマリ</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/spending/monthly</code></td><td>月次支出</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/spending/categories</code></td><td>カテゴリ別支出</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/spending/transactions</code></td><td>直近取引</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/reports/quarterly</code></td><td>四半期集計（受注額・充足率）</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span></td><td><code>/api/reports/monthly-trends</code></td><td>月次推移</td><td>あり</td></tr>
+          <tr><td><span class="verb get">GET</span> <span class="verb post">POST</span> <span class="verb delete">DELETE</span> <span class="verb patch">PATCH</span></td><td><code>/api/tasks</code>, <code>/api/tasks/{id}</code></td><td>タスク CRUD</td><td style="color:var(--red);font-weight:600">未実装 &rarr; 404</td></tr>
+          <tr><td><span class="verb post">POST</span> <span class="verb get">GET</span></td><td><code>/api/purchase-orders</code>, <code>/api/purchase-orders/{backlog_item_id}</code></td><td>発注の作成・参照</td><td style="color:var(--red);font-weight:600">未実装 &rarr; 404</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ========== FINDINGS ========== -->
+  <section>
+    <h2>Observations</h2><div class="h2-rule"></div>
+    <p class="note" style="margin-top:0;margin-bottom:22px">
+      コードを読んで見つかった、現状のフロントとバックの食い違い。いずれも動作中のサーバーで確認済み。
+    </p>
+
+    <div class="finding" style="--sev: var(--red)">
+      <span class="sev">Frontend / Backend 不整合</span>
+      <b>タスク機能のエンドポイントがバックエンドに存在しない</b>
+      <p>
+        <code>App.vue</code> がマウント時に <code>api.getTasks()</code> を呼び、<code>TasksModal.vue</code> が
+        作成・削除・完了トグルを呼ぶが、<code>main.py</code> に <code>/api/tasks</code> は 1 つも登録されていない。
+        実際に <code>GET /api/tasks</code> は <b>404</b> を返す。エラーは <code>console.error</code> に
+        握り潰され、モーダルには <code>useAuth</code> のモックタスクだけが表示されるため、UI 上は破綻して見えない。
+      </p>
+    </div>
+
+    <div class="finding" style="--sev: var(--red)">
+      <span class="sev">Frontend / Backend 不整合</span>
+      <b>発注（purchase order）はモデルだけあってルートがない</b>
+      <p>
+        <code>main.py</code> は <code>PurchaseOrder</code> と <code>CreatePurchaseOrderRequest</code> を定義し、
+        <code>purchase_orders</code> を import しているが、使っているのは <code>/api/backlog</code> の
+        <code>has_purchase_order</code> フラグ算出のみ。作成・参照のルートは未登録で、
+        <code>POST /api/purchase-orders</code> は <b>404</b> になる。
+        <code>purchase_orders.json</code> が空配列（0 件）なのもこれと整合する。
+      </p>
+    </div>
+
+    <div class="finding" style="--sev: var(--amber)">
+      <span class="sev">到達不能</span>
+      <b>Backlog.vue にルートが割り当てられていない</b>
+      <p>
+        <code>views/Backlog.vue</code>（152 行）は存在するが、<code>main.js</code> のルート定義に含まれず、
+        どこからも import されていない。バックログの内容は Dashboard に埋め込まれたテーブルと
+        <code>BacklogDetailModal</code> 経由で表示されている。
+      </p>
+    </div>
+
+    <div class="finding" style="--sev: var(--amber)">
+      <span class="sev">設定</span>
+      <b>CORS が全オリジン許可かつ credentials 有効</b>
+      <p>
+        <code>allow_origins=["*"]</code> と <code>allow_credentials=True</code> の併用。
+        ローカル demo としては動くが、そのまま公開環境に出す構成ではない。
+      </p>
+    </div>
+
+    <div class="finding" style="--sev: var(--slate)">
+      <span class="sev">設計上の前提</span>
+      <b>書き込みは永続化されない</b>
+      <p>
+        データはモジュールスコープの Python リストで、JSON への書き戻し経路がない。
+        仮にタスク／発注のルートを足しても、プロセス再起動で状態は初期化される。
+        デモとしては意図どおりだが、機能追加時にはこの前提を踏まえる必要がある。
+      </p>
+    </div>
+
+    <div class="finding" style="--sev: var(--slate)">
+      <span class="sev">定数</span>
+      <b>USD → JPY レートが 150 で固定</b>
+      <p>
+        <code>utils/currency.js</code> の <code>USD_TO_JPY = 150</code>。表示通貨はロケール
+        （<code>en</code> → USD / <code>ja</code> → JPY）に連動して切り替わるが、換算レートは静的な近似値。
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== RUN ========== -->
+  <section>
+    <h2>Local Development</h2><div class="h2-rule"></div>
+    <div class="grid">
+      <div class="card">
+        <h4>Backend &middot; :8001</h4>
+        <p class="mono" style="color:var(--text)">cd server<br>uv run python main.py</p>
+        <p style="margin-top:10px">OpenAPI: <code>http://localhost:8001/docs</code></p>
+      </div>
+      <div class="card">
+        <h4>Frontend &middot; :3000</h4>
+        <p class="mono" style="color:var(--text)">cd client<br>npm install &amp;&amp; npm run dev</p>
+        <p style="margin-top:10px">App: <code>http://localhost:3000</code></p>
+      </div>
+      <div class="card">
+        <h4>Tests</h4>
+        <p class="mono" style="color:var(--text)">cd server<br>uv run pytest ../tests/backend</p>
+        <p style="margin-top:10px">FastAPI <code>TestClient</code> ベース</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    生成元: <code>/home/kyanada/workspace/claudesf/inventory-management</code> &middot;
+    branch <code>new_features</code> &middot; コードの静的読解と稼働中サーバーへの実リクエストで確認。
+  </footer>
+
+</div>
+</body>
+</html>

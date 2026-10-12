@@ -6,6 +6,18 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
+    reports: 'レポート',
+    skipToContent: '本文へスキップ',
+    groupGeneral: '全般',
+    groupOperations: 'オペレーション',
+    groupInsights: '分析',
+    primaryNavigation: 'メインナビゲーション',
+    collapseSidebar: 'ナビゲーションを折りたたむ',
+    expandSidebar: 'ナビゲーションを展開する',
+    openMenu: 'ナビゲーションを開く',
+    closeMenu: 'ナビゲーションを閉じる',
+    demoEnvironment: 'デモ環境',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +118,8 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み補充注文',
+    leadTimeDays: '{count}日',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,7 +139,8 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -189,13 +204,67 @@ export default {
   },
 
   // Filters
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、需要予測で不足が見込まれる品目を補充します',
+    budgetTitle: '利用可能な予算',
+    fullCoverage: '予測不足をすべて解消するには {amount} 必要です',
+    recommendedItems: '推奨品目数',
+    recommendedUnits: '発注数量',
+    plannedSpend: '発注予定額',
+    longestLeadTime: '最長リードタイム',
+    recommendations: '補充推奨',
+    noRecommendations: 'この予算では最優先品目を1個も発注できません。',
+    partial: '一部',
+    partialNote: '最終行は残予算の上限に達したため、不足分の一部のみを補充します。',
+    unpricedNotice: '在庫マスタに同一SKUが無く単価を特定できないため、{count}件の予測品目を対象外としました: {skus}',
+    placeOrder: '発注する',
+    placing: '送信中...',
+    orderPlaced: '注文 {orderNumber} を送信しました',
+    orderPlacedDetail: '{units}個 / {amount}、{days}日後に入荷予定',
+    viewInOrders: '注文タブで確認',
+    days: '{count}日',
+    loadFailed: '補充推奨の取得に失敗しました: {message}',
+    submitFailed: '発注の送信に失敗しました: {message}',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      currentDemand: '現在需要',
+      forecastedDemand: '予測需要',
+      gap: '不足',
+      quantity: '発注数量',
+      unitCost: '単価',
+      lineTotal: '金額',
+      leadTime: 'リードタイム'
+    }
+  },
+  purchaseOrder: {
+    createTitle: '発注を作成',
+    viewTitle: '発注内容',
+    poNumber: '発注番号',
+    supplier: '仕入先',
+    quantity: '数量',
+    unitCost: '単価',
+    total: '合計',
+    status: 'ステータス',
+    expectedDelivery: '納入予定日',
+    notes: '備考',
+    shortage: '{count}個 不足',
+    submit: '発注する',
+    submitting: '作成中...',
+    loadFailed: '発注内容の取得に失敗しました: {message}',
+    submitFailed: '発注の作成に失敗しました: {message}'
+  },
   filters: {
     timePeriod: '期間',
     location: '場所',
     category: 'カテゴリ',
     orderStatus: '注文ステータス',
     all: 'すべて',
-    allMonths: 'すべての月'
+    allMonths: 'すべての月',
+    title: 'フィルタ',
+    reset: 'フィルタをリセット'
   },
 
   // Statuses
@@ -204,6 +273,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
