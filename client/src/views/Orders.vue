@@ -74,6 +74,43 @@
           </table>
         </div>
       </div>
+
+      <div v-if="restockingOrders.length > 0" class="card restocking-card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restocking Orders ({{ restockingOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table restocking-table">
+            <thead>
+              <tr>
+                <th class="rcol-order-number">Order #</th>
+                <th class="rcol-items">Items</th>
+                <th class="rcol-cost">Total Cost</th>
+                <th class="rcol-budget">Budget</th>
+                <th class="rcol-date">Submitted</th>
+                <th class="rcol-delivery">Expected Delivery</th>
+                <th class="rcol-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.order_number">
+                <td class="rcol-order-number"><strong class="mono">{{ order.order_number }}</strong></td>
+                <td class="rcol-items">{{ order.items.length }} items</td>
+                <td class="rcol-cost">{{ formatCurrency(order.total_cost) }}</td>
+                <td class="rcol-budget">{{ formatCurrency(order.budget) }}</td>
+                <td class="rcol-date">{{ formatDate(order.submitted_date) }}</td>
+                <td class="rcol-delivery">
+                  {{ formatDate(order.expected_delivery) }}
+                  <span class="delivery-sublabel">7-day lead</span>
+                </td>
+                <td class="rcol-status">
+                  <span class="badge info">Submitted</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -124,6 +161,17 @@ export default {
       }
     }
 
+    const restockingOrders = ref([])
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        // Restocking orders are supplemental data — a failure here should not block or
+        // disrupt the main orders view, so we swallow the error silently after logging it.
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -153,16 +201,24 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    const formatCurrency = (val) =>
+      Number(val).toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatCurrency,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +331,54 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+/* Restocking orders card */
+.restocking-card {
+  margin-top: 1.5rem;
+}
+
+.restocking-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.rcol-order-number {
+  width: 140px;
+}
+
+.rcol-items {
+  width: 90px;
+}
+
+.rcol-cost {
+  width: 120px;
+}
+
+.rcol-budget {
+  width: 120px;
+}
+
+.rcol-date {
+  width: 130px;
+}
+
+.rcol-delivery {
+  width: 160px;
+}
+
+.rcol-status {
+  width: 110px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.delivery-sublabel {
+  display: block;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.125rem;
 }
 </style>
