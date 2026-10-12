@@ -1,0 +1,51 @@
+/*
+ * design-tokens.css — design-token layer for the SaaS redesign.
+ * Color values are seeded from the app's existing slate palette so the redesign
+ * changes structure and consistency without a jarring repaint. Imported once in main.js.
+ */
+:root {
+  /* Color roles (seeded from the app's existing palette) */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+
+  --color-accent: #2563eb;
+  --color-accent-weak: #eff6ff;
+  --color-accent-strong: #1d4ed8;
+
+  --color-success: #059669;
+  --color-warning: #ea580c;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+
+  /* Spacing scale (4px base) */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Radius */
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+
+  /* Typography */
+  --text-xs: 12px; --text-sm: 14px; --text-base: 15px;
+  --text-lg: 18px; --text-xl: 24px; --text-2xl: 30px;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Shell dimensions */
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 68px;
+}
+
+/* Accessibility: a consistent, visible focus ring on interactive elements. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

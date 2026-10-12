@@ -1,0 +1,56 @@
+/*
+ * design-tokens.css — drop-in design-token layer for a SaaS-style Vue app.
+ *
+ * HOW TO USE: re-seed the COLOR values below from the target app's existing
+ * palette so the redesign restyles structure without a jarring repaint, then
+ * import this file once globally (e.g. in main.js or the root component). The
+ * spacing / radius / shadow / typography scales are app-agnostic and can be kept.
+ *
+ * The values below are seeded with a neutral "slate" palette as a starting point.
+ */
+:root {
+  /* Color roles (re-seed from the target app) */
+  --color-bg: #f8fafc;          /* app background */
+  --color-surface: #ffffff;     /* cards, panels, sidebar */
+  --color-surface-alt: #f1f5f9; /* subtle fills, hover */
+  --color-border: #e2e8f0;      /* hairlines, dividers */
+  --color-text: #0f172a;        /* primary text */
+  --color-text-muted: #64748b;  /* secondary text, labels */
+
+  --color-accent: #2563eb;      /* single brand/action color */
+  --color-accent-weak: #eff6ff; /* tinted bg for active/selected */
+  --color-accent-strong: #1d4ed8;
+
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+
+  /* Spacing scale (4px base) — reference these, never magic numbers */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px;
+  --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+
+  /* Radius */
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+
+  /* Elevation — keep it flat; shadows only for floating elements */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+
+  /* Typography */
+  --text-xs: 12px; --text-sm: 14px; --text-base: 15px;
+  --text-lg: 18px; --text-xl: 24px; --text-2xl: 30px;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Shell dimensions */
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 64px;
+}
+
+/* Accessibility: a consistent, visible focus ring on interactive elements. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
