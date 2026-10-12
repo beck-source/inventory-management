@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -13,6 +13,9 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Accepted task priorities; also used to build the 400 message on a bad value.
+TASK_PRIORITIES = ('low', 'medium', 'high')
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -119,6 +122,20 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    # camelCase because the client's mock tasks and form already use this name;
+    # renaming it here would silently break the merged task list in App.vue.
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: str = 'medium'
+    dueDate: str
 
 # API endpoints
 @app.get("/")
@@ -303,6 +320,64 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+# ---------------------------------------------------------------------------
+# Tasks
+# ---------------------------------------------------------------------------
+
+def find_task(task_id: str) -> dict:
+    """Get a task by id, or raise 404."""
+    task = next((task for task in tasks if task["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    return task
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all tasks, newest first."""
+    # The client prepends newly created tasks, so the initial load has to match
+    # that order or the list reshuffles on the next refresh.
+    return list(reversed(tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a task."""
+    if not request.title.strip():
+        raise HTTPException(status_code=400, detail="Task title is required")
+
+    if request.priority not in TASK_PRIORITIES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Priority must be one of {', '.join(TASK_PRIORITIES)}"
+        )
+
+    if not request.dueDate.strip():
+        raise HTTPException(status_code=400, detail="Due date is required")
+
+    task = {
+        # Prefixed so it can never collide with the numeric ids of the mock tasks
+        # the client merges in - those are matched with === against this value.
+        "id": f"T-{len(tasks) + 1:04d}",
+        "title": request.title.strip(),
+        "priority": request.priority,
+        "dueDate": request.dueDate,
+        "status": "pending"
+    }
+    tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task between pending and completed."""
+    task = find_task(task_id)
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.delete("/api/tasks/{task_id}", status_code=204)
+def delete_task(task_id: str):
+    """Delete a task."""
+    task = find_task(task_id)
+    tasks.remove(task)
 
 if __name__ == "__main__":
     import uvicorn
