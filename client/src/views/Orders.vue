@@ -74,6 +74,52 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Restock Orders ({{ restockOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order ID</th>
+                <th class="col-items">Items</th>
+                <th class="col-date">Order Date</th>
+                <th class="col-date">Expected Delivery</th>
+                <th class="col-date">Lead Time</th>
+                <th class="col-value">Total Cost</th>
+                <th class="col-status">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockOrders" :key="ro.id">
+                <td class="col-order-number"><strong>{{ ro.id }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ ro.items.length }} items
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in ro.items" :key="item.item_sku" class="item-entry">
+                        <span class="item-name">{{ item.item_name }}</span>
+                        <span class="item-meta">Qty: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-date">{{ formatDate(ro.order_date) }}</td>
+                <td class="col-date">{{ formatDate(ro.expected_delivery_date) }}</td>
+                <td class="col-date">{{ leadTimeDays(ro) }} days</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ ro.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-status">
+                  <span class="badge info">{{ ro.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +141,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockOrders = ref([])
 
     // Use shared filters
     const {
@@ -129,6 +176,18 @@ export default {
       loadOrders()
     })
 
+    const loadRestockOrders = async () => {
+      try {
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        console.error('Failed to load restock orders:', err)
+      }
+    }
+
+    const leadTimeDays = (order) => {
+      return Math.round((new Date(order.expected_delivery_date) - new Date(order.order_date)) / 86400000)
+    }
+
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
     }
@@ -153,16 +212,21 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      leadTimeDays,
       currencySymbol,
       translateProductName,
       translateCustomerName
