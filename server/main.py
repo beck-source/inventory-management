@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, submitted_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -13,6 +14,18 @@ QUARTER_MAP = {
     'Q3-2025': ['2025-07', '2025-08', '2025-09'],
     'Q4-2025': ['2025-10', '2025-11', '2025-12']
 }
+
+# Delivery lead time per inventory category, in days. Used when computing the
+# expected delivery date for a submitted restocking order. Fallback below is
+# applied for any category not listed here.
+CATEGORY_LEAD_TIMES = {
+    "Circuit Boards": 14,
+    "Sensors": 7,
+    "Actuators": 10,
+    "Controllers": 12,
+    "Power Supplies": 9,
+}
+DEFAULT_LEAD_TIME_DAYS = 14
 
 def filter_by_month(items: list, month: Optional[str]) -> list:
     """Filter items by month/quarter based on order_date field"""
@@ -119,6 +132,58 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingRecommendation(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    unit_cost: float
+    current_quantity: int
+    reorder_point: int
+    quantity_to_order: int
+    line_cost: float
+    reason: str  # 'below_reorder_point' | 'increasing_trend'
+    trend: Optional[str] = None
+
+class RestockingRecommendationsResponse(BaseModel):
+    budget: float
+    total_cost: float
+    items_count: int
+    recommendations: List[RestockingRecommendation]
+
+class SubmitOrderItemRequest(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    unit_cost: float
+    quantity: int
+
+class SubmitOrderRequest(BaseModel):
+    items: List[SubmitOrderItemRequest]
+    budget: Optional[float] = None
+
+class SubmittedOrderItem(BaseModel):
+    sku: str
+    name: str
+    category: str
+    warehouse: str
+    unit_cost: float
+    quantity: int
+    line_cost: float
+    lead_time_days: int
+
+class SubmittedOrder(BaseModel):
+    id: str
+    order_number: str
+    submitted_date: str
+    total_cost: float
+    total_items: int
+    items: List[SubmittedOrderItem]
+    status: str
+    max_lead_time_days: int
+    expected_delivery: str
 
 # API endpoints
 @app.get("/")
@@ -303,6 +368,149 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations", response_model=RestockingRecommendationsResponse)
+def get_restocking_recommendations(budget: float = 0.0):
+    """Recommend items to restock within a budget.
+
+    Priority 1: inventory items below their reorder_point — sorted by largest deficit.
+    Priority 2: items with an 'increasing' demand trend not already in P1.
+
+    Items are matched to demand forecasts by name (case-insensitive) because
+    demand_forecasts.json and inventory.json don't share SKU prefixes.
+    Greedy fill: line items are added in priority order while their line cost
+    fits in the remaining budget.
+    """
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be non-negative")
+
+    demand_by_name = {f["item_name"].lower(): f for f in demand_forecasts}
+
+    candidates = []
+
+    # Priority 1: below reorder point. Order enough to reach 2x reorder_point so the
+    # buffer is meaningful for the demo (a pure deficit refill could be a single unit).
+    for item in inventory_items:
+        if item["quantity_on_hand"] < item["reorder_point"]:
+            qty = (2 * item["reorder_point"]) - item["quantity_on_hand"]
+            forecast = demand_by_name.get(item["name"].lower())
+            candidates.append({
+                "sku": item["sku"],
+                "name": item["name"],
+                "category": item["category"],
+                "warehouse": item["warehouse"],
+                "unit_cost": item["unit_cost"],
+                "current_quantity": item["quantity_on_hand"],
+                "reorder_point": item["reorder_point"],
+                "quantity_to_order": qty,
+                "line_cost": round(qty * item["unit_cost"], 2),
+                "reason": "below_reorder_point",
+                "trend": forecast["trend"] if forecast else None,
+                "_priority": 1,
+                "_deficit": item["reorder_point"] - item["quantity_on_hand"],
+            })
+
+    p1_skus = {c["sku"] for c in candidates}
+
+    # Priority 2: trending up but not yet below reorder. Order ~30% of forecasted
+    # demand as a forward buffer.
+    for item in inventory_items:
+        if item["sku"] in p1_skus:
+            continue
+        forecast = demand_by_name.get(item["name"].lower())
+        if forecast and forecast["trend"] == "increasing":
+            qty = max(int(forecast["forecasted_demand"] * 0.3), 1)
+            candidates.append({
+                "sku": item["sku"],
+                "name": item["name"],
+                "category": item["category"],
+                "warehouse": item["warehouse"],
+                "unit_cost": item["unit_cost"],
+                "current_quantity": item["quantity_on_hand"],
+                "reorder_point": item["reorder_point"],
+                "quantity_to_order": qty,
+                "line_cost": round(qty * item["unit_cost"], 2),
+                "reason": "increasing_trend",
+                "trend": "increasing",
+                "_priority": 2,
+                "_deficit": 0,
+            })
+
+    candidates.sort(key=lambda c: (c["_priority"], -c["_deficit"], c["line_cost"]))
+
+    selected = []
+    total_cost = 0.0
+    for c in candidates:
+        if total_cost + c["line_cost"] <= budget:
+            c.pop("_priority", None)
+            c.pop("_deficit", None)
+            selected.append(c)
+            total_cost += c["line_cost"]
+
+    return {
+        "budget": budget,
+        "total_cost": round(total_cost, 2),
+        "items_count": len(selected),
+        "recommendations": selected,
+    }
+
+@app.post("/api/restocking/submit", response_model=SubmittedOrder)
+def submit_restocking_order(request: SubmitOrderRequest):
+    """Submit a restocking order. The order is stored in-memory (resets on
+    restart) and surfaces in /api/restocking/submitted.
+
+    Lead time is per-line based on category (CATEGORY_LEAD_TIMES). The order's
+    expected_delivery uses the longest line lead time so the whole order is
+    considered fulfilled once the slowest item arrives.
+    """
+    if not request.items:
+        raise HTTPException(status_code=400, detail="At least one item is required")
+
+    submitted_at = datetime.now()
+    order_number = f"RST-{submitted_at.strftime('%Y%m%d-%H%M%S')}"
+
+    order_items = []
+    total_cost = 0.0
+    max_lead = 0
+    for item in request.items:
+        if item.quantity <= 0:
+            raise HTTPException(status_code=400, detail=f"Quantity for {item.sku} must be positive")
+        lead = CATEGORY_LEAD_TIMES.get(item.category, DEFAULT_LEAD_TIME_DAYS)
+        line_cost = round(item.unit_cost * item.quantity, 2)
+        total_cost += line_cost
+        if lead > max_lead:
+            max_lead = lead
+        order_items.append({
+            "sku": item.sku,
+            "name": item.name,
+            "category": item.category,
+            "warehouse": item.warehouse,
+            "unit_cost": item.unit_cost,
+            "quantity": item.quantity,
+            "line_cost": line_cost,
+            "lead_time_days": lead,
+        })
+
+    expected_delivery = (submitted_at + timedelta(days=max_lead)).date().isoformat()
+
+    new_order = {
+        "id": f"sub-{len(submitted_orders) + 1}",
+        "order_number": order_number,
+        "submitted_date": submitted_at.isoformat(),
+        "total_cost": round(total_cost, 2),
+        "total_items": len(order_items),
+        "items": order_items,
+        "status": "Submitted",
+        "max_lead_time_days": max_lead,
+        "expected_delivery": expected_delivery,
+    }
+    submitted_orders.append(new_order)
+    return new_order
+
+@app.get("/api/restocking/submitted", response_model=List[SubmittedOrder])
+def get_submitted_orders():
+    """List submitted restocking orders, most recent first."""
+    return sorted(submitted_orders, key=lambda o: o["submitted_date"], reverse=True)
 
 if __name__ == "__main__":
     import uvicorn
