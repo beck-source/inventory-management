@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Inventory Management System - Architecture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1e293b;
+            background: #f8fafc;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 2.5rem 3rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 3rem;
+        }
+
+        section {
+            margin-bottom: 3rem;
+        }
+
+        h2 {
+            color: #0f172a;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        h3 {
+            color: #334155;
+            font-size: 1.2rem;
+            margin: 1.5rem 0 1rem 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 1.5rem;
+        }
+
+        .card h4 {
+            color: #0f172a;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card ul {
+            list-style: none;
+        }
+
+        .card li {
+            padding: 0.4rem 0;
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        .card li::before {
+            content: "→";
+            color: #3b82f6;
+            margin-right: 0.5rem;
+            font-weight: bold;
+        }
+
+        .flow-diagram {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .flow-steps {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .flow-step {
+            background: white;
+            border: 2px solid #3b82f6;
+            border-radius: 6px;
+            padding: 1rem 1.5rem;
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .flow-step h5 {
+            color: #0f172a;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .flow-step p {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .flow-arrow {
+            color: #3b82f6;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .tech-stack {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2rem;
+        }
+
+        .tech-section {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            border-radius: 4px;
+        }
+
+        .tech-section h4 {
+            color: #0f172a;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .tech-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tech-badge {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .endpoint-list {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .endpoint {
+            background: white;
+            border-left: 3px solid #10b981;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+        }
+
+        .endpoint code {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .endpoint p {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-top: 0.3rem;
+        }
+
+        .endpoint .filters {
+            color: #3b82f6;
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .feature-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .data-files {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .data-file {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 1rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .data-file code {
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .data-file p {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: white;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 1rem;
+            border-left: 4px solid #f59e0b;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .tech-stack,
+            .flow-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Factory Inventory Management System</h1>
+            <p>Architecture Documentation - Full-Stack Demo Application</p>
+        </header>
+
+        <div class="content">
+            <!-- Overview Section -->
+            <section>
+                <h2>System Overview</h2>
+                <p>A modern full-stack web application demonstrating factory inventory management with real-time data filtering, demand forecasting, and comprehensive reporting capabilities. Built with Vue 3 frontend and Python FastAPI backend using in-memory JSON data for demonstration purposes.</p>
+
+                <div class="highlight">
+                    <strong>Key Characteristics:</strong> Single-page application (SPA) with RESTful API, reactive UI, universal filtering system, and mock data simulation for rapid prototyping.
+                </div>
+            </section>
+
+            <!-- Tech Stack Section -->
+            <section>
+                <h2>Technology Stack</h2>
+                <div class="tech-stack">
+                    <div class="tech-section">
+                        <h4>Frontend (Port 3000)</h4>
+                        <div class="tech-list">
+                            <span class="tech-badge">Vue 3</span>
+                            <span class="tech-badge">Composition API</span>
+                            <span class="tech-badge">Vue Router</span>
+                            <span class="tech-badge">Axios</span>
+                            <span class="tech-badge">Vite</span>
+                            <span class="tech-badge">JavaScript</span>
+                        </div>
+                    </div>
+                    <div class="tech-section">
+                        <h4>Backend (Port 8001)</h4>
+                        <div class="tech-list">
+                            <span class="tech-badge">Python 3.13</span>
+                            <span class="tech-badge">FastAPI</span>
+                            <span class="tech-badge">Pydantic</span>
+                            <span class="tech-badge">Uvicorn</span>
+                            <span class="tech-badge">pytest</span>
+                            <span class="tech-badge">CORS Middleware</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Architecture Diagram -->
+            <section>
+                <h2>Data Flow Architecture</h2>
+                <div class="flow-diagram">
+                    <div class="flow-steps">
+                        <div class="flow-step">
+                            <h5>JSON Files</h5>
+                            <p>server/data/*.json</p>
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <h5>Data Loading</h5>
+                            <p>mock_data.py</p>
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <h5>FastAPI Backend</h5>
+                            <p>main.py endpoints</p>
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <h5>Filtering & Validation</h5>
+                            <p>Pydantic models</p>
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <h5>API Response</h5>
+                            <p>JSON data</p>
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <h5>Vue Frontend</h5>
+                            <p>api.js client</p>
+                        </div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-step">
+                            <h5>Reactive UI</h5>
+                            <p>Components/Views</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Backend API Section -->
+            <section>
+                <h2>Backend API Endpoints</h2>
+                <p>RESTful API with optional query parameter filtering. All endpoints return JSON and support CORS for cross-origin requests.</p>
+
+                <div class="endpoint-list">
+                    <div class="endpoint">
+                        <code>GET /api/inventory</code>
+                        <p>Retrieve all inventory items with optional filtering</p>
+                        <span class="filters">Filters: warehouse, category</span>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/inventory/{item_id}</code>
+                        <p>Get specific inventory item by ID</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/orders</code>
+                        <p>Retrieve all orders with optional filtering</p>
+                        <span class="filters">Filters: warehouse, category, status, month</span>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/orders/{order_id}</code>
+                        <p>Get specific order by ID</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/demand</code>
+                        <p>Get demand forecasts for inventory planning</p>
+                        <span class="filters">No filters</span>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/backlog</code>
+                        <p>Get backlog items with purchase order status</p>
+                        <span class="filters">No filters</span>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/dashboard/summary</code>
+                        <p>Get aggregated dashboard statistics</p>
+                        <span class="filters">Filters: warehouse, category, status, month</span>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/spending/summary</code>
+                        <p>Get spending summary statistics</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/spending/monthly</code>
+                        <p>Get monthly spending breakdown</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/spending/categories</code>
+                        <p>Get spending by category</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/spending/transactions</code>
+                        <p>Get recent transaction history</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/reports/quarterly</code>
+                        <p>Get quarterly performance reports</p>
+                    </div>
+
+                    <div class="endpoint">
+                        <code>GET /api/reports/monthly-trends</code>
+                        <p>Get month-over-month trend analysis</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Models Section -->
+            <section>
+                <h2>Data Models (Pydantic)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Purpose</th>
+                            <th>Key Fields</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>InventoryItem</code></td>
+                            <td>Inventory stock details</td>
+                            <td>sku, name, category, warehouse, quantity_on_hand, reorder_point, unit_cost</td>
+                        </tr>
+                        <tr>
+                            <td><code>Order</code></td>
+                            <td>Customer order information</td>
+                            <td>order_number, customer, items, status, order_date, total_value, warehouse</td>
+                        </tr>
+                        <tr>
+                            <td><code>DemandForecast</code></td>
+                            <td>Demand predictions</td>
+                            <td>item_sku, current_demand, forecasted_demand, trend, period</td>
+                        </tr>
+                        <tr>
+                            <td><code>BacklogItem</code></td>
+                            <td>Delayed order items</td>
+                            <td>order_id, item_sku, quantity_needed, days_delayed, priority, has_purchase_order</td>
+                        </tr>
+                        <tr>
+                            <td><code>PurchaseOrder</code></td>
+                            <td>Supplier orders</td>
+                            <td>backlog_item_id, supplier_name, quantity, unit_cost, expected_delivery_date, status</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Data Files Section -->
+            <section>
+                <h2>Data Storage (JSON Files)</h2>
+                <p>All data is stored in JSON format in <code>server/data/</code> directory and loaded into memory at startup.</p>
+
+                <div class="data-files">
+                    <div class="data-file">
+                        <code>inventory.json</code>
+                        <p>9.6 KB - Stock items</p>
+                    </div>
+                    <div class="data-file">
+                        <code>orders.json</code>
+                        <p>151 KB - Order records</p>
+                    </div>
+                    <div class="data-file">
+                        <code>demand_forecasts.json</code>
+                        <p>1.8 KB - Forecasts</p>
+                    </div>
+                    <div class="data-file">
+                        <code>backlog_items.json</code>
+                        <p>929 B - Delayed items</p>
+                    </div>
+                    <div class="data-file">
+                        <code>purchase_orders.json</code>
+                        <p>3 B - PO records</p>
+                    </div>
+                    <div class="data-file">
+                        <code>spending.json</code>
+                        <p>2.5 KB - Spend data</p>
+                    </div>
+                    <div class="data-file">
+                        <code>transactions.json</code>
+                        <p>13.7 KB - Transactions</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Frontend Section -->
+            <section>
+                <h2>Frontend Architecture</h2>
+
+                <h3>Application Views</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Dashboard</h4>
+                        <ul>
+                            <li>KPI summary cards</li>
+                            <li>Inventory value tracking</li>
+                            <li>Low stock alerts</li>
+                            <li>Pending orders count</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Inventory</h4>
+                        <ul>
+                            <li>Stock level monitoring</li>
+                            <li>Reorder point tracking</li>
+                            <li>Warehouse filtering</li>
+                            <li>Category grouping</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Orders</h4>
+                        <ul>
+                            <li>Order status tracking</li>
+                            <li>Delivery date management</li>
+                            <li>Status filtering</li>
+                            <li>Time-based filtering</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Demand</h4>
+                        <ul>
+                            <li>Forecast visualization</li>
+                            <li>Trend analysis</li>
+                            <li>Backlog management</li>
+                            <li>Purchase order creation</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Spending</h4>
+                        <ul>
+                            <li>Expense tracking</li>
+                            <li>Monthly breakdowns</li>
+                            <li>Category analysis</li>
+                            <li>Transaction history</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Reports</h4>
+                        <ul>
+                            <li>Quarterly summaries</li>
+                            <li>Monthly trends</li>
+                            <li>Revenue tracking</li>
+                            <li>Fulfillment rates</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Reusable Components</h3>
+                <div class="grid">
+                    <div class="card">
+                        <h4>FilterBar</h4>
+                        <ul>
+                            <li>Global filter controls</li>
+                            <li>Warehouse selector</li>
+                            <li>Category selector</li>
+                            <li>Time period selector</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Modal Components</h4>
+                        <ul>
+                            <li>BacklogDetailModal</li>
+                            <li>InventoryDetailModal</li>
+                            <li>ProductDetailModal</li>
+                            <li>CostDetailModal</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Utility Components</h4>
+                        <ul>
+                            <li>ProfileMenu</li>
+                            <li>LanguageSwitcher</li>
+                            <li>TasksModal</li>
+                            <li>ProfileDetailsModal</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Filter System Section -->
+            <section>
+                <h2>Universal Filter System</h2>
+                <p>Four-dimensional filtering system that applies consistently across all views:</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Filter Type</th>
+                            <th>Options</th>
+                            <th>Applies To</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Time Period</strong></td>
+                            <td>All Months, Q1-2025, Q2-2025, Q3-2025, Q4-2025, Individual months</td>
+                            <td>Orders, Dashboard, Reports</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Warehouse</strong></td>
+                            <td>All Warehouses, Main, North, South, East, West</td>
+                            <td>Inventory, Orders, Dashboard</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Category</strong></td>
+                            <td>All Categories, Raw Materials, Components, Finished Goods, Packaging</td>
+                            <td>Inventory, Orders, Dashboard</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Order Status</strong></td>
+                            <td>All Statuses, Processing, Shipped, Delivered, Backordered</td>
+                            <td>Orders, Dashboard</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Key Features Section -->
+            <section>
+                <h2>Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h4>Real-Time Filtering</h4>
+                        <p>Dynamic data filtering across all views</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Reactive UI</h4>
+                        <p>Vue 3 Composition API with computed properties</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>RESTful API</h4>
+                        <p>Clean, predictable endpoint design</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Data Validation</h4>
+                        <p>Pydantic models ensure type safety</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>SPA Navigation</h4>
+                        <p>Client-side routing with Vue Router</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>Mock Data</h4>
+                        <p>JSON-based in-memory data for rapid prototyping</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Design Patterns Section -->
+            <section>
+                <h2>Design Patterns & Best Practices</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Frontend Patterns</h4>
+                        <ul>
+                            <li>Composition API for logic reuse</li>
+                            <li>Reactive refs and computed</li>
+                            <li>Centralized API client (api.js)</li>
+                            <li>Composables for shared state</li>
+                            <li>Component-based architecture</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Backend Patterns</h4>
+                        <ul>
+                            <li>RESTful resource naming</li>
+                            <li>Query parameter filtering</li>
+                            <li>Pydantic validation</li>
+                            <li>Helper functions for filtering</li>
+                            <li>CORS middleware for cross-origin</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Data Flow</h4>
+                        <ul>
+                            <li>Props down, events up</li>
+                            <li>Computed for derived data</li>
+                            <li>API client abstraction</li>
+                            <li>Loading states</li>
+                            <li>Error handling</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Code Organization</h4>
+                        <ul>
+                            <li>Clear separation of concerns</li>
+                            <li>Views for pages</li>
+                            <li>Components for reusable UI</li>
+                            <li>Modular backend endpoints</li>
+                            <li>Scoped component styles</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Project Structure Section -->
+            <section>
+                <h2>Project Structure</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Frontend (client/)</h4>
+                        <ul>
+                            <li>src/views/ - Page components</li>
+                            <li>src/components/ - Reusable UI</li>
+                            <li>src/api.js - API client</li>
+                            <li>src/main.js - App entry</li>
+                            <li>src/App.vue - Root component</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Backend (server/)</h4>
+                        <ul>
+                            <li>main.py - API endpoints</li>
+                            <li>mock_data.py - Data loader</li>
+                            <li>data/*.json - Mock data</li>
+                            <li>pyproject.toml - Dependencies</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Testing (tests/)</h4>
+                        <ul>
+                            <li>backend/ - API tests</li>
+                            <li>frontend/ - Component tests</li>
+                            <li>pytest configuration</li>
+                            <li>Test fixtures</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Documentation</h4>
+                        <ul>
+                            <li>README.md - Project overview</li>
+                            <li>CLAUDE.md - AI assistant guide</li>
+                            <li>docs/ - Architecture docs</li>
+                            <li>API docs at /docs endpoint</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Development Section -->
+            <section>
+                <h2>Development Workflow</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Command</th>
+                            <th>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Start Backend</td>
+                            <td><code>cd server && uv run python main.py</code></td>
+                            <td>Runs on http://localhost:8001</td>
+                        </tr>
+                        <tr>
+                            <td>Start Frontend</td>
+                            <td><code>cd client && npm run dev</code></td>
+                            <td>Runs on http://localhost:3000</td>
+                        </tr>
+                        <tr>
+                            <td>View API Docs</td>
+                            <td>Navigate to <code>http://localhost:8001/docs</code></td>
+                            <td>Interactive Swagger UI</td>
+                        </tr>
+                        <tr>
+                            <td>Run Backend Tests</td>
+                            <td><code>cd tests && pytest backend/ -v</code></td>
+                            <td>FastAPI TestClient</td>
+                        </tr>
+                        <tr>
+                            <td>Build Frontend</td>
+                            <td><code>cd client && npm run build</code></td>
+                            <td>Production build to dist/</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Future Enhancements Section -->
+            <section>
+                <h2>Potential Enhancements</h2>
+                <div class="grid">
+                    <div class="card">
+                        <h4>Database Integration</h4>
+                        <ul>
+                            <li>PostgreSQL or MongoDB</li>
+                            <li>SQLAlchemy ORM</li>
+                            <li>Data persistence</li>
+                            <li>Database migrations</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Authentication</h4>
+                        <ul>
+                            <li>JWT token auth</li>
+                            <li>User roles and permissions</li>
+                            <li>OAuth integration</li>
+                            <li>Session management</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Real-Time Features</h4>
+                        <ul>
+                            <li>WebSocket connections</li>
+                            <li>Live inventory updates</li>
+                            <li>Push notifications</li>
+                            <li>Collaborative editing</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h4>Advanced Analytics</h4>
+                        <ul>
+                            <li>Predictive analytics</li>
+                            <li>Machine learning models</li>
+                            <li>Advanced visualizations</li>
+                            <li>Export to PDF/Excel</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</body>
+</html>

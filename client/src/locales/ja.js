@@ -188,6 +188,29 @@ export default {
     }
   },
 
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期業績と月別トレンドの表示',
+    quarterlyPerformance: '四半期業績',
+    monthlyRevenueTrend: '月別売上トレンド',
+    monthOverMonthAnalysis: '前月比分析',
+    quarter: '四半期',
+    totalOrders: '総注文数',
+    totalRevenue: '総売上',
+    avgOrderValue: '平均注文額',
+    fulfillmentRate: '達成率',
+    month: '月',
+    orders: '注文',
+    revenue: '売上',
+    change: '変化',
+    growthRate: '成長率',
+    totalRevenueYTD: '総売上（年累計）',
+    avgMonthlyRevenue: '平均月間売上',
+    totalOrdersYTD: '総注文数（年累計）',
+    bestPerformingQuarter: '最高業績四半期'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
