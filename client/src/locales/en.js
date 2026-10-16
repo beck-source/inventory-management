@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,7 +113,12 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    submittedDescription: 'Restocking orders placed from the demand forecast',
+    submittedEmpty: 'No submitted orders yet. Place one from the Restocking tab.',
+    leadTimeDays: '{days} days',
     table: {
+      leadTime: 'Lead Time',
       orderNumber: 'Order Number',
       orderId: 'Order ID',
       orderDate: 'Order Date',
@@ -188,6 +194,32 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget to get restock recommendations from the demand forecast',
+    budget: 'Budget',
+    budgetRemaining: 'Remaining',
+    recommended: 'Recommended Items',
+    noRecommendations: 'No items need restocking within this budget.',
+    totalCost: 'Order Total',
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    selectItems: 'Select at least one item to place an order.',
+    overBudget: 'This order is over budget.',
+    orderPlaced: 'Order {orderNumber} submitted. Expected in {days} days ({date}).',
+    orderFailed: 'Could not place the order. Please try again.',
+    table: {
+      select: 'Select',
+      item: 'Item',
+      trend: 'Trend',
+      shortfall: 'Shortfall',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +236,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
@@ -309,6 +342,26 @@ export default {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Purchase Orders
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    viewTitle: 'Purchase Order',
+    supplierName: 'Supplier Name',
+    quantity: 'Quantity',
+    unitCost: 'Unit Cost',
+    expectedDelivery: 'Expected Delivery Date',
+    notes: 'Notes',
+    notesPlaceholder: 'Optional notes',
+    submit: 'Create Purchase Order',
+    submitting: 'Submitting...',
+    createError: 'Failed to create purchase order. Please try again.',
+    loadError: 'Failed to load purchase order.',
+    noPurchaseOrder: 'No purchase order has been created for this item.',
+    id: 'PO ID',
+    status: 'Status',
+    createdDate: 'Created Date'
   },
 
   // Common

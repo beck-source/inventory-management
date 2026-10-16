@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,7 +113,12 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: '提出済み注文',
+    submittedDescription: '需要予測から発注された補充注文',
+    submittedEmpty: '提出済みの注文はまだありません。補充発注タブから発注してください。',
+    leadTimeDays: '{days}日',
     table: {
+      leadTime: 'リードタイム',
       orderNumber: '注文番号',
       orderId: '注文ID',
       orderDate: '注文日',
@@ -188,6 +194,32 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定すると、需要予測に基づく補充候補を表示します',
+    budget: '予算',
+    budgetRemaining: '残額',
+    recommended: '推奨品目',
+    noRecommendations: 'この予算内で補充が必要な品目はありません。',
+    totalCost: '注文合計',
+    placeOrder: '発注する',
+    placing: '発注中...',
+    selectItems: '発注するには品目を1つ以上選択してください。',
+    overBudget: 'この注文は予算を超えています。',
+    orderPlaced: '注文 {orderNumber} を提出しました。{days}日後（{date}）に入荷予定です。',
+    orderFailed: '注文を提出できませんでした。もう一度お試しください。',
+    table: {
+      select: '選択',
+      item: '品目',
+      trend: '傾向',
+      shortfall: '不足数',
+      quantity: '数量',
+      unitCost: '単価',
+      lineCost: '金額'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +236,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '提出済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
@@ -311,6 +344,26 @@ export default {
     selectLanguage: '言語を選択'
   },
 
+  // Purchase Orders
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    viewTitle: '発注書',
+    supplierName: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価',
+    expectedDelivery: '納品予定日',
+    notes: '備考',
+    notesPlaceholder: '任意の備考',
+    submit: '発注書を作成',
+    submitting: '送信中...',
+    createError: '発注書の作成に失敗しました。もう一度お試しください。',
+    loadError: '発注書の読み込みに失敗しました。',
+    noPurchaseOrder: 'この商品の発注書はまだ作成されていません。',
+    id: '発注書ID',
+    status: 'ステータス',
+    createdDate: '作成日'
+  },
+
   // Common
   common: {
     loading: '読み込み中...',
@@ -328,6 +381,15 @@ export default {
 
   // Product Names
   productNames: {
+    // Demand forecast items (not in inventory.json)
+    'Industrial Widget Type A': '工業用ウィジェット タイプA',
+    'Steel Bearing Assembly': '鋼製ベアリングアセンブリ',
+    'High-Temperature Gasket': '耐熱ガスケット',
+    'Electric Motor 5HP': '電動モーター 5HP',
+    'Oil Filter Cartridge': 'オイルフィルターカートリッジ',
+    'Pressure Relief Valve': '圧力逃し弁',
+    '5V 10A Switching Power Supply': '5V 10A スイッチング電源',
+    'Logic Controller Board': 'ロジックコントローラーボード',
     'Single Layer PCB Assembly': '単層PCB組立',
     'Dual Layer PCB Assembly': '二層PCB組立',
     'Multi Layer PCB Assembly': '多層PCB組立',

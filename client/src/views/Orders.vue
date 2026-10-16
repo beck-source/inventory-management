@@ -75,6 +75,50 @@
         </div>
       </div>
     </div>
+
+    <!-- Outside the All Orders loading/error chain so it keeps its own state across filter reloads and load failures -->
+    <div class="card submitted-card">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
+        <p class="card-description">{{ t('orders.submittedDescription') }}</p>
+      </div>
+      <p v-if="submittedError" class="submitted-empty">{{ submittedError }}</p>
+      <p v-else-if="submittedOrders.length === 0" class="submitted-empty">{{ t('orders.submittedEmpty') }}</p>
+      <div v-else class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+              <th class="col-date">{{ t('orders.table.orderDate') }}</th>
+              <th>{{ t('orders.table.items') }}</th>
+              <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              <th class="col-date">{{ t('orders.table.leadTime') }}</th>
+              <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+              <th class="col-status">{{ t('orders.table.status') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in submittedOrders" :key="order.id">
+              <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+              <td class="col-date">{{ formatDate(order.order_date) }}</td>
+              <td>
+                <div v-for="item in order.items" :key="item.sku" class="submitted-item">
+                  {{ item.sku }} x {{ item.quantity }}
+                </div>
+              </td>
+              <td class="col-value">
+                <strong>{{ formatCurrency(order.total_value, currentCurrency) }}</strong>
+              </td>
+              <td class="col-date">{{ t('orders.leadTimeDays', { days: order.lead_time_days }) }}</td>
+              <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+              <td class="col-status">
+                <span :class="['badge', getOrderStatusClass(order.status)]">{{ t('status.submitted') }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -83,6 +127,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -124,6 +169,20 @@ export default {
       }
     }
 
+    // Submitted restock orders load independently so a failure here
+    // never affects the All Orders table or its loading/error state.
+    const submittedOrders = ref([])
+    const submittedError = ref(null)
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedError.value = null
+        submittedOrders.value = await api.getSubmittedOrders()
+      } catch (err) {
+        submittedError.value = 'Failed to load submitted orders: ' + err.message
+        console.error(err)
+      }
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -138,7 +197,8 @@ export default {
         'Delivered': 'success',
         'Shipped': 'info',
         'Processing': 'warning',
-        'Backordered': 'danger'
+        'Backordered': 'danger',
+        'Submitted': 'info'
       }
       return statusMap[status] || 'info'
     }
@@ -153,10 +213,17 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
+      currentCurrency,
+      submittedOrders,
+      submittedError,
+      formatCurrency,
       loading,
       error,
       orders,
@@ -275,5 +342,26 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.submitted-card {
+  margin-top: 1.5rem;
+}
+
+.card-description {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.submitted-empty {
+  padding: 2rem 1.5rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.submitted-item {
+  font-size: 0.875rem;
+  color: #0f172a;
 }
 </style>
