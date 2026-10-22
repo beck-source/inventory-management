@@ -4,6 +4,7 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    restocking: '補充',
     finance: '財務',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
@@ -106,6 +107,7 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み発注',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,7 +127,43 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      createdDate: '作成日',
+      leadTime: 'リードタイム',
+      totalCost: '合計費用',
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、補充が最も必要な品目を発注します',
+    budgetLabel: '利用可能予算',
+    allocated: '割当額',
+    remaining: '残額',
+    itemsRecommended: '品目数',
+    recommendations: '推奨品目',
+    placeOrder: '発注する',
+    placing: '送信中...',
+    orderPlacedDetail: '発注 {orderNumber} を送信しました。予定配達は{days}日後です。',
+    viewInOrders: '注文タブで表示',
+    noCandidates: '現在のフィルタでは補充が必要な品目はありません。',
+    budgetTooLow: '予算が不足しています。最も安い品目は{amount}です。',
+    partial: '一部',
+    daysUnit: '日',
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      onHand: '在庫数',
+      reorderPoint: '発注点',
+      shortfall: '不足数',
+      trend: '傾向',
+      unitCost: '単価',
+      quantity: '数量',
+      lineCost: '金額',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -206,7 +244,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    submitted: '送信済み',
   },
 
   // Trends
@@ -302,6 +341,29 @@ export default {
     dueDate: '期限',
     addTask: 'タスクを追加',
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    viewTitle: '発注書',
+    sku: 'SKU',
+    item: '商品',
+    shortage: '不足数',
+    units: '個',
+    poNumber: '発注番号',
+    status: 'ステータス',
+    supplier: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価 (USD)',
+    total: '合計',
+    expectedDelivery: '納品予定日',
+    createdDate: '作成日',
+    notes: '備考',
+    notesOptional: '備考（任意）',
+    submit: '発注書を作成',
+    submitting: '作成中...',
+    genericError: 'エラーが発生しました。もう一度お試しください。'
   },
 
   // Language

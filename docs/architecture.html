@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Factory Inventory Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --ground:   #f4f6f7;
+    --surface:  #ffffff;
+    --raised:   #eef1f2;
+    --ink:      #101820;
+    --ink-soft: #37434f;
+    --muted:    #5d6b78;
+    --line:     #dbe1e5;
+    --line-firm:#c3ccd3;
+    --accent:   #0c6b60;
+    --accent-weak: #e2efed;
+    --warn:     #96600a;
+    --warn-weak:#f6eedd;
+    --ok:       #2c6e4c;
+
+    --display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --body:    "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:   #0d1216;
+      --surface:  #141b21;
+      --raised:   #1b242b;
+      --ink:      #e3e9ed;
+      --ink-soft: #bcc7d0;
+      --muted:    #8795a1;
+      --line:     #243039;
+      --line-firm:#35444f;
+      --accent:   #4ec8b8;
+      --accent-weak: #10302d;
+      --warn:     #d9a541;
+      --warn-weak:#2d2515;
+      --ok:       #62b98a;
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:   #0d1216;
+    --surface:  #141b21;
+    --raised:   #1b242b;
+    --ink:      #e3e9ed;
+    --ink-soft: #bcc7d0;
+    --muted:    #8795a1;
+    --line:     #243039;
+    --line-firm:#35444f;
+    --accent:   #4ec8b8;
+    --accent-weak: #10302d;
+    --warn:     #d9a541;
+    --warn-weak:#2d2515;
+    --ok:       #62b98a;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 400 15px/1.6 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; }
+
+  /* ---------- shell ---------- */
+
+  .topbar {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 10;
+    background: color-mix(in srgb, var(--ground) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .topbar strong {
+    font: 600 13px/1 var(--display);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+  .topnav {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font: 500 12px/1 var(--mono);
+    letter-spacing: 0.01em;
+  }
+  .topnav a { color: var(--muted); text-decoration: none; }
+  .topnav a:hover { color: var(--accent); }
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-inline: 24px;
+    padding-block: 0 96px;
+  }
+
+  .prose { max-width: 66ch; }
+
+  /* ---------- masthead ---------- */
+
+  .masthead { padding-block: 64px 44px; }
+  .eyebrow {
+    font: 500 11px/1 var(--mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 18px;
+  }
+  h1 {
+    font: 700 clamp(32px, 5.4vw, 50px)/1.06 var(--display);
+    letter-spacing: -0.025em;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 17px;
+    line-height: 1.62;
+    color: var(--ink-soft);
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  /* ---------- spec strip ---------- */
+
+  .spec {
+    margin-top: 38px;
+    border-top: 1px solid var(--line-firm);
+    border-bottom: 1px solid var(--line-firm);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0;
+  }
+  .spec div {
+    padding: 16px 20px 16px 0;
+    border-right: 1px solid var(--line);
+  }
+  .spec div:last-child { border-right: 0; }
+  .spec dt {
+    font: 500 10px/1 var(--mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .spec dd {
+    margin: 0;
+    font: 500 14px/1.35 var(--body);
+    font-variant-numeric: tabular-nums;
+  }
+  .spec dd span { color: var(--muted); font-weight: 400; }
+
+  /* ---------- sections ---------- */
+
+  section { padding-block: 52px 0; }
+  h2 {
+    font: 600 24px/1.2 var(--display);
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+  }
+  .section-note {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 28px;
+    max-width: 62ch;
+  }
+  h3 {
+    font: 600 12px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 34px 0 14px;
+  }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); }
+  code {
+    font: 400 0.88em/1.4 var(--mono);
+    background: var(--raised);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 0 0 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 26px 22px 18px;
+  }
+  .scroller { overflow-x: auto; }
+  figure svg {
+    display: block;
+    width: 100%;
+    min-width: 620px;
+    max-width: 100%;
+    height: auto;
+    color: var(--ink-soft);
+  }
+  figcaption {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+
+  /* ---------- stack grid ---------- */
+
+  .layers {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(236px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .layer { background: var(--surface); padding: 20px; }
+  .layer h4 {
+    font: 600 11px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  .layer ul { margin: 0; padding: 0; list-style: none; }
+  .layer li {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 6px 0;
+    border-bottom: 1px dotted var(--line);
+    font-size: 13.5px;
+  }
+  .layer li:last-child { border-bottom: 0; }
+  .layer li b { font-weight: 500; }
+  .layer li span {
+    font: 400 12px/1.5 var(--mono);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* ---------- tables ---------- */
+
+  .tablewrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  thead th {
+    font: 500 10px/1 var(--mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--raised);
+    white-space: nowrap;
+  }
+  tbody tr:last-child td { border-bottom: 0; }
+  td.path { font: 400 12.5px/1.5 var(--mono); white-space: nowrap; }
+  td.path em { font-style: normal; color: var(--muted); }
+  .chip {
+    display: inline-block;
+    font: 500 11px/1 var(--mono);
+    padding: 3px 7px;
+    border-radius: 3px;
+    background: var(--accent-weak);
+    color: var(--accent);
+    margin: 1px 3px 1px 0;
+  }
+  .chip.none { background: var(--raised); color: var(--muted); }
+
+  /* ---------- tree ---------- */
+
+  .tree {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 20px 22px;
+    overflow-x: auto;
+    font: 400 12.5px/1.95 var(--mono);
+    margin: 0;
+    white-space: pre;
+    color: var(--ink-soft);
+  }
+  .tree b { color: var(--ink); font-weight: 600; }
+  .tree i { color: var(--muted); font-style: normal; }
+
+  /* ---------- edge notes ---------- */
+
+  .edges { display: grid; gap: 14px; }
+  .edge {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--warn);
+    border-radius: 0 6px 6px 0;
+    padding: 16px 20px;
+  }
+  .edge h4 {
+    margin: 0 0 6px;
+    font: 600 14.5px/1.35 var(--body);
+  }
+  .edge p { margin: 0; font-size: 13.5px; color: var(--ink-soft); }
+  .edge p + p { margin-top: 8px; }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font: 400 12px/1.7 var(--mono);
+    color: var(--muted);
+  }
+
+  @media (max-width: 560px) {
+    .spec div { border-right: 0; border-bottom: 1px solid var(--line); }
+    .spec div:last-child { border-bottom: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <strong>Factory Inventory</strong>
+    <nav class="topnav">
+      <a href="#topology">topology</a>
+      <a href="#stack">stack</a>
+      <a href="#flow">data flow</a>
+      <a href="#api">api</a>
+      <a href="#map">repo map</a>
+      <a href="#edges">sharp edges</a>
+    </nav>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <p class="eyebrow">Architecture reference</p>
+    <h1>Factory Inventory Architecture</h1>
+    <p class="standfirst">
+      A two-process demo: a Vue 3 single-page app talks to a FastAPI service over plain HTTP.
+      There is no database and no ORM — seven JSON files are read into Python lists once at
+      import time, and every request filters those lists in memory. Knowing that one fact
+      explains most of the design decisions below.
+    </p>
+
+    <dl class="spec">
+      <div><dt>Frontend</dt><dd>Vue 3 + Vite <span>:3000</span></dd></div>
+      <div><dt>Backend</dt><dd>FastAPI + uvicorn <span>:8001</span></dd></div>
+      <div><dt>Persistence</dt><dd>None <span>in-memory</span></dd></div>
+      <div><dt>Seed data</dt><dd>250 orders <span>· 32 SKUs</span></dd></div>
+      <div><dt>Warehouses</dt><dd>SF · London · Tokyo</dd></div>
+      <div><dt>Locales</dt><dd>en · ja <span>USD / JPY</span></dd></div>
+    </dl>
+  </header>
+
+  <section id="topology">
+    <h2>System topology</h2>
+    <p class="section-note">
+      Two independent processes, started separately. Nothing is shared between them except the
+      HTTP contract — the SPA hardcodes the API origin rather than proxying through Vite.
+    </p>
+
+    <figure>
+      <div class="scroller">
+        <svg viewBox="0 0 940 300" role="img" aria-label="The Vue single-page app in the browser calls the FastAPI service over HTTP; FastAPI reads module-level Python lists that mock_data.py loaded once from JSON files on disk.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+            </marker>
+            <marker id="arA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"></path>
+            </marker>
+          </defs>
+
+          <!-- process boundary: browser -->
+          <rect x="8" y="36" width="238" height="206" rx="6" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"></rect>
+          <text x="20" y="28" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.65">BROWSER</text>
+
+          <!-- process boundary: python -->
+          <rect x="356" y="36" width="576" height="206" rx="6" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.45"></rect>
+          <text x="368" y="28" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.65">PYTHON PROCESS · uvicorn :8001</text>
+
+          <!-- A: SPA -->
+          <rect x="28" y="92" width="198" height="94" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="127" y="122" text-anchor="middle" font-family="Archivo, sans-serif" font-size="15" font-weight="600" fill="currentColor">Vue 3 SPA</text>
+          <text x="127" y="143" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">6 routed views</text>
+          <text x="127" y="160" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">9 modals · 3 composables</text>
+          <text x="127" y="177" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">served by Vite :3000</text>
+
+          <!-- B: FastAPI -->
+          <rect x="384" y="92" width="190" height="94" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="479" y="122" text-anchor="middle" font-family="Archivo, sans-serif" font-size="15" font-weight="600" fill="currentColor">FastAPI app</text>
+          <text x="479" y="143" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">13 GET routes</text>
+          <text x="479" y="160" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">CORSMiddleware</text>
+          <text x="479" y="177" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">Pydantic models</text>
+
+          <!-- C: mock_data -->
+          <rect x="632" y="92" width="150" height="94" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="707" y="126" text-anchor="middle" font-family="Archivo, sans-serif" font-size="14" font-weight="600" fill="currentColor">mock_data.py</text>
+          <text x="707" y="148" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">module-level</text>
+          <text x="707" y="165" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">lists &amp; dicts</text>
+
+          <!-- D: json -->
+          <rect x="840" y="92" width="76" height="94" rx="5" fill="var(--raised)" stroke="currentColor" stroke-width="1.4"></rect>
+          <text x="878" y="128" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">data/</text>
+          <text x="878" y="146" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor">*.json</text>
+          <text x="878" y="164" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">7 files</text>
+
+          <!-- arrows A -> B -->
+          <line x1="230" y1="118" x2="380" y2="118" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arA)"></line>
+          <text x="305" y="109" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--accent)">GET + query params</text>
+
+          <line x1="380" y1="160" x2="230" y2="160" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 3" marker-end="url(#ar)"></line>
+          <text x="305" y="178" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.75">validated JSON</text>
+
+          <!-- arrow B -> C -->
+          <line x1="578" y1="139" x2="628" y2="139" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"></line>
+          <text x="603" y="124" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.7">reads</text>
+
+          <!-- arrow C -> D -->
+          <line x1="786" y1="139" x2="836" y2="139" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"></line>
+          <text x="811" y="124" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.7">once</text>
+
+          <!-- footnote inside python box -->
+          <text x="384" y="216" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.6">json.load() runs at import — writes never reach disk, restart resets state</text>
+
+          <text x="28" y="216" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.6">axios · origin hardcoded</text>
+
+          <!-- network label -->
+          <text x="305" y="266" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.6">http://localhost:8001/api</text>
+          <line x1="128" y1="246" x2="128" y2="258" stroke="currentColor" stroke-width="1" opacity="0.35"></line>
+          <line x1="479" y1="246" x2="479" y2="258" stroke="currentColor" stroke-width="1" opacity="0.35"></line>
+          <line x1="128" y1="258" x2="479" y2="258" stroke="currentColor" stroke-width="1" opacity="0.35"></line>
+        </svg>
+      </div>
+      <figcaption>
+        The only runtime link between the two processes is the hardcoded base URL in
+        <code>client/src/api.js</code>. Vite is not configured as a proxy, which is why the
+        backend has to run CORS middleware even in development.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="stack">
+    <h2>Tech stack</h2>
+    <p class="section-note">
+      Versions as resolved on this machine — the frontend from <code>package.json</code>,
+      the backend from <code>uv.lock</code>.
+    </p>
+
+    <div class="layers">
+      <div class="layer">
+        <h4>Client</h4>
+        <ul>
+          <li><b>Vue</b> <span>3.4+</span></li>
+          <li><b>vue-router</b> <span>4.3+</span></li>
+          <li><b>axios</b> <span>1.6+</span></li>
+          <li><b>Vite</b> <span>8.0</span></li>
+          <li><b>@vitejs/plugin-vue</b> <span>6.0</span></li>
+          <li><b>Node</b> <span>^20.19 || ≥22.12</span></li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h4>Server</h4>
+        <ul>
+          <li><b>FastAPI</b> <span>0.159.1</span></li>
+          <li><b>uvicorn</b> <span>0.54.0</span></li>
+          <li><b>Pydantic</b> <span>2.14.1</span></li>
+          <li><b>Starlette</b> <span>1.9.0</span></li>
+          <li><b>Python</b> <span>≥3.11</span></li>
+          <li><b>uv</b> <span>env + runner</span></li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h4>Testing</h4>
+        <ul>
+          <li><b>pytest</b> <span>9.1.1</span></li>
+          <li><b>pytest-asyncio</b> <span>1.4.0</span></li>
+          <li><b>pytest-cov</b> <span>7.1.0</span></li>
+          <li><b>httpx</b> <span>0.28.1</span></li>
+          <li><b>TestClient</b> <span>in-process</span></li>
+          <li><b>Scope</b> <span>backend only</span></li>
+        </ul>
+      </div>
+      <div class="layer">
+        <h4>Conventions</h4>
+        <ul>
+          <li><b>API style</b> <span>Composition</span></li>
+          <li><b>State</b> <span>composables</span></li>
+          <li><b>Charts</b> <span>hand-written SVG</span></li>
+          <li><b>Styling</b> <span>scoped CSS</span></li>
+          <li><b>Palette</b> <span>slate + status</span></li>
+          <li><b>Icons</b> <span>inline SVG, no emoji</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="flow">
+    <h2>Data flow</h2>
+    <p class="section-note">
+      One mechanism drives nearly every screen: the four-filter round trip. The filters live in a
+      module-scoped singleton, so changing a dropdown in the header re-reads data in whatever
+      view happens to be mounted.
+    </p>
+
+    <figure>
+      <div class="scroller">
+        <svg viewBox="0 0 700 586" role="img" aria-label="Eight-step round trip: a filter dropdown updates a shared ref, the view refetches through api.js, FastAPI filters in-memory lists and validates with Pydantic, and the client assigns the result to a ref so computed properties re-derive.">
+          <defs>
+            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+            </marker>
+          </defs>
+
+          <!-- band rail -->
+          <rect x="92" y="24" width="3" height="250" rx="1.5" fill="var(--accent)" opacity="0.5"></rect>
+          <rect x="92" y="296" width="3" height="186" rx="1.5" fill="currentColor" opacity="0.35"></rect>
+          <rect x="92" y="504" width="3" height="58" rx="1.5" fill="var(--accent)" opacity="0.5"></rect>
+
+          <text x="84" y="40" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--accent)">CLIENT</text>
+          <text x="84" y="312" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">SERVER</text>
+          <text x="84" y="520" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--accent)">CLIENT</text>
+
+          <!-- step 1 -->
+          <rect x="116" y="24" width="560" height="52" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="46" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--accent)">1</text>
+          <text x="160" y="46" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">FilterBar.vue</text>
+          <text x="160" y="64" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">v-model writes one of four refs: period, location, category, status</text>
+          <line x1="396" y1="76" x2="396" y2="92" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"></line>
+
+          <!-- step 2 -->
+          <rect x="116" y="96" width="560" height="52" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="118" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--accent)">2</text>
+          <text x="160" y="118" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">useFilters() singleton</text>
+          <text x="160" y="136" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">refs declared outside the function — one instance shared app-wide</text>
+          <line x1="396" y1="148" x2="396" y2="164" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"></line>
+
+          <!-- step 3 -->
+          <rect x="116" y="168" width="560" height="52" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="190" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--accent)">3</text>
+          <text x="160" y="190" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">Active view watches the refs</text>
+          <text x="160" y="208" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">getCurrentFilters() maps location → warehouse, period → month</text>
+          <line x1="396" y1="220" x2="396" y2="236" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"></line>
+
+          <!-- step 4 -->
+          <rect x="116" y="240" width="560" height="52" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="262" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--accent)">4</text>
+          <text x="160" y="262" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">api.js</text>
+          <text x="160" y="280" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">URLSearchParams — any value of "all" is omitted, not sent</text>
+
+          <!-- boundary -->
+          <line x1="116" y1="310" x2="676" y2="310" stroke="currentColor" stroke-width="1" stroke-dasharray="4 4" opacity="0.5"></line>
+          <text x="676" y="305" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity="0.6">HTTP · CORS allow_origins=["*"]</text>
+          <line x1="396" y1="292" x2="396" y2="328" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"></line>
+
+          <!-- step 5 -->
+          <rect x="116" y="332" width="560" height="52" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="354" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">5</text>
+          <text x="160" y="354" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">Route handler</text>
+          <text x="160" y="372" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">apply_filters() then filter_by_month() — list comprehensions</text>
+          <line x1="396" y1="384" x2="396" y2="400" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"></line>
+
+          <!-- step 6 -->
+          <rect x="116" y="404" width="560" height="52" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="426" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.7">6</text>
+          <text x="160" y="426" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">response_model validation</text>
+          <text x="160" y="444" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">Pydantic rejects JSON whose shape drifts from the model</text>
+          <line x1="396" y1="456" x2="396" y2="496" stroke="currentColor" stroke-width="1.3" marker-end="url(#ar2)"></line>
+
+          <!-- step 7 -->
+          <rect x="116" y="500" width="560" height="62" rx="5" fill="var(--surface)" stroke="currentColor" stroke-width="1.2"></rect>
+          <text x="136" y="524" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--accent)">7</text>
+          <text x="160" y="524" font-family="IBM Plex Sans, sans-serif" font-size="13.5" font-weight="600" fill="currentColor">Assign to a ref — computed properties do the rest</text>
+          <text x="160" y="542" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">raw data in refs (allOrders, inventoryItems)</text>
+          <text x="160" y="557" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity="0.72">every derived number is a cached computed, never a method call</text>
+        </svg>
+      </div>
+      <figcaption>
+        Filtering happens twice by design: the server narrows the result set, and the client's
+        computed properties derive totals, groupings and chart series from whatever came back.
+        Nothing is cached between requests.
+      </figcaption>
+    </figure>
+  </section>
+
+  <section id="api">
+    <h2>API surface</h2>
+    <p class="section-note">
+      Thirteen routes, all <code>GET</code>. Filters are optional query parameters; an omitted
+      parameter and the literal string <code>all</code> are treated identically.
+    </p>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Route</th><th>Returns</th><th>Filters honored</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="path">/api/inventory</td>
+            <td>32 inventory items</td>
+            <td><span class="chip">warehouse</span><span class="chip">category</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/inventory/<em>{id}</em></td>
+            <td>One item, else 404</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/orders</td>
+            <td>250 orders</td>
+            <td><span class="chip">warehouse</span><span class="chip">category</span><span class="chip">status</span><span class="chip">month</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/orders/<em>{id}</em></td>
+            <td>One order, else 404</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/dashboard/summary</td>
+            <td>5 aggregates — inventory value, low stock, pending orders, backlog, order value</td>
+            <td><span class="chip">warehouse</span><span class="chip">category</span><span class="chip">status</span><span class="chip">month</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/demand</td>
+            <td>9 forecasts with trend direction</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/backlog</td>
+            <td>4 items, each tagged <code>has_purchase_order</code></td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/spending/summary<br>/api/spending/monthly<br>/api/spending/categories</td>
+            <td>Three slices of <code>spending.json</code>, returned verbatim</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/spending/transactions</td>
+            <td>Recent transaction list</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/reports/quarterly</td>
+            <td>Per-quarter rollup computed from orders — revenue, fulfillment rate, average order value</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+          <tr>
+            <td class="path">/api/reports/monthly-trends</td>
+            <td>Per-month order count, revenue, delivered count</td>
+            <td><span class="chip none">none</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Response models</h3>
+    <p class="prose">
+      Five Pydantic models gate the typed routes — <code>InventoryItem</code>, <code>Order</code>,
+      <code>DemandForecast</code>, <code>BacklogItem</code> and <code>PurchaseOrder</code>. The
+      spending and reports routes return bare dicts with no model, so changes to those JSON files
+      pass through unchecked. Changing the shape of <code>inventory.json</code> or
+      <code>orders.json</code>, by contrast, will fail loudly at request time until the matching
+      model is updated.
+    </p>
+  </section>
+
+  <section id="map">
+    <h2>Repo map</h2>
+    <p class="section-note">Where each concern actually lives.</p>
+
+    <pre class="tree"><b>client/src/</b>
+├── <b>main.js</b>              <i>router: 6 routes, no guards, no lazy loading</i>
+├── <b>App.vue</b>              <i>shell — nav, FilterBar, profile + tasks modals, all global CSS</i>
+├── <b>api.js</b>               <i>every HTTP call in the app, one axios module</i>
+├── <b>views/</b>               <i>Dashboard · Inventory · Orders · Demand · Spending · Reports</i>
+│                         <i>Backlog.vue also lives here but is not routed</i>
+├── <b>components/</b>          <i>FilterBar, 5 detail modals, profile menu, language switcher</i>
+├── <b>composables/</b>         <i>useFilters · useAuth · useI18n — module-scoped singletons</i>
+├── <b>locales/</b>             <i>en.js · ja.js</i>
+└── <b>utils/currency.js</b>    <i>USD→JPY at a hardcoded rate of 150</i>
+
+<b>server/</b>
+├── <b>main.py</b>              <i>routes, Pydantic models, apply_filters(), filter_by_month()</i>
+├── <b>mock_data.py</b>         <i>loads the 7 JSON files into module globals at import</i>
+├── <b>generate_data.py</b>     <i>regenerates the seed files</i>
+└── <b>data/</b>                <i>inventory · orders · demand_forecasts · backlog_items</i>
+                          <i>spending · transactions · purchase_orders</i>
+
+<b>tests/backend/</b>           <i>pytest + FastAPI TestClient, in-process — no server needed</i>
+<b>scripts/</b>                 <i>start.sh · stop.sh — boots both processes</i></pre>
+  </section>
+
+  <section id="edges">
+    <h2>Sharp edges</h2>
+    <p class="section-note">
+      Things the code does not announce, each verified against the source rather than the docs.
+    </p>
+
+    <div class="edges">
+      <div class="edge">
+        <h4>The client calls seven endpoints the server does not define</h4>
+        <p>
+          <code>api.js</code> exports <code>getTasks</code>, <code>createTask</code>,
+          <code>deleteTask</code>, <code>toggleTask</code>, <code>createPurchaseOrder</code> and
+          <code>getPurchaseOrderByBacklogItem</code>, targeting <code>/api/tasks</code> and
+          <code>/api/purchase-orders</code>. Neither path exists in <code>main.py</code>.
+        </p>
+        <p>
+          <code>App.vue</code> calls <code>getTasks()</code> on mount; the 404 is swallowed by a
+          <code>catch</code> that only logs, so the Tasks modal silently falls back to the mock
+          tasks hardcoded in <code>useAuth.js</code>. The purchase-order methods are never called
+          at all — <code>purchase_orders.json</code> is an empty array, so every backlog item
+          reports <code>has_purchase_order: false</code>.
+        </p>
+      </div>
+
+      <div class="edge">
+        <h4>Nothing written at runtime survives a restart</h4>
+        <p>
+          <code>mock_data.py</code> runs <code>json.load()</code> at import and binds the results
+          to module globals. Any mutation lives in that one process's memory and is never written
+          back to <code>server/data/</code>. Adding real writes means deciding on persistence
+          first, not just adding a POST route.
+        </p>
+      </div>
+
+      <div class="edge">
+        <h4>The backend understands quarters; the UI never sends them</h4>
+        <p>
+          <code>filter_by_month()</code> has a <code>QUARTER_MAP</code> covering
+          <code>Q1-2025</code> through <code>Q4-2025</code>, but <code>FilterBar.vue</code> only
+          offers the twelve months of 2025. The quarter path is reachable only by calling the API
+          directly. A quarter string outside the map falls through and returns the list unfiltered
+          rather than empty.
+        </p>
+      </div>
+
+      <div class="edge">
+        <h4>The month filter cannot apply to inventory</h4>
+        <p>
+          Filtering keys off each record's <code>order_date</code>, and inventory items have no
+          such field — only <code>last_updated</code>. So <code>/api/inventory</code> accepts
+          warehouse and category only, and the dashboard's inventory figures ignore the time period
+          dropdown while its order figures respect it.
+        </p>
+      </div>
+
+      <div class="edge">
+        <h4>CORS is wide open, with credentials</h4>
+        <p>
+          <code>allow_origins=["*"]</code> is paired with <code>allow_credentials=True</code>.
+          That is fine for a local demo and wrong for anything deployed — browsers reject the
+          combination, and the intent behind it is broader than this app needs.
+        </p>
+      </div>
+
+      <div class="edge">
+        <h4>Currency conversion is display-only</h4>
+        <p>
+          Switching to Japanese multiplies every figure by a constant <code>150</code> in
+          <code>utils/currency.js</code>. The API always returns USD; nothing round-trips in yen,
+          so JPY values are presentational and will not reconcile against the raw data.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Generated from a read of the repository at branch <code>new_features</code> · 2026-10-22<br>
+    Backend: server/main.py, server/mock_data.py · Frontend: client/src/ · Tests: tests/backend/
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -106,6 +107,7 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,7 +127,43 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      createdDate: 'Created',
+      leadTime: 'Lead Time',
+      totalCost: 'Total Cost',
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order what needs replenishing most',
+    budgetLabel: 'Available Budget',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    itemsRecommended: 'Items',
+    recommendations: 'Recommended Items',
+    placeOrder: 'Place Order',
+    placing: 'Placing...',
+    orderPlacedDetail: 'Order {orderNumber} submitted. Expected delivery in {days} days.',
+    viewInOrders: 'View in Orders',
+    noCandidates: 'Nothing needs restocking with the current filters.',
+    budgetTooLow: 'Budget is too low. The cheapest item costs {amount}.',
+    partial: 'Partial',
+    daysUnit: 'days',
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      category: 'Category',
+      warehouse: 'Warehouse',
+      onHand: 'On Hand',
+      reorderPoint: 'Reorder Point',
+      shortfall: 'Shortfall',
+      trend: 'Trend',
+      unitCost: 'Unit Cost',
+      quantity: 'Qty',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time'
     }
   },
 
@@ -206,7 +244,8 @@ export default {
     backordered: 'Backordered',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
-    adequate: 'Adequate'
+    adequate: 'Adequate',
+    submitted: 'Submitted',
   },
 
   // Trends
@@ -302,6 +341,29 @@ export default {
     dueDate: 'Due Date',
     addTask: 'Add Task',
     noTasks: 'No tasks yet. Add your first task above!'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    viewTitle: 'Purchase Order',
+    sku: 'SKU',
+    item: 'Item',
+    shortage: 'Shortage',
+    units: 'units',
+    poNumber: 'PO Number',
+    status: 'Status',
+    supplier: 'Supplier Name',
+    quantity: 'Quantity',
+    unitCost: 'Unit Cost (USD)',
+    total: 'Total',
+    expectedDelivery: 'Expected Delivery Date',
+    createdDate: 'Created',
+    notes: 'Notes',
+    notesOptional: 'Notes (optional)',
+    submit: 'Create Purchase Order',
+    submitting: 'Creating...',
+    genericError: 'Something went wrong. Please try again.'
   },
 
   // Language
