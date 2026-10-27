@@ -89,7 +89,8 @@
             </div>
             <div class="chart-area">
               <div v-for="month in monthlySpending" :key="month.month" class="bar-group">
-                <div class="stacked-bar" @click="showCostDetail(month)">
+                <!-- tabindex + Enter handler make the clickable bar keyboard reachable -->
+                <div class="stacked-bar" tabindex="0" role="button" @click="showCostDetail(month)" @keydown.enter="showCostDetail(month)">
                   <div class="bar-segment procurement" :style="{ height: getBarHeight(month.procurement) + '%' }" :title="`Procurement: ${currencySymbol}${month.procurement.toLocaleString()}`"></div>
                   <div class="bar-segment operational" :style="{ height: getBarHeight(month.operational) + '%' }" :title="`Operational: ${currencySymbol}${month.operational.toLocaleString()}`"></div>
                   <div class="bar-segment labor" :style="{ height: getBarHeight(month.labor) + '%' }" :title="`Labor: ${currencySymbol}${month.labor.toLocaleString()}`"></div>
@@ -148,7 +149,9 @@
                   v-for="transaction in recentTransactions"
                   :key="transaction.id"
                   class="clickable-row"
+                  tabindex="0"
                   @click="handleTransactionClick(transaction)"
+                  @keydown.enter="handleTransactionClick(transaction)"
                 >
                   <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
                   <td class="transaction-description">{{ transaction.description }}</td>
@@ -493,79 +496,88 @@ export default {
 
 <style scoped>
 .stat-change {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
+  margin-top: var(--space-3);
+  font-size: var(--text-base);
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .stat-change.positive {
-  color: #059669;
+  color: var(--color-success);
 }
 
 .stat-change.negative {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .change-icon {
-  font-weight: 700;
-  font-size: 1rem;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-md);
 }
 
-.chart-card {
-  margin-bottom: 1.75rem;
-}
-
+/* Chart cards inherit the global .card; spacing now comes from its margin */
 .chart-legend {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  font-size: var(--text-base);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 .legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--space-1);
 }
 
+/* Chart series colors are hard-coded except revenue (success) and costs (danger), which use tokens. */
 .legend-dot.procurement { background: #3b82f6; }
 .legend-dot.operational { background: #8b5cf6; }
 .legend-dot.labor { background: #10b981; }
 .legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
+.legend-dot.revenue-color { background: var(--color-success); }
+.legend-dot.cost-color { background: var(--color-danger); }
 
 .stats-grid-finance {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
 }
 
+/* Left border carries the semantic color; surface, radius and padding come from global .stat-card */
 .revenue-card {
-  border-left: 4px solid #0f172a;
+  border-left: 4px solid var(--color-success);
+}
+
+/* Semantic value colors; text labels remain so meaning does not rely on color alone */
+.revenue-card .stat-value {
+  color: var(--color-success-text);
+}
+
+.cost-card .stat-value {
+  color: var(--color-danger-text);
 }
 
 .cost-card {
-  border-left: 4px solid #ef4444;
+  border-left: 4px solid var(--color-danger); /* matches chart cost series */
 }
 
 .profit-card {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #3b82f6; /* series procurement blue, matches chart */
 }
 
 .stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 
 .bar-group-revenue {
@@ -580,28 +592,28 @@ export default {
   width: 100%;
   max-width: 80px;
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
   justify-content: center;
   align-items: flex-end;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
 }
 
 .revenue-bar, .cost-bar {
   width: 50%;
   max-width: 30px;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
   cursor: pointer;
-  min-height: 4px;
+  min-height: var(--space-1);
 }
 
 .revenue-bar {
-  background: #0f172a;
+  background: var(--color-success);
 }
 
 .cost-bar {
-  background: #ef4444;
+  background: var(--color-danger);
 }
 
 .revenue-bar:hover, .cost-bar:hover {
@@ -610,12 +622,12 @@ export default {
 }
 
 .chart-container {
-  padding: 1.5rem 0;
+  padding: var(--space-4) 0;
 }
 
 .bar-chart {
   display: flex;
-  gap: 1.5rem;
+  gap: var(--space-4);
   height: 350px;
 }
 
@@ -623,10 +635,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
+  padding-right: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  border-right: 1px solid var(--color-border);
 }
 
 .chart-area {
@@ -634,7 +646,7 @@ export default {
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .bar-group {
@@ -652,28 +664,35 @@ export default {
   flex-direction: column-reverse;
   align-items: stretch;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.15s ease;
 }
 
 .stacked-bar:hover {
   opacity: 0.85;
 }
 
+/* Keyboard focus for the clickable stacked bar */
+.stacked-bar:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-control);
+}
+
 .bar-segment {
   width: 100%;
-  transition: all 0.3s ease;
+  transition: opacity 0.15s ease;
   cursor: pointer;
   display: block;
 }
 
 .bar-segment:first-child {
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 var(--radius-control) var(--radius-control);
 }
 
 .bar-segment:last-child {
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--radius-control) var(--radius-control) 0 0;
 }
 
 .bar-segment.procurement { background: #3b82f6; }
@@ -686,28 +705,28 @@ export default {
 }
 
 .bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
 }
 
 .two-column-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(450px, 100%), 1fr)); /* min() avoids overflow on narrow screens */
+  gap: var(--space-4);
 }
 
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .category-info {
@@ -717,51 +736,51 @@ export default {
 }
 
 .category-name {
-  font-weight: 600;
-  color: #0f172a;
+  font-weight: var(--weight-semibold);
+  color: var(--color-heading);
 }
 
 .category-amount {
-  font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+  font-size: var(--text-md);
 }
 
 .category-bar-container {
   width: 100%;
-  height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
+  height: var(--space-2);
+  background: var(--color-hover);
+  border-radius: var(--space-1);
   overflow: hidden;
 }
 
 .category-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, var(--color-accent) 100%);
+  border-radius: var(--space-1);
   transition: width 0.6s ease;
 }
 
 .category-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
+  font-size: var(--text-sm);
 }
 
 .percentage {
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .change {
-  font-weight: 600;
+  font-weight: var(--weight-semibold);
 }
 
 .change.positive {
-  color: #059669;
+  color: var(--color-success);
 }
 
 .change.negative {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .transactions-card {
@@ -774,76 +793,55 @@ export default {
   max-height: 400px;
 }
 
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
+/* Base table, th, td, thead styles come from App.vue. Only sticky header,
+   clickable rows and alignment are view-specific. */
 .transactions-table thead {
   position: sticky;
   top: 0;
-  background: #f8fafc;
   z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .transactions-table th.text-right {
   text-align: right;
 }
 
-.transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
-}
-
 .transactions-table tbody tr {
   cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
 }
 
 .transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
+  background: var(--color-accent-tint);
+}
+
+.transactions-table tbody tr.clickable-row:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
 .transaction-id {
-  color: #64748b;
-  font-weight: 500;
+  color: var(--color-text-muted);
+  font-weight: var(--weight-medium);
   font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
+  font-size: var(--text-sm);
 }
 
 .transaction-description {
-  color: #0f172a;
-  font-weight: 500;
+  color: var(--color-heading);
+  font-weight: var(--weight-medium);
 }
 
 .transaction-vendor {
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
 }
 
 .transaction-amount {
-  font-weight: 700;
-  color: #0f172a;
+  font-weight: var(--weight-bold);
+  color: var(--color-heading);
 }
 
 .text-right {

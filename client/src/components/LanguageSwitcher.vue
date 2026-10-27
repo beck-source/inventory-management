@@ -1,7 +1,8 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ compact }">
     <button
       class="language-button"
+      :title="compact ? localeName : undefined"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -20,6 +21,7 @@
       <span class="language-label">{{ localeName }}</span>
       <svg
         class="chevron"
+        aria-hidden="true"
         :class="{ 'chevron-open': isDropdownOpen }"
         width="16"
         height="16"
@@ -58,6 +60,11 @@
 import { ref } from 'vue'
 import { useI18n } from '../composables/useI18n'
 
+// compact: icon-only rail mode driven by the sidebar collapse state.
+defineProps({
+  compact: { type: Boolean, default: false }
+})
+
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
 
 const isDropdownOpen = ref(false)
@@ -91,39 +98,50 @@ const selectLanguage = (locale) => {
 <style scoped>
 .language-switcher {
   position: relative;
+  width: 100%;
 }
 
 .language-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: var(--space-2);
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-control);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
   font-family: inherit;
-  font-size: 0.875rem;
-  color: #334155;
+  font-size: var(--text-base);
+  color: var(--color-text);
 }
 
 .language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+}
+
+.language-button:focus-visible {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring);
 }
 
 .globe-icon {
-  color: #64748b;
+  color: var(--color-text-muted);
   flex-shrink: 0;
 }
 
 .language-label {
-  font-weight: 500;
+  flex: 1;
+  text-align: left;
+  font-weight: var(--weight-medium);
 }
 
 .chevron {
-  color: #64748b;
+  color: var(--color-text-muted);
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -132,17 +150,46 @@ const selectLanguage = (locale) => {
   transform: rotate(180deg);
 }
 
+/* Sidebar footer sits at the bottom of the viewport, so the menu flips upward and
+   is pinned to the trigger's width to stay inside the sidebar. */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  bottom: calc(100% + 0.5rem);
+  left: 0;
   right: 0;
-  min-width: 160px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
   overflow: hidden;
+}
+
+/* Compact (rail) mode: the rail is too narrow for a full-width menu, so anchor to the
+   left edge with a fixed min-width and let it extend right over the content. */
+.compact .dropdown-menu {
+  right: auto;
+  min-width: 200px;
+}
+
+.compact .language-button {
+  justify-content: center;
+  padding: 0;
+}
+
+/* Label stays in the DOM as the button's accessible name. */
+.compact .language-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.compact .chevron {
+  display: none;
 }
 
 .dropdown-item {
@@ -150,26 +197,31 @@ const selectLanguage = (locale) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background-color 0.15s ease;
   font-family: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #334155;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--color-bg);
+}
+
+.dropdown-item:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
 }
 
 .dropdown-item.active {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--color-accent-tint);
+  color: var(--color-accent);
 }
 
 .language-name {
@@ -177,7 +229,15 @@ const selectLanguage = (locale) => {
 }
 
 .check-icon {
-  color: #2563eb;
+  color: var(--color-accent);
   flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .language-button,
+  .dropdown-item {
+    transition: none;
+  }
 }
 </style>

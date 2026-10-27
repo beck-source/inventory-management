@@ -210,11 +210,17 @@ export default {
 
 .items-summary {
   cursor: pointer;
-  color: #3b82f6;
-  font-weight: 500;
+  color: var(--color-accent);
+  font-weight: var(--weight-medium);
   list-style: none;
   user-select: none;
   display: inline-block;
+}
+
+.items-summary:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-control);
 }
 
 .items-summary::-webkit-details-marker {
@@ -224,8 +230,8 @@ export default {
 .items-summary::before {
   content: '▶';
   display: inline-block;
-  margin-right: 0.375rem;
-  font-size: 0.75rem;
+  margin-right: var(--space-2);
+  font-size: var(--text-xs);
   transition: transform 0.2s;
 }
 
@@ -234,7 +240,7 @@ export default {
 }
 
 .items-summary:hover {
-  color: #2563eb;
+  color: var(--color-heading);
   text-decoration: underline;
 }
 
@@ -243,12 +249,12 @@ export default {
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 0.75rem;
+  margin-top: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-3);
   z-index: 10;
   min-width: 300px;
   max-width: 400px;
@@ -257,9 +263,9 @@ export default {
 .item-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-hover);
 }
 
 .item-entry:last-child {
@@ -267,13 +273,13 @@ export default {
 }
 
 .item-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-heading);
 }
 
 .item-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 </style>

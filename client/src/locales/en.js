@@ -6,6 +6,10 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    reports: 'Reports',
+    openNavigation: 'Open navigation',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
