@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +107,17 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
+    noSubmittedOrders: '送信済みの補充発注はまだありません',
+    submittedTable: {
+      orderNumber: '注文番号',
+      items: '品目',
+      totalCost: '合計コスト',
+      orderDate: '注文日',
+      leadTime: 'リードタイム(日)',
+      expectedDelivery: '予定配達日',
+      status: 'ステータス'
+    },
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
