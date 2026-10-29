@@ -5,6 +5,43 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ restockingOrders.length }})</h3>
+      </div>
+      <div v-if="restockingLoading" class="loading">{{ t('common.loading') }}</div>
+      <div v-else-if="restockingError" class="error">{{ restockingError }}</div>
+      <div v-else-if="restockingOrders.length === 0" class="empty-state">
+        {{ t('orders.submitted.empty') }}
+      </div>
+      <div v-else class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ t('orders.submitted.table.orderNumber') }}</th>
+              <th>{{ t('orders.submitted.table.datePlaced') }}</th>
+              <th>{{ t('orders.submitted.table.items') }}</th>
+              <th>{{ t('orders.submitted.table.totalCost') }}</th>
+              <th>{{ t('orders.submitted.table.leadTime') }}</th>
+              <th>{{ t('orders.submitted.table.expectedDelivery') }}</th>
+              <th>{{ t('orders.submitted.table.status') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in restockingOrders" :key="order.id">
+              <td><strong>{{ order.order_number }}</strong></td>
+              <td>{{ formatRestockingDate(order.order_date) }}</td>
+              <td>{{ t('orders.itemsCount', { count: order.items.length }) }}</td>
+              <td><strong>{{ formatRestockingCost(order.total_cost) }}</strong></td>
+              <td>{{ t('orders.submitted.days', { count: order.lead_time_days }) }}</td>
+              <td>{{ formatRestockingDate(order.expected_delivery) }}</td>
+              <td><span class="badge info">{{ t('orders.submitted.status') }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -83,6 +120,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrencyWithDecimals } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -95,6 +133,9 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingLoading = ref(true)
+    const restockingError = ref(null)
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,7 +194,40 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    // Separate from loadOrders so a failure here cannot break the customer orders table.
+    const loadRestockingOrders = async () => {
+      try {
+        restockingLoading.value = true
+        restockingError.value = null
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        restockingError.value = t('orders.submitted.loadFailed')
+        console.error('Failed to load submitted orders:', err)
+      } finally {
+        restockingLoading.value = false
+      }
+    }
+
+    const formatRestockingDate = (dateString) => {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return '-'
+      const { currentLocale } = useI18n()
+      const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
+      return date.toLocaleDateString(locale, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      })
+    }
+
+    const formatRestockingCost = (value) => {
+      return formatCurrencyWithDecimals(value, currentCurrency.value, 2)
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
@@ -163,6 +237,11 @@ export default {
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      restockingLoading,
+      restockingError,
+      restockingOrders,
+      formatRestockingDate,
+      formatRestockingCost,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -275,5 +354,12 @@ export default {
 .item-meta {
   font-size: 0.813rem;
   color: #64748b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  font-size: 0.938rem;
 }
 </style>
