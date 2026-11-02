@@ -1,67 +1,62 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="isOpen" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h3 class="modal-title">{{ t('profileDetails.title') }}</h3>
-            <Button variant="ghost" size="sm" @click="close">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </Button>
+  <!-- Dialog provides Escape-to-close, focus trap and scroll lock; the guard keeps the body from rendering with null data. -->
+  <Dialog :open="isOpen" @update:open="(open) => { if (!open) close() }">
+    <!-- p-0/gap-0 so header, body and footer own their padding; sm:max-w-[90vw] matches the old container width -->
+    <DialogContent class="sm:max-w-[90vw] max-h-[90vh] p-0 gap-0 overflow-hidden flex flex-col">
+      <DialogHeader class="p-6 border-b border-border">
+        <DialogTitle class="text-base font-semibold text-[var(--ink-primary)]">{{ t('profileDetails.title') }}</DialogTitle>
+        <DialogDescription class="sr-only">{{ t('profileDetails.title') }}</DialogDescription>
+      </DialogHeader>
+
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="avatar-section">
+          <div class="avatar-xl">
+            {{ getInitials(currentUser.name) }}
           </div>
+          <h4 class="profile-name">{{ currentUser.name }}</h4>
+          <p class="profile-job-title">{{ currentUser.jobTitle }}</p>
+        </div>
 
-          <div class="modal-body">
-            <div class="avatar-section">
-              <div class="avatar-xl">
-                {{ getInitials(currentUser.name) }}
-              </div>
-              <h4 class="profile-name">{{ currentUser.name }}</h4>
-              <p class="profile-job-title">{{ currentUser.jobTitle }}</p>
-            </div>
-
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">{{ t('profileDetails.email') }}</div>
-                <div class="info-value">{{ currentUser.email }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">{{ t('profileDetails.department') }}</div>
-                <div class="info-value">{{ currentUser.department }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">{{ t('profileDetails.location') }}</div>
-                <div class="info-value">{{ currentUser.location }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">{{ t('profileDetails.phone') }}</div>
-                <div class="info-value">{{ currentUser.phone }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">{{ t('profileDetails.joinDate') }}</div>
-                <div class="info-value">{{ formatDate(currentUser.joinDate) }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">{{ t('profileDetails.employeeId') }}</div>
-                <div class="info-value mono">CC-{{ currentUser.id.toString().padStart(5, '0') }}</div>
-              </div>
-            </div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">{{ t('profileDetails.email') }}</div>
+            <div class="info-value">{{ currentUser.email }}</div>
           </div>
-
-          <div class="modal-footer">
-            <Button variant="ghost" @click="close">{{ t('profileDetails.close') }}</Button>
+          <div class="info-item">
+            <div class="info-label">{{ t('profileDetails.department') }}</div>
+            <div class="info-value">{{ currentUser.department }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">{{ t('profileDetails.location') }}</div>
+            <div class="info-value">{{ currentUser.location }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">{{ t('profileDetails.phone') }}</div>
+            <div class="info-value">{{ currentUser.phone }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">{{ t('profileDetails.joinDate') }}</div>
+            <div class="info-value">{{ formatDate(currentUser.joinDate) }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">{{ t('profileDetails.employeeId') }}</div>
+            <div class="info-value mono">CC-{{ currentUser.id.toString().padStart(5, '0') }}</div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <DialogFooter class="p-6 border-t border-border">
+        <Button variant="ghost" @click="close">{{ t('profileDetails.close') }}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
 import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
-import Button from './ui/Button.vue'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 
 const { currentUser, getInitials } = useAuth()
 const { t, currentLocale } = useI18n()
@@ -82,53 +77,6 @@ const formatDate = (dateString) => {
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 16px;
-}
-
-.modal-container {
-  background: var(--surface-card);
-  border-radius: var(--r-lg);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  max-width: 90vw;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  border-bottom: 1px solid var(--line);
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink-primary);
-  margin: 0;
-}
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
 .avatar-section {
   display: flex;
   flex-direction: column;
@@ -195,33 +143,5 @@ const formatDate = (dateString) => {
 .info-value.mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   color: var(--accent);
-}
-
-.modal-footer {
-  padding: 24px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.95);
 }
 </style>

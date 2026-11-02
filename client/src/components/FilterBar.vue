@@ -3,54 +3,74 @@
     <div class="filters-grid">
       <div class="filter-group">
         <label>{{ t('filters.timePeriod') }}</label>
-        <select v-model="selectedPeriod" class="filter-select">
-          <option value="all">{{ t('filters.allMonths') }}</option>
-          <option value="2025-01">{{ t('months.january') }}</option>
-          <option value="2025-02">{{ t('months.february') }}</option>
-          <option value="2025-03">{{ t('months.march') }}</option>
-          <option value="2025-04">{{ t('months.april') }}</option>
-          <option value="2025-05">{{ t('months.may') }}</option>
-          <option value="2025-06">{{ t('months.june') }}</option>
-          <option value="2025-07">{{ t('months.july') }}</option>
-          <option value="2025-08">{{ t('months.august') }}</option>
-          <option value="2025-09">{{ t('months.september') }}</option>
-          <option value="2025-10">{{ t('months.october') }}</option>
-          <option value="2025-11">{{ t('months.november') }}</option>
-          <option value="2025-12">{{ t('months.december') }}</option>
-        </select>
+        <Select v-model="selectedPeriod">
+          <SelectTrigger class="filter-select" :aria-label="t('filters.timePeriod')">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{{ t('filters.allMonths') }}</SelectItem>
+            <SelectItem value="2025-01">{{ t('months.january') }}</SelectItem>
+            <SelectItem value="2025-02">{{ t('months.february') }}</SelectItem>
+            <SelectItem value="2025-03">{{ t('months.march') }}</SelectItem>
+            <SelectItem value="2025-04">{{ t('months.april') }}</SelectItem>
+            <SelectItem value="2025-05">{{ t('months.may') }}</SelectItem>
+            <SelectItem value="2025-06">{{ t('months.june') }}</SelectItem>
+            <SelectItem value="2025-07">{{ t('months.july') }}</SelectItem>
+            <SelectItem value="2025-08">{{ t('months.august') }}</SelectItem>
+            <SelectItem value="2025-09">{{ t('months.september') }}</SelectItem>
+            <SelectItem value="2025-10">{{ t('months.october') }}</SelectItem>
+            <SelectItem value="2025-11">{{ t('months.november') }}</SelectItem>
+            <SelectItem value="2025-12">{{ t('months.december') }}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div class="filter-group">
         <label>{{ t('filters.location') }}</label>
-        <select v-model="selectedLocation" class="filter-select">
-          <option value="all">{{ t('filters.all') }}</option>
-          <option value="San Francisco">{{ t('warehouses.sanFrancisco') }}</option>
-          <option value="London">{{ t('warehouses.london') }}</option>
-          <option value="Tokyo">{{ t('warehouses.tokyo') }}</option>
-        </select>
+        <Select v-model="selectedLocation">
+          <SelectTrigger class="filter-select" :aria-label="t('filters.location')">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{{ t('filters.all') }}</SelectItem>
+            <SelectItem value="San Francisco">{{ t('warehouses.sanFrancisco') }}</SelectItem>
+            <SelectItem value="London">{{ t('warehouses.london') }}</SelectItem>
+            <SelectItem value="Tokyo">{{ t('warehouses.tokyo') }}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div class="filter-group">
         <label>{{ t('filters.category') }}</label>
-        <select v-model="selectedCategory" class="filter-select">
-          <option value="all">{{ t('filters.all') }}</option>
-          <option value="circuit boards">{{ t('categories.circuitBoards') }}</option>
-          <option value="sensors">{{ t('categories.sensors') }}</option>
-          <option value="actuators">{{ t('categories.actuators') }}</option>
-          <option value="controllers">{{ t('categories.controllers') }}</option>
-          <option value="power supplies">{{ t('categories.powerSupplies') }}</option>
-        </select>
+        <Select v-model="selectedCategory">
+          <SelectTrigger class="filter-select" :aria-label="t('filters.category')">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{{ t('filters.all') }}</SelectItem>
+            <SelectItem value="circuit boards">{{ t('categories.circuitBoards') }}</SelectItem>
+            <SelectItem value="sensors">{{ t('categories.sensors') }}</SelectItem>
+            <SelectItem value="actuators">{{ t('categories.actuators') }}</SelectItem>
+            <SelectItem value="controllers">{{ t('categories.controllers') }}</SelectItem>
+            <SelectItem value="power supplies">{{ t('categories.powerSupplies') }}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div class="filter-group">
         <label>{{ t('filters.orderStatus') }}</label>
-        <select v-model="selectedStatus" class="filter-select">
-          <option value="all">{{ t('filters.all') }}</option>
-          <option value="delivered">{{ t('status.delivered') }}</option>
-          <option value="shipped">{{ t('status.shipped') }}</option>
-          <option value="processing">{{ t('status.processing') }}</option>
-          <option value="backordered">{{ t('status.backordered') }}</option>
-        </select>
+        <Select v-model="selectedStatus">
+          <SelectTrigger class="filter-select" :aria-label="t('filters.orderStatus')">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{{ t('filters.all') }}</SelectItem>
+            <SelectItem value="delivered">{{ t('status.delivered') }}</SelectItem>
+            <SelectItem value="shipped">{{ t('status.shipped') }}</SelectItem>
+            <SelectItem value="processing">{{ t('status.processing') }}</SelectItem>
+            <SelectItem value="backordered">{{ t('status.backordered') }}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
 
@@ -68,11 +88,13 @@
 </template>
 
 <script>
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'FilterBar',
+  components: { Select, SelectContent, SelectItem, SelectTrigger, SelectValue },
   setup() {
     const {
       selectedPeriod,
@@ -131,6 +153,8 @@ export default {
   letter-spacing: 0.08em;
 }
 
+/* Compact trigger look. Scoped rules are unlayered, so they win over the Select utility classes
+   (class lands on the trigger root element, which receives this component's scope id). */
 .filter-select {
   height: 36px;
   padding: 0 12px;
@@ -139,9 +163,7 @@ export default {
   font-size: 13px;
   color: var(--ink-primary);
   background: var(--surface-card);
-  cursor: pointer;
-  transition: border-color 0.15s;
-  font-family: inherit;
+  box-shadow: none;
   min-width: 0;
 }
 
@@ -149,8 +171,7 @@ export default {
   border-color: var(--line-strong);
 }
 
-.filter-select:focus {
-  outline: none;
+.filter-select:focus-visible {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }

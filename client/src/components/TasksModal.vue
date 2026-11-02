@@ -1,125 +1,130 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="isOpen" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h3 class="modal-title">{{ t('tasks.title') }}</h3>
-            <Button variant="ghost" size="sm" @click="close">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </Button>
-          </div>
+  <!-- Dialog provides Escape-to-close, focus trap and scroll lock. -->
+  <Dialog :open="isOpen" @update:open="(open) => { if (!open) close() }">
+    <!-- p-0/gap-0 so header, body and footer own their padding; width/height match the old container (90vw x 85vh) -->
+    <DialogContent class="sm:max-w-[90vw] w-[90%] max-h-[85vh] p-0 gap-0 overflow-hidden flex flex-col">
+      <DialogHeader class="p-6 border-b border-border">
+        <DialogTitle class="text-base font-semibold text-[var(--ink-primary)]">{{ t('tasks.title') }}</DialogTitle>
+        <DialogDescription class="sr-only">{{ t('tasks.title') }}</DialogDescription>
+      </DialogHeader>
 
-          <div class="modal-body">
-            <!-- Add Task Form -->
-            <div class="task-form">
-              <div class="form-row">
-                <div class="form-group flex-1">
-                  <label for="task-title">{{ t('tasks.taskTitle') }}</label>
-                  <input
-                    id="task-title"
-                    v-model="newTask.title"
-                    type="text"
-                    :placeholder="t('tasks.taskTitlePlaceholder')"
-                    class="task-input"
-                    @keyup.enter="handleAddTask"
-                  />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="task-priority">{{ t('tasks.priority') }}</label>
-                  <select id="task-priority" v-model="newTask.priority" class="task-select">
-                    <option value="high">{{ t('priority.high') }}</option>
-                    <option value="medium">{{ t('priority.medium') }}</option>
-                    <option value="low">{{ t('priority.low') }}</option>
-                  </select>
-                </div>
-
-                <div class="form-group">
-                  <label for="task-due-date">{{ t('tasks.dueDate') }}</label>
-                  <input
-                    id="task-due-date"
-                    v-model="newTask.dueDate"
-                    type="date"
-                    class="task-input"
-                  />
-                </div>
-
-                <div class="form-group-btn">
-                  <Button variant="primary" @click="handleAddTask" :disabled="!newTask.title.trim() || !newTask.dueDate">
-                    {{ t('tasks.addTask') }}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div class="tasks-divider"></div>
-
-            <div v-if="sortedTasks.length === 0" class="no-tasks">
-              {{ t('tasks.noTasks') }}
-            </div>
-
-            <div v-else class="tasks-list">
-              <div
-                v-for="task in sortedTasks"
-                :key="task.id"
-                class="task-item"
-                :class="[`priority-${task.priority}`, { completed: task.status === 'completed' }]"
-              >
-                <div class="task-header">
-                  <div class="task-check-title">
-                    <input
-                      type="checkbox"
-                      :checked="task.status === 'completed'"
-                      @change="$emit('toggle-task', task.id)"
-                      class="task-checkbox"
-                    />
-                    <span class="task-title" @click="$emit('toggle-task', task.id)">{{ task.title }}</span>
-                  </div>
-                  <Button variant="danger" size="sm" @click="$emit('delete-task', task.id)">×</Button>
-                </div>
-
-                <div class="task-footer">
-                  <Badge :variant="task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warn' : 'accent'">
-                    {{ translatePriority(task.priority) }}
-                  </Badge>
-                  <div class="task-due-date">
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/>
-                      <path d="M4.5 1.5V4.5M9.5 1.5V4.5M2 6H12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                    </svg>
-                    {{ formatDueDate(task.dueDate) }}
-                  </div>
-                  <Badge :variant="getStatusVariant(task.dueDate, task.status)" class="status-badge">
-                    {{ getStatusText(task.dueDate, task.status) }}
-                  </Badge>
-                </div>
-              </div>
+      <div class="flex-1 overflow-y-auto p-6">
+        <!-- Add Task Form -->
+        <div class="task-form">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="task-title">{{ t('tasks.taskTitle') }}</label>
+              <input
+                id="task-title"
+                v-model="newTask.title"
+                type="text"
+                :placeholder="t('tasks.taskTitlePlaceholder')"
+                class="task-input"
+                @keyup.enter="handleAddTask"
+              />
             </div>
           </div>
 
-          <div class="modal-footer">
-            <Button variant="ghost" @click="close">{{ t('profileDetails.close') }}</Button>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="task-priority">{{ t('tasks.priority') }}</label>
+              <Select v-model="newTask.priority">
+                <SelectTrigger id="task-priority" class="w-full min-w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">{{ t('priority.high') }}</SelectItem>
+                  <SelectItem value="medium">{{ t('priority.medium') }}</SelectItem>
+                  <SelectItem value="low">{{ t('priority.low') }}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div class="form-group">
+              <label for="task-due-date">{{ t('tasks.dueDate') }}</label>
+              <input
+                id="task-due-date"
+                v-model="newTask.dueDate"
+                type="date"
+                class="task-input"
+              />
+            </div>
+
+            <div class="form-group-btn">
+              <Button variant="default" @click="handleAddTask" :disabled="!newTask.title.trim() || !newTask.dueDate">
+                {{ t('tasks.addTask') }}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tasks-divider"></div>
+
+        <div v-if="sortedTasks.length === 0" class="no-tasks">
+          {{ t('tasks.noTasks') }}
+        </div>
+
+        <div v-else class="tasks-list">
+          <div
+            v-for="task in sortedTasks"
+            :key="task.id"
+            class="task-item"
+            :class="[`priority-${task.priority}`, { completed: task.status === 'completed' }]"
+          >
+            <div class="task-header">
+              <div class="task-check-title">
+                <input
+                  type="checkbox"
+                  :checked="task.status === 'completed'"
+                  @change="$emit('toggle-task', task.id)"
+                  class="task-checkbox"
+                />
+                <span class="task-title" @click="$emit('toggle-task', task.id)">{{ task.title }}</span>
+              </div>
+              <Button variant="destructive" size="sm" @click="$emit('delete-task', task.id)">×</Button>
+            </div>
+
+            <div class="task-footer">
+              <Badge :variant="task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warn' : 'accent'">
+                {{ translatePriority(task.priority) }}
+              </Badge>
+              <div class="task-due-date">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                  <path d="M4.5 1.5V4.5M9.5 1.5V4.5M2 6H12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                {{ formatDueDate(task.dueDate) }}
+              </div>
+              <Badge :variant="getStatusVariant(task.dueDate, task.status)" class="status-badge">
+                {{ getStatusText(task.dueDate, task.status) }}
+              </Badge>
+            </div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <DialogFooter class="p-6 border-t border-border">
+        <Button variant="ghost" @click="close">{{ t('profileDetails.close') }}</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script>
 import { ref, computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
-import Button from './ui/Button.vue'
-import Badge from './ui/Badge.vue'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 export default {
   name: 'TasksModal',
-  components: { Button, Badge },
+  components: {
+    Button, Badge,
+    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue
+  },
   props: {
     isOpen: { type: Boolean, required: true },
     tasks: { type: Array, default: () => [] }
@@ -215,59 +220,6 @@ export default {
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(15, 23, 42, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-container {
-  background: var(--surface-card);
-  border-radius: var(--r-lg);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  width: 90%;
-  max-width: 90vw;
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 24px;
-  border-bottom: 1px solid var(--line);
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink-primary);
-  margin: 0;
-}
-
-.modal-body {
-  padding: 24px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.modal-footer {
-  padding: 24px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 /* Task Form */
 .task-form {
   background: var(--surface-muted);
@@ -308,8 +260,7 @@ label {
   letter-spacing: 0.08em;
 }
 
-.task-input,
-.task-select {
+.task-input {
   height: 36px;
   padding: 0 12px;
   border: 1px solid var(--line);
@@ -321,15 +272,10 @@ label {
   transition: border-color 0.15s;
 }
 
-.task-input:focus,
-.task-select:focus {
+.task-input:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.task-select {
-  cursor: pointer;
 }
 
 .tasks-divider {
@@ -423,25 +369,5 @@ label {
 
 .status-badge {
   margin-left: auto;
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.95);
 }
 </style>

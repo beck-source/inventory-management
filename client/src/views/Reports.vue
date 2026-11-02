@@ -7,113 +7,123 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <!-- Quarterly Performance -->
-      <Card class="section-card">
-        <template #title>Quarterly Performance</template>
-        <div class="table-no-pad">
-          <div class="table-container">
-            <table class="reports-table">
-              <thead>
-                <tr>
-                  <th>Quarter</th>
-                  <th>Total Orders</th>
-                  <th>Total Revenue</th>
-                  <th>Avg Order Value</th>
-                  <th>Fulfillment Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(q, index) in quarterlyData" :key="index">
-                  <td><strong>{{ q.quarter }}</strong></td>
-                  <td>{{ q.total_orders }}</td>
-                  <td>${{ formatNumber(q.total_revenue) }}</td>
-                  <td>${{ formatNumber(q.avg_order_value) }}</td>
-                  <td>
+      <Card class="gap-4 section-card">
+        <CardHeader><CardTitle>Quarterly Performance</CardTitle></CardHeader>
+        <CardContent>
+          <div class="table-no-pad">
+            <Table class="reports-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Quarter</TableHead>
+                  <TableHead>Total Orders</TableHead>
+                  <TableHead>Total Revenue</TableHead>
+                  <TableHead>Avg Order Value</TableHead>
+                  <TableHead>Fulfillment Rate</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="q in quarterlyData" :key="q.quarter">
+                  <TableCell><strong>{{ q.quarter }}</strong></TableCell>
+                  <TableCell>{{ q.total_orders }}</TableCell>
+                  <TableCell>${{ formatNumber(q.total_revenue) }}</TableCell>
+                  <TableCell>${{ formatNumber(q.avg_order_value) }}</TableCell>
+                  <TableCell>
                     <Badge :variant="getFulfillmentVariant(q.fulfillment_rate)">
                       {{ q.fulfillment_rate }}%
                     </Badge>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <!-- Monthly Revenue Trend -->
-      <Card class="section-card">
-        <template #title>Monthly Revenue Trend</template>
-        <div class="chart-container">
-          <div class="bar-chart">
-            <div v-for="(month, index) in monthlyData" :key="index" class="bar-wrapper">
-              <div class="bar-container">
-                <div
-                  class="bar"
-                  :style="{ height: getBarHeight(month.revenue) + 'px' }"
-                  :title="'$' + formatNumber(month.revenue)"
-                ></div>
+      <Card class="gap-4 section-card">
+        <CardHeader><CardTitle>Monthly Revenue Trend</CardTitle></CardHeader>
+        <CardContent>
+          <div class="chart-container">
+            <div class="bar-chart">
+              <div v-for="month in monthlyData" :key="month.month" class="bar-wrapper">
+                <div class="bar-container">
+                  <div
+                    class="bar"
+                    :style="{ height: getBarHeight(month.revenue) + 'px' }"
+                    :title="'$' + formatNumber(month.revenue)"
+                  ></div>
+                </div>
+                <div class="bar-label">{{ formatMonth(month.month) }}</div>
               </div>
-              <div class="bar-label">{{ formatMonth(month.month) }}</div>
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <!-- Month-over-Month -->
-      <Card class="section-card">
-        <template #title>Month-over-Month Analysis</template>
-        <div class="table-no-pad">
-          <div class="table-container">
-            <table class="reports-table">
-              <thead>
-                <tr>
-                  <th>Month</th>
-                  <th>Orders</th>
-                  <th>Revenue</th>
-                  <th>Change</th>
-                  <th>Growth Rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(month, index) in monthlyData" :key="index">
-                  <td><strong>{{ formatMonth(month.month) }}</strong></td>
-                  <td>{{ month.order_count }}</td>
-                  <td>${{ formatNumber(month.revenue) }}</td>
-                  <td>
+      <Card class="gap-4 section-card">
+        <CardHeader><CardTitle>Month-over-Month Analysis</CardTitle></CardHeader>
+        <CardContent>
+          <div class="table-no-pad">
+            <Table class="reports-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Month</TableHead>
+                  <TableHead>Orders</TableHead>
+                  <TableHead>Revenue</TableHead>
+                  <TableHead>Change</TableHead>
+                  <TableHead>Growth Rate</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="(month, index) in monthlyData" :key="month.month">
+                  <TableCell><strong>{{ formatMonth(month.month) }}</strong></TableCell>
+                  <TableCell>{{ month.order_count }}</TableCell>
+                  <TableCell>${{ formatNumber(month.revenue) }}</TableCell>
+                  <TableCell>
                     <span v-if="index > 0" :class="getChangeClass(month.revenue, monthlyData[index - 1].revenue)">
                       {{ getChangeValue(month.revenue, monthlyData[index - 1].revenue) }}
                     </span>
                     <span v-else>-</span>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <span v-if="index > 0" :class="getChangeClass(month.revenue, monthlyData[index - 1].revenue)">
                       {{ getGrowthRate(month.revenue, monthlyData[index - 1].revenue) }}
                     </span>
                     <span v-else>-</span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <!-- Summary Stats -->
       <div class="stats-grid">
         <Card>
-          <div class="stat-label">Total Revenue (YTD)</div>
-          <div class="stat-value">${{ formatNumber(totalRevenue) }}</div>
+          <CardContent>
+            <div class="stat-label">Total Revenue (YTD)</div>
+            <div class="stat-value">${{ formatNumber(totalRevenue) }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">Avg Monthly Revenue</div>
-          <div class="stat-value">${{ formatNumber(avgMonthlyRevenue) }}</div>
+          <CardContent>
+            <div class="stat-label">Avg Monthly Revenue</div>
+            <div class="stat-value">${{ formatNumber(avgMonthlyRevenue) }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">Total Orders (YTD)</div>
-          <div class="stat-value">{{ totalOrders }}</div>
+          <CardContent>
+            <div class="stat-label">Total Orders (YTD)</div>
+            <div class="stat-value">{{ totalOrders }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">Best Performing Quarter</div>
-          <div class="stat-value quarter-value">{{ bestQuarter }}</div>
+          <CardContent>
+            <div class="stat-label">Best Performing Quarter</div>
+            <div class="stat-value quarter-value">{{ bestQuarter }}</div>
+          </CardContent>
         </Card>
       </div>
     </div>
@@ -123,8 +133,9 @@
 <script>
 import axios from 'axios'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
-import Badge from '../components/ui/Badge.vue'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import FilterBar from '../components/FilterBar.vue'
 
 export default {
@@ -132,6 +143,15 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     Badge,
     FilterBar
   },

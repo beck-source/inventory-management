@@ -8,69 +8,77 @@
     <div v-else>
       <div class="stats-grid">
         <Card>
-          <div class="stat-label">{{ t('status.delivered') }}</div>
-          <div class="stat-value success">{{ getOrdersByStatus('Delivered').length }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('status.delivered') }}</div>
+            <div class="stat-value success">{{ getOrdersByStatus('Delivered').length }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">{{ t('status.shipped') }}</div>
-          <div class="stat-value accent">{{ getOrdersByStatus('Shipped').length }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('status.shipped') }}</div>
+            <div class="stat-value accent">{{ getOrdersByStatus('Shipped').length }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">{{ t('status.processing') }}</div>
-          <div class="stat-value warn">{{ getOrdersByStatus('Processing').length }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('status.processing') }}</div>
+            <div class="stat-value warn">{{ getOrdersByStatus('Processing').length }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">{{ t('status.backordered') }}</div>
-          <div class="stat-value danger">{{ getOrdersByStatus('Backordered').length }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('status.backordered') }}</div>
+            <div class="stat-value danger">{{ getOrdersByStatus('Backordered').length }}</div>
+          </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <template #title>{{ t('orders.allOrders') }} ({{ orders.length }})</template>
-        <div class="table-no-pad">
-          <div class="table-container">
-            <table class="orders-table">
-              <thead>
-                <tr>
-                  <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
-                  <th class="col-customer">{{ t('orders.table.customer') }}</th>
-                  <th class="col-items">{{ t('orders.table.items') }}</th>
-                  <th class="col-status">{{ t('orders.table.status') }}</th>
-                  <th class="col-date">{{ t('orders.table.orderDate') }}</th>
-                  <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                  <th class="col-value">{{ t('orders.table.totalValue') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="order in orders" :key="order.id">
-                  <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
-                  <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
-                  <td class="col-items">
+      <Card class="gap-4">
+        <CardHeader><CardTitle>{{ t('orders.allOrders') }} ({{ orders.length }})</CardTitle></CardHeader>
+        <CardContent>
+          <div class="table-no-pad">
+            <Table class="orders-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="col-order-number">{{ t('orders.table.orderNumber') }}</TableHead>
+                  <TableHead class="col-customer">{{ t('orders.table.customer') }}</TableHead>
+                  <TableHead class="col-items">{{ t('orders.table.items') }}</TableHead>
+                  <TableHead class="col-status">{{ t('orders.table.status') }}</TableHead>
+                  <TableHead class="col-date">{{ t('orders.table.orderDate') }}</TableHead>
+                  <TableHead class="col-date">{{ t('orders.table.expectedDelivery') }}</TableHead>
+                  <TableHead class="col-value">{{ t('orders.table.totalValue') }}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="order in orders" :key="order.id">
+                  <TableCell class="col-order-number"><strong>{{ order.order_number }}</strong></TableCell>
+                  <TableCell class="col-customer">{{ translateCustomerName(order.customer) }}</TableCell>
+                  <TableCell class="col-items">
                     <details class="items-details">
                       <summary class="items-summary">
                         {{ t('orders.itemsCount', { count: order.items.length }) }}
                       </summary>
                       <div class="items-dropdown">
-                        <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                        <div v-for="(item, idx) in order.items" :key="item.sku" class="item-entry">
                           <span class="item-name">{{ translateProductName(item.name) }}</span>
                           <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
                         </div>
                       </div>
                     </details>
-                  </td>
-                  <td class="col-status">
+                  </TableCell>
+                  <TableCell class="col-status">
                     <Badge :variant="getOrderStatusVariant(order.status)">
                       {{ t(`status.${order.status.toLowerCase()}`) }}
                     </Badge>
-                  </td>
-                  <td class="col-date">{{ formatDate(order.order_date) }}</td>
-                  <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                  <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
-                </tr>
-              </tbody>
-            </table>
+                  </TableCell>
+                  <TableCell class="col-date">{{ formatDate(order.order_date) }}</TableCell>
+                  <TableCell class="col-date">{{ formatDate(order.expected_delivery) }}</TableCell>
+                  <TableCell class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   </div>
@@ -82,8 +90,9 @@ import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
-import Badge from '../components/ui/Badge.vue'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import FilterBar from '../components/FilterBar.vue'
 
 export default {
@@ -91,6 +100,15 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     Badge,
     FilterBar
   },

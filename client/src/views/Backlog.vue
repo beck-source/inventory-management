@@ -8,75 +8,83 @@
     <div v-else>
       <div class="stats-grid">
         <Card>
-          <div class="stat-label">High Priority</div>
-          <div class="stat-value danger">{{ getBacklogByPriority('high').length }}</div>
+          <CardContent>
+            <div class="stat-label">High Priority</div>
+            <div class="stat-value danger">{{ getBacklogByPriority('high').length }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">Medium Priority</div>
-          <div class="stat-value warn">{{ getBacklogByPriority('medium').length }}</div>
+          <CardContent>
+            <div class="stat-label">Medium Priority</div>
+            <div class="stat-value warn">{{ getBacklogByPriority('medium').length }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">Low Priority</div>
-          <div class="stat-value accent">{{ getBacklogByPriority('low').length }}</div>
+          <CardContent>
+            <div class="stat-label">Low Priority</div>
+            <div class="stat-value accent">{{ getBacklogByPriority('low').length }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">Total Backlog Items</div>
-          <div class="stat-value">{{ backlogItems.length }}</div>
+          <CardContent>
+            <div class="stat-label">Total Backlog Items</div>
+            <div class="stat-value">{{ backlogItems.length }}</div>
+          </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <template #title>Backlog Items</template>
-        <EmptyState v-if="backlogItems.length === 0">
-          <template #icon>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="40" height="40" style="color: var(--success)">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-            </svg>
-          </template>
-          <template #title>No backlog items - all orders can be fulfilled!</template>
-        </EmptyState>
-        <div v-else class="table-no-pad">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>Order ID</th>
-                  <th>SKU</th>
-                  <th>Item Name</th>
-                  <th>Quantity Needed</th>
-                  <th>Quantity Available</th>
-                  <th>Shortage</th>
-                  <th>Days Delayed</th>
-                  <th>Priority</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in backlogItems" :key="item.id">
-                  <td><strong>{{ item.order_id }}</strong></td>
-                  <td><strong>{{ item.item_sku }}</strong></td>
-                  <td>{{ item.item_name }}</td>
-                  <td>{{ item.quantity_needed }}</td>
-                  <td>{{ item.quantity_available }}</td>
-                  <td>
+      <Card class="gap-4">
+        <CardHeader><CardTitle>Backlog Items</CardTitle></CardHeader>
+        <CardContent>
+          <EmptyState v-if="backlogItems.length === 0">
+            <template #icon>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="40" height="40" style="color: var(--success)">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+            </template>
+            <template #title>No backlog items - all orders can be fulfilled!</template>
+          </EmptyState>
+          <div v-else class="table-no-pad">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order ID</TableHead>
+                  <TableHead>SKU</TableHead>
+                  <TableHead>Item Name</TableHead>
+                  <TableHead>Quantity Needed</TableHead>
+                  <TableHead>Quantity Available</TableHead>
+                  <TableHead>Shortage</TableHead>
+                  <TableHead>Days Delayed</TableHead>
+                  <TableHead>Priority</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="item in backlogItems" :key="item.id">
+                  <TableCell><strong>{{ item.order_id }}</strong></TableCell>
+                  <TableCell><strong>{{ item.item_sku }}</strong></TableCell>
+                  <TableCell>{{ item.item_name }}</TableCell>
+                  <TableCell>{{ item.quantity_needed }}</TableCell>
+                  <TableCell>{{ item.quantity_available }}</TableCell>
+                  <TableCell>
                     <Badge variant="danger">
                       {{ item.quantity_needed - item.quantity_available }} units short
                     </Badge>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <span :style="{ color: item.days_delayed > 7 ? 'var(--danger)' : 'var(--warn)', fontWeight: 600 }">
                       {{ item.days_delayed }} days
                     </span>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <Badge :variant="item.priority === 'high' ? 'danger' : item.priority === 'medium' ? 'warn' : 'accent'">
                       {{ item.priority }}
                     </Badge>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   </div>
@@ -87,8 +95,9 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
-import Badge from '../components/ui/Badge.vue'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import EmptyState from '../components/ui/EmptyState.vue'
 import FilterBar from '../components/FilterBar.vue'
 
@@ -97,6 +106,15 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     Badge,
     EmptyState,
     FilterBar

@@ -1,103 +1,99 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="isOpen && costData" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h3 class="modal-title">{{ costData.month }} Cost Breakdown</h3>
-            <Button variant="ghost" size="sm" @click="close">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </Button>
-          </div>
+  <!-- Dialog provides Escape-to-close, focus trap and scroll lock; the guard keeps the body from rendering with null data. -->
+  <!-- `a && b` yields the data object, not a Boolean; reka-ui Dialog needs a real Boolean for its open/focus-trap props -->
+  <Dialog :open="!!(isOpen && costData)" @update:open="(open) => { if (!open) close() }">
+    <!-- p-0/gap-0 so header, body and footer own their padding; sm:max-w-[90vw] matches the old container width -->
+    <DialogContent class="sm:max-w-[90vw] max-h-[90vh] p-0 gap-0 overflow-hidden flex flex-col">
+      <DialogHeader class="p-6 border-b border-border">
+        <DialogTitle class="text-base font-semibold text-[var(--ink-primary)]">{{ costData.month }} Cost Breakdown</DialogTitle>
+        <DialogDescription class="sr-only">{{ costData.month }} Cost Breakdown</DialogDescription>
+      </DialogHeader>
 
-          <div class="modal-body">
-            <Card class="total-card">
-              <div class="summary-label">Total Costs</div>
-              <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
-            </Card>
+      <div class="flex-1 overflow-y-auto p-6">
+        <Card class="total-card"><CardContent>
+          <div class="summary-label">Total Costs</div>
+          <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
+        </CardContent></Card>
 
-            <div class="cost-breakdown">
-              <div class="cost-item cost-item-accent">
-                <div class="cost-header">
-                  <div class="cost-icon" style="background: var(--accent);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-                      <path d="M8 6V4M16 6V4M4 10H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                  <div class="cost-info">
-                    <div class="cost-name">Procurement</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.procurement.toLocaleString() }}</div>
-                  </div>
-                </div>
-                <div class="cost-percentage">{{ getProcurementPercentage() }}% of total</div>
+        <div class="cost-breakdown">
+          <div class="cost-item cost-item-accent">
+            <div class="cost-header">
+              <div class="cost-icon" style="background: var(--accent);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                  <path d="M8 6V4M16 6V4M4 10H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
               </div>
-
-              <div class="cost-item cost-item-accent2">
-                <div class="cost-header">
-                  <div class="cost-icon" style="background: var(--accent-2);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
-                      <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                  <div class="cost-info">
-                    <div class="cost-name">Operational</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.operational.toLocaleString() }}</div>
-                  </div>
-                </div>
-                <div class="cost-percentage">{{ getOperationalPercentage() }}% of total</div>
-              </div>
-
-              <div class="cost-item cost-item-success">
-                <div class="cost-header">
-                  <div class="cost-icon" style="background: var(--success);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
-                      <path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="2"/>
-                    </svg>
-                  </div>
-                  <div class="cost-info">
-                    <div class="cost-name">Labor</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.labor.toLocaleString() }}</div>
-                  </div>
-                </div>
-                <div class="cost-percentage">{{ getLaborPercentage() }}% of total</div>
-              </div>
-
-              <div class="cost-item cost-item-warn">
-                <div class="cost-header">
-                  <div class="cost-icon" style="background: var(--warn);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9 21 9 18 9 16C9 14 10 14 12 14C14 14 15 14 15 16C15 18 15 21 15 21M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                  <div class="cost-info">
-                    <div class="cost-name">Overhead</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.overhead.toLocaleString() }}</div>
-                  </div>
-                </div>
-                <div class="cost-percentage">{{ getOverheadPercentage() }}% of total</div>
+              <div class="cost-info">
+                <div class="cost-name">Procurement</div>
+                <div class="cost-amount">{{ currencySymbol }}{{ costData.procurement.toLocaleString() }}</div>
               </div>
             </div>
+            <div class="cost-percentage">{{ getProcurementPercentage() }}% of total</div>
           </div>
 
-          <div class="modal-footer">
-            <Button variant="ghost" @click="close">Close</Button>
+          <div class="cost-item cost-item-accent2">
+            <div class="cost-header">
+              <div class="cost-icon" style="background: var(--accent-2);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
+                  <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="cost-info">
+                <div class="cost-name">Operational</div>
+                <div class="cost-amount">{{ currencySymbol }}{{ costData.operational.toLocaleString() }}</div>
+              </div>
+            </div>
+            <div class="cost-percentage">{{ getOperationalPercentage() }}% of total</div>
+          </div>
+
+          <div class="cost-item cost-item-success">
+            <div class="cost-header">
+              <div class="cost-icon" style="background: var(--success);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                  <path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="cost-info">
+                <div class="cost-name">Labor</div>
+                <div class="cost-amount">{{ currencySymbol }}{{ costData.labor.toLocaleString() }}</div>
+              </div>
+            </div>
+            <div class="cost-percentage">{{ getLaborPercentage() }}% of total</div>
+          </div>
+
+          <div class="cost-item cost-item-warn">
+            <div class="cost-header">
+              <div class="cost-icon" style="background: var(--warn);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9 21 9 18 9 16C9 14 10 14 12 14C14 14 15 14 15 16C15 18 15 21 15 21M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="cost-info">
+                <div class="cost-name">Overhead</div>
+                <div class="cost-amount">{{ currencySymbol }}{{ costData.overhead.toLocaleString() }}</div>
+              </div>
+            </div>
+            <div class="cost-percentage">{{ getOverheadPercentage() }}% of total</div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <DialogFooter class="p-6 border-t border-border">
+        <Button variant="ghost" @click="close">Close</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
-import Button from './ui/Button.vue'
-import Card from './ui/Card.vue'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 
 const { currentCurrency } = useI18n()
 
@@ -142,53 +138,6 @@ const close = () => emit('close')
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 16px;
-}
-
-.modal-container {
-  background: var(--surface-card);
-  border-radius: var(--r-lg);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  max-width: 90vw;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  border-bottom: 1px solid var(--line);
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink-primary);
-  margin: 0;
-}
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
 .total-card {
   margin-bottom: 24px;
   text-align: center;
@@ -282,32 +231,5 @@ const close = () => emit('close')
   font-size: 12px;
   color: var(--ink-muted);
   font-weight: 500;
-}
-
-.modal-footer {
-  padding: 24px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: flex-end;
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.95);
 }
 </style>

@@ -6,10 +6,10 @@
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
-      <Card>
-        <template #title>
-          <div class="card-header-row">
-            <span>{{ t('inventory.stockLevels') }} ({{ filteredItems.length }} {{ t('inventory.skus') }})</span>
+      <Card class="gap-4">
+        <CardHeader>
+          <CardTitle>{{ t('inventory.stockLevels') }} ({{ filteredItems.length }} {{ t('inventory.skus') }})</CardTitle>
+          <CardAction class="self-center">
             <div class="search-box">
               <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -26,49 +26,49 @@
                 </svg>
               </button>
             </div>
-          </div>
-        </template>
-        <div class="table-no-pad">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>{{ t('inventory.table.sku') }}</th>
-                  <th>{{ t('inventory.table.itemName') }}</th>
-                  <th>{{ t('inventory.table.category') }}</th>
-                  <th>{{ t('inventory.table.quantityOnHand') }}</th>
-                  <th>{{ t('inventory.table.reorderPoint') }}</th>
-                  <th>{{ t('inventory.table.unitCost') }}</th>
-                  <th>{{ t('inventory.table.totalValue') }}</th>
-                  <th>{{ t('inventory.table.location') }}</th>
-                  <th>{{ t('inventory.table.status') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <div class="table-no-pad">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{{ t('inventory.table.sku') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.itemName') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.category') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.quantityOnHand') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.reorderPoint') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.unitCost') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.totalValue') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.location') }}</TableHead>
+                  <TableHead>{{ t('inventory.table.status') }}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow
                   v-for="item in filteredItems"
                   :key="item.id"
                   class="clickable-row"
                   @click="showItemDetail(item)"
                 >
-                  <td><strong>{{ item.sku }}</strong></td>
-                  <td>{{ translateProductName(item.name) }}</td>
-                  <td>{{ translateCategory(item.category) }}</td>
-                  <td><strong>{{ item.quantity_on_hand }}</strong></td>
-                  <td>{{ item.reorder_point }}</td>
-                  <td>{{ currencySymbol }}{{ item.unit_cost.toFixed(2) }}</td>
-                  <td><strong>{{ currencySymbol }}{{ (item.quantity_on_hand * item.unit_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}</strong></td>
-                  <td>{{ translateWarehouse(item.location) }}</td>
-                  <td>
+                  <TableCell><strong>{{ item.sku }}</strong></TableCell>
+                  <TableCell>{{ translateProductName(item.name) }}</TableCell>
+                  <TableCell>{{ translateCategory(item.category) }}</TableCell>
+                  <TableCell><strong>{{ item.quantity_on_hand }}</strong></TableCell>
+                  <TableCell>{{ item.reorder_point }}</TableCell>
+                  <TableCell>{{ currencySymbol }}{{ item.unit_cost.toFixed(2) }}</TableCell>
+                  <TableCell><strong>{{ currencySymbol }}{{ (item.quantity_on_hand * item.unit_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}</strong></TableCell>
+                  <TableCell>{{ translateWarehouse(item.location) }}</TableCell>
+                  <TableCell>
                     <Badge :variant="getStockStatusClass(item)">
                       {{ getStockStatus(item) }}
                     </Badge>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
 
@@ -86,8 +86,9 @@ import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
-import Badge from '../components/ui/Badge.vue'
+import { Card, CardHeader, CardAction, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import FilterBar from '../components/FilterBar.vue'
 import InventoryDetailModal from '../components/InventoryDetailModal.vue'
 
@@ -96,6 +97,16 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardAction,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     Badge,
     FilterBar,
     InventoryDetailModal
@@ -220,14 +231,6 @@ export default {
 </script>
 
 <style scoped>
-.card-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  width: 100%;
-}
-
 .search-box {
   position: relative;
   display: flex;

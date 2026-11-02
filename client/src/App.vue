@@ -182,12 +182,6 @@ export default {
   --r-lg: 14px;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: var(--surface-bg);
@@ -231,44 +225,6 @@ body {
   font-weight: 400;
 }
 
-/* Global table styles */
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background: var(--surface-bg);
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-}
-
-th {
-  text-align: left;
-  padding: 8px 12px;
-  font-weight: 600;
-  color: var(--ink-muted);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-td {
-  padding: 12px 12px;
-  border-top: 1px solid var(--surface-muted);
-  color: var(--ink-secondary);
-  font-size: 13px;
-  height: 44px;
-}
-
-tbody tr {
-  transition: background-color 0.1s ease;
-}
-
-tbody tr:hover {
-  background: var(--surface-muted);
-}
-
 /* Loading / error global */
 .loading {
   text-align: center;
@@ -288,7 +244,4 @@ tbody tr:hover {
 }
 
 /* Table container */
-.table-container {
-  overflow-x: auto;
-}
 </style>

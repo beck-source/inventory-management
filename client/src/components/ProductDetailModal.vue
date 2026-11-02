@@ -1,86 +1,82 @@
 <template>
-  <Teleport to="body">
-    <Transition name="modal">
-      <div v-if="isOpen && product" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <h3 class="modal-title">Product Details</h3>
-            <Button variant="ghost" size="sm" @click="close">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </Button>
+  <!-- Dialog provides Escape-to-close, focus trap and scroll lock; the guard keeps the body from rendering with null data. -->
+  <!-- `a && b` yields the data object, not a Boolean; reka-ui Dialog needs a real Boolean for its open/focus-trap props -->
+  <Dialog :open="!!(isOpen && product)" @update:open="(open) => { if (!open) close() }">
+    <!-- p-0/gap-0 so header, body and footer own their padding; sm:max-w-[90vw] matches the old container width -->
+    <DialogContent class="sm:max-w-[90vw] max-h-[90vh] p-0 gap-0 overflow-hidden flex flex-col">
+      <DialogHeader class="p-6 border-b border-border">
+        <DialogTitle class="text-base font-semibold text-[var(--ink-primary)]">Product Details</DialogTitle>
+        <DialogDescription class="sr-only">Product Details</DialogDescription>
+      </DialogHeader>
+
+      <div class="flex-1 overflow-y-auto p-6">
+        <div class="product-header">
+          <div class="product-icon">
+            <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
+              <rect x="8" y="12" width="32" height="28" rx="2" stroke="currentColor" stroke-width="2.5"/>
+              <path d="M16 8V16M32 8V16M8 20H40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
           </div>
-
-          <div class="modal-body">
-            <div class="product-header">
-              <div class="product-icon">
-                <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
-                  <rect x="8" y="12" width="32" height="28" rx="2" stroke="currentColor" stroke-width="2.5"/>
-                  <path d="M16 8V16M32 8V16M8 20H40" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <div class="product-title-section">
-                <h4 class="product-name">{{ product.name }}</h4>
-                <div class="product-sku">SKU: {{ product.sku }}</div>
-              </div>
-              <Badge :variant="getStockVariant(product.stockLevel)">
-                {{ product.stockLevel }}
-              </Badge>
-            </div>
-
-            <div class="info-grid">
-              <div class="info-item">
-                <div class="info-label">Category</div>
-                <div class="info-value">{{ product.category }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Warehouse</div>
-                <div class="info-value">{{ product.warehouse }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Units Ordered</div>
-                <div class="info-value">{{ product.unitsOrdered }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Total Revenue</div>
-                <div class="info-value accent-value">{{ currencySymbol }}{{ product.revenue.toLocaleString() }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Current Stock</div>
-                <div class="info-value">{{ product.quantityOnHand }} units</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Reorder Point</div>
-                <div class="info-value">{{ product.reorderPoint }} units</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">First Order Date</div>
-                <div class="info-value">{{ formatDate(product.firstOrderDate) }}</div>
-              </div>
-              <div class="info-item">
-                <div class="info-label">Stock Status</div>
-                <div class="info-value">
-                  <Badge :variant="getStockVariant(product.stockLevel)">{{ product.stockLevel }}</Badge>
-                </div>
-              </div>
-            </div>
+          <div class="product-title-section">
+            <h4 class="product-name">{{ product.name }}</h4>
+            <div class="product-sku">SKU: {{ product.sku }}</div>
           </div>
+          <Badge :variant="getStockVariant(product.stockLevel)">
+            {{ product.stockLevel }}
+          </Badge>
+        </div>
 
-          <div class="modal-footer">
-            <Button variant="ghost" @click="close">Close</Button>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Category</div>
+            <div class="info-value">{{ product.category }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Warehouse</div>
+            <div class="info-value">{{ product.warehouse }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Units Ordered</div>
+            <div class="info-value">{{ product.unitsOrdered }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Total Revenue</div>
+            <div class="info-value accent-value">{{ currencySymbol }}{{ product.revenue.toLocaleString() }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Current Stock</div>
+            <div class="info-value">{{ product.quantityOnHand }} units</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Reorder Point</div>
+            <div class="info-value">{{ product.reorderPoint }} units</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">First Order Date</div>
+            <div class="info-value">{{ formatDate(product.firstOrderDate) }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Stock Status</div>
+            <div class="info-value">
+              <Badge :variant="getStockVariant(product.stockLevel)">{{ product.stockLevel }}</Badge>
+            </div>
           </div>
         </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <DialogFooter class="p-6 border-t border-border">
+        <Button variant="ghost" @click="close">Close</Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
-import Button from './ui/Button.vue'
-import Badge from './ui/Badge.vue'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog'
 
 const { currentCurrency } = useI18n()
 
@@ -112,53 +108,6 @@ const getStockVariant = (stockLevel) => {
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(15, 23, 42, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  padding: 16px;
-}
-
-.modal-container {
-  background: var(--surface-card);
-  border-radius: var(--r-lg);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  max-width: 90vw;
-  width: 100%;
-  max-height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 24px;
-  border-bottom: 1px solid var(--line);
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--ink-primary);
-  margin: 0;
-}
-
-.modal-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
 .product-header {
   display: flex;
   align-items: center;
@@ -228,33 +177,5 @@ const getStockVariant = (stockLevel) => {
   font-size: 14px;
   color: var(--accent);
   font-weight: 700;
-}
-
-.modal-footer {
-  padding: 24px;
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
-.modal-enter-active,
-.modal-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-active .modal-container,
-.modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.95);
 }
 </style>

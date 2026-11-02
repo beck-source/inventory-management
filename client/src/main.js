@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import './styles/tailwind.css'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import Dashboard from './views/Dashboard.vue'

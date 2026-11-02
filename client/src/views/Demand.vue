@@ -8,101 +8,107 @@
     <div v-else>
       <div class="trend-cards">
         <Card class="trend-card-increasing">
-          <div class="trend-header">
-            <div class="trend-icon-wrap increasing">↑</div>
-            <div>
-              <div class="trend-label">{{ t('demand.increasingDemand') }}</div>
-              <div class="trend-count">{{ t('demand.itemsCount', { count: getForecastsByTrend('increasing').length }) }}</div>
+          <CardContent>
+            <div class="trend-header">
+              <div class="trend-icon-wrap increasing">↑</div>
+              <div>
+                <div class="trend-label">{{ t('demand.increasingDemand') }}</div>
+                <div class="trend-count">{{ t('demand.itemsCount', { count: getForecastsByTrend('increasing').length }) }}</div>
+              </div>
             </div>
-          </div>
-          <div class="trend-items">
-            <div v-for="item in getForecastsByTrend('increasing').slice(0, 5)" :key="item.id" class="trend-item">
-              <span class="item-name">{{ item.item_name }}</span>
-              <Badge variant="success">+{{ getChangePercent(item) }}%</Badge>
+            <div class="trend-items">
+              <div v-for="item in getForecastsByTrend('increasing').slice(0, 5)" :key="item.id" class="trend-item">
+                <span class="item-name">{{ item.item_name }}</span>
+                <Badge variant="success">+{{ getChangePercent(item) }}%</Badge>
+              </div>
+              <div v-if="getForecastsByTrend('increasing').length > 5" class="more-items">
+                +{{ getForecastsByTrend('increasing').length - 5 }} {{ t('demand.more') }}
+              </div>
             </div>
-            <div v-if="getForecastsByTrend('increasing').length > 5" class="more-items">
-              +{{ getForecastsByTrend('increasing').length - 5 }} {{ t('demand.more') }}
-            </div>
-          </div>
+          </CardContent>
         </Card>
 
         <Card class="trend-card-stable">
-          <div class="trend-header">
-            <div class="trend-icon-wrap stable">→</div>
-            <div>
-              <div class="trend-label">{{ t('demand.stableDemand') }}</div>
-              <div class="trend-count">{{ t('demand.itemsCount', { count: getForecastsByTrend('stable').length }) }}</div>
+          <CardContent>
+            <div class="trend-header">
+              <div class="trend-icon-wrap stable">→</div>
+              <div>
+                <div class="trend-label">{{ t('demand.stableDemand') }}</div>
+                <div class="trend-count">{{ t('demand.itemsCount', { count: getForecastsByTrend('stable').length }) }}</div>
+              </div>
             </div>
-          </div>
-          <div class="trend-items">
-            <div v-for="item in getForecastsByTrend('stable').slice(0, 5)" :key="item.id" class="trend-item">
-              <span class="item-name">{{ item.item_name }}</span>
-              <Badge variant="neutral">{{ getChangePercent(item) }}%</Badge>
+            <div class="trend-items">
+              <div v-for="item in getForecastsByTrend('stable').slice(0, 5)" :key="item.id" class="trend-item">
+                <span class="item-name">{{ item.item_name }}</span>
+                <Badge variant="neutral">{{ getChangePercent(item) }}%</Badge>
+              </div>
+              <div v-if="getForecastsByTrend('stable').length > 5" class="more-items">
+                +{{ getForecastsByTrend('stable').length - 5 }} {{ t('demand.more') }}
+              </div>
             </div>
-            <div v-if="getForecastsByTrend('stable').length > 5" class="more-items">
-              +{{ getForecastsByTrend('stable').length - 5 }} {{ t('demand.more') }}
-            </div>
-          </div>
+          </CardContent>
         </Card>
 
         <Card class="trend-card-decreasing">
-          <div class="trend-header">
-            <div class="trend-icon-wrap decreasing">↓</div>
-            <div>
-              <div class="trend-label">{{ t('demand.decreasingDemand') }}</div>
-              <div class="trend-count">{{ t('demand.itemsCount', { count: getForecastsByTrend('decreasing').length }) }}</div>
+          <CardContent>
+            <div class="trend-header">
+              <div class="trend-icon-wrap decreasing">↓</div>
+              <div>
+                <div class="trend-label">{{ t('demand.decreasingDemand') }}</div>
+                <div class="trend-count">{{ t('demand.itemsCount', { count: getForecastsByTrend('decreasing').length }) }}</div>
+              </div>
             </div>
-          </div>
-          <div class="trend-items">
-            <div v-for="item in getForecastsByTrend('decreasing').slice(0, 5)" :key="item.id" class="trend-item">
-              <span class="item-name">{{ item.item_name }}</span>
-              <Badge variant="danger">{{ getChangePercent(item) }}%</Badge>
+            <div class="trend-items">
+              <div v-for="item in getForecastsByTrend('decreasing').slice(0, 5)" :key="item.id" class="trend-item">
+                <span class="item-name">{{ item.item_name }}</span>
+                <Badge variant="danger">{{ getChangePercent(item) }}%</Badge>
+              </div>
+              <div v-if="getForecastsByTrend('decreasing').length > 5" class="more-items">
+                +{{ getForecastsByTrend('decreasing').length - 5 }} {{ t('demand.more') }}
+              </div>
             </div>
-            <div v-if="getForecastsByTrend('decreasing').length > 5" class="more-items">
-              +{{ getForecastsByTrend('decreasing').length - 5 }} {{ t('demand.more') }}
-            </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <template #title>{{ t('demand.demandForecasts') }}</template>
-        <div class="table-no-pad">
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>{{ t('demand.table.sku') }}</th>
-                  <th>{{ t('demand.table.itemName') }}</th>
-                  <th>{{ t('demand.table.currentDemand') }}</th>
-                  <th>{{ t('demand.table.forecastedDemand') }}</th>
-                  <th>{{ t('demand.table.change') }}</th>
-                  <th>{{ t('demand.table.trend') }}</th>
-                  <th>{{ t('demand.table.period') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="forecast in forecasts" :key="forecast.id">
-                  <td><strong>{{ forecast.item_sku }}</strong></td>
-                  <td>{{ forecast.item_name }}</td>
-                  <td>{{ forecast.current_demand }}</td>
-                  <td><strong>{{ forecast.forecasted_demand }}</strong></td>
-                  <td>
+      <Card class="gap-4">
+        <CardHeader><CardTitle>{{ t('demand.demandForecasts') }}</CardTitle></CardHeader>
+        <CardContent>
+          <div class="table-no-pad">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{{ t('demand.table.sku') }}</TableHead>
+                  <TableHead>{{ t('demand.table.itemName') }}</TableHead>
+                  <TableHead>{{ t('demand.table.currentDemand') }}</TableHead>
+                  <TableHead>{{ t('demand.table.forecastedDemand') }}</TableHead>
+                  <TableHead>{{ t('demand.table.change') }}</TableHead>
+                  <TableHead>{{ t('demand.table.trend') }}</TableHead>
+                  <TableHead>{{ t('demand.table.period') }}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="forecast in forecasts" :key="forecast.id">
+                  <TableCell><strong>{{ forecast.item_sku }}</strong></TableCell>
+                  <TableCell>{{ forecast.item_name }}</TableCell>
+                  <TableCell>{{ forecast.current_demand }}</TableCell>
+                  <TableCell><strong>{{ forecast.forecasted_demand }}</strong></TableCell>
+                  <TableCell>
                     <span :style="{ color: getChangeColor(forecast), fontWeight: 600 }">
                       {{ getChangePercent(forecast) }}%
                     </span>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <Badge :variant="getTrendVariant(forecast.trend)">
                       {{ t(`trends.${forecast.trend}`) }}
                     </Badge>
-                  </td>
-                  <td>{{ translatePeriod(forecast.period) }}</td>
-                </tr>
-              </tbody>
-            </table>
+                  </TableCell>
+                  <TableCell>{{ translatePeriod(forecast.period) }}</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   </div>
@@ -114,8 +120,9 @@ import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
-import Badge from '../components/ui/Badge.vue'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
 import FilterBar from '../components/FilterBar.vue'
 
 export default {
@@ -123,6 +130,15 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     Badge,
     FilterBar
   },

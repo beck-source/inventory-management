@@ -9,165 +9,179 @@
       <!-- KPI Cards -->
       <div class="kpi-grid">
         <Card>
-          <div class="kpi-label">{{ t('dashboard.kpi.inventoryTurnover') }}</div>
-          <div class="kpi-value">4.2</div>
-          <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 4.5 (-6.67%)</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" style="width: 93%"></div></div>
+          <CardContent>
+            <div class="kpi-label">{{ t('dashboard.kpi.inventoryTurnover') }}</div>
+            <div class="kpi-value">4.2</div>
+            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 4.5 (-6.67%)</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width: 93%"></div></div>
+          </CardContent>
         </Card>
 
         <Card>
-          <div class="kpi-label">{{ t('dashboard.kpi.ordersFulfilled') }}</div>
-          <div class="kpi-value">{{ ordersData.fulfilled }}</div>
-          <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ ordersData.goal }} ({{ calculatePercentage(ordersData.fulfilled, ordersData.goal) }}%)</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" :style="{ width: calculatePercentage(ordersData.fulfilled, ordersData.goal) + '%' }"></div></div>
+          <CardContent>
+            <div class="kpi-label">{{ t('dashboard.kpi.ordersFulfilled') }}</div>
+            <div class="kpi-value">{{ ordersData.fulfilled }}</div>
+            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ ordersData.goal }} ({{ calculatePercentage(ordersData.fulfilled, ordersData.goal) }}%)</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" :style="{ width: calculatePercentage(ordersData.fulfilled, ordersData.goal) + '%' }"></div></div>
+          </CardContent>
         </Card>
 
         <Card>
-          <div class="kpi-label">{{ t('dashboard.kpi.orderFillRate') }}</div>
-          <div class="kpi-value">{{ fillRate }}%</div>
-          <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 95% ({{ fillRate - 95 > 0 ? '+' : '' }}{{ (fillRate - 95).toFixed(2) }}%)</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill success" :style="{ width: (fillRate / 95 * 100) + '%' }"></div></div>
+          <CardContent>
+            <div class="kpi-label">{{ t('dashboard.kpi.orderFillRate') }}</div>
+            <div class="kpi-value">{{ fillRate }}%</div>
+            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 95% ({{ fillRate - 95 > 0 ? '+' : '' }}{{ (fillRate - 95).toFixed(2) }}%)</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill success" :style="{ width: (fillRate / 95 * 100) + '%' }"></div></div>
+          </CardContent>
         </Card>
 
         <Card>
-          <div class="kpi-label">{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboard.kpi.revenueMTD') }}</div>
-          <div class="kpi-value">{{ formatCurrency(Math.round(summary.total_orders_value), selectedCurrency) }}</div>
-          <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ formatCurrency(revenueGoal, selectedCurrency) }} ({{ summary.total_orders_value > revenueGoal ? '+' : '' }}{{ ((summary.total_orders_value / revenueGoal - 1) * 100).toFixed(1) }}%)</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" :style="{ width: Math.min((summary.total_orders_value / revenueGoal * 100), 100) + '%' }"></div></div>
+          <CardContent>
+            <div class="kpi-label">{{ t(selectedPeriod === 'all' ? 'dashboard.kpi.revenueYTD' : 'dashboard.kpi.revenueMTD') }}</div>
+            <div class="kpi-value">{{ formatCurrency(Math.round(summary.total_orders_value), selectedCurrency) }}</div>
+            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: {{ formatCurrency(revenueGoal, selectedCurrency) }} ({{ summary.total_orders_value > revenueGoal ? '+' : '' }}{{ ((summary.total_orders_value / revenueGoal - 1) * 100).toFixed(1) }}%)</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" :style="{ width: Math.min((summary.total_orders_value / revenueGoal * 100), 100) + '%' }"></div></div>
+          </CardContent>
         </Card>
 
         <Card>
-          <div class="kpi-label">{{ t('dashboard.kpi.avgProcessingTime') }}</div>
-          <div class="kpi-value">2.8</div>
-          <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 3.0 (-6.67%)</div>
-          <div class="kpi-bar"><div class="kpi-bar-fill success" style="width: 93%"></div></div>
+          <CardContent>
+            <div class="kpi-label">{{ t('dashboard.kpi.avgProcessingTime') }}</div>
+            <div class="kpi-value">2.8</div>
+            <div class="kpi-goal">{{ t('dashboard.kpi.goal') }}: 3.0 (-6.67%)</div>
+            <div class="kpi-bar"><div class="kpi-bar-fill success" style="width: 93%"></div></div>
+          </CardContent>
         </Card>
       </div>
 
       <!-- Charts Grid -->
       <div class="charts-grid">
         <!-- Order Health -->
-        <Card>
-          <template #title>{{ t('dashboard.orderHealth.title') }}</template>
-          <div class="order-health-container">
-            <div class="order-health-chart">
-              <svg viewBox="0 0 200 200" class="donut-svg">
-                <circle cx="100" cy="100" r="65" fill="none" stroke="var(--line)" stroke-width="25"/>
-                <circle cx="100" cy="100" r="65" fill="none" stroke="var(--success)" stroke-width="25"
-                  :stroke-dasharray="`${getCircleSegment(statusData.delivered)} 408`"
-                  stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
-                <circle cx="100" cy="100" r="65" fill="none" stroke="var(--accent)" stroke-width="25"
-                  :stroke-dasharray="`${getCircleSegment(statusData.shipped)} 408`"
-                  :stroke-dashoffset="`-${getCircleSegment(statusData.delivered)}`"
-                  transform="rotate(-90 100 100)"/>
-                <circle cx="100" cy="100" r="65" fill="none" stroke="var(--warn)" stroke-width="25"
-                  :stroke-dasharray="`${getCircleSegment(statusData.processing)} 408`"
-                  :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped)}`"
-                  transform="rotate(-90 100 100)"/>
-                <circle cx="100" cy="100" r="65" fill="none" stroke="var(--danger)" stroke-width="25"
-                  :stroke-dasharray="`${getCircleSegment(statusData.backordered)} 408`"
-                  :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped) + getCircleSegment(statusData.processing)}`"
-                  transform="rotate(-90 100 100)"/>
-                <text x="100" y="92" text-anchor="middle" class="donut-center-label">{{ t('dashboard.orderHealth.total') }}</text>
-                <text x="100" y="118" text-anchor="middle" class="donut-center-value">{{ orderHealthMetrics.totalOrders }}</text>
-              </svg>
-              <div class="donut-legend">
-                <div class="legend-item"><span class="legend-dot" style="background: var(--success)"></span>{{ t('status.delivered') }}</div>
-                <div class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span>{{ t('status.shipped') }}</div>
-                <div class="legend-item"><span class="legend-dot" style="background: var(--warn)"></span>{{ t('status.processing') }}</div>
-                <div class="legend-item"><span class="legend-dot" style="background: var(--danger)"></span>{{ t('status.backordered') }}</div>
-              </div>
-            </div>
-
-            <div class="order-health-metrics">
-              <div class="health-metric">
-                <div class="health-metric-label">{{ t('dashboard.orderHealth.revenue') }}</div>
-                <div class="health-metric-value">{{ formatCurrency(orderHealthMetrics.totalValue, selectedCurrency) }}</div>
-              </div>
-              <div class="health-metric">
-                <div class="health-metric-label">{{ t('dashboard.orderHealth.avgOrderValue') }}</div>
-                <div class="health-metric-value">{{ formatCurrency(orderHealthMetrics.avgOrderValue, selectedCurrency) }}</div>
-              </div>
-              <div class="health-metric">
-                <div class="health-metric-label">{{ t('dashboard.orderHealth.onTimeRate') }}</div>
-                <div class="health-metric-value" :class="{ 'metric-good': orderHealthMetrics.onTimeRate >= 90, 'metric-warning': orderHealthMetrics.onTimeRate < 90 && orderHealthMetrics.onTimeRate >= 75, 'metric-bad': orderHealthMetrics.onTimeRate < 75 }">
-                  {{ orderHealthMetrics.onTimeRate.toFixed(1) }}%
+        <Card class="gap-4">
+          <CardHeader><CardTitle>{{ t('dashboard.orderHealth.title') }}</CardTitle></CardHeader>
+          <CardContent>
+            <div class="order-health-container">
+              <div class="order-health-chart">
+                <svg viewBox="0 0 200 200" class="donut-svg">
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--line)" stroke-width="25"/>
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--success)" stroke-width="25"
+                    :stroke-dasharray="`${getCircleSegment(statusData.delivered)} 408`"
+                    stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--accent)" stroke-width="25"
+                    :stroke-dasharray="`${getCircleSegment(statusData.shipped)} 408`"
+                    :stroke-dashoffset="`-${getCircleSegment(statusData.delivered)}`"
+                    transform="rotate(-90 100 100)"/>
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--warn)" stroke-width="25"
+                    :stroke-dasharray="`${getCircleSegment(statusData.processing)} 408`"
+                    :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped)}`"
+                    transform="rotate(-90 100 100)"/>
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--danger)" stroke-width="25"
+                    :stroke-dasharray="`${getCircleSegment(statusData.backordered)} 408`"
+                    :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped) + getCircleSegment(statusData.processing)}`"
+                    transform="rotate(-90 100 100)"/>
+                  <text x="100" y="92" text-anchor="middle" class="donut-center-label">{{ t('dashboard.orderHealth.total') }}</text>
+                  <text x="100" y="118" text-anchor="middle" class="donut-center-value">{{ orderHealthMetrics.totalOrders }}</text>
+                </svg>
+                <div class="donut-legend">
+                  <div class="legend-item"><span class="legend-dot" style="background: var(--success)"></span>{{ t('status.delivered') }}</div>
+                  <div class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span>{{ t('status.shipped') }}</div>
+                  <div class="legend-item"><span class="legend-dot" style="background: var(--warn)"></span>{{ t('status.processing') }}</div>
+                  <div class="legend-item"><span class="legend-dot" style="background: var(--danger)"></span>{{ t('status.backordered') }}</div>
                 </div>
               </div>
-              <div class="health-metric">
-                <div class="health-metric-label">{{ t('dashboard.orderHealth.avgFulfillmentDays') }}</div>
-                <div class="health-metric-value">{{ orderHealthMetrics.avgFulfillmentDays.toFixed(1) }}</div>
+
+              <div class="order-health-metrics">
+                <div class="health-metric">
+                  <div class="health-metric-label">{{ t('dashboard.orderHealth.revenue') }}</div>
+                  <div class="health-metric-value">{{ formatCurrency(orderHealthMetrics.totalValue, selectedCurrency) }}</div>
+                </div>
+                <div class="health-metric">
+                  <div class="health-metric-label">{{ t('dashboard.orderHealth.avgOrderValue') }}</div>
+                  <div class="health-metric-value">{{ formatCurrency(orderHealthMetrics.avgOrderValue, selectedCurrency) }}</div>
+                </div>
+                <div class="health-metric">
+                  <div class="health-metric-label">{{ t('dashboard.orderHealth.onTimeRate') }}</div>
+                  <div class="health-metric-value" :class="{ 'metric-good': orderHealthMetrics.onTimeRate >= 90, 'metric-warning': orderHealthMetrics.onTimeRate < 90 && orderHealthMetrics.onTimeRate >= 75, 'metric-bad': orderHealthMetrics.onTimeRate < 75 }">
+                    {{ orderHealthMetrics.onTimeRate.toFixed(1) }}%
+                  </div>
+                </div>
+                <div class="health-metric">
+                  <div class="health-metric-label">{{ t('dashboard.orderHealth.avgFulfillmentDays') }}</div>
+                  <div class="health-metric-value">{{ orderHealthMetrics.avgFulfillmentDays.toFixed(1) }}</div>
+                </div>
               </div>
             </div>
-          </div>
+          </CardContent>
         </Card>
 
         <!-- Inventory by Category -->
-        <Card>
-          <template #title>{{ t('dashboard.inventoryValue.title') }}</template>
-          <div class="horizontal-bar-chart" v-if="categoryData.length > 0">
-            <div v-for="cat in categoryData" :key="cat.name" class="h-bar-item">
-              <div class="h-bar-label">{{ translateCategory(cat.name) }}</div>
-              <div class="h-bar-track">
-                <div class="h-bar-fill" :style="{ width: (cat.value / maxCategoryValue * 100) + '%' }">
-                  <span class="h-bar-value">{{ selectedCurrency === 'JPY' ? formatCurrency(cat.value, selectedCurrency) : `$${(cat.value / 1000).toFixed(1)}K` }}</span>
+        <Card class="gap-4">
+          <CardHeader><CardTitle>{{ t('dashboard.inventoryValue.title') }}</CardTitle></CardHeader>
+          <CardContent>
+            <div class="horizontal-bar-chart" v-if="categoryData.length > 0">
+              <div v-for="cat in categoryData" :key="cat.name" class="h-bar-item">
+                <div class="h-bar-label">{{ translateCategory(cat.name) }}</div>
+                <div class="h-bar-track">
+                  <div class="h-bar-fill" :style="{ width: (cat.value / maxCategoryValue * 100) + '%' }">
+                    <span class="h-bar-value">{{ selectedCurrency === 'JPY' ? formatCurrency(cat.value, selectedCurrency) : `$${(cat.value / 1000).toFixed(1)}K` }}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div v-else class="no-data">{{ t('dashboard.inventoryShortages.noData') }}</div>
+            <div v-else class="no-data">{{ t('dashboard.inventoryShortages.noData') }}</div>
+          </CardContent>
         </Card>
 
         <!-- Inventory Shortages -->
-        <Card class="full-width">
-          <template #title>{{ t('dashboard.inventoryShortages.title') }} ({{ backlogItems.length }})</template>
-          <EmptyState v-if="backlogItems.length === 0">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="40" height="40" style="color: var(--success)">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
-              </svg>
-            </template>
-            <template #title>{{ t('dashboard.inventoryShortages.noShortages') }}</template>
-          </EmptyState>
-          <div v-else class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>{{ t('dashboard.inventoryShortages.orderId') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.sku') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.itemName') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.quantityNeeded') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.quantityAvailable') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.shortage') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.daysDelayed') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.priority') }}</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in backlogItems" :key="item.id">
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.order_id }}</strong></td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.item_sku }}</strong></td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ translateProductName(item.item_name) }}</td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_needed }}</td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_available }}</td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">
+        <Card class="gap-4 full-width">
+          <CardHeader><CardTitle>{{ t('dashboard.inventoryShortages.title') }} ({{ backlogItems.length }})</CardTitle></CardHeader>
+          <CardContent>
+            <EmptyState v-if="backlogItems.length === 0">
+              <template #icon>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="40" height="40" style="color: var(--success)">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                </svg>
+              </template>
+              <template #title>{{ t('dashboard.inventoryShortages.noShortages') }}</template>
+            </EmptyState>
+            <Table v-else>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{{ t('dashboard.inventoryShortages.orderId') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.sku') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.itemName') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.quantityNeeded') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.quantityAvailable') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.shortage') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.daysDelayed') }}</TableHead>
+                  <TableHead>{{ t('dashboard.inventoryShortages.priority') }}</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="item in backlogItems" :key="item.id">
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.order_id }}</strong></TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.item_sku }}</strong></TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;">{{ translateProductName(item.item_name) }}</TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_needed }}</TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_available }}</TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;">
                     <Badge variant="danger">{{ Math.abs(item.quantity_needed - item.quantity_available) }} {{ t('dashboard.inventoryShortages.unitsShort') }}</Badge>
-                  </td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">
+                  </TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;">
                     <span :style="{ color: item.days_delayed > 7 ? 'var(--danger)' : 'var(--warn)', fontWeight: 600 }">
                       {{ item.days_delayed }} {{ t('dashboard.inventoryShortages.days') }}
                     </span>
-                  </td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">
+                  </TableCell>
+                  <TableCell @click="showBacklogDetail(item)" style="cursor: pointer;">
                     <Badge :variant="item.priority === 'high' ? 'danger' : item.priority === 'medium' ? 'warn' : 'accent'">
                       {{ translatePriority(item.priority) }}
                     </Badge>
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell>
                     <Button
                       v-if="!item.purchase_order_id"
-                      variant="primary"
+                      variant="default"
                       size="sm"
                       @click.stop="openPOModal(item)"
                     >Create PO</Button>
@@ -177,51 +191,51 @@
                       size="sm"
                       @click.stop="viewPO(item)"
                     >View PO</Button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
         </Card>
 
         <!-- Top Products -->
-        <Card class="full-width">
-          <template #title>{{ t('dashboard.topProducts.title') }}</template>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>{{ t('dashboard.topProducts.product') }}</th>
-                  <th>{{ t('dashboard.topProducts.sku') }}</th>
-                  <th>{{ t('dashboard.topProducts.category') }}</th>
-                  <th>{{ t('dashboard.topProducts.unitsOrdered') }}</th>
-                  <th>{{ t('dashboard.topProducts.revenue') }}</th>
-                  <th>{{ t('dashboard.topProducts.firstOrder') }}</th>
-                  <th>{{ t('dashboard.topProducts.stockStatus') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
+        <Card class="gap-4 full-width">
+          <CardHeader><CardTitle>{{ t('dashboard.topProducts.title') }}</CardTitle></CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{{ t('dashboard.topProducts.product') }}</TableHead>
+                  <TableHead>{{ t('dashboard.topProducts.sku') }}</TableHead>
+                  <TableHead>{{ t('dashboard.topProducts.category') }}</TableHead>
+                  <TableHead>{{ t('dashboard.topProducts.unitsOrdered') }}</TableHead>
+                  <TableHead>{{ t('dashboard.topProducts.revenue') }}</TableHead>
+                  <TableHead>{{ t('dashboard.topProducts.firstOrder') }}</TableHead>
+                  <TableHead>{{ t('dashboard.topProducts.stockStatus') }}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow
                   v-for="item in topProducts"
                   :key="item.sku"
                   class="clickable-row"
                   @click="showProductDetail(item)"
                 >
-                  <td><strong>{{ translateProductName(item.name) }}</strong></td>
-                  <td>{{ item.sku }}</td>
-                  <td>{{ translateCategory(item.category) }}</td>
-                  <td>{{ item.unitsOrdered }}</td>
-                  <td><strong>{{ formatCurrency(item.revenue, selectedCurrency) }}</strong></td>
-                  <td>{{ formatDate(item.firstOrderDate) }}</td>
-                  <td>
+                  <TableCell><strong>{{ translateProductName(item.name) }}</strong></TableCell>
+                  <TableCell>{{ item.sku }}</TableCell>
+                  <TableCell>{{ translateCategory(item.category) }}</TableCell>
+                  <TableCell>{{ item.unitsOrdered }}</TableCell>
+                  <TableCell><strong>{{ formatCurrency(item.revenue, selectedCurrency) }}</strong></TableCell>
+                  <TableCell>{{ formatDate(item.firstOrderDate) }}</TableCell>
+                  <TableCell>
                     <Badge :variant="getStockBadge(item.stockLevel)">
                       {{ translateStockLevel(item.stockLevel) }}
                     </Badge>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </CardContent>
         </Card>
       </div>
     </div>
@@ -248,9 +262,10 @@ import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency } from '../utils/currency'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
-import Badge from '../components/ui/Badge.vue'
-import Button from '../components/ui/Button.vue'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import EmptyState from '../components/ui/EmptyState.vue'
 import FilterBar from '../components/FilterBar.vue'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
@@ -261,6 +276,15 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     Badge,
     Button,
     EmptyState,

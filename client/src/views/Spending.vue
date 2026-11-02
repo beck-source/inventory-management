@@ -9,153 +9,169 @@
       <!-- Stat cards -->
       <div class="stats-grid">
         <Card>
-          <div class="stat-label">{{ t('finance.totalRevenue') }}</div>
-          <div class="stat-value">{{ formatCurrency(revenueMetrics.totalRevenue) }}</div>
-          <div class="stat-meta positive">{{ t('finance.fromOrders', { count: revenueMetrics.orderCount }) }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('finance.totalRevenue') }}</div>
+            <div class="stat-value">{{ formatCurrency(revenueMetrics.totalRevenue) }}</div>
+            <div class="stat-meta positive">{{ t('finance.fromOrders', { count: revenueMetrics.orderCount }) }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">{{ t('finance.totalCosts') }}</div>
-          <div class="stat-value">{{ formatCurrency(totalCosts) }}</div>
-          <div class="stat-meta">{{ t('finance.costBreakdown') }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('finance.totalCosts') }}</div>
+            <div class="stat-value">{{ formatCurrency(totalCosts) }}</div>
+            <div class="stat-meta">{{ t('finance.costBreakdown') }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">{{ t('finance.netProfit') }}</div>
-          <div class="stat-value">{{ formatCurrency(netProfit) }}</div>
-          <div class="stat-meta">{{ profitMargin }}% {{ t('finance.margin') }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('finance.netProfit') }}</div>
+            <div class="stat-value">{{ formatCurrency(netProfit) }}</div>
+            <div class="stat-meta">{{ profitMargin }}% {{ t('finance.margin') }}</div>
+          </CardContent>
         </Card>
         <Card>
-          <div class="stat-label">{{ t('finance.avgOrderValue') }}</div>
-          <div class="stat-value">{{ formatCurrency(revenueMetrics.avgOrderValue) }}</div>
-          <div class="stat-meta">{{ t('finance.perOrderRevenue') }}</div>
+          <CardContent>
+            <div class="stat-label">{{ t('finance.avgOrderValue') }}</div>
+            <div class="stat-value">{{ formatCurrency(revenueMetrics.avgOrderValue) }}</div>
+            <div class="stat-meta">{{ t('finance.perOrderRevenue') }}</div>
+          </CardContent>
         </Card>
       </div>
 
       <!-- Monthly Revenue vs Cost Chart -->
-      <Card class="chart-card">
-        <template #title>
-          <div class="card-header-row">
-            <span>{{ t('finance.revenueVsCosts.title') }}</span>
+      <Card class="gap-4 chart-card">
+        <CardHeader>
+          <CardTitle>{{ t('finance.revenueVsCosts.title') }}</CardTitle>
+          <CardAction class="self-center">
             <div class="chart-legend">
               <span class="legend-item"><span class="legend-dot" style="background: var(--ink-primary)"></span>{{ t('finance.revenueVsCosts.revenue') }}</span>
               <span class="legend-item"><span class="legend-dot" style="background: var(--danger)"></span>{{ t('finance.revenueVsCosts.costs') }}</span>
             </div>
-          </div>
-        </template>
-        <div class="chart-container">
-          <div class="bar-chart">
-            <div class="y-axis">
-              <span>{{ currencySymbol }}{{ maxRevenueValue }}K</span>
-              <span>{{ currencySymbol }}{{ Math.round(maxRevenueValue * 0.75) }}K</span>
-              <span>{{ currencySymbol }}{{ Math.round(maxRevenueValue * 0.5) }}K</span>
-              <span>{{ currencySymbol }}{{ Math.round(maxRevenueValue * 0.25) }}K</span>
-              <span>{{ currencySymbol }}0</span>
-            </div>
-            <div class="chart-area">
-              <div v-for="month in monthlyRevenue" :key="month.month" class="bar-group-revenue">
-                <div class="revenue-bars">
-                  <div class="revenue-bar" :style="{ height: getRevenueBarHeight(month.revenue) + '%' }" :title="`Revenue: ${currencySymbol}${month.revenue.toLocaleString()}`"></div>
-                  <div class="cost-bar" :style="{ height: getRevenueBarHeight(month.costs) + '%' }" :title="`Costs: ${currencySymbol}${month.costs.toLocaleString()}`"></div>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <div class="chart-container">
+            <div class="bar-chart">
+              <div class="y-axis">
+                <span>{{ currencySymbol }}{{ maxRevenueValue }}K</span>
+                <span>{{ currencySymbol }}{{ Math.round(maxRevenueValue * 0.75) }}K</span>
+                <span>{{ currencySymbol }}{{ Math.round(maxRevenueValue * 0.5) }}K</span>
+                <span>{{ currencySymbol }}{{ Math.round(maxRevenueValue * 0.25) }}K</span>
+                <span>{{ currencySymbol }}0</span>
+              </div>
+              <div class="chart-area">
+                <div v-for="month in monthlyRevenue" :key="month.month" class="bar-group-revenue">
+                  <div class="revenue-bars">
+                    <div class="revenue-bar" :style="{ height: getRevenueBarHeight(month.revenue) + '%' }" :title="`Revenue: ${currencySymbol}${month.revenue.toLocaleString()}`"></div>
+                    <div class="cost-bar" :style="{ height: getRevenueBarHeight(month.costs) + '%' }" :title="`Costs: ${currencySymbol}${month.costs.toLocaleString()}`"></div>
+                  </div>
+                  <span class="bar-label">{{ translateMonth(month.month) }}</span>
                 </div>
-                <span class="bar-label">{{ translateMonth(month.month) }}</span>
               </div>
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <!-- Monthly Cost Flow Chart -->
-      <Card class="chart-card">
-        <template #title>
-          <div class="card-header-row">
-            <span>{{ t('finance.monthlyCostFlow.title') }}</span>
+      <Card class="gap-4 chart-card">
+        <CardHeader>
+          <CardTitle>{{ t('finance.monthlyCostFlow.title') }}</CardTitle>
+          <CardAction class="self-center">
             <div class="chart-legend">
               <span class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span>{{ t('finance.monthlyCostFlow.procurement') }}</span>
               <span class="legend-item"><span class="legend-dot" style="background: var(--accent-2)"></span>{{ t('finance.monthlyCostFlow.operational') }}</span>
               <span class="legend-item"><span class="legend-dot" style="background: var(--success)"></span>{{ t('finance.monthlyCostFlow.labor') }}</span>
               <span class="legend-item"><span class="legend-dot" style="background: var(--warn)"></span>{{ t('finance.monthlyCostFlow.overhead') }}</span>
             </div>
-          </div>
-        </template>
-        <div class="chart-container">
-          <div class="bar-chart">
-            <div class="y-axis">
-              <span>{{ currencySymbol }}25K</span>
-              <span>{{ currencySymbol }}20K</span>
-              <span>{{ currencySymbol }}15K</span>
-              <span>{{ currencySymbol }}10K</span>
-              <span>{{ currencySymbol }}5K</span>
-              <span>{{ currencySymbol }}0</span>
-            </div>
-            <div class="chart-area">
-              <div v-for="month in monthlySpending" :key="month.month" class="bar-group">
-                <div class="stacked-bar" @click="showCostDetail(month)">
-                  <div class="bar-segment procurement" :style="{ height: getBarHeight(month.procurement) + '%' }" :title="`Procurement: ${currencySymbol}${month.procurement.toLocaleString()}`"></div>
-                  <div class="bar-segment operational" :style="{ height: getBarHeight(month.operational) + '%' }" :title="`Operational: ${currencySymbol}${month.operational.toLocaleString()}`"></div>
-                  <div class="bar-segment labor" :style="{ height: getBarHeight(month.labor) + '%' }" :title="`Labor: ${currencySymbol}${month.labor.toLocaleString()}`"></div>
-                  <div class="bar-segment overhead" :style="{ height: getBarHeight(month.overhead) + '%' }" :title="`Overhead: ${currencySymbol}${month.overhead.toLocaleString()}`"></div>
+          </CardAction>
+        </CardHeader>
+        <CardContent>
+          <div class="chart-container">
+            <div class="bar-chart">
+              <div class="y-axis">
+                <span>{{ currencySymbol }}25K</span>
+                <span>{{ currencySymbol }}20K</span>
+                <span>{{ currencySymbol }}15K</span>
+                <span>{{ currencySymbol }}10K</span>
+                <span>{{ currencySymbol }}5K</span>
+                <span>{{ currencySymbol }}0</span>
+              </div>
+              <div class="chart-area">
+                <div v-for="month in monthlySpending" :key="month.month" class="bar-group">
+                  <div class="stacked-bar" @click="showCostDetail(month)">
+                    <div class="bar-segment procurement" :style="{ height: getBarHeight(month.procurement) + '%' }" :title="`Procurement: ${currencySymbol}${month.procurement.toLocaleString()}`"></div>
+                    <div class="bar-segment operational" :style="{ height: getBarHeight(month.operational) + '%' }" :title="`Operational: ${currencySymbol}${month.operational.toLocaleString()}`"></div>
+                    <div class="bar-segment labor" :style="{ height: getBarHeight(month.labor) + '%' }" :title="`Labor: ${currencySymbol}${month.labor.toLocaleString()}`"></div>
+                    <div class="bar-segment overhead" :style="{ height: getBarHeight(month.overhead) + '%' }" :title="`Overhead: ${currencySymbol}${month.overhead.toLocaleString()}`"></div>
+                  </div>
+                  <span class="bar-label">{{ translateMonth(month.month) }}</span>
                 </div>
-                <span class="bar-label">{{ translateMonth(month.month) }}</span>
               </div>
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       <div class="two-column-grid">
         <!-- Category Spending -->
-        <Card>
-          <template #title>{{ t('finance.categorySpending.title') }}</template>
-          <div class="category-list">
-            <div v-for="category in categorySpending" :key="category.category" class="category-item">
-              <div class="category-info">
-                <div class="category-name">{{ translateCategory(category.category) }}</div>
-                <div class="category-amount">{{ currencySymbol }}{{ category.amount.toLocaleString() }}</div>
-              </div>
-              <div class="category-bar-track">
-                <div class="category-bar-fill" :style="{ width: category.percentage + '%' }"></div>
-              </div>
-              <div class="category-meta">
-                <span class="percentage">{{ category.percentage }}% {{ t('finance.categorySpending.ofTotal') }}</span>
-                <span class="change" :class="{ positive: category.change > 0, negative: category.change < 0 }">
-                  {{ category.change > 0 ? '+' : '' }}{{ category.change }}%
-                </span>
+        <Card class="gap-4">
+          <CardHeader><CardTitle>{{ t('finance.categorySpending.title') }}</CardTitle></CardHeader>
+          <CardContent>
+            <div class="category-list">
+              <div v-for="category in categorySpending" :key="category.category" class="category-item">
+                <div class="category-info">
+                  <div class="category-name">{{ translateCategory(category.category) }}</div>
+                  <div class="category-amount">{{ currencySymbol }}{{ category.amount.toLocaleString() }}</div>
+                </div>
+                <div class="category-bar-track">
+                  <div class="category-bar-fill" :style="{ width: category.percentage + '%' }"></div>
+                </div>
+                <div class="category-meta">
+                  <span class="percentage">{{ category.percentage }}% {{ t('finance.categorySpending.ofTotal') }}</span>
+                  <span class="change" :class="{ positive: category.change > 0, negative: category.change < 0 }">
+                    {{ category.change > 0 ? '+' : '' }}{{ category.change }}%
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
+          </CardContent>
         </Card>
 
         <!-- Transactions -->
-        <Card>
-          <template #title>{{ t('finance.transactions.title') }}</template>
-          <div class="table-no-pad">
-            <div class="transactions-table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{{ t('finance.transactions.id') }}</th>
-                    <th>{{ t('finance.transactions.description') }}</th>
-                    <th>{{ t('finance.transactions.vendor') }}</th>
-                    <th>{{ t('finance.transactions.date') }}</th>
-                    <th class="text-right">{{ t('finance.transactions.amount') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    v-for="transaction in recentTransactions"
-                    :key="transaction.id"
-                    class="clickable-row"
-                    @click="handleTransactionClick(transaction)"
-                  >
-                    <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
-                    <td>{{ transaction.description }}</td>
-                    <td class="text-muted">{{ transaction.vendor }}</td>
-                    <td class="text-muted">{{ formatDateShort(transaction.date) }}</td>
-                    <td class="text-right"><strong>{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</strong></td>
-                  </tr>
-                </tbody>
-              </table>
+        <Card class="gap-4">
+          <CardHeader><CardTitle>{{ t('finance.transactions.title') }}</CardTitle></CardHeader>
+          <CardContent>
+            <div class="table-no-pad">
+              <div class="transactions-table-container">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{{ t('finance.transactions.id') }}</TableHead>
+                      <TableHead>{{ t('finance.transactions.description') }}</TableHead>
+                      <TableHead>{{ t('finance.transactions.vendor') }}</TableHead>
+                      <TableHead>{{ t('finance.transactions.date') }}</TableHead>
+                      <TableHead class="text-right">{{ t('finance.transactions.amount') }}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow
+                      v-for="transaction in recentTransactions"
+                      :key="transaction.id"
+                      class="clickable-row"
+                      @click="handleTransactionClick(transaction)"
+                    >
+                      <TableCell class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</TableCell>
+                      <TableCell>{{ transaction.description }}</TableCell>
+                      <TableCell class="cell-muted">{{ transaction.vendor }}</TableCell>
+                      <TableCell class="cell-muted">{{ formatDateShort(transaction.date) }}</TableCell>
+                      <TableCell class="text-right"><strong>{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</strong></TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </div>
-          </div>
+          </CardContent>
         </Card>
       </div>
     </div>
@@ -175,7 +191,8 @@ import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency as formatCurrencyUtil } from '../utils/currency'
 import PageHeader from '../components/ui/PageHeader.vue'
-import Card from '../components/ui/Card.vue'
+import { Card, CardHeader, CardAction, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import FilterBar from '../components/FilterBar.vue'
 import CostDetailModal from '../components/CostDetailModal.vue'
 
@@ -184,6 +201,16 @@ export default {
   components: {
     PageHeader,
     Card,
+    CardHeader,
+    CardAction,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
     FilterBar,
     CostDetailModal
   },
@@ -479,14 +506,6 @@ export default {
   margin-bottom: 24px;
 }
 
-.card-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 16px;
-}
-
 .chart-legend {
   display: flex;
   gap: 20px;
@@ -711,7 +730,9 @@ export default {
   font-size: 12px;
 }
 
-.text-muted {
+/* Not `.text-muted`: that name is also a Tailwind utility mapped to the
+   near-white --surface-muted, which would win if this rule were removed */
+.cell-muted {
   color: var(--ink-muted);
 }
 

@@ -1,43 +1,55 @@
 <template>
   <div class="language-switcher">
-    <button
-      class="language-button"
-      @click="toggleDropdown"
-      @blur="handleBlur"
-    >
-      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" class="globe-icon">
-        <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M3 10H17" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
-      </svg>
-      <span class="language-label">{{ localeName }}</span>
-    </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger as-child>
+        <button class="language-button">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" class="globe-icon">
+            <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M3 10H17" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span class="language-label">{{ localeName }}</span>
+        </button>
+      </DropdownMenuTrigger>
 
-    <div v-if="isDropdownOpen" class="dropdown-menu">
-      <button
-        v-for="locale in availableLocales"
-        :key="locale"
-        class="dropdown-item"
-        :class="{ active: currentLocale === locale }"
-        @mousedown.prevent="selectLanguage(locale)"
+      <DropdownMenuContent
+        side="top"
+        align="start"
+        :side-offset="4"
+        class="w-(--reka-dropdown-menu-trigger-width) overflow-hidden rounded-[10px] border-[var(--line)] bg-[var(--surface-card)] p-0 shadow-[0_8px_24px_rgba(15,23,42,0.08)]"
       >
-        <span>{{ getLanguageName(locale) }}</span>
-        <svg v-if="currentLocale === locale" width="16" height="16" viewBox="0 0 18 18" fill="none" class="check-icon">
-          <path d="M4 9L7.5 12.5L14 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-    </div>
+        <DropdownMenuItem
+          v-for="locale in availableLocales"
+          :key="locale"
+          :class="[
+            'justify-between gap-3 rounded-none px-4 py-2.5 text-[13px] font-medium focus:bg-[var(--surface-muted)] focus:text-[var(--ink-secondary)]',
+            currentLocale === locale
+              ? 'bg-[rgba(59,130,246,0.08)] text-[var(--accent)] focus:bg-[rgba(59,130,246,0.08)] focus:text-[var(--accent)]'
+              : 'text-[var(--ink-secondary)]'
+          ]"
+          @select="selectLanguage(locale)"
+        >
+          <span>{{ getLanguageName(locale) }}</span>
+          <svg v-if="currentLocale === locale" width="16" height="16" viewBox="0 0 18 18" fill="none" class="text-[var(--accent)]">
+            <path d="M4 9L7.5 12.5L14 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 import { useI18n } from '../composables/useI18n'
 
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
-
-const isDropdownOpen = ref(false)
 
 const languageNames = {
   en: 'English',
@@ -48,27 +60,13 @@ const getLanguageName = (locale) => {
   return languageNames[locale] || locale
 }
 
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
-
-const handleBlur = () => {
-  setTimeout(() => {
-    isDropdownOpen.value = false
-  }, 200)
-}
-
+// reka-ui closes the menu on select.
 const selectLanguage = (locale) => {
   setLocale(locale)
-  isDropdownOpen.value = false
 }
 </script>
 
 <style scoped>
-.language-switcher {
-  position: relative;
-}
-
 .language-button {
   display: flex;
   align-items: center;
@@ -96,51 +94,5 @@ const selectLanguage = (locale) => {
 
 .language-label {
   font-weight: 500;
-}
-
-.dropdown-menu {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  right: 0;
-  margin-bottom: 4px;
-  background: var(--surface-card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  z-index: 200;
-  overflow: hidden;
-}
-
-.dropdown-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  transition: background 0.1s ease;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--ink-secondary);
-}
-
-.dropdown-item:hover {
-  background: var(--surface-muted);
-}
-
-.dropdown-item.active {
-  background: rgba(59, 130, 246, 0.08);
-  color: var(--accent);
-}
-
-.check-icon {
-  color: var(--accent);
-  flex-shrink: 0;
 }
 </style>
