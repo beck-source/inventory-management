@@ -172,9 +172,9 @@ export default {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f4f4f4;
+  color: #262626;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -187,7 +187,7 @@ body {
 
 .top-nav {
   background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   position: sticky;
   top: 0;
@@ -221,16 +221,16 @@ body {
 .logo h1 {
   font-size: 1.375rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
 .subtitle {
   font-size: 0.813rem;
-  color: #64748b;
+  color: #6f6f6f;
   font-weight: 400;
   padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+  border-left: 1px solid #e0e0e0;
 }
 
 .nav-tabs {
@@ -240,23 +240,23 @@ body {
 
 .nav-tabs a {
   padding: 0.625rem 1.25rem;
-  color: #64748b;
+  color: #6f6f6f;
   text-decoration: none;
   font-weight: 500;
   font-size: 0.938rem;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.2s ease;
   position: relative;
 }
 
 .nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: #161616;
+  background: #e0e0e0;
 }
 
 .nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+  color: #0043ce;
+  background: #edf5ff;
 }
 
 .nav-tabs a.active::after {
@@ -266,7 +266,7 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: #2563eb;
+  background: #0043ce;
 }
 
 .main-content {
@@ -284,13 +284,13 @@ body {
 .page-header h2 {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   margin-bottom: 0.375rem;
   letter-spacing: -0.025em;
 }
 
 .page-header p {
-  color: #64748b;
+  color: #6f6f6f;
   font-size: 0.938rem;
 }
 
@@ -304,18 +304,18 @@ body {
 .stat-card {
   background: white;
   padding: 1.25rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
+  border-radius: 0;
+  border: 1px solid #e0e0e0;
   transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-  border-color: #cbd5e1;
+  border-color: #c6c6c6;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .stat-label {
-  color: #64748b;
+  color: #6f6f6f;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -326,31 +326,31 @@ body {
 .stat-value {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
 .stat-card.warning .stat-value {
-  color: #ea580c;
+  color: #8a3800;
 }
 
 .stat-card.success .stat-value {
-  color: #059669;
+  color: #198038;
 }
 
 .stat-card.danger .stat-value {
-  color: #dc2626;
+  color: #da1e28;
 }
 
 .stat-card.info .stat-value {
-  color: #2563eb;
+  color: #0043ce;
 }
 
 .card {
   background: white;
-  border-radius: 10px;
+  border-radius: 0;
   padding: 1.25rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e0e0e0;
   margin-bottom: 1.25rem;
 }
 
@@ -360,13 +360,13 @@ body {
   align-items: center;
   margin-bottom: 1rem;
   padding-bottom: 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .card-title {
   font-size: 1.125rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
@@ -380,16 +380,16 @@ table {
 }
 
 thead {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
+  background: #f4f4f4;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 th {
   text-align: left;
   padding: 0.5rem 0.75rem;
   font-weight: 600;
-  color: #475569;
+  color: #525252;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -397,8 +397,8 @@ th {
 
 td {
   padding: 0.5rem 0.75rem;
-  border-top: 1px solid #f1f5f9;
-  color: #334155;
+  border-top: 1px solid #e0e0e0;
+  color: #393939;
   font-size: 0.875rem;
 }
 
@@ -407,13 +407,13 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: #f8fafc;
+  background: #f4f4f4;
 }
 
 .badge {
   display: inline-block;
   padding: 0.313rem 0.75rem;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -421,68 +421,68 @@ tbody tr:hover {
 }
 
 .badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: #a7f0ba;
+  color: #0e6027;
 }
 
 .badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: #fddc69;
+  color: #684e00;
 }
 
 .badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: #ffd7d9;
+  color: #a2191f;
 }
 
 .badge.info {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #d0e2ff;
+  color: #002d9c;
 }
 
 .badge.increasing {
-  background: #d1fae5;
-  color: #065f46;
+  background: #a7f0ba;
+  color: #0e6027;
 }
 
 .badge.decreasing {
-  background: #fecaca;
-  color: #991b1b;
+  background: #ffd7d9;
+  color: #a2191f;
 }
 
 .badge.stable {
-  background: #e0e7ff;
-  color: #3730a3;
+  background: #edf5ff;
+  color: #0043ce;
 }
 
 .badge.high {
-  background: #fecaca;
-  color: #991b1b;
+  background: #ffd7d9;
+  color: #a2191f;
 }
 
 .badge.medium {
-  background: #fed7aa;
-  color: #92400e;
+  background: #fddc69;
+  color: #684e00;
 }
 
 .badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #d0e2ff;
+  color: #002d9c;
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: #6f6f6f;
   font-size: 0.938rem;
 }
 
 .error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: #fff1f1;
+  border: 1px solid #ffd7d9;
+  color: #a2191f;
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: 0;
   margin: 1rem 0;
   font-size: 0.938rem;
 }

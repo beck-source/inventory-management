@@ -61,7 +61,7 @@
               <div class="info-item">
                 <div class="info-label">Units Remaining</div>
                 <div class="info-value">
-                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#ef4444' : '#10b981' }">
+                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#fa4d56' : '#24a148' }">
                     {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} units
                   </span>
                 </div>
@@ -191,7 +191,7 @@ const getSummaryCardClass = () => {
 
 .modal-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 700px;
   width: 100%;
@@ -206,32 +206,32 @@ const getSummaryCardClass = () => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #6f6f6f;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #e0e0e0;
+  color: #161616;
 }
 
 .modal-body {
@@ -245,14 +245,14 @@ const getSummaryCardClass = () => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
   margin-bottom: 1.5rem;
 }
 
 .item-icon {
   width: 64px;
   height: 64px;
-  border-radius: 12px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -261,15 +261,16 @@ const getSummaryCardClass = () => {
 }
 
 .item-icon.success-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #24a148 0%, #198038 100%);
 }
 
 .item-icon.warning-icon {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  background: linear-gradient(135deg, #f1c21b 0%, #b28600 100%);
+  color: #161616;
 }
 
 .item-icon.danger-icon {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #fa4d56 0%, #da1e28 100%);
 }
 
 .item-title-section {
@@ -280,19 +281,19 @@ const getSummaryCardClass = () => {
 .item-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   margin: 0 0 0.5rem 0;
 }
 
 .item-sku {
   font-size: 0.875rem;
-  color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  color: #6f6f6f;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .stock-badge {
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -301,18 +302,18 @@ const getSummaryCardClass = () => {
 }
 
 .stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: #a7f0ba;
+  color: #0e6027;
 }
 
 .stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: #fddc69;
+  color: #684e00;
 }
 
 .stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: #ffd7d9;
+  color: #a2191f;
 }
 
 .stock-summary {
@@ -324,28 +325,28 @@ const getSummaryCardClass = () => {
 
 .summary-card {
   padding: 1.25rem;
-  border-radius: 10px;
+  border-radius: 0;
   border: 2px solid;
 }
 
 .summary-card.primary {
-  border-color: #bfdbfe;
-  background: #eff6ff;
+  border-color: #a6c8ff;
+  background: #edf5ff;
 }
 
 .summary-card.success-card {
-  border-color: #a7f3d0;
-  background: #d1fae5;
+  border-color: #a7f0ba;
+  background: #a7f0ba;
 }
 
 .summary-card.warning-card {
-  border-color: #fed7aa;
-  background: #fffbeb;
+  border-color: #fddc69;
+  background: #fcf4d6;
 }
 
 .summary-card.danger-card {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: #ffd7d9;
+  background: #fff1f1;
 }
 
 .summary-label {
@@ -353,19 +354,19 @@ const getSummaryCardClass = () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #6f6f6f;
   margin-bottom: 0.5rem;
 }
 
 .summary-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
 }
 
 .summary-subtitle {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #6f6f6f;
   margin-top: 0.25rem;
 }
 
@@ -386,24 +387,24 @@ const getSummaryCardClass = () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #6f6f6f;
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: #161616;
   font-weight: 500;
 }
 
 .info-value.total-value {
   font-size: 1.125rem;
-  color: #2563eb;
+  color: #0043ce;
   font-weight: 700;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -411,20 +412,20 @@ const getSummaryCardClass = () => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: #e0e0e0;
+  border: 1px solid #e0e0e0;
+  border-radius: 0;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: #393939;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #e0e0e0;
+  border-color: #c6c6c6;
 }
 
 /* Modal transition animations */

@@ -166,7 +166,7 @@ const close = () => {
 
 .modal-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 600px;
   width: 100%;
@@ -181,32 +181,32 @@ const close = () => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #6f6f6f;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #e0e0e0;
+  color: #161616;
 }
 
 .modal-body {
@@ -221,12 +221,12 @@ const close = () => {
 
 .summary-card {
   padding: 1.5rem;
-  border-radius: 10px;
+  border-radius: 0;
   text-align: center;
 }
 
 .summary-card.total {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #0f62fe 0%, #0043ce 100%);
   color: white;
 }
 
@@ -252,28 +252,28 @@ const close = () => {
 
 .cost-item {
   padding: 1.25rem;
-  border-radius: 10px;
+  border-radius: 0;
   border: 2px solid;
 }
 
 .cost-item.procurement {
-  border-color: #93c5fd;
-  background: #eff6ff;
+  border-color: #78a9ff;
+  background: #edf5ff;
 }
 
 .cost-item.operational {
-  border-color: #c4b5fd;
-  background: #f5f3ff;
+  border-color: #be95ff;
+  background: #f6f2ff;
 }
 
 .cost-item.labor {
-  border-color: #86efac;
-  background: #f0fdf4;
+  border-color: #6fdc8c;
+  background: #defbe6;
 }
 
 .cost-item.overhead {
-  border-color: #fcd34d;
-  background: #fffbeb;
+  border-color: #fddc69;
+  background: #fcf4d6;
 }
 
 .cost-header {
@@ -286,7 +286,7 @@ const close = () => {
 .cost-icon {
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -294,23 +294,23 @@ const close = () => {
 }
 
 .cost-item.procurement .cost-icon {
-  background: #3b82f6;
+  background: #0f62fe;
   color: white;
 }
 
 .cost-item.operational .cost-icon {
-  background: #8b5cf6;
+  background: #8a3ffc;
   color: white;
 }
 
 .cost-item.labor .cost-icon {
-  background: #10b981;
+  background: #24a148;
   color: white;
 }
 
 .cost-item.overhead .cost-icon {
-  background: #f59e0b;
-  color: white;
+  background: #f1c21b;
+  color: #161616;
 }
 
 .cost-info {
@@ -319,7 +319,7 @@ const close = () => {
 
 .cost-name {
   font-weight: 600;
-  color: #0f172a;
+  color: #161616;
   font-size: 1rem;
   margin-bottom: 0.25rem;
 }
@@ -327,38 +327,38 @@ const close = () => {
 .cost-amount {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
 }
 
 .cost-percentage {
   font-size: 0.875rem;
-  color: #64748b;
+  color: #6f6f6f;
   font-weight: 500;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: flex-end;
 }
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: #e0e0e0;
+  border: 1px solid #e0e0e0;
+  border-radius: 0;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: #393939;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #e0e0e0;
+  border-color: #c6c6c6;
 }
 
 /* Modal transition animations */

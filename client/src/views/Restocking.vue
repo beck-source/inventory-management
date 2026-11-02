@@ -323,7 +323,7 @@ export default {
 .budget-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: #6f6f6f;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -336,61 +336,61 @@ export default {
 
 .budget-slider {
   flex: 1;
-  accent-color: #3b82f6;
+  accent-color: #0f62fe;
   cursor: pointer;
 }
 
 .budget-amount {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   min-width: 120px;
   text-align: right;
 }
 
 .budget-help {
   font-size: 0.813rem;
-  color: #64748b;
+  color: #6f6f6f;
 }
 
 .qty-input {
   width: 80px;
   padding: 0.4rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #c6c6c6;
+  border-radius: 0;
   font-size: 0.813rem;
-  color: #0f172a;
+  color: #161616;
   background: white;
   font-weight: 500;
   transition: all 0.2s;
 }
 
 .qty-input:hover {
-  border-color: #94a3b8;
+  border-color: #a8a8a8;
 }
 
 .qty-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #0f62fe;
+  box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.1);
 }
 
 .reset-btn {
   padding: 0.4rem 0.875rem;
   background: white;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  border: 1px solid #c6c6c6;
+  border-radius: 0;
   font-size: 0.813rem;
   font-weight: 600;
-  color: #475569;
+  color: #525252;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .reset-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #94a3b8;
-  color: #0f172a;
+  background: #f4f4f4;
+  border-color: #a8a8a8;
+  color: #161616;
 }
 
 .reset-btn:disabled {
@@ -400,19 +400,19 @@ export default {
 
 .remove-btn {
   padding: 0.3rem 0.75rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  border-radius: 6px;
+  background: #fff1f1;
+  border: 1px solid #ffd7d9;
+  border-radius: 0;
   font-size: 0.75rem;
   font-weight: 600;
-  color: #991b1b;
+  color: #a2191f;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .remove-btn:hover {
-  background: #fee2e2;
-  border-color: #fca5a5;
+  background: #ffd7d9;
+  border-color: #ffb3b8;
 }
 
 .place-order-row {
@@ -423,9 +423,9 @@ export default {
 
 .place-order-btn {
   padding: 0.625rem 1.5rem;
-  background: #2563eb;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
+  background: #0043ce;
+  border: 1px solid #0043ce;
+  border-radius: 0;
   font-size: 0.938rem;
   font-weight: 600;
   color: white;
@@ -434,8 +434,8 @@ export default {
 }
 
 .place-order-btn:hover:not(:disabled) {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: #0043ce;
+  border-color: #0043ce;
 }
 
 .place-order-btn:disabled {
@@ -444,11 +444,11 @@ export default {
 }
 
 .over-budget-warning {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  color: #92400e;
+  background: #fcf4d6;
+  border: 1px solid #fddc69;
+  color: #684e00;
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: 0;
   margin-bottom: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -457,14 +457,14 @@ export default {
 .empty-state {
   text-align: center;
   padding: 2.5rem;
-  color: #64748b;
+  color: #6f6f6f;
   font-size: 0.938rem;
 }
 
 .success-banner {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 10px;
+  background: #defbe6;
+  border: 1px solid #a7f0ba;
+  border-radius: 0;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
 }
@@ -472,18 +472,18 @@ export default {
 .success-title {
   font-size: 1rem;
   font-weight: 700;
-  color: #065f46;
+  color: #0e6027;
   margin-bottom: 0.375rem;
 }
 
 .success-message {
   font-size: 0.875rem;
-  color: #047857;
+  color: #0e6027;
   margin-bottom: 0.25rem;
 }
 
 .success-hint {
   font-size: 0.813rem;
-  color: #059669;
+  color: #198038;
 }
 </style>
