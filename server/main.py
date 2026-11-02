@@ -1,7 +1,15 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from datetime import datetime, timedelta
+from statistics import median
+import re
+import threading
+
+# Serializes id/order_number generation + append so concurrent POSTs (sync
+# handlers run in the anyio threadpool) cannot assign duplicate identifiers.
+_orders_lock = threading.Lock()
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +97,7 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +128,52 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class CreateOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int = Field(gt=0)
+    unit_price: float = Field(ge=0)
+
+class CreateOrderRequest(BaseModel):
+    items: List[CreateOrderItem]
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
+
+def _median_lead_time_days() -> int:
+    """Median of (expected_delivery - order_date) in whole days across existing
+    orders. Guards an empty list, skips orders missing/with unparseable dates,
+    and falls back to a sensible default if nothing is usable."""
+    deltas = []
+    for order in orders:
+        order_date = order.get("order_date")
+        expected = order.get("expected_delivery")
+        if not order_date or not expected:
+            continue
+        try:
+            start = datetime.fromisoformat(order_date)
+            end = datetime.fromisoformat(expected)
+        except (ValueError, TypeError):
+            continue
+        deltas.append((end - start).days)
+    if not deltas:
+        return 10
+    return round(median(deltas))
+
+def _next_order_identifiers() -> tuple:
+    """Derive the next order id and order_number from the max numeric values
+    actually present (ids are non-contiguous, so len() is unsafe)."""
+    max_id = 0
+    max_num = 0
+    for order in orders:
+        try:
+            max_id = max(max_id, int(order.get("id", 0)))
+        except (ValueError, TypeError):
+            pass
+        match = re.search(r"(\d+)$", order.get("order_number", ""))
+        if match:
+            max_num = max(max_num, int(match.group(1)))
+    return str(max_id + 1), f"ORD-2025-{max_num + 1:04d}"
 
 # API endpoints
 @app.get("/")
@@ -160,6 +215,44 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_order(request: CreateOrderRequest):
+    """Create a restocking order. Submitted orders are appended to the in-memory
+    orders list (reset on restart) and surface via GET /api/orders."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    order_date = datetime.now()
+    lead_time_days = _median_lead_time_days()
+    expected_delivery = order_date + timedelta(days=lead_time_days)
+
+    # total_value is computed server-side from the submitted items; the client
+    # total is never trusted.
+    total_value = round(
+        sum(item.quantity * item.unit_price for item in request.items), 2
+    )
+
+    # Identifier generation and append share one critical section so overlapping
+    # requests cannot read the same max and assign duplicate ids.
+    with _orders_lock:
+        order_id, order_number = _next_order_identifiers()
+        new_order = {
+            "id": order_id,
+            "order_number": order_number,
+            "customer": "Restock (Internal)",
+            "items": [item.model_dump() for item in request.items],
+            "status": "Submitted",
+            "order_date": order_date.isoformat(timespec="seconds"),
+            "expected_delivery": expected_delivery.isoformat(timespec="seconds"),
+            "total_value": total_value,
+            "actual_delivery": None,
+            "warehouse": request.warehouse,
+            "category": request.category,
+        }
+        orders.append(new_order)
+
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():

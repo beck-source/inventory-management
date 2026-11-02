@@ -4,6 +4,7 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    restocking: 'Restocking',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
@@ -106,12 +107,15 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    leadTimeDays: '{days} days',
+    noSubmittedOrders: 'No submitted orders yet.',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -125,8 +129,50 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      leadTime: 'Lead Time'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order recommended restock items from the demand forecast',
+    budget: {
+      title: 'Available Budget',
+      label: 'Set your available budget',
+      help: 'Recommendations are selected highest-demand first until the budget is spent'
+    },
+    stats: {
+      budget: 'Budget',
+      recommendedItems: 'Recommended Items',
+      orderTotal: 'Order Total',
+      remaining: 'Remaining'
+    },
+    recommendation: {
+      title: 'Recommended Restock Order',
+      reset: 'Reset to recommendation',
+      empty: 'No items fit within the current budget. Increase the budget to see recommendations.',
+      overBudget: 'This order exceeds your available budget.'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      forecastedDemand: 'Forecasted Demand',
+      quantity: 'Order Quantity',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      remove: 'Remove'
+    },
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    success: {
+      title: 'Order submitted',
+      message: 'Order {orderNumber} was submitted. Expected delivery {delivery}.',
+      viewInOrders: 'It now appears in the Orders tab under Submitted Orders.'
+    },
+    loadError: 'Failed to load demand forecasts. Please try again.',
+    error: 'Failed to place order. Please try again.'
   },
 
   // Finance/Spending
@@ -204,6 +250,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

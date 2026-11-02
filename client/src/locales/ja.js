@@ -4,6 +4,7 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    restocking: '補充',
     finance: '財務',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
@@ -106,12 +107,15 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    leadTimeDays: '{days}日',
+    noSubmittedOrders: '送信済みの注文はまだありません。',
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -125,8 +129,50 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      leadTime: 'リードタイム'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、需要予測から推奨される補充品目を注文します',
+    budget: {
+      title: '利用可能な予算',
+      label: '利用可能な予算を設定',
+      help: '予算を使い切るまで、需要の高い順に推奨品目が選択されます'
+    },
+    stats: {
+      budget: '予算',
+      recommendedItems: '推奨品目数',
+      orderTotal: '注文合計',
+      remaining: '残額'
+    },
+    recommendation: {
+      title: '推奨補充注文',
+      reset: '推奨にリセット',
+      empty: '現在の予算内に収まる品目がありません。予算を増やすと推奨品目が表示されます。',
+      overBudget: 'この注文は利用可能な予算を超えています。'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: '品目名',
+      forecastedDemand: '予測需要',
+      quantity: '注文数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      remove: '削除'
+    },
+    placeOrder: '注文する',
+    placing: '注文処理中...',
+    success: {
+      title: '注文を送信しました',
+      message: '注文 {orderNumber} を送信しました。予定配達日 {delivery}。',
+      viewInOrders: '注文タブの「送信済み注文」に表示されます。'
+    },
+    loadError: '需要予測の読み込みに失敗しました。もう一度お試しください。',
+    error: '注文の送信に失敗しました。もう一度お試しください。'
   },
 
   // Finance/Spending
@@ -204,6 +250,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
