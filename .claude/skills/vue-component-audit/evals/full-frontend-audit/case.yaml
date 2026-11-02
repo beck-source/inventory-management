@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: full-frontend-audit
+expected_outcome: |
+  A prioritized report covering the whole client/src tree. It finds the index keys in Reports.vue, the getForecastsByTrend() calls in Demand.vue's v-for, the empty watcher in Spending.vue, formatDate duplicated across several files, and the repeated filter-watch wiring across views, with file:line locations and concrete fixes. It is honest that render-performance wins are modest at mock-data scale, and it asks before editing anything.
