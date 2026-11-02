@@ -5,26 +5,24 @@
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">{{ costData.month }} Cost Breakdown</h3>
-            <button class="close-button" @click="close">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <Button variant="ghost" size="sm" @click="close">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-            </button>
+            </Button>
           </div>
 
           <div class="modal-body">
-            <div class="cost-summary">
-              <div class="summary-card total">
-                <div class="summary-label">Total Costs</div>
-                <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
-              </div>
-            </div>
+            <Card class="total-card">
+              <div class="summary-label">Total Costs</div>
+              <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
+            </Card>
 
             <div class="cost-breakdown">
-              <div class="cost-item procurement">
+              <div class="cost-item cost-item-accent">
                 <div class="cost-header">
-                  <div class="cost-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <div class="cost-icon" style="background: var(--accent);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
                       <path d="M8 6V4M16 6V4M4 10H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
@@ -37,10 +35,10 @@
                 <div class="cost-percentage">{{ getProcurementPercentage() }}% of total</div>
               </div>
 
-              <div class="cost-item operational">
+              <div class="cost-item cost-item-accent2">
                 <div class="cost-header">
-                  <div class="cost-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <div class="cost-icon" style="background: var(--accent-2);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
                       <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
@@ -53,10 +51,10 @@
                 <div class="cost-percentage">{{ getOperationalPercentage() }}% of total</div>
               </div>
 
-              <div class="cost-item labor">
+              <div class="cost-item cost-item-success">
                 <div class="cost-header">
-                  <div class="cost-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <div class="cost-icon" style="background: var(--success);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
                       <path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="2"/>
                     </svg>
@@ -69,10 +67,10 @@
                 <div class="cost-percentage">{{ getLaborPercentage() }}% of total</div>
               </div>
 
-              <div class="cost-item overhead">
+              <div class="cost-item cost-item-warn">
                 <div class="cost-header">
-                  <div class="cost-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <div class="cost-icon" style="background: var(--warn);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                       <path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9 21 9 18 9 16C9 14 10 14 12 14C14 14 15 14 15 16C15 18 15 21 15 21M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                   </div>
@@ -87,7 +85,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <Button variant="ghost" @click="close">Close</Button>
           </div>
         </div>
       </div>
@@ -98,6 +96,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
+import Button from './ui/Button.vue'
+import Card from './ui/Card.vue'
 
 const { currentCurrency } = useI18n()
 
@@ -106,14 +106,8 @@ const currencySymbol = computed(() => {
 })
 
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false
-  },
-  costData: {
-    type: Object,
-    default: null
-  }
+  isOpen: { type: Boolean, default: false },
+  costData: { type: Object, default: null }
 })
 
 const emit = defineEmits(['close'])
@@ -144,9 +138,7 @@ const getOverheadPercentage = () => {
   return ((props.costData.overhead / totalCosts.value) * 100).toFixed(1)
 }
 
-const close = () => {
-  emit('close')
-}
+const close = () => emit('close')
 </script>
 
 <style scoped>
@@ -156,19 +148,19 @@ const close = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+  padding: 16px;
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  max-width: 600px;
+  background: var(--surface-card);
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  max-width: 90vw;
   width: 100%;
   max-height: 90vh;
   overflow: hidden;
@@ -180,137 +172,93 @@ const close = () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  margin: 0;
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 24px;
 }
 
-.cost-summary {
-  margin-bottom: 2rem;
-}
-
-.summary-card {
-  padding: 1.5rem;
-  border-radius: 10px;
+.total-card {
+  margin-bottom: 24px;
   text-align: center;
-}
-
-.summary-card.total {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: var(--accent);
 }
 
 .summary-label {
-  font-size: 0.875rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.85);
+  margin-bottom: 8px;
 }
 
 .summary-value {
-  font-size: 2.25rem;
+  font-size: 32px;
   font-weight: 700;
+  color: var(--ink-inverse);
+  line-height: 1.25;
 }
 
 .cost-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 12px;
 }
 
 .cost-item {
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 2px solid;
+  padding: 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
 }
 
-.cost-item.procurement {
-  border-color: #93c5fd;
-  background: #eff6ff;
+.cost-item-accent {
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.06);
 }
 
-.cost-item.operational {
-  border-color: #c4b5fd;
-  background: #f5f3ff;
+.cost-item-accent2 {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.06);
 }
 
-.cost-item.labor {
-  border-color: #86efac;
-  background: #f0fdf4;
+.cost-item-success {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: rgba(16, 185, 129, 0.06);
 }
 
-.cost-item.overhead {
-  border-color: #fcd34d;
-  background: #fffbeb;
+.cost-item-warn {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .cost-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: 16px;
+  margin-bottom: 8px;
 }
 
 .cost-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
   flex-shrink: 0;
-}
-
-.cost-item.procurement .cost-icon {
-  background: #3b82f6;
-  color: white;
-}
-
-.cost-item.operational .cost-icon {
-  background: #8b5cf6;
-  color: white;
-}
-
-.cost-item.labor .cost-icon {
-  background: #10b981;
-  color: white;
-}
-
-.cost-item.overhead .cost-icon {
-  background: #f59e0b;
-  color: white;
 }
 
 .cost-info {
@@ -319,49 +267,30 @@ const close = () => {
 
 .cost-name {
   font-weight: 600;
-  color: #0f172a;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  color: var(--ink-primary);
+  font-size: 14px;
+  margin-bottom: 4px;
 }
 
 .cost-amount {
-  font-size: 1.5rem;
+  font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink-primary);
 }
 
 .cost-percentage {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: 12px;
+  color: var(--ink-muted);
   font-weight: 500;
 }
 
 .modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  padding: 24px;
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: flex-end;
 }
 
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-/* Modal transition animations */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.2s ease;

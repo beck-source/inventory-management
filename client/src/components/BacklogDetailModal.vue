@@ -5,17 +5,17 @@
         <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">Inventory Shortage Details</h3>
-            <button class="close-button" @click="close">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <Button variant="ghost" size="sm" @click="close">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-            </button>
+            </Button>
           </div>
 
           <div class="modal-body">
             <div class="shortage-header">
               <div class="shortage-icon">
-                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <svg width="24" height="24" viewBox="0 0 48 48" fill="none">
                   <path d="M24 8L24 28M24 34L24 36" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
                   <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-width="3"/>
                 </svg>
@@ -24,59 +24,54 @@
                 <h4 class="item-name">{{ translateProductName(backlogItem.item_name) }}</h4>
                 <div class="item-sku">SKU: {{ backlogItem.item_sku }}</div>
               </div>
-              <span class="priority-badge" :class="backlogItem.priority">
+              <Badge :variant="backlogItem.priority === 'high' ? 'danger' : backlogItem.priority === 'medium' ? 'warn' : 'accent'">
                 {{ backlogItem.priority }} Priority
-              </span>
+              </Badge>
             </div>
 
             <div class="shortage-summary">
-              <div class="summary-card danger">
+              <Card>
                 <div class="summary-label">Shortage Amount</div>
-                <div class="summary-value">{{ shortage }} units</div>
-              </div>
-              <div class="summary-card warning">
+                <div class="summary-value danger">{{ shortage }} units</div>
+              </Card>
+              <Card>
                 <div class="summary-label">Days Delayed</div>
-                <div class="summary-value">{{ backlogItem.days_delayed }} days</div>
-              </div>
+                <div class="summary-value warn">{{ backlogItem.days_delayed }} days</div>
+              </Card>
             </div>
 
             <div class="info-grid">
               <div class="info-item">
                 <div class="info-label">Order ID</div>
-                <div class="info-value order-id">{{ backlogItem.order_id }}</div>
+                <div class="info-value mono">{{ backlogItem.order_id }}</div>
               </div>
-
               <div class="info-item">
                 <div class="info-label">Item SKU</div>
-                <div class="info-value sku">{{ backlogItem.item_sku }}</div>
+                <div class="info-value mono">{{ backlogItem.item_sku }}</div>
               </div>
-
               <div class="info-item">
                 <div class="info-label">Quantity Needed</div>
                 <div class="info-value">{{ backlogItem.quantity_needed }} units</div>
               </div>
-
               <div class="info-item">
                 <div class="info-label">Quantity Available</div>
                 <div class="info-value">{{ backlogItem.quantity_available }} units</div>
               </div>
-
               <div class="info-item">
                 <div class="info-label">Expected Date</div>
                 <div class="info-value">{{ formatDate(backlogItem.expected_date) }}</div>
               </div>
-
               <div class="info-item">
                 <div class="info-label">Status</div>
                 <div class="info-value">
-                  <span class="badge danger">Backordered</span>
+                  <Badge variant="danger">Backordered</Badge>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <Button variant="ghost" @click="close">Close</Button>
           </div>
         </div>
       </div>
@@ -87,18 +82,15 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
+import Button from './ui/Button.vue'
+import Badge from './ui/Badge.vue'
+import Card from './ui/Card.vue'
 
 const { translateProductName } = useI18n()
 
 const props = defineProps({
-  isOpen: {
-    type: Boolean,
-    default: false
-  },
-  backlogItem: {
-    type: Object,
-    default: null
-  }
+  isOpen: { type: Boolean, default: false },
+  backlogItem: { type: Object, default: null }
 })
 
 const emit = defineEmits(['close'])
@@ -108,18 +100,12 @@ const shortage = computed(() => {
   return props.backlogItem.quantity_needed - props.backlogItem.quantity_available
 })
 
-const close = () => {
-  emit('close')
-}
+const close = () => emit('close')
 
 const formatDate = (dateString) => {
   if (!dateString) return 'N/A'
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 </script>
 
@@ -130,19 +116,19 @@ const formatDate = (dateString) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2000;
-  padding: 1rem;
+  padding: 16px;
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  max-width: 700px;
+  background: var(--surface-card);
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  max-width: 90vw;
   width: 100%;
   max-height: 90vh;
   overflow: hidden;
@@ -154,55 +140,37 @@ const formatDate = (dateString) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
 }
 
 .modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink-primary);
+  margin: 0;
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: 24px;
 }
 
 .shortage-header {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
+  gap: 16px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 24px;
 }
 
 .shortage-icon {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  background: var(--danger);
+  border-radius: var(--r-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -216,148 +184,83 @@ const formatDate = (dateString) => {
 }
 
 .item-name {
-  font-size: 1.5rem;
+  font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  color: var(--ink-primary);
+  margin: 0 0 4px 0;
 }
 
 .item-sku {
-  font-size: 0.875rem;
-  color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
-}
-
-.priority-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  flex-shrink: 0;
-}
-
-.priority-badge.high {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.priority-badge.medium {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.priority-badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
 .shortage-summary {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.summary-card {
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 2px solid;
-}
-
-.summary-card.danger {
-  border-color: #fecaca;
-  background: #fef2f2;
-}
-
-.summary-card.warning {
-  border-color: #fed7aa;
-  background: #fffbeb;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .summary-label {
-  font-size: 0.813rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
 }
 
 .summary-value {
-  font-size: 1.875rem;
+  font-size: 32px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink-primary);
+  line-height: 1.25;
 }
 
-.summary-card.danger .summary-value {
-  color: #dc2626;
-}
-
-.summary-card.warning .summary-value {
-  color: #f59e0b;
-}
+.summary-value.danger { color: var(--danger); }
+.summary-value.warn { color: var(--warn); }
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .info-label {
-  font-size: 0.813rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
 }
 
 .info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
+  font-size: 13px;
+  color: var(--ink-primary);
   font-weight: 500;
 }
 
-.info-value.order-id,
-.info-value.sku {
-  font-family: 'Monaco', 'Courier New', monospace;
-  color: #2563eb;
+.info-value.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--accent);
 }
 
 .modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  padding: 24px;
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: 12px;
 }
 
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-/* Modal transition animations */
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.2s ease;

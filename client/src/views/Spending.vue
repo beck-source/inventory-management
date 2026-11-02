@@ -1,49 +1,46 @@
 <template>
   <div class="spending">
-    <div class="page-header">
-      <h2>{{ t('finance.title') }}</h2>
-      <p>{{ t('finance.description') }}</p>
-    </div>
+    <PageHeader :title="t('finance.title')" />
+    <FilterBar />
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
-      <!-- Revenue & Financial KPIs -->
-      <div class="stats-grid-finance">
-        <div class="stat-card revenue-card">
+      <!-- Stat cards -->
+      <div class="stats-grid">
+        <Card>
           <div class="stat-label">{{ t('finance.totalRevenue') }}</div>
           <div class="stat-value">{{ formatCurrency(revenueMetrics.totalRevenue) }}</div>
-          <div class="stat-change positive">
-            <span class="change-icon">↑</span>
-            {{ t('finance.fromOrders', { count: revenueMetrics.orderCount }) }}
-          </div>
-        </div>
-        <div class="stat-card cost-card">
+          <div class="stat-meta positive">{{ t('finance.fromOrders', { count: revenueMetrics.orderCount }) }}</div>
+        </Card>
+        <Card>
           <div class="stat-label">{{ t('finance.totalCosts') }}</div>
           <div class="stat-value">{{ formatCurrency(totalCosts) }}</div>
           <div class="stat-meta">{{ t('finance.costBreakdown') }}</div>
-        </div>
-        <div class="stat-card profit-card">
+        </Card>
+        <Card>
           <div class="stat-label">{{ t('finance.netProfit') }}</div>
           <div class="stat-value">{{ formatCurrency(netProfit) }}</div>
           <div class="stat-meta">{{ profitMargin }}% {{ t('finance.margin') }}</div>
-        </div>
-        <div class="stat-card">
+        </Card>
+        <Card>
           <div class="stat-label">{{ t('finance.avgOrderValue') }}</div>
           <div class="stat-value">{{ formatCurrency(revenueMetrics.avgOrderValue) }}</div>
           <div class="stat-meta">{{ t('finance.perOrderRevenue') }}</div>
-        </div>
+        </Card>
       </div>
 
       <!-- Monthly Revenue vs Cost Chart -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <h3 class="card-title">{{ t('finance.revenueVsCosts.title') }}</h3>
-          <div class="chart-legend">
-            <span class="legend-item"><span class="legend-dot revenue-color"></span>{{ t('finance.revenueVsCosts.revenue') }}</span>
-            <span class="legend-item"><span class="legend-dot cost-color"></span>{{ t('finance.revenueVsCosts.costs') }}</span>
+      <Card class="chart-card">
+        <template #title>
+          <div class="card-header-row">
+            <span>{{ t('finance.revenueVsCosts.title') }}</span>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-dot" style="background: var(--ink-primary)"></span>{{ t('finance.revenueVsCosts.revenue') }}</span>
+              <span class="legend-item"><span class="legend-dot" style="background: var(--danger)"></span>{{ t('finance.revenueVsCosts.costs') }}</span>
+            </div>
           </div>
-        </div>
+        </template>
         <div class="chart-container">
           <div class="bar-chart">
             <div class="y-axis">
@@ -64,19 +61,21 @@
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       <!-- Monthly Cost Flow Chart -->
-      <div class="card chart-card">
-        <div class="card-header">
-          <h3 class="card-title">{{ t('finance.monthlyCostFlow.title') }}</h3>
-          <div class="chart-legend">
-            <span class="legend-item"><span class="legend-dot procurement"></span>{{ t('finance.monthlyCostFlow.procurement') }}</span>
-            <span class="legend-item"><span class="legend-dot operational"></span>{{ t('finance.monthlyCostFlow.operational') }}</span>
-            <span class="legend-item"><span class="legend-dot labor"></span>{{ t('finance.monthlyCostFlow.labor') }}</span>
-            <span class="legend-item"><span class="legend-dot overhead"></span>{{ t('finance.monthlyCostFlow.overhead') }}</span>
+      <Card class="chart-card">
+        <template #title>
+          <div class="card-header-row">
+            <span>{{ t('finance.monthlyCostFlow.title') }}</span>
+            <div class="chart-legend">
+              <span class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span>{{ t('finance.monthlyCostFlow.procurement') }}</span>
+              <span class="legend-item"><span class="legend-dot" style="background: var(--accent-2)"></span>{{ t('finance.monthlyCostFlow.operational') }}</span>
+              <span class="legend-item"><span class="legend-dot" style="background: var(--success)"></span>{{ t('finance.monthlyCostFlow.labor') }}</span>
+              <span class="legend-item"><span class="legend-dot" style="background: var(--warn)"></span>{{ t('finance.monthlyCostFlow.overhead') }}</span>
+            </div>
           </div>
-        </div>
+        </template>
         <div class="chart-container">
           <div class="bar-chart">
             <div class="y-axis">
@@ -100,22 +99,20 @@
             </div>
           </div>
         </div>
-      </div>
+      </Card>
 
       <div class="two-column-grid">
-        <!-- Category Spending Breakdown -->
-        <div class="card">
-          <div class="card-header">
-            <h3 class="card-title">{{ t('finance.categorySpending.title') }}</h3>
-          </div>
+        <!-- Category Spending -->
+        <Card>
+          <template #title>{{ t('finance.categorySpending.title') }}</template>
           <div class="category-list">
             <div v-for="category in categorySpending" :key="category.category" class="category-item">
               <div class="category-info">
                 <div class="category-name">{{ translateCategory(category.category) }}</div>
                 <div class="category-amount">{{ currencySymbol }}{{ category.amount.toLocaleString() }}</div>
               </div>
-              <div class="category-bar-container">
-                <div class="category-bar" :style="{ width: category.percentage + '%' }"></div>
+              <div class="category-bar-track">
+                <div class="category-bar-fill" :style="{ width: category.percentage + '%' }"></div>
               </div>
               <div class="category-meta">
                 <span class="percentage">{{ category.percentage }}% {{ t('finance.categorySpending.ofTotal') }}</span>
@@ -125,41 +122,41 @@
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <!-- Recent Transactions -->
-        <div class="card transactions-card">
-          <div class="card-header">
-            <h3 class="card-title">{{ t('finance.transactions.title') }}</h3>
+        <!-- Transactions -->
+        <Card>
+          <template #title>{{ t('finance.transactions.title') }}</template>
+          <div class="table-no-pad">
+            <div class="transactions-table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{{ t('finance.transactions.id') }}</th>
+                    <th>{{ t('finance.transactions.description') }}</th>
+                    <th>{{ t('finance.transactions.vendor') }}</th>
+                    <th>{{ t('finance.transactions.date') }}</th>
+                    <th class="text-right">{{ t('finance.transactions.amount') }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    v-for="transaction in recentTransactions"
+                    :key="transaction.id"
+                    class="clickable-row"
+                    @click="handleTransactionClick(transaction)"
+                  >
+                    <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
+                    <td>{{ transaction.description }}</td>
+                    <td class="text-muted">{{ transaction.vendor }}</td>
+                    <td class="text-muted">{{ formatDateShort(transaction.date) }}</td>
+                    <td class="text-right"><strong>{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div class="transactions-table-container">
-            <table class="transactions-table">
-              <thead>
-                <tr>
-                  <th>{{ t('finance.transactions.id') }}</th>
-                  <th>{{ t('finance.transactions.description') }}</th>
-                  <th>{{ t('finance.transactions.vendor') }}</th>
-                  <th>{{ t('finance.transactions.date') }}</th>
-                  <th class="text-right">{{ t('finance.transactions.amount') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="transaction in recentTransactions"
-                  :key="transaction.id"
-                  class="clickable-row"
-                  @click="handleTransactionClick(transaction)"
-                >
-                  <td class="transaction-id">{{ transaction.id.toString().padStart(3, '0') }}</td>
-                  <td class="transaction-description">{{ transaction.description }}</td>
-                  <td class="transaction-vendor">{{ transaction.vendor }}</td>
-                  <td class="transaction-date">{{ formatDateShort(transaction.date) }}</td>
-                  <td class="transaction-amount text-right">{{ currencySymbol }}{{ transaction.amount.toLocaleString() }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        </Card>
       </div>
     </div>
 
@@ -177,11 +174,17 @@ import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 import { formatCurrency as formatCurrencyUtil } from '../utils/currency'
+import PageHeader from '../components/ui/PageHeader.vue'
+import Card from '../components/ui/Card.vue'
+import FilterBar from '../components/FilterBar.vue'
 import CostDetailModal from '../components/CostDetailModal.vue'
 
 export default {
   name: 'Spending',
   components: {
+    PageHeader,
+    Card,
+    FilterBar,
     CostDetailModal
   },
   setup() {
@@ -194,25 +197,17 @@ export default {
     const summaryData = ref({})
     const allOrders = ref([])
 
-    // Modal state
     const showCostModal = ref(false)
     const selectedCostData = ref(null)
 
-    // Use shared filters
     const { selectedPeriod, getCurrentFilters } = useFilters()
 
-    // Monthly spending chart always shows all months (not filtered)
-    const monthlySpending = computed(() => {
-      return allMonthlySpending.value
-    })
+    const monthlySpending = computed(() => allMonthlySpending.value)
 
-    // Filtered monthly spending for summary calculations only
     const filteredMonthlySpending = computed(() => {
       if (selectedPeriod.value === 'all') {
         return allMonthlySpending.value
       }
-
-      // Extract month name from YYYY-MM format
       const monthMap = {
         '01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
         '05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
@@ -222,15 +217,12 @@ export default {
       return allMonthlySpending.value.filter(m => m.month === selectedMonth)
     })
 
-    const categorySpending = computed(() => {
-      return allCategorySpending.value
-    })
+    const categorySpending = computed(() => allCategorySpending.value)
 
     const recentTransactions = computed(() => {
       if (selectedPeriod.value === 'all') {
         return allTransactions.value
       }
-      // Filter transactions by selected month
       return allTransactions.value.filter(t => {
         const transactionMonth = new Date(t.date).toISOString().slice(0, 7)
         return transactionMonth === selectedPeriod.value
@@ -238,11 +230,9 @@ export default {
     })
 
     const summary = computed(() => {
-      // Recalculate summary based on filteredMonthlySpending (not the chart data)
       if (filteredMonthlySpending.value.length === 0) {
         return summaryData.value
       }
-
       const totals = filteredMonthlySpending.value.reduce((acc, month) => ({
         procurement: acc.procurement + month.procurement,
         operational: acc.operational + month.operational,
@@ -262,34 +252,23 @@ export default {
       }
     })
 
-    // Filtered orders based on selected period
     const filteredOrders = computed(() => {
       if (selectedPeriod.value === 'all') {
         return allOrders.value
       }
-
-      // Filter orders by selected month
       return allOrders.value.filter(order => {
         const orderMonth = new Date(order.order_date).toISOString().slice(0, 7)
         return orderMonth === selectedPeriod.value
       })
     })
 
-    // Revenue metrics from filtered orders
     const revenueMetrics = computed(() => {
       const totalRevenue = filteredOrders.value.reduce((sum, order) => sum + (order.total_value || 0), 0)
       const orderCount = filteredOrders.value.length
       const avgOrderValue = orderCount > 0 ? totalRevenue / orderCount : 0
-
-      return {
-        totalRevenue,
-        orderCount,
-        avgOrderValue,
-        revenueGrowth: 15.3 // Placeholder - could calculate from historical data
-      }
+      return { totalRevenue, orderCount, avgOrderValue }
     })
 
-    // Total costs from summary
     const totalCosts = computed(() => {
       return summary.value.total_procurement_cost +
              summary.value.total_operational_cost +
@@ -297,29 +276,17 @@ export default {
              summary.value.total_overhead
     })
 
-    // Net profit
-    const netProfit = computed(() => {
-      return revenueMetrics.value.totalRevenue - totalCosts.value
-    })
+    const netProfit = computed(() => revenueMetrics.value.totalRevenue - totalCosts.value)
 
-    // Profit margin percentage
     const profitMargin = computed(() => {
       if (revenueMetrics.value.totalRevenue === 0) return 0
       return ((netProfit.value / revenueMetrics.value.totalRevenue) * 100).toFixed(1)
     })
 
-    // Monthly revenue data for chart
     const monthlyRevenue = computed(() => {
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      const revenueByMonth = monthNames.map(month => ({ month, revenue: 0, costs: 0 }))
 
-      // Initialize all months
-      const revenueByMonth = monthNames.map(month => ({
-        month,
-        revenue: 0,
-        costs: 0
-      }))
-
-      // Calculate revenue from orders
       allOrders.value.forEach(order => {
         const orderDate = new Date(order.order_date)
         const monthIndex = orderDate.getMonth()
@@ -328,7 +295,6 @@ export default {
         }
       })
 
-      // Add costs from spending data
       allMonthlySpending.value.forEach(spending => {
         const monthIndex = monthNames.indexOf(spending.month)
         if (monthIndex >= 0) {
@@ -339,12 +305,11 @@ export default {
       return revenueByMonth
     })
 
-    // Max value for chart scaling
     const maxRevenueValue = computed(() => {
       const maxRevenue = Math.max(...monthlyRevenue.value.map(m => m.revenue))
       const maxCost = Math.max(...monthlyRevenue.value.map(m => m.costs))
       const max = Math.max(maxRevenue, maxCost)
-      return Math.ceil(max / 1000) // Return in K
+      return Math.ceil(max / 1000)
     })
 
     const loadData = async () => {
@@ -370,10 +335,7 @@ export default {
       }
     }
 
-    // Watch for period filter changes
-    watch([selectedPeriod], () => {
-      // Data will automatically update via computed properties
-    })
+    watch([selectedPeriod], () => {})
 
     const formatCurrency = (value) => {
       return formatCurrencyUtil(value, currentCurrency.value)
@@ -391,13 +353,6 @@ export default {
     const getRevenueBarHeight = (value) => {
       const maxValue = maxRevenueValue.value * 1000
       return (value / maxValue) * 100
-    }
-
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric'
-      })
     }
 
     const formatDateShort = (dateString) => {
@@ -427,15 +382,12 @@ export default {
     }
 
     const translateCategory = (category) => {
-      // First try spending categories
       const spendingCategoryMap = {
         'Raw Materials': t('spendingCategories.rawMaterials'),
         'Components': t('spendingCategories.components'),
         'Equipment': t('spendingCategories.equipment'),
         'Consumables': t('spendingCategories.consumables')
       }
-
-      // Then try product categories
       const productCategoryMap = {
         'Circuit Boards': t('categories.circuitBoards'),
         'Sensors': t('categories.sensors'),
@@ -443,12 +395,10 @@ export default {
         'Controllers': t('categories.controllers'),
         'Power Supplies': t('categories.powerSupplies')
       }
-
       return spendingCategoryMap[category] || productCategoryMap[category] || category
     }
 
     const handleTransactionClick = (transaction) => {
-      console.log('Transaction clicked:', transaction)
       alert(`Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: $${transaction.amount.toLocaleString()}`)
     }
 
@@ -477,7 +427,6 @@ export default {
       currencySymbol,
       getBarHeight,
       getRevenueBarHeight,
-      formatDate,
       formatDateShort,
       translateMonth,
       translateCategory,
@@ -492,80 +441,99 @@ export default {
 </script>
 
 <style scoped>
-.stat-change {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-.stat-change.positive {
-  color: #059669;
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
 }
 
-.stat-change.negative {
-  color: #dc2626;
-}
-
-.change-icon {
+.stat-value {
+  font-size: 32px;
   font-weight: 700;
-  font-size: 1rem;
+  color: var(--ink-primary);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.stat-meta {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.stat-meta.positive {
+  color: var(--success);
 }
 
 .chart-card {
-  margin-bottom: 1.75rem;
+  margin-bottom: 24px;
+}
+
+.card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
 }
 
 .chart-legend {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
+  gap: 20px;
+  font-size: 12px;
+  flex-wrap: wrap;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
+  gap: 8px;
+  color: var(--ink-muted);
 }
 
 .legend-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 3px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex-shrink: 0;
 }
 
-.legend-dot.procurement { background: #3b82f6; }
-.legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
-
-.stats-grid-finance {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+.chart-container {
+  padding: 16px 0;
 }
 
-.revenue-card {
-  border-left: 4px solid #0f172a;
+.bar-chart {
+  display: flex;
+  gap: 16px;
+  height: 240px;
 }
 
-.cost-card {
-  border-left: 4px solid #ef4444;
+.y-axis {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-right: 12px;
+  font-size: 11px;
+  color: var(--ink-muted);
+  border-right: 1px solid var(--line);
 }
 
-.profit-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
+.chart-area {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 8px;
 }
 
 .bar-group-revenue {
@@ -578,18 +546,18 @@ export default {
 
 .revenue-bars {
   width: 100%;
-  max-width: 80px;
+  max-width: 64px;
   display: flex;
   gap: 6px;
   justify-content: center;
   align-items: flex-end;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: 32px;
 }
 
 .revenue-bar, .cost-bar {
   width: 50%;
-  max-width: 30px;
+  max-width: 24px;
   border-radius: 6px 6px 0 0;
   transition: all 0.3s ease;
   cursor: pointer;
@@ -597,44 +565,15 @@ export default {
 }
 
 .revenue-bar {
-  background: #0f172a;
+  background: var(--ink-primary);
 }
 
 .cost-bar {
-  background: #ef4444;
+  background: var(--danger);
 }
 
 .revenue-bar:hover, .cost-bar:hover {
   opacity: 0.8;
-  transform: scaleY(1.05);
-}
-
-.chart-container {
-  padding: 1.5rem 0;
-}
-
-.bar-chart {
-  display: flex;
-  gap: 1.5rem;
-  height: 350px;
-}
-
-.y-axis {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
-}
-
-.chart-area {
-  flex: 1;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-around;
-  gap: 0.5rem;
 }
 
 .bar-group {
@@ -647,12 +586,12 @@ export default {
 
 .stacked-bar {
   width: 100%;
-  max-width: 60px;
+  max-width: 48px;
   display: flex;
   flex-direction: column-reverse;
   align-items: stretch;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: 32px;
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
@@ -664,7 +603,6 @@ export default {
 .bar-segment {
   width: 100%;
   transition: all 0.3s ease;
-  cursor: pointer;
   display: block;
 }
 
@@ -676,38 +614,34 @@ export default {
   border-radius: 6px 6px 0 0;
 }
 
-.bar-segment.procurement { background: #3b82f6; }
-.bar-segment.operational { background: #8b5cf6; }
-.bar-segment.labor { background: #10b981; }
-.bar-segment.overhead { background: #f59e0b; }
-
-.bar-segment:hover {
-  opacity: 0.8;
-}
+.bar-segment.procurement { background: var(--accent); }
+.bar-segment.operational { background: var(--accent-2); }
+.bar-segment.labor { background: var(--success); }
+.bar-segment.overhead { background: var(--warn); }
 
 .bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
+  margin-top: 8px;
+  font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--ink-muted);
 }
 
 .two-column-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 24px;
 }
 
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .category-info {
@@ -718,26 +652,27 @@ export default {
 
 .category-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink-primary);
+  font-size: 13px;
 }
 
 .category-amount {
   font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
+  color: var(--accent);
+  font-size: 14px;
 }
 
-.category-bar-container {
+.category-bar-track {
   width: 100%;
   height: 8px;
-  background: #f1f5f9;
+  background: var(--surface-muted);
   border-radius: 4px;
   overflow: hidden;
 }
 
-.category-bar {
+.category-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
+  background: var(--accent);
   border-radius: 4px;
   transition: width 0.6s ease;
 }
@@ -745,108 +680,46 @@ export default {
 .category-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
+  font-size: 12px;
 }
 
 .percentage {
-  color: #64748b;
+  color: var(--ink-muted);
 }
 
 .change {
   font-weight: 600;
 }
 
-.change.positive {
-  color: #059669;
-}
+.change.positive { color: var(--success); }
+.change.negative { color: var(--danger); }
 
-.change.negative {
-  color: #dc2626;
-}
-
-.transactions-card {
-  display: flex;
-  flex-direction: column;
+.table-no-pad {
+  margin: 0 calc(-1 * var(--sp-6));
+  margin-bottom: calc(-1 * var(--sp-6));
 }
 
 .transactions-table-container {
   overflow-y: auto;
-  max-height: 400px;
-}
-
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.transactions-table thead {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
-  z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.transactions-table th.text-right {
-  text-align: right;
-}
-
-.transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
-}
-
-.transactions-table tbody tr {
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-.transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
+  max-height: 240px;
 }
 
 .transaction-id {
-  color: #64748b;
+  color: var(--ink-muted);
   font-weight: 500;
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
 }
 
-.transaction-description {
-  color: #0f172a;
-  font-weight: 500;
-}
-
-.transaction-vendor {
-  color: #64748b;
-}
-
-.transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
-}
-
-.transaction-amount {
-  font-weight: 700;
-  color: #0f172a;
+.text-muted {
+  color: var(--ink-muted);
 }
 
 .text-right {
   text-align: right;
+}
+
+.clickable-row {
+  cursor: pointer;
 }
 </style>

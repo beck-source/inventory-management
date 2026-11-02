@@ -2,14 +2,14 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen" class="modal-overlay" @click="close">
-        <div class="modal-container tasks-modal-container" @click.stop>
+        <div class="modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">{{ t('tasks.title') }}</h3>
-            <button class="close-button" @click="close">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <Button variant="ghost" size="sm" @click="close">
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-            </button>
+            </Button>
           </div>
 
           <div class="modal-body">
@@ -32,11 +32,7 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="task-priority">{{ t('tasks.priority') }}</label>
-                  <select
-                    id="task-priority"
-                    v-model="newTask.priority"
-                    class="task-select"
-                  >
+                  <select id="task-priority" v-model="newTask.priority" class="task-select">
                     <option value="high">{{ t('priority.high') }}</option>
                     <option value="medium">{{ t('priority.medium') }}</option>
                     <option value="low">{{ t('priority.low') }}</option>
@@ -54,16 +50,15 @@
                 </div>
 
                 <div class="form-group-btn">
-                  <button @click="handleAddTask" class="task-add-btn" :disabled="!newTask.title.trim() || !newTask.dueDate">
+                  <Button variant="primary" @click="handleAddTask" :disabled="!newTask.title.trim() || !newTask.dueDate">
                     {{ t('tasks.addTask') }}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
 
             <div class="tasks-divider"></div>
 
-            <!-- Tasks List -->
             <div v-if="sortedTasks.length === 0" class="no-tasks">
               {{ t('tasks.noTasks') }}
             </div>
@@ -85,15 +80,13 @@
                     />
                     <span class="task-title" @click="$emit('toggle-task', task.id)">{{ task.title }}</span>
                   </div>
-                  <button @click="$emit('delete-task', task.id)" class="task-delete-btn" title="Delete task">
-                    ×
-                  </button>
+                  <Button variant="danger" size="sm" @click="$emit('delete-task', task.id)">×</Button>
                 </div>
 
                 <div class="task-footer">
-                  <span class="priority-badge" :class="task.priority">
+                  <Badge :variant="task.priority === 'high' ? 'danger' : task.priority === 'medium' ? 'warn' : 'accent'">
                     {{ translatePriority(task.priority) }}
-                  </span>
+                  </Badge>
                   <div class="task-due-date">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <rect x="2" y="3" width="10" height="9" rx="1" stroke="currentColor" stroke-width="1.2"/>
@@ -101,16 +94,16 @@
                     </svg>
                     {{ formatDueDate(task.dueDate) }}
                   </div>
-                  <span class="status-badge" :class="getStatusClass(task.dueDate, task.status)">
+                  <Badge :variant="getStatusVariant(task.dueDate, task.status)" class="status-badge">
                     {{ getStatusText(task.dueDate, task.status) }}
-                  </span>
+                  </Badge>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">{{ t('profileDetails.close') }}</button>
+            <Button variant="ghost" @click="close">{{ t('profileDetails.close') }}</Button>
           </div>
         </div>
       </div>
@@ -121,36 +114,24 @@
 <script>
 import { ref, computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
+import Button from './ui/Button.vue'
+import Badge from './ui/Badge.vue'
 
 export default {
   name: 'TasksModal',
+  components: { Button, Badge },
   props: {
-    isOpen: {
-      type: Boolean,
-      required: true
-    },
-    tasks: {
-      type: Array,
-      default: () => []
-    }
+    isOpen: { type: Boolean, required: true },
+    tasks: { type: Array, default: () => [] }
   },
   emits: ['close', 'add-task', 'delete-task', 'toggle-task'],
   setup(props, { emit }) {
     const { t, currentLocale } = useI18n()
-    const newTask = ref({
-      title: '',
-      priority: 'medium',
-      dueDate: ''
-    })
+    const newTask = ref({ title: '', priority: 'medium', dueDate: '' })
 
-    const sortedTasks = computed(() => {
-      // Don't sort - just return tasks in their current order (newest first)
-      return [...props.tasks]
-    })
+    const sortedTasks = computed(() => [...props.tasks])
 
-    const close = () => {
-      emit('close')
-    }
+    const close = () => emit('close')
 
     const handleAddTask = () => {
       if (newTask.value.title.trim() && newTask.value.dueDate) {
@@ -159,11 +140,7 @@ export default {
           priority: newTask.value.priority,
           dueDate: newTask.value.dueDate
         })
-        newTask.value = {
-          title: '',
-          priority: 'medium',
-          dueDate: ''
-        }
+        newTask.value = { title: '', priority: 'medium', dueDate: '' }
       }
     }
 
@@ -176,7 +153,6 @@ export default {
 
       const diffTime = dueDate - today
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
       const isJapanese = currentLocale.value === 'ja'
 
       if (diffDays === 0) return isJapanese ? '今日' : 'today'
@@ -193,30 +169,24 @@ export default {
       })
     }
 
-    const getStatusClass = (dueDate, status) => {
-      if (status === 'completed') return 'completed'
-
+    const getStatusVariant = (dueDate, status) => {
+      if (status === 'completed') return 'success'
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       const due = new Date(dueDate)
       due.setHours(0, 0, 0, 0)
-
-      const diffTime = due - today
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-      if (diffDays < 0) return 'overdue'
-      if (diffDays <= 1) return 'urgent'
-      return 'upcoming'
+      const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24))
+      if (diffDays < 0) return 'danger'
+      if (diffDays <= 1) return 'warn'
+      return 'neutral'
     }
 
     const getStatusText = (dueDate, status) => {
       const isJapanese = currentLocale.value === 'ja'
-
       if (status === 'completed') return isJapanese ? '完了' : 'Completed'
-
-      const statusClass = getStatusClass(dueDate, status)
-      if (statusClass === 'overdue') return isJapanese ? '期限超過' : 'Overdue'
-      if (statusClass === 'urgent') return isJapanese ? 'もうすぐ期限' : 'Due Soon'
+      const variant = getStatusVariant(dueDate, status)
+      if (variant === 'danger') return isJapanese ? '期限超過' : 'Overdue'
+      if (variant === 'warn') return isJapanese ? 'もうすぐ期限' : 'Due Soon'
       return isJapanese ? '予定' : 'Upcoming'
     }
 
@@ -236,7 +206,7 @@ export default {
       close,
       handleAddTask,
       formatDueDate,
-      getStatusClass,
+      getStatusVariant,
       getStatusText,
       translatePriority
     }
@@ -251,7 +221,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -259,94 +229,57 @@ export default {
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: var(--surface-card);
+  border-radius: var(--r-lg);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
   width: 90%;
-  max-width: 700px;
+  max-width: 90vw;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-}
-
-.tasks-modal-container {
-  max-width: 900px;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 2px solid #e2e8f0;
+  padding: 24px;
+  border-bottom: 1px solid var(--line);
 }
 
 .modal-title {
-  font-size: 1.5rem;
+  font-size: 16px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink-primary);
   margin: 0;
 }
 
-.close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
 .modal-body {
-  padding: 2rem;
+  padding: 24px;
   overflow-y: auto;
   flex: 1;
 }
 
 .modal-footer {
-  padding: 1.5rem 2rem;
-  border-top: 2px solid #e2e8f0;
+  padding: 24px;
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
-}
-
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  background: #f1f5f9;
-  color: #475569;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
+  gap: 12px;
 }
 
 /* Task Form */
 .task-form {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: var(--surface-muted);
+  border-radius: var(--r-md);
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .form-row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 
 .form-row:last-child {
@@ -356,13 +289,11 @@ export default {
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
   flex: 1;
 }
 
-.form-group.flex-1 {
-  flex: 1;
-}
+.form-group.flex-1 { flex: 1; }
 
 .form-group-btn {
   display: flex;
@@ -370,98 +301,69 @@ export default {
 }
 
 label {
-  font-size: 0.875rem;
+  font-size: 11px;
   font-weight: 600;
-  color: #475569;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .task-input,
 .task-select {
-  padding: 0.75rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  font-size: 13px;
   font-family: inherit;
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  transition: border-color 0.15s;
 }
 
 .task-input:focus,
 .task-select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .task-select {
   cursor: pointer;
-  background: white;
-}
-
-.task-add-btn {
-  padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-  white-space: nowrap;
-  height: fit-content;
-}
-
-.task-add-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.task-add-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .tasks-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 2rem 0;
+  background: var(--line);
+  margin: 24px 0;
 }
 
 .no-tasks {
   text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 1.1rem;
-  font-style: italic;
+  padding: 48px;
+  color: var(--ink-muted);
+  font-size: 14px;
 }
 
 .tasks-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1px;
 }
 
 .task-item {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  transition: all 0.2s ease;
+  background: var(--surface-card);
+  border-bottom: 1px solid var(--line);
+  padding: 16px 0;
 }
 
-.task-item:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.task-item:last-child {
+  border-bottom: none;
 }
 
-.task-item.priority-high {
-  border-left: 4px solid #dc2626;
-}
-
-.task-item.priority-medium {
-  border-left: 4px solid #f59e0b;
-}
-
-.task-item.priority-low {
-  border-left: 4px solid #2563eb;
-}
+.task-item.priority-high { border-left: 3px solid var(--danger); padding-left: 12px; }
+.task-item.priority-medium { border-left: 3px solid var(--warn); padding-left: 12px; }
+.task-item.priority-low { border-left: 3px solid var(--accent); padding-left: 12px; }
 
 .task-item.completed {
   opacity: 0.6;
@@ -471,22 +373,22 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
-  gap: 1rem;
+  margin-bottom: 12px;
+  gap: 16px;
 }
 
 .task-check-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 12px;
   flex: 1;
 }
 
 .task-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--accent);
   flex-shrink: 0;
 }
 
@@ -494,119 +396,43 @@ label {
   flex: 1;
   cursor: pointer;
   user-select: none;
-  color: #0f172a;
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.4;
+  color: var(--ink-primary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .task-item.completed .task-title {
   text-decoration: line-through;
-  color: #94a3b8;
-}
-
-.task-delete-btn {
-  width: 28px;
-  height: 28px;
-  background: #ef4444;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1.25rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.task-delete-btn:hover {
-  background: #dc2626;
-  transform: scale(1.1);
+  color: var(--ink-muted);
 }
 
 .task-footer {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-.priority-badge {
-  font-size: 0.688rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
-  letter-spacing: 0.025em;
-}
-
-.priority-badge.high {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.priority-badge.medium {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.priority-badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  gap: 12px;
 }
 
 .task-due-date {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
-}
-
-.task-due-date svg {
-  color: #94a3b8;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-muted);
 }
 
 .status-badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
   margin-left: auto;
 }
 
-.status-badge.overdue {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.status-badge.urgent {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.status-badge.upcoming {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-badge.completed {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-/* Modal transitions */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
 }
 
 .modal-enter-from,
@@ -616,6 +442,6 @@ label {
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  transform: scale(0.9);
+  transform: scale(0.95);
 }
 </style>
