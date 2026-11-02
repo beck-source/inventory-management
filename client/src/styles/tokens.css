@@ -1,0 +1,91 @@
+/*
+ * Design tokens for the SaaS-style redesign.
+ * Copied to client/src/styles/tokens.css by the saas-redesign skill and
+ * imported once in client/src/main.js.
+ *
+ * Why tokens: the app had ~400 hardcoded hex values and no CSS variables, so
+ * spacing/colour drifted between views. Every value below is the single source
+ * of truth; views and components should reference var(--...) only.
+ *
+ * Existing palette values (#0f172a, #64748b, #e2e8f0, #2563eb ...) are kept
+ * as-is so the remap in SKILL.md step 6 is a pure rename with no visual change.
+ */
+:root {
+  /* Neutrals (slate) */
+  --color-bg: #f8fafc;            /* page background */
+  --color-surface: #ffffff;       /* cards, sidebar, modals */
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-surface-muted: #f1f5f9; /* row hover, nav hover, row dividers */
+  --color-text-strong: #0f172a;   /* headings */
+  --color-text: #1e293b;          /* body */
+  --color-text-body: #334155;     /* table cell text */
+  --color-text-secondary: #475569;/* table header text */
+  --color-text-muted: #64748b;
+
+  /* Accent */
+  --color-accent: #2563eb;
+  --color-accent-soft: #eff6ff;   /* active nav item, selected rows */
+
+  /* Status. Three roles per status:
+       base = solid colour (stat-card values, dots)
+       soft = badge background
+       text = badge text on the soft background
+     Values were taken from the app's existing .badge.* and .stat-card.* rules
+     in App.vue (not from a palette), so remapping them is visually a no-op.
+     Note "warning" is orange (#ea580c), not yellow: that is what the app uses. */
+  --color-success: #059669;
+  --color-success-soft: #d1fae5;
+  --color-success-text: #065f46;
+  --color-info: #2563eb;
+  --color-info-soft: #dbeafe;
+  --color-info-text: #1e40af;
+  --color-warning: #ea580c;
+  --color-warning-soft: #fed7aa;
+  --color-warning-text: #92400e;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fecaca;
+  --color-danger-text: #991b1b;
+  --color-danger-faint: #fef2f2;  /* .error banner background */
+  /* "stable" trend badge is indigo, distinct from info blue */
+  --color-stable-soft: #e0e7ff;
+  --color-stable-text: #3730a3;
+
+  /* Spacing: 4px base scale. Use these for padding, margin and gap. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-8: 3rem;
+
+  /* Scrim behind the mobile nav drawer (and usable for modal backdrops) */
+  --color-overlay: rgba(15, 23, 42, 0.4);
+
+  /* Shape and depth */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+
+  /* Layout */
+  --sidebar-width: 248px;
+  --content-max-width: 1400px;
+  --topbar-height: 56px;         /* FilterBar strip; sticky offset is 0, not this */
+
+  /* Stacking. Dropdowns (1000) and modals (2000) already exist in the app.
+     The sidebar must stay below both so modals still cover it. */
+  --z-sidebar: 100;
+  --z-filterbar: 90;
+  --z-dropdown: 1000;
+  --z-modal: 2000;
+
+  /* Type. Inter is loaded via <link> in client/index.html. */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+}

@@ -106,14 +106,16 @@ export default {
   border-bottom: 1px solid #e2e8f0;
   padding: 0.75rem 0;
   position: sticky;
-  top: 70px;
-  z-index: 90;
+  /* top: 0 because the top nav is gone; the bar now sticks to the viewport top
+     of the content column (the sidebar is fixed on the left, not above). */
+  top: 0;
+  z-index: var(--z-filterbar);
 }
 
 .filters-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  /* Fills the content column; horizontal padding matches .main-content in
+     App.vue so filter edges line up with page content. */
+  padding: 0 var(--space-6);
   display: flex;
   align-items: center;
   gap: 1rem;

@@ -96,6 +96,9 @@ const selectLanguage = (locale) => {
 .language-button {
   display: flex;
   align-items: center;
+  /* Fill the sidebar footer width, matching the profile trigger */
+  width: 100%;
+  text-align: left;
   gap: 0.5rem;
   padding: 0.5rem 0.875rem;
   background: white;
@@ -119,6 +122,8 @@ const selectLanguage = (locale) => {
 }
 
 .language-label {
+  /* flex: 1 pushes the chevron to the far right of the full-width trigger */
+  flex: 1;
   font-weight: 500;
 }
 
@@ -134,14 +139,20 @@ const selectLanguage = (locale) => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  /* Opens upward: the trigger sits at the bottom of the sidebar, so a downward
+     panel would fall off-screen. Left-anchored so it can extend over the content. */
+  bottom: calc(100% + var(--space-2));
+  top: auto;
+  left: 0;
+  right: auto;
   min-width: 160px;
+  max-width: calc(100vw - var(--space-4) * 2);
+  /* Stays at --z-dropdown: above the sidebar (--z-sidebar) and filter bar, below modals */
+  z-index: var(--z-dropdown);
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   overflow: hidden;
 }
 

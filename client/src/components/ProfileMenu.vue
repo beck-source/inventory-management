@@ -123,6 +123,9 @@ const handleLogout = () => {
 .profile-button {
   display: flex;
   align-items: center;
+  /* Fill the sidebar footer width, matching the language trigger */
+  width: 100%;
+  text-align: left;
   gap: 0.625rem;
   padding: 0.5rem 0.875rem;
   background: white;
@@ -153,6 +156,12 @@ const handleLogout = () => {
 }
 
 .profile-name {
+  /* flex: 1 pushes the chevron to the far right; ellipsis for long names in the 248px sidebar */
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.875rem;
   font-weight: 500;
   color: #0f172a;
@@ -161,6 +170,7 @@ const handleLogout = () => {
 .chevron {
   color: #64748b;
   transition: transform 0.2s ease;
+  flex-shrink: 0;
 }
 
 .chevron-open {
@@ -169,14 +179,20 @@ const handleLogout = () => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  /* Opens upward: the trigger sits at the bottom of the sidebar, so a downward
+     panel would fall off-screen. Left-anchored so it extends over the content. */
+  bottom: calc(100% + var(--space-2));
+  top: auto;
+  left: 0;
+  right: auto;
   min-width: 280px;
+  max-width: calc(100vw - var(--space-4) * 2);
+  /* Stays at --z-dropdown: above the sidebar (--z-sidebar) and filter bar, below modals */
+  z-index: var(--z-dropdown);
   background: white;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
   overflow: hidden;
 }
 

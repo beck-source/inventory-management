@@ -1,5 +1,8 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
+// Design tokens must load before App.vue so its global styles can reference var(--...).
+// Vite injects CSS in import order, so keep this above the App import.
+import './styles/tokens.css'
 import App from './App.vue'
 import Dashboard from './views/Dashboard.vue'
 import Inventory from './views/Inventory.vue'

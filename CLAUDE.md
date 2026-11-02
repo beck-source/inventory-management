@@ -74,3 +74,6 @@ npm install && npm run dev
 - Status: green/blue/yellow/red
 - Charts: Custom SVG, CSS Grid for layouts
 - No emojis in UI
+
+## Code Comments
+- Always document non-obvious logic changes with comments that explain the "why" (tricky conditions, workarounds, ordering dependencies, data-shape assumptions). Skip comments for trivial changes.

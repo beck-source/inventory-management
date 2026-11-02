@@ -1,42 +1,57 @@
 <template>
   <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
-        </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
+    <!-- Backdrop only exists visually below the drawer breakpoint (see CSS) -->
+    <div
+      v-if="sidebarOpen"
+      class="sidebar-backdrop"
+      @click="sidebarOpen = false"
+    ></div>
+
+    <aside id="app-sidebar" class="sidebar" :class="{ open: sidebarOpen }">
+      <div class="logo">
+        <h1>{{ t('nav.companyName') }}</h1>
+        <span class="subtitle">{{ t('nav.subtitle') }}</span>
+      </div>
+      <nav class="sidebar-nav">
+        <router-link
+          v-for="item in navItems"
+          :key="item.path"
+          :to="item.path"
+          class="nav-item"
+          exact-active-class="active"
+        >
+          {{ t(item.labelKey) }}
+        </router-link>
+      </nav>
+      <div class="sidebar-footer">
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+    </aside>
+
+    <div class="content">
+      <button
+        type="button"
+        class="menu-button"
+        :aria-label="t('nav.menu')"
+        aria-controls="app-sidebar"
+        :aria-expanded="sidebarOpen ? 'true' : 'false'"
+        @click="sidebarOpen = !sidebarOpen"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <FilterBar />
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,7 +70,8 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -79,6 +95,21 @@ export default {
     const { t } = useI18n()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
+    const sidebarOpen = ref(false)
+    const route = useRoute()
+
+    // Single source of truth for the sidebar; order matches the router config.
+    const navItems = [
+      { path: '/', labelKey: 'nav.overview' },
+      { path: '/inventory', labelKey: 'nav.inventory' },
+      { path: '/orders', labelKey: 'nav.orders' },
+      { path: '/spending', labelKey: 'nav.finance' },
+      { path: '/demand', labelKey: 'nav.demandForecast' },
+      { path: '/reports', labelKey: 'nav.reports' }
+    ]
+
+    // Close the mobile drawer after navigating so it doesn't cover the new page
+    watch(() => route.path, () => { sidebarOpen.value = false })
     const apiTasks = ref([])
 
     // Merge mock tasks from currentUser with API tasks
@@ -152,6 +183,8 @@ export default {
       t,
       showProfileDetails,
       showTasks,
+      sidebarOpen,
+      navItems,
       tasks,
       addTask,
       deleteTask,
@@ -177,101 +210,162 @@ body {
 }
 
 .app {
-  display: flex;
-  flex-direction: column;
   min-height: 100vh;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
+/*
+ * Stacking: backdrop (sidebar - 1) < sidebar < dropdowns (1000) < modals (2000).
+ * The sidebar must stay below dropdowns/modals so they can overlay it.
+ */
+.sidebar {
+  position: fixed;
   top: 0;
-  z-index: 100;
-}
-
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  z-index: var(--z-sidebar);
   display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  height: 70px;
-}
-
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
-}
-
-.nav-container > .language-switcher {
-  margin-right: 1rem;
+  flex-direction: column;
 }
 
 .logo {
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-5) var(--space-4) var(--space-4);
 }
 
 .logo h1 {
-  font-size: 1.375rem;
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text-strong);
   letter-spacing: -0.025em;
 }
 
 .subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
   font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
 }
 
-.nav-tabs {
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
   display: flex;
-  gap: 0.25rem;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
 }
 
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
+.nav-item {
+  display: block;
+  position: relative;
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-text-muted);
   text-decoration: none;
   font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
+  font-size: var(--text-base);
+  border-radius: var(--radius-md);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.nav-item:hover {
+  color: var(--color-text-strong);
+  background: var(--color-surface-muted);
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+/* "active" is applied via exact-active-class: '/' would prefix-match every route otherwise */
+.nav-item.active {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
 }
 
-.nav-tabs a.active::after {
+.nav-item.active::before {
   content: '';
   position: absolute;
-  bottom: -1px;
   left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+  top: var(--space-2);
+  bottom: var(--space-2);
+  width: 3px;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.content {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
+  max-width: var(--content-max-width);
   width: 100%;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: var(--space-5) var(--space-6);
+}
+
+.menu-button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  margin: var(--space-3) var(--space-4) 0;
+  padding: var(--space-2);
+  background: var(--color-surface);
+  color: var(--color-text-strong);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.menu-button:hover {
+  background: var(--color-surface-muted);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* 900px: below this the fixed 248px rail leaves too little room for tables, so it becomes a drawer */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    box-shadow: var(--shadow-md);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .content {
+    margin-left: 0;
+  }
+
+  .menu-button {
+    display: inline-flex;
+  }
+
+  /* One below the sidebar so the drawer sits above it, still far below dropdowns/modals */
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--color-overlay);
+    z-index: calc(var(--z-sidebar) - 1);
+  }
 }
 
 .page-header {
