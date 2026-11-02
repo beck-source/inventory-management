@@ -140,7 +140,7 @@ const formatDate = (dateString) => {
 
 .modal-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 700px;
   width: 100%;
@@ -155,32 +155,32 @@ const formatDate = (dateString) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #6f6f6f;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #e0e0e0;
+  color: #161616;
 }
 
 .modal-body {
@@ -194,15 +194,15 @@ const formatDate = (dateString) => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
   margin-bottom: 1.5rem;
 }
 
 .shortage-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #fa4d56 0%, #da1e28 100%);
+  border-radius: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,19 +218,19 @@ const formatDate = (dateString) => {
 .item-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   margin: 0 0 0.5rem 0;
 }
 
 .item-sku {
   font-size: 0.875rem;
-  color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  color: #6f6f6f;
+  font-family: 'IBM Plex Mono', monospace;
 }
 
 .priority-badge {
   padding: 0.5rem 1rem;
-  border-radius: 6px;
+  border-radius: 0;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -239,18 +239,18 @@ const formatDate = (dateString) => {
 }
 
 .priority-badge.high {
-  background: #fecaca;
-  color: #991b1b;
+  background: #ffd7d9;
+  color: #a2191f;
 }
 
 .priority-badge.medium {
-  background: #fed7aa;
-  color: #92400e;
+  background: #fddc69;
+  color: #684e00;
 }
 
 .priority-badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  background: #d0e2ff;
+  color: #002d9c;
 }
 
 .shortage-summary {
@@ -262,18 +262,18 @@ const formatDate = (dateString) => {
 
 .summary-card {
   padding: 1.25rem;
-  border-radius: 10px;
+  border-radius: 0;
   border: 2px solid;
 }
 
 .summary-card.danger {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: #ffd7d9;
+  background: #fff1f1;
 }
 
 .summary-card.warning {
-  border-color: #fed7aa;
-  background: #fffbeb;
+  border-color: #fddc69;
+  background: #fcf4d6;
 }
 
 .summary-label {
@@ -281,22 +281,22 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #6f6f6f;
   margin-bottom: 0.5rem;
 }
 
 .summary-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
 }
 
 .summary-card.danger .summary-value {
-  color: #dc2626;
+  color: #da1e28;
 }
 
 .summary-card.warning .summary-value {
-  color: #f59e0b;
+  color: #684e00;
 }
 
 .info-grid {
@@ -316,24 +316,24 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #6f6f6f;
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: #161616;
   font-weight: 500;
 }
 
 .info-value.order-id,
 .info-value.sku {
-  font-family: 'Monaco', 'Courier New', monospace;
-  color: #2563eb;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #0043ce;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -341,20 +341,20 @@ const formatDate = (dateString) => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: #e0e0e0;
+  border: 1px solid #e0e0e0;
+  border-radius: 0;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: #393939;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #e0e0e0;
+  border-color: #c6c6c6;
 }
 
 /* Modal transition animations */

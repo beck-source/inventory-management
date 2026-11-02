@@ -113,7 +113,7 @@ const formatDate = (dateString) => {
 
 .modal-container {
   background: white;
-  border-radius: 12px;
+  border-radius: 0;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 600px;
   width: 100%;
@@ -128,32 +128,32 @@ const formatDate = (dateString) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: #6f6f6f;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 0;
   transition: all 0.15s ease;
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: #e0e0e0;
+  color: #161616;
 }
 
 .modal-body {
@@ -174,14 +174,14 @@ const formatDate = (dateString) => {
   align-items: center;
   gap: 0.75rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e0e0e0;
 }
 
 .avatar-xl {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #0043ce 0%, #002d9c 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -189,19 +189,19 @@ const formatDate = (dateString) => {
   font-weight: 700;
   font-size: 2rem;
   letter-spacing: 0.025em;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 67, 206, 0.2);
 }
 
 .profile-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #161616;
   margin: 0;
 }
 
 .profile-job-title {
   font-size: 1rem;
-  color: #64748b;
+  color: #6f6f6f;
   margin: 0;
 }
 
@@ -222,18 +222,18 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: #6f6f6f;
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: #161616;
   font-weight: 500;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e0e0e0;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -241,20 +241,20 @@ const formatDate = (dateString) => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: #e0e0e0;
+  border: 1px solid #e0e0e0;
+  border-radius: 0;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: #393939;
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: #e0e0e0;
+  border-color: #c6c6c6;
 }
 
 /* Modal transition animations */

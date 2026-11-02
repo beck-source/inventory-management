@@ -1,0 +1,39 @@
+/*
+ * IBM Carbon visual theme base (White / Gray 10 light + IBM Blue).
+ * Global foundation only: typography + base surface. Per-component colors are
+ * remapped in each component's own styles to the IBM Design Language palette.
+ */
+:root {
+  --ibm-bg: #f4f4f4;        /* Gray 10  */
+  --ibm-text: #161616;      /* Gray 100 */
+  --ibm-interactive: #0f62fe; /* IBM Blue 60 */
+  --ibm-font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ibm-mono: 'IBM Plex Mono', 'Monaco', monospace;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--ibm-bg);
+  color: var(--ibm-text);
+  font-family: var(--ibm-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#app {
+  background: var(--ibm-bg);
+  color: var(--ibm-text);
+  font-family: var(--ibm-font);
+}
+
+code,
+pre,
+.mono {
+  font-family: var(--ibm-mono);
+}
+
+::selection {
+  background: #d0e2ff; /* Blue 20 */
+  color: #161616;
+}
