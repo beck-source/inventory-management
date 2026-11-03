@@ -255,20 +255,21 @@ export default {
       <div v-else-if="rows.length === 0" class="empty-state">{{ t('restocking.empty') }}</div>
       <div v-else class="table-container">
         <table class="restock-table">
+          <caption class="sr-only">{{ t('restocking.recommendations') }}</caption>
           <thead>
             <tr>
-              <th class="col-check">{{ t('restocking.table.select') }}</th>
-              <th>{{ t('restocking.table.sku') }}</th>
-              <th>{{ t('restocking.table.name') }}</th>
-              <th>{{ t('restocking.table.category') }}</th>
-              <th>{{ t('restocking.table.trend') }}</th>
-              <th class="num">{{ t('restocking.table.stock') }}</th>
-              <th class="num">{{ t('restocking.table.forecast') }}</th>
-              <th class="num">{{ t('restocking.table.shortfall') }}</th>
-              <th class="num">{{ t('restocking.table.quantity') }}</th>
-              <th class="num">{{ t('restocking.table.unitCost') }}</th>
-              <th class="num">{{ t('restocking.table.lineCost') }}</th>
-              <th class="num">{{ t('restocking.table.leadTime') }}</th>
+              <th scope="col" class="col-check">{{ t('restocking.table.select') }}</th>
+              <th scope="col">{{ t('restocking.table.sku') }}</th>
+              <th scope="col">{{ t('restocking.table.name') }}</th>
+              <th scope="col">{{ t('restocking.table.category') }}</th>
+              <th scope="col">{{ t('restocking.table.trend') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.stock') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.forecast') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.shortfall') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.quantity') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.unitCost') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.lineCost') }}</th>
+              <th scope="col" class="num">{{ t('restocking.table.leadTime') }}</th>
             </tr>
           </thead>
           <tbody>

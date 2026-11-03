@@ -117,3 +117,79 @@ class TestPurchaseOrders:
         by_id = {item["id"]: item for item in client.get("/api/backlog").json()}
         assert by_id["1"]["has_purchase_order"] is True
         assert by_id["2"]["has_purchase_order"] is False
+
+
+class TestInputValidation:
+    """Validation limits, ID uniqueness and caps for runtime-created records."""
+
+    @pytest.mark.parametrize("payload", [
+        {"title": "", "priority": "high", "dueDate": "2025-12-01"},
+        {"title": "x" * 201, "priority": "high", "dueDate": "2025-12-01"},
+        {"title": "ok", "priority": "urgent", "dueDate": "2025-12-01"},
+        {"title": "ok", "priority": "high", "dueDate": "not-a-date"},
+    ])
+    def test_invalid_task_rejected(self, client, payload):
+        assert client.post("/api/tasks", json=payload).status_code == 422
+
+    def test_task_ids_unique_after_delete(self, client):
+        first = make_task(client).json()["id"]
+        second = make_task(client).json()["id"]
+        client.delete(f"/api/tasks/{first}")
+        third = make_task(client).json()["id"]
+        assert len({first, second, third}) == 3
+
+    def test_task_cap(self, client, monkeypatch):
+        monkeypatch.setattr(main, "MAX_STORED_RECORDS", 2)
+        assert make_task(client).status_code == 200
+        assert make_task(client).status_code == 200
+        assert make_task(client).status_code == 429
+
+    @pytest.mark.parametrize("overrides", [
+        {"supplier_name": ""},
+        {"supplier_name": "x" * 201},
+        {"notes": "x" * 2001},
+        {"expected_delivery_date": "soon"},
+        {"quantity": 10**9},
+        {"unit_cost": 10**9},
+    ])
+    def test_invalid_purchase_order_rejected(self, client, overrides):
+        assert make_po(client, **overrides).status_code == 422
+
+    def test_purchase_order_cap(self, client, monkeypatch):
+        monkeypatch.setattr(main, "MAX_STORED_RECORDS", 1)
+        assert make_po(client, "1").status_code == 200
+        assert make_po(client, "2").status_code == 429
+
+    def test_purchase_order_ids_unique(self, client):
+        ids = {make_po(client, str(i)).json()["id"] for i in range(1, 4)}
+        assert len(ids) == 3
+
+    def test_restock_item_list_too_long(self, client):
+        items = [{"sku": f"S{i}", "quantity": 1} for i in range(201)]
+        assert client.post("/api/restock/orders", json={"budget": 100, "items": items}).status_code == 422
+
+
+class TestMonthValidation:
+    @pytest.mark.parametrize("path", ["/api/orders", "/api/dashboard/summary"])
+    @pytest.mark.parametrize("month", ["garbage", "2025-13", "2025", "Q5-2025", "01", "2025-1"])
+    def test_invalid_month_returns_400(self, client, path, month):
+        assert client.get(path, params={"month": month}).status_code == 400
+
+    @pytest.mark.parametrize("month", ["", "all", "2025-01", "Q1-2025"])
+    def test_valid_month_accepted(self, client, month):
+        assert client.get("/api/orders", params={"month": month}).status_code == 200
+
+    def test_month_exact_prefix(self, client):
+        for order in client.get("/api/orders", params={"month": "2025-01"}).json():
+            assert order["order_date"][:7] == "2025-01"
+
+
+class TestCors:
+    def test_allowed_origin(self, client):
+        r = client.get("/api/orders", headers={"Origin": "http://localhost:3000"})
+        assert r.headers["access-control-allow-origin"] == "http://localhost:3000"
+        assert "access-control-allow-credentials" not in r.headers
+
+    def test_disallowed_origin(self, client):
+        r = client.get("/api/orders", headers={"Origin": "http://evil.example"})
+        assert "access-control-allow-origin" not in r.headers
