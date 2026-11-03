@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,13 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No restocking orders have been submitted yet.',
+    failedSubmitted: 'Failed to load submitted orders',
+    leadTime: 'Lead Time',
+    leadTimeDays: '{days} days',
+    submittedDate: 'Submitted',
+    totalCost: 'Total Cost',
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -127,6 +135,33 @@ export default {
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan restock orders from forecasted demand within a budget',
+    budget: 'Budget',
+    budgetSlider: 'Restocking budget',
+    selectedTotal: 'Selected Total',
+    remaining: 'Remaining Budget',
+    selectedItems: 'Selected Items',
+    leadTime: 'Estimated Lead Time',
+    recommended: 'Recommended Items',
+    sku: 'SKU',
+    name: 'Item',
+    trend: 'Trend',
+    unitCost: 'Unit Cost',
+    quantity: 'Quantity',
+    lineCost: 'Line Cost',
+    select: 'Select',
+    overBudget: 'The selected total exceeds the budget. Reduce quantities or deselect items.',
+    placeOrder: 'Place Order',
+    placing: 'Placing...',
+    empty: 'No items need restocking at this budget.',
+    failedLoad: 'Failed to load demand forecasts',
+    failedSubmit: 'Failed to place order',
+    success: 'Order {orderNumber} placed. Lead time: {days} days.'
   },
 
   // Finance/Spending

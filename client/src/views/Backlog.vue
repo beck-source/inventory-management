@@ -1,8 +1,8 @@
 <template>
   <div class="backlog">
     <div class="page-header">
-      <h2>Backlog Management</h2>
-      <p>Track and resolve inventory shortages</p>
+      <h2 class="page-title">Backlog Management</h2>
+      <p class="page-description">Track and resolve inventory shortages</p>
     </div>
 
     <div v-if="loading" class="loading">Loading backlog...</div>
@@ -31,9 +31,9 @@
         <div class="card-header">
           <h3 class="card-title">Backlog Items</h3>
         </div>
-        <div v-if="backlogItems.length === 0" style="padding: 3rem; text-align: center;">
-          <p style="font-size: 1.125rem; color: #10b981; font-weight: 600;">
-            ✓ No backlog items - all orders can be fulfilled!
+        <div v-if="backlogItems.length === 0" class="empty-state">
+          <p class="empty-text">
+            No backlog items - all orders can be fulfilled!
           </p>
         </div>
         <div v-else class="table-container">
@@ -43,10 +43,10 @@
                 <th>Order ID</th>
                 <th>SKU</th>
                 <th>Item Name</th>
-                <th>Quantity Needed</th>
-                <th>Quantity Available</th>
-                <th>Shortage</th>
-                <th>Days Delayed</th>
+                <th class="num">Quantity Needed</th>
+                <th class="num">Quantity Available</th>
+                <th class="num">Shortage</th>
+                <th class="num">Days Delayed</th>
                 <th>Priority</th>
               </tr>
             </thead>
@@ -55,15 +55,15 @@
                 <td><strong>{{ item.order_id }}</strong></td>
                 <td><strong>{{ item.item_sku }}</strong></td>
                 <td>{{ item.item_name }}</td>
-                <td>{{ item.quantity_needed }}</td>
-                <td>{{ item.quantity_available }}</td>
-                <td>
+                <td class="num">{{ item.quantity_needed }}</td>
+                <td class="num">{{ item.quantity_available }}</td>
+                <td class="num">
                   <span class="badge danger">
                     {{ item.quantity_needed - item.quantity_available }} units short
                   </span>
                 </td>
-                <td>
-                  <span :style="{ color: item.days_delayed > 7 ? '#ef4444' : '#f59e0b' }">
+                <td class="num">
+                  <span :class="item.days_delayed > 7 ? 'delay-high' : 'delay-medium'">
                     {{ item.days_delayed }} days
                   </span>
                 </td>
@@ -150,3 +150,104 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.card-header {
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+}
+
+.card-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  min-width: 720px;
+}
+
+th,
+td {
+  padding: var(--space-3) var(--space-4);
+  white-space: nowrap;
+}
+
+th {
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+td {
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-body);
+}
+
+tbody tr:first-child td {
+  border-top: 0;
+}
+
+td strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+}
+
+.stat-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-label {
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-2);
+}
+
+.stat-value {
+  font-size: var(--text-2xl);
+  font-variant-numeric: tabular-nums;
+}
+
+.delay-high {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.delay-medium {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+.empty-state {
+  padding: var(--space-12) var(--space-4);
+  text-align: center;
+}
+
+.empty-text {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+@media (max-width: 1024px) {
+  .stat-card {
+    padding: var(--space-4);
+  }
+}
+</style>

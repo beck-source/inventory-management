@@ -492,130 +492,124 @@ export default {
 </script>
 
 <style scoped>
+.spending {
+  /* Data-viz series colors (existing palette, no shared tokens) */
+  --series-procurement: #3b82f6;
+  --series-operational: #8b5cf6;
+  --series-labor: #10b981;
+  --series-overhead: #f59e0b;
+  --series-revenue: var(--color-text);
+  --series-cost: #ef4444;
+  --positive-soft: color-mix(in srgb, var(--color-success) 12%, transparent);
+  --negative-soft: color-mix(in srgb, var(--color-danger) 12%, transparent);
+}
+
+/* ---------- KPI cards ---------- */
+.stats-grid-finance {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.stat-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-6);
+  min-width: 0;
+}
+
+.stat-card:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
+}
+
+.revenue-card { border-left: 3px solid var(--series-revenue); }
+.cost-card { border-left: 3px solid var(--series-cost); }
+.profit-card { border-left: 3px solid var(--series-procurement); }
+
+.stat-label {
+  margin-bottom: var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.stat-meta,
 .stat-change {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.stat-change {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
-.stat-change.positive {
-  color: #059669;
-}
-
-.stat-change.negative {
-  color: #dc2626;
-}
+.stat-change.positive { color: var(--color-success); }
+.stat-change.negative { color: var(--color-danger); }
 
 .change-icon {
   font-weight: 700;
-  font-size: 1rem;
+  font-size: var(--text-sm);
 }
 
-.chart-card {
-  margin-bottom: 1.75rem;
+/* ---------- Cards and legends ---------- */
+.card-header {
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
 }
 
 .chart-legend {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-xs);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 .legend-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 3px;
 }
 
-.legend-dot.procurement { background: #3b82f6; }
-.legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
+.legend-dot.procurement { background: var(--series-procurement); }
+.legend-dot.operational { background: var(--series-operational); }
+.legend-dot.labor { background: var(--series-labor); }
+.legend-dot.overhead { background: var(--series-overhead); }
+.legend-dot.revenue-color { background: var(--series-revenue); }
+.legend-dot.cost-color { background: var(--series-cost); }
 
-.stats-grid-finance {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.revenue-card {
-  border-left: 4px solid #0f172a;
-}
-
-.cost-card {
-  border-left: 4px solid #ef4444;
-}
-
-.profit-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
-}
-
-.bar-group-revenue {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  height: 100%;
-}
-
-.revenue-bars {
-  width: 100%;
-  max-width: 80px;
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-  align-items: flex-end;
-  height: 100%;
-  padding-bottom: 2rem;
-}
-
-.revenue-bar, .cost-bar {
-  width: 50%;
-  max-width: 30px;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  min-height: 4px;
-}
-
-.revenue-bar {
-  background: #0f172a;
-}
-
-.cost-bar {
-  background: #ef4444;
-}
-
-.revenue-bar:hover, .cost-bar:hover {
-  opacity: 0.8;
-  transform: scaleY(1.05);
-}
-
+/* ---------- Bar charts ---------- */
 .chart-container {
-  padding: 1.5rem 0;
+  padding: var(--space-4) 0 0;
 }
 
 .bar-chart {
   display: flex;
-  gap: 1.5rem;
+  gap: var(--space-4);
   height: 350px;
 }
 
@@ -623,26 +617,61 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
+  padding-right: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  border-right: 1px solid var(--color-border);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .chart-area {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: 0.5rem;
+  gap: var(--space-1);
 }
 
-.bar-group {
+.bar-group,
+.bar-group-revenue {
   display: flex;
   flex-direction: column;
   align-items: center;
   flex: 1;
+  min-width: 0;
   height: 100%;
+}
+
+.revenue-bars {
+  width: 100%;
+  max-width: 80px;
+  display: flex;
+  gap: var(--space-1);
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
+  padding-bottom: var(--space-8);
+}
+
+.revenue-bar,
+.cost-bar {
+  width: 50%;
+  max-width: 30px;
+  min-height: 4px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: opacity 0.2s ease, transform 0.3s ease;
+  cursor: pointer;
+}
+
+.revenue-bar { background: var(--series-revenue); }
+.cost-bar { background: var(--series-cost); }
+
+.revenue-bar:hover,
+.cost-bar:hover {
+  opacity: 0.8;
+  transform: scaleY(1.05);
 }
 
 .stacked-bar {
@@ -652,201 +681,193 @@ export default {
   flex-direction: column-reverse;
   align-items: stretch;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
   cursor: pointer;
   transition: opacity 0.2s ease;
 }
 
-.stacked-bar:hover {
-  opacity: 0.85;
-}
+.stacked-bar:hover { opacity: 0.85; }
 
 .bar-segment {
-  width: 100%;
-  transition: all 0.3s ease;
-  cursor: pointer;
   display: block;
+  width: 100%;
+  transition: opacity 0.2s ease, height 0.3s ease;
+  cursor: pointer;
 }
 
-.bar-segment:first-child {
-  border-radius: 0 0 6px 6px;
-}
+.bar-segment:first-child { border-radius: 0 0 var(--radius-sm) var(--radius-sm); }
+.bar-segment:last-child { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
 
-.bar-segment:last-child {
-  border-radius: 6px 6px 0 0;
-}
+.bar-segment.procurement { background: var(--series-procurement); }
+.bar-segment.operational { background: var(--series-operational); }
+.bar-segment.labor { background: var(--series-labor); }
+.bar-segment.overhead { background: var(--series-overhead); }
 
-.bar-segment.procurement { background: #3b82f6; }
-.bar-segment.operational { background: #8b5cf6; }
-.bar-segment.labor { background: #10b981; }
-.bar-segment.overhead { background: #f59e0b; }
-
-.bar-segment:hover {
-  opacity: 0.8;
-}
+.bar-segment:hover { opacity: 0.8; }
 
 .bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: #64748b;
+  color: var(--color-text-muted);
+  white-space: nowrap;
 }
 
+/* ---------- Lower grid ---------- */
 .two-column-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 28rem), 1fr));
+  gap: var(--space-6);
+}
+
+.two-column-grid > * {
+  min-width: 0;
+  margin-bottom: 0;
 }
 
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .category-info {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: var(--space-3);
 }
 
 .category-name {
+  font-size: var(--text-sm);
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .category-amount {
+  font-size: var(--text-lg);
   font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .category-bar-container {
   width: 100%;
   height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
+  background: var(--color-bg);
+  border-radius: 999px;
   overflow: hidden;
 }
 
 .category-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 4px;
+  background: var(--color-primary);
+  border-radius: 999px;
   transition: width 0.6s ease;
 }
 
 .category-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
 }
 
-.percentage {
-  color: #64748b;
-}
+.percentage { color: var(--color-text-muted); }
 
 .change {
+  padding: 2px var(--space-2);
+  border-radius: 999px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.change.positive {
-  color: #059669;
-}
+.change.positive { background: var(--positive-soft); color: var(--color-success); }
+.change.negative { background: var(--negative-soft); color: var(--color-danger); }
 
-.change.negative {
-  color: #dc2626;
-}
-
+/* ---------- Transactions table ---------- */
 .transactions-card {
   display: flex;
   flex-direction: column;
 }
 
 .transactions-table-container {
-  overflow-y: auto;
+  overflow: auto;
   max-height: 400px;
 }
 
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.transactions-table thead {
+.transactions-table th {
   position: sticky;
   top: 0;
-  background: #f8fafc;
   z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.transactions-table th.text-right {
-  text-align: right;
+  padding: var(--space-3);
+  background: var(--color-bg);
+  box-shadow: inset 0 -1px 0 var(--color-border);
+  white-space: nowrap;
 }
 
 .transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
+  padding: var(--space-3);
+  font-size: var(--text-sm);
 }
 
-.transactions-table tbody tr {
+.transactions-table tbody tr.clickable-row {
   cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
 }
 
 .transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
+  background: var(--color-primary-soft);
 }
 
 .transaction-id {
-  color: #64748b;
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: var(--text-xs);
   font-weight: 500;
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
+  color: var(--color-text-muted);
 }
 
 .transaction-description {
-  color: #0f172a;
   font-weight: 500;
+  color: var(--color-text);
 }
 
-.transaction-vendor {
-  color: #64748b;
-}
+.transaction-vendor { color: var(--color-text-muted); }
 
 .transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 .transaction-amount {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
+.transactions-table th.text-right,
 .text-right {
   text-align: right;
+}
+
+@media (max-width: 1024px) {
+  .bar-chart { height: 300px; }
+}
+
+@media (max-width: 480px) {
+  .stat-card,
+  .card { padding: var(--space-4); }
+  .bar-chart { height: 240px; gap: var(--space-2); }
+  .y-axis { padding-right: var(--space-2); }
+  .transactions-table { min-width: 28rem; }
 }
 </style>
