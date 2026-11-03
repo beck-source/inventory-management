@@ -42,8 +42,8 @@
                 <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
                 <th class="col-date">{{ t('orders.table.submittedDate') }}</th>
                 <th class="col-items">{{ t('orders.table.items') }}</th>
-                <th class="col-value">{{ t('orders.table.totalCost') }}</th>
-                <th class="col-lead-time">{{ t('orders.leadTime') }}</th>
+                <th class="col-value num">{{ t('orders.table.totalCost') }}</th>
+                <th class="col-lead-time num">{{ t('orders.leadTime') }}</th>
                 <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
                 <th class="col-status">{{ t('orders.table.status') }}</th>
               </tr>
@@ -65,8 +65,8 @@
                     </div>
                   </details>
                 </td>
-                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
-                <td class="col-lead-time">{{ t('orders.days', { count: order.lead_time_days }) }}</td>
+                <td class="col-value num"><strong>{{ currencySymbol }}{{ order.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-lead-time num">{{ t('orders.days', { count: order.lead_time_days }) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
                 <td class="col-status">
                   <span :class="['badge', getSubmittedStatusClass(order.status)]">
@@ -93,7 +93,7 @@
                 <th class="col-status">{{ t('orders.table.status') }}</th>
                 <th class="col-date">{{ t('orders.table.orderDate') }}</th>
                 <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+                <th class="col-value num">{{ t('orders.table.totalValue') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -120,7 +120,7 @@
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td class="col-value num"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
               </tr>
             </tbody>
           </table>
@@ -251,6 +251,7 @@ export default {
 .orders-table {
   table-layout: fixed;
   width: 100%;
+  min-width: 960px;
 }
 
 /* Column widths */
@@ -282,25 +283,15 @@ export default {
   width: 110px;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 1.5rem;
-  color: #64748b;
-  font-size: 0.938rem;
-}
-
-/* Items details styling */
-.items-details {
-  position: relative;
-}
-
 .items-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   cursor: pointer;
-  color: #3b82f6;
+  color: var(--color-primary);
   font-weight: 500;
   list-style: none;
   user-select: none;
-  display: inline-block;
 }
 
 .items-summary::-webkit-details-marker {
@@ -308,44 +299,38 @@ export default {
 }
 
 .items-summary::before {
-  content: '▶';
-  display: inline-block;
-  margin-right: 0.375rem;
-  font-size: 0.75rem;
-  transition: transform 0.2s;
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform var(--transition-base);
 }
 
 .items-details[open] .items-summary::before {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
 }
 
 .items-summary:hover {
-  color: #2563eb;
+  color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
-/* Dropdown container */
+/* In flow rather than absolute: .table-container clips overflow */
 .items-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 0.75rem;
-  z-index: 10;
-  min-width: 300px;
-  max-width: 400px;
+  margin-top: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-surface-muted);
+  border-radius: var(--radius-md);
 }
 
 .item-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .item-entry:last-child {
@@ -353,13 +338,13 @@ export default {
 }
 
 .item-name {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .item-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 </style>

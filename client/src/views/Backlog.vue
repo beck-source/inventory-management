@@ -31,8 +31,8 @@
         <div class="card-header">
           <h3 class="card-title">Backlog Items</h3>
         </div>
-        <div v-if="backlogItems.length === 0" style="padding: 3rem; text-align: center;">
-          <p style="font-size: 1.125rem; color: #10b981; font-weight: 600;">
+        <div v-if="backlogItems.length === 0" class="empty-state">
+          <p class="backlog-clear">
             ✓ No backlog items - all orders can be fulfilled!
           </p>
         </div>
@@ -43,10 +43,10 @@
                 <th>Order ID</th>
                 <th>SKU</th>
                 <th>Item Name</th>
-                <th>Quantity Needed</th>
-                <th>Quantity Available</th>
-                <th>Shortage</th>
-                <th>Days Delayed</th>
+                <th class="num">Quantity Needed</th>
+                <th class="num">Quantity Available</th>
+                <th class="num">Shortage</th>
+                <th class="num">Days Delayed</th>
                 <th>Priority</th>
               </tr>
             </thead>
@@ -55,15 +55,15 @@
                 <td><strong>{{ item.order_id }}</strong></td>
                 <td><strong>{{ item.item_sku }}</strong></td>
                 <td>{{ item.item_name }}</td>
-                <td>{{ item.quantity_needed }}</td>
-                <td>{{ item.quantity_available }}</td>
-                <td>
+                <td class="num">{{ item.quantity_needed }}</td>
+                <td class="num">{{ item.quantity_available }}</td>
+                <td class="num">
                   <span class="badge danger">
                     {{ item.quantity_needed - item.quantity_available }} units short
                   </span>
                 </td>
-                <td>
-                  <span :style="{ color: item.days_delayed > 7 ? '#ef4444' : '#f59e0b' }">
+                <td class="num">
+                  <span :class="item.days_delayed > 7 ? 'delay-severe' : 'delay-moderate'">
                     {{ item.days_delayed }} days
                   </span>
                 </td>
@@ -150,3 +150,19 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.backlog-clear {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+.delay-severe {
+  color: var(--color-danger);
+}
+
+.delay-moderate {
+  color: var(--color-warning);
+}
+</style>

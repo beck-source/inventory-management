@@ -71,7 +71,7 @@
           <h3 class="card-title">{{ t('restocking.recommendations') }} ({{ orderedRows.length }})</h3>
           <button
             type="button"
-            class="place-order-btn"
+            class="btn-primary"
             :disabled="!canPlaceOrder"
             @click="placeOrder"
           >
@@ -79,7 +79,7 @@
           </button>
         </div>
 
-        <div v-if="rows.length === 0" class="empty">{{ t('restocking.noShortfalls') }}</div>
+        <div v-if="rows.length === 0" class="empty-state">{{ t('restocking.noShortfalls') }}</div>
         <div v-else class="table-container">
           <table>
             <thead>
@@ -111,7 +111,7 @@
                 <td class="num">
                   <input
                     type="number"
-                    class="qty-input"
+                    class="input qty-input"
                     min="0"
                     step="1"
                     :value="row.quantity"
@@ -314,111 +314,75 @@ export default {
 </script>
 
 <style scoped>
+.card-header {
+  flex-wrap: wrap;
+}
+
 .budget-value {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
 }
 
 .budget-slider {
   width: 100%;
-  accent-color: #0f172a;
+  accent-color: var(--color-primary);
 }
 
 .slider-scale {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
 }
 
 .success-banner,
 .warning-banner {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
-  padding: 0.875rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.25rem;
-  font-size: 0.938rem;
+  gap: var(--space-3) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-6);
+  font-size: var(--text-sm);
 }
 
 .success-banner {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #065f46;
+  background: var(--color-success-soft);
+  border: 1px solid color-mix(in srgb, var(--color-success) 30%, transparent);
+  color: var(--color-success-text);
 }
 
 .success-banner span {
-  margin-left: 0.5rem;
+  margin-left: var(--space-2);
 }
 
 .banner-link {
-  color: #065f46;
+  color: var(--color-success-text);
   font-weight: 600;
   text-decoration: underline;
   white-space: nowrap;
 }
 
 .warning-banner {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #92400e;
-}
-
-.place-order-btn {
-  background: #0f172a;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.place-order-btn:hover:not(:disabled) {
-  background: #1e293b;
-}
-
-.place-order-btn:disabled {
-  background: #cbd5e1;
-  color: #64748b;
-  cursor: not-allowed;
-}
-
-th.num,
-td.num {
-  text-align: right;
+  background: var(--color-warning-soft);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 30%, transparent);
+  color: var(--color-warning-text);
 }
 
 .sku {
-  font-size: 0.75rem;
-  color: #64748b;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 
 .qty-input {
   width: 80px;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.875rem;
   text-align: right;
-  color: #0f172a;
-}
-
-.qty-input:focus {
-  outline: none;
-  border-color: #64748b;
-}
-
-.empty {
-  text-align: center;
-  padding: 2rem;
-  color: #64748b;
-  font-size: 0.938rem;
+  font-variant-numeric: tabular-nums;
 }
 </style>
