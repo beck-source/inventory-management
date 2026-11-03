@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -126,6 +127,54 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    }
+  },
+
+  // 補充発注
+  restocking: {
+    title: '補充発注',
+    description: '予算内で補充発注を計画します',
+    budget: '予算',
+    sortBy: '並び順',
+    sortDemandGap: '需要ギャップが大きい順',
+    sortLowStock: '低在庫を優先',
+    selectedTotal: '選択合計',
+    remainingBudget: '残り予算',
+    selectedItems: '選択品目数',
+    overBudget: '選択合計が予算を{amount}超えています。',
+    recommendations: '推奨品目',
+    empty: 'この予算で購入できる品目はありません。予算を増やしてください。',
+    table: {
+      select: '選択',
+      sku: 'SKU',
+      name: '品目',
+      trend: 'トレンド',
+      stock: '在庫 / 発注点',
+      unitCost: '単価',
+      quantity: '数量',
+      lineTotal: '小計'
+    },
+    lowStock: '低在庫',
+    maxQuantity: '最大 {max}',
+    placeOrder: '発注する',
+    submitting: '送信中...',
+    orderSuccess: '注文 {orderNumber} を送信しました。{days}日後に納品予定です。',
+    viewOrders: '注文を表示',
+    orderFailed: '発注に失敗しました',
+    loadFailed: '推奨品目の読み込みに失敗しました',
+    submitted: {
+      title: '送信済み注文',
+      empty: '送信済みの補充注文はまだありません。',
+      loadFailed: '送信済み注文の読み込みに失敗しました',
+      saveFailed: '変更の保存に失敗しました',
+      leadTime: 'リードタイム',
+      leadTimeValue: '{days}日',
+      vendor: 'ベンダー',
+      noVendor: 'ベンダーなし',
+      deliveryNumber: '配送番号',
+      save: '保存',
+      saving: '保存中...',
+      trackDelivery: '配送を追跡'
     }
   },
 

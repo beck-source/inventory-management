@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -126,6 +127,54 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan a restocking order within your budget',
+    budget: 'Budget',
+    sortBy: 'Rank by',
+    sortDemandGap: 'Highest demand gap',
+    sortLowStock: 'Low stock first',
+    selectedTotal: 'Selected Total',
+    remainingBudget: 'Remaining Budget',
+    selectedItems: 'Selected Items',
+    overBudget: 'The selected total exceeds the budget by {amount}.',
+    recommendations: 'Recommended Items',
+    empty: 'No items fit within this budget. Increase the budget to see recommendations.',
+    table: {
+      select: 'Select',
+      sku: 'SKU',
+      name: 'Item',
+      trend: 'Trend',
+      stock: 'Stock / Reorder Point',
+      unitCost: 'Unit Cost',
+      quantity: 'Quantity',
+      lineTotal: 'Line Total'
+    },
+    lowStock: 'Low stock',
+    maxQuantity: 'Max {max}',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    orderSuccess: 'Order {orderNumber} submitted. Expected delivery in {days} days.',
+    viewOrders: 'View orders',
+    orderFailed: 'Failed to place the order',
+    loadFailed: 'Failed to load recommendations',
+    submitted: {
+      title: 'Submitted Orders',
+      empty: 'No restocking orders have been submitted yet.',
+      loadFailed: 'Failed to load submitted orders',
+      saveFailed: 'Failed to save changes',
+      leadTime: 'Lead Time',
+      leadTimeValue: '{days} days',
+      vendor: 'Vendor',
+      noVendor: 'No vendor',
+      deliveryNumber: 'Delivery Number',
+      save: 'Save',
+      saving: 'Saving...',
+      trackDelivery: 'Track delivery'
     }
   },
 

@@ -35,5 +35,22 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Restocking orders submitted through the app. Unlike the other datasets this one is
+# written back to disk (see save_restocking_orders) so submitted orders survive restarts.
+RESTOCKING_ORDERS_FILE = os.path.join(DATA_DIR, 'restocking_orders.json')
+restocking_orders = load_json_file('restocking_orders.json')
+
+def save_restocking_orders():
+    """Persist the in-memory restocking orders list back to its JSON file.
+
+    Writes to a temp file and then renames it, so a crash mid-write cannot leave a
+    truncated JSON file that would stop the server from starting. The path is read at
+    call time so tests can point RESTOCKING_ORDERS_FILE at a temp location.
+    """
+    tmp_path = RESTOCKING_ORDERS_FILE + '.tmp'
+    with open(tmp_path, 'w', encoding='utf-8') as f:
+        json.dump(restocking_orders, f, indent=2)
+    os.replace(tmp_path, RESTOCKING_ORDERS_FILE)
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data

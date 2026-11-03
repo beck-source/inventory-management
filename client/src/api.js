@@ -99,6 +99,35 @@ export const api = {
     return response.data
   },
 
+  async getRestockingRecommendations(budget, sort = 'demand_gap') {
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations`, {
+      params: { budget, sort }
+    })
+    return response.data
+  },
+
+  async getRestockingVendors() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/vendors`)
+    return response.data
+  },
+
+  async getRestockingOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/orders`)
+    return response.data
+  },
+
+  // items: [{ sku, quantity }] - the server prices the order from inventory
+  async createRestockingOrder(items) {
+    const response = await axios.post(`${API_BASE_URL}/restocking/orders`, { items })
+    return response.data
+  },
+
+  // payload may contain { vendor, delivery_number }
+  async updateRestockingOrder(id, payload) {
+    const response = await axios.patch(`${API_BASE_URL}/restocking/orders/${id}`, payload)
+    return response.data
+  },
+
   async getPurchaseOrderByBacklogItem(backlogItemId) {
     const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
     return response.data

@@ -1,10 +1,30 @@
-from fastapi import FastAPI, HTTPException
+import math
+import threading
+from datetime import datetime, timedelta
+from urllib.parse import quote
+
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders, save_restocking_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Standard delivery lead time for every restocking order. Real lead times vary per vendor,
+# so vendors are looked up through the tracking link instead of being stored here.
+RESTOCK_LEAD_TIME_DAYS = 7
+
+# Vendor name -> tracking URL template. Placeholder example.com URLs only: this repo is public.
+VENDORS = {
+    "Acme Freight": "https://tracking.example.com/acme-freight/{delivery_number}",
+    "Globex Logistics": "https://tracking.example.com/globex/{delivery_number}",
+    "Initech Shipping": "https://tracking.example.com/initech/{delivery_number}",
+}
+
+# Handlers run in a thread pool, so id generation + append + file write must be one critical section
+# or two simultaneous orders could get the same id.
+restocking_lock = threading.Lock()
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -119,6 +139,38 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+
+class RestockingOrderLine(BaseModel):
+    sku: str
+    quantity: int
+
+class CreateRestockingOrderRequest(BaseModel):
+    # Only sku and quantity are accepted: prices are always taken from inventory on the server
+    items: List[RestockingOrderLine]
+
+class UpdateRestockingOrderRequest(BaseModel):
+    vendor: Optional[str] = None
+    delivery_number: Optional[str] = None
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockingOrderItem]
+    total_value: float
+    status: str
+    order_date: str
+    lead_time_days: int
+    expected_delivery: str
+    vendor: Optional[str] = None
+    delivery_number: Optional[str] = None
+    tracking_url: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -303,6 +355,175 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+def build_tracking_url(order: dict) -> Optional[str]:
+    """Build the vendor tracking link, or None until both vendor and delivery number are set."""
+    template = VENDORS.get(order.get("vendor") or "")
+    delivery_number = order.get("delivery_number")
+    if not template or not delivery_number:
+        return None
+    # The delivery number is free text typed by a user and ends up inside a URL, so it is
+    # percent-encoded fully (safe='') to stop it from altering the path or adding query parts.
+    return template.format(delivery_number=quote(delivery_number, safe=""))
+
+def with_tracking_url(order: dict) -> dict:
+    # Computed on read rather than stored, so editing a vendor template updates existing orders.
+    return {**order, "tracking_url": build_tracking_url(order)}
+
+@app.get("/api/restocking/vendors")
+def get_restocking_vendors():
+    """Vendors that can be assigned to a submitted restocking order"""
+    return {"vendors": list(VENDORS.keys()), "lead_time_days": RESTOCK_LEAD_TIME_DAYS}
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations(
+    budget: float = Query(..., ge=0),
+    sort: str = Query("demand_gap", pattern="^(demand_gap|low_stock)$")
+):
+    """Recommend forecasted items to restock within a budget.
+
+    demand_gap ranks by the biggest shortfall first. low_stock puts items at or below their
+    reorder point first (then by shortfall), so the user can shift priority to critical stock.
+    """
+    inventory_by_sku = {item["sku"]: item for item in inventory_items}
+
+    candidates = []
+    for forecast in demand_forecasts:
+        stock = inventory_by_sku.get(forecast["item_sku"])
+        # A forecast without an inventory record has no unit cost, so it cannot be priced or ordered
+        if not stock:
+            continue
+        demand_gap = forecast["forecasted_demand"] - stock["quantity_on_hand"]
+        # Already covered by stock: nothing to restock
+        if demand_gap <= 0:
+            continue
+        candidates.append({
+            "item_sku": forecast["item_sku"],
+            "item_name": forecast["item_name"],
+            "trend": forecast["trend"],
+            "current_demand": forecast["current_demand"],
+            "forecasted_demand": forecast["forecasted_demand"],
+            "quantity_on_hand": stock["quantity_on_hand"],
+            "reorder_point": stock["reorder_point"],
+            "is_low_stock": stock["quantity_on_hand"] <= stock["reorder_point"],
+            "unit_cost": stock["unit_cost"],
+            "demand_gap": demand_gap,
+        })
+
+    if sort == "low_stock":
+        # False sorts before True, so negate to put low-stock items first
+        candidates.sort(key=lambda c: (not c["is_low_stock"], -c["demand_gap"]))
+    else:
+        candidates.sort(key=lambda c: -c["demand_gap"])
+
+    # Slider upper bound for the UI: the cost of covering every gap in full
+    full_cost = round(sum(c["demand_gap"] * c["unit_cost"] for c in candidates), 2)
+
+    # Greedy fill in ranked order. Each item's quantity is capped by what the remaining budget
+    # can still afford, so a pricey top item is partially filled and cheaper ones still get a share.
+    remaining = budget
+    recommendations = []
+    for c in candidates:
+        affordable = math.floor(remaining / c["unit_cost"] + 1e-9)  # epsilon guards float error, e.g. 0.1 * 3
+        quantity = min(c["demand_gap"], affordable)
+        if quantity <= 0:
+            continue
+        line_total = round(quantity * c["unit_cost"], 2)
+        remaining -= line_total
+        recommendations.append({**c, "suggested_quantity": quantity, "line_total": line_total})
+
+    total = round(sum(r["line_total"] for r in recommendations), 2)
+    return {
+        "budget": budget,
+        "items": recommendations,
+        "total": total,
+        "remaining_budget": round(budget - total, 2),
+        "max_budget": full_cost,
+    }
+
+@app.get("/api/restocking/orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get submitted restocking orders, newest first"""
+    return [with_tracking_url(o) for o in reversed(restocking_orders)]
+
+@app.post("/api/restocking/orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order. Prices come from inventory, never from the client."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    inventory_by_sku = {item["sku"]: item for item in inventory_items}
+    seen = set()
+    lines = []
+    for line in request.items:
+        if line.quantity <= 0:
+            raise HTTPException(status_code=400, detail=f"Quantity for {line.sku} must be greater than 0")
+        if line.sku in seen:
+            raise HTTPException(status_code=400, detail=f"Duplicate SKU {line.sku} in order")
+        seen.add(line.sku)
+        stock = inventory_by_sku.get(line.sku)
+        if not stock:
+            raise HTTPException(status_code=404, detail=f"SKU {line.sku} not found")
+        lines.append({
+            "sku": line.sku,
+            "name": stock["name"],
+            "quantity": line.quantity,
+            "unit_cost": stock["unit_cost"],
+            "line_total": round(line.quantity * stock["unit_cost"], 2),
+        })
+
+    now = datetime.now()
+    with restocking_lock:
+        next_number = max((int(o["id"]) for o in restocking_orders), default=0) + 1
+        order = {
+            "id": str(next_number),
+            "order_number": f"RST-{now.year}-{next_number:04d}",
+            "items": lines,
+            "total_value": round(sum(l["line_total"] for l in lines), 2),
+            "status": "Submitted",
+            "order_date": now.strftime("%Y-%m-%dT%H:%M:%S"),
+            "lead_time_days": RESTOCK_LEAD_TIME_DAYS,
+            "expected_delivery": (now + timedelta(days=RESTOCK_LEAD_TIME_DAYS)).strftime("%Y-%m-%dT%H:%M:%S"),
+            "vendor": None,
+            "delivery_number": None,
+        }
+        restocking_orders.append(order)
+        try:
+            save_restocking_orders()
+        except OSError:
+            # Keep memory and disk consistent: an order that was not saved must not be shown as placed
+            restocking_orders.pop()
+            raise HTTPException(status_code=500, detail="Could not save the order")
+    return with_tracking_url(order)
+
+@app.patch("/api/restocking/orders/{order_id}", response_model=RestockingOrder)
+def update_restocking_order(order_id: str, request: UpdateRestockingOrderRequest):
+    """Set or clear the vendor and delivery number of a submitted order"""
+    # Only fields the client actually sent are changed, so sending just the delivery number
+    # does not wipe the vendor. An empty value clears a field.
+    changes = request.model_dump(exclude_unset=True)
+
+    if changes.get("vendor") and changes["vendor"] not in VENDORS:
+        raise HTTPException(status_code=400, detail=f"Unknown vendor: {changes['vendor']}")
+    if changes.get("delivery_number") is not None and len(changes["delivery_number"].strip()) > 64:
+        raise HTTPException(status_code=400, detail="Delivery number must be 64 characters or fewer")
+
+    with restocking_lock:
+        order = next((o for o in restocking_orders if o["id"] == order_id), None)
+        if not order:
+            raise HTTPException(status_code=404, detail="Restocking order not found")
+        previous = dict(order)
+        if "vendor" in changes:
+            order["vendor"] = changes["vendor"] or None
+        if "delivery_number" in changes:
+            order["delivery_number"] = (changes["delivery_number"] or "").strip() or None
+        try:
+            save_restocking_orders()
+        except OSError:
+            order.clear()
+            order.update(previous)
+            raise HTTPException(status_code=500, detail="Could not save the order")
+    return with_tracking_url(order)
 
 if __name__ == "__main__":
     import uvicorn

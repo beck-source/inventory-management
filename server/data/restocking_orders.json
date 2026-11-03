@@ -1,0 +1,29 @@
+[
+  {
+    "id": "1",
+    "order_number": "RST-2026-0001",
+    "items": [
+      {
+        "sku": "FLT-405",
+        "name": "Oil Filter Cartridge",
+        "quantity": 550,
+        "unit_cost": 8.25,
+        "line_total": 4537.5
+      },
+      {
+        "sku": "GSK-203",
+        "name": "High-Temperature Gasket",
+        "quantity": 208,
+        "unit_cost": 12.75,
+        "line_total": 2652.0
+      }
+    ],
+    "total_value": 7189.5,
+    "status": "Submitted",
+    "order_date": "2026-11-03T10:56:48",
+    "lead_time_days": 7,
+    "expected_delivery": "2026-11-10T10:56:48",
+    "vendor": null,
+    "delivery_number": null
+  }
+]
