@@ -1,7 +1,9 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" :class="{ 'is-compact': compact }">
     <button
       class="profile-button"
+      aria-haspopup="true"
+      :aria-expanded="isDropdownOpen ? 'true' : 'false'"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -16,6 +18,7 @@
         height="16"
         viewBox="0 0 16 16"
         fill="none"
+        aria-hidden="true"
       >
         <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
       </svg>
@@ -81,6 +84,11 @@ import { useI18n } from '../composables/useI18n'
 const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
 
+// Additive and optional: AppSidebar passes its collapsed state so only the avatar shows
+defineProps({
+  compact: { type: Boolean, default: false }
+})
+
 const isDropdownOpen = ref(false)
 const emit = defineEmits(['show-profile-details', 'show-tasks'])
 
@@ -116,29 +124,44 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
+/*
+  This menu lives in the dark sidebar footer: the trigger is styled for a dark background
+  and the dropdown opens upward (or sideways when only the avatar is visible).
+  Do not put overflow:hidden on any sidebar ancestor, it would clip the dropdown.
+*/
 .profile-menu {
   position: relative;
 }
 
 .profile-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md);
+  color: var(--text-on-sidebar);
+  text-align: left;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
   font-family: inherit;
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--bg-sidebar-hover);
+  color: var(--text-on-sidebar-strong);
+}
+
+/* White ring: the global accent ring has too little contrast on the dark sidebar */
+.profile-button:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -2px;
 }
 
 .avatar {
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -153,39 +176,111 @@ const handleLogout = () => {
 }
 
 .profile-name {
-  font-size: 0.875rem;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: #0f172a;
+  color: inherit;
 }
 
+/* The dropdown opens upward, so the closed chevron points up and flips down when open */
 .chevron {
-  color: #64748b;
+  flex-shrink: 0;
+  color: inherit;
+  opacity: 0.7;
+  transform: rotate(180deg);
   transition: transform 0.2s ease;
 }
 
 .chevron-open {
-  transform: rotate(180deg);
+  transform: rotate(0deg);
 }
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: calc(100vw - 1rem);
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 25px rgb(15 23 42 / 0.2);
   z-index: 1000;
   overflow: hidden;
 }
 
+/* Avatar-only mode, manual collapse (>= 720px; the mobile drawer is always full width) */
+@media (min-width: 720px) {
+  .profile-menu.is-compact .profile-button {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* Visually hidden rather than display:none so the button keeps an accessible name */
+  .profile-menu.is-compact .profile-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .profile-menu.is-compact .chevron {
+    display: none;
+  }
+
+  /* Open to the side, aligned with the trigger, so the narrow sidebar does not clip it */
+  .profile-menu.is-compact .dropdown-menu {
+    bottom: 0;
+    left: calc(100% + 0.5rem);
+  }
+}
+
+/* Same avatar-only mode when the sidebar is forced to icons-only (720px - 1099px) */
+@media (min-width: 720px) and (max-width: 1099px) {
+  .profile-button {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .profile-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .chevron {
+    display: none;
+  }
+
+  .dropdown-menu {
+    bottom: 0;
+    left: calc(100% + 0.5rem);
+  }
+}
+
 .dropdown-header {
-  padding: 1rem;
+  padding: var(--space-4);
   display: flex;
   gap: 0.875rem;
   align-items: center;
-  background: #f8fafc;
+  background: var(--bg-app);
 }
 
 .avatar-large {
@@ -210,14 +305,14 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
   font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-1);
 }
 
 .user-email {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,33 +320,33 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+  background: var(--border);
+  margin: var(--space-2) 0;
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: 500;
-  color: #334155;
+  color: var(--text-secondary);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--bg-app);
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -269,11 +364,11 @@ const handleLogout = () => {
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
+  background: var(--accent);
   color: white;
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
-  padding: 0.125rem 0.5rem;
+  padding: 0.125rem var(--space-2);
   border-radius: 12px;
   min-width: 20px;
   text-align: center;

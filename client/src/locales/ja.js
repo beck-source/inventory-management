@@ -6,8 +6,13 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
-    subtitle: '在庫管理システム'
+    subtitle: '在庫管理システム',
+    reports: 'レポート',
+    collapse: 'サイドバーを折りたたむ',
+    expand: 'サイドバーを展開',
+    openMenu: 'メニューを開く'
   },
 
   // Dashboard
@@ -106,6 +111,10 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '提出済み注文',
+    noSubmittedOrders: '提出済みの補充注文はまだありません。',
+    submittedOrdersError: '提出済み注文の読み込みに失敗しました。',
+    leadDays: '{count}日',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -125,6 +134,9 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
+      totalCost: '合計コスト',
+      submittedDate: '提出日',
+      leadTime: 'リードタイム',
       actualDelivery: '実際の配達日'
     }
   },
@@ -188,6 +200,47 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算内で補充購入を計画します。再発注点を下回る品目が優先されます。',
+    filtersNotice: '上部のグローバルフィルターはこのページには適用されません。',
+    budgetLabel: '補充予算',
+    budgetHint: 'スライダーを動かして、今回の補充発注に使う上限金額を設定します。',
+    stats: {
+      budget: '予算',
+      recommendedSpend: '推奨支出額',
+      remainingBudget: '残り予算'
+    },
+    recommendedItems: '推奨品目',
+    table: {
+      sku: 'SKU',
+      name: '品目名',
+      category: 'カテゴリ',
+      warehouse: '倉庫',
+      onHand: '手持在庫',
+      reorderPoint: '再発注点',
+      forecastedDemand: '予測需要',
+      recommendedQty: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム',
+      reason: '理由'
+    },
+    badge: {
+      belowReorder: '再発注点を下回る',
+      forecastDemand: '需要予測'
+    },
+    leadDays: '{count}日',
+    placeOrder: '発注する',
+    submitting: '送信中...',
+    orderSuccess: '注文 {orderNumber} を提出しました。リードタイム: {days}日',
+    orderError: '補充注文を確定できませんでした。',
+    loadError: '補充の推奨内容を読み込めませんでした。',
+    viewInOrders: '注文で確認',
+    noRecommendations: '選択した予算では推奨できる品目がありません。予算を増やしてください。'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +257,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '提出済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'
