@@ -20,7 +20,8 @@
           <div class="trend-items">
             <div v-for="item in getForecastsByTrend('increasing').slice(0, 5)" :key="item.id" class="trend-item">
               <span class="item-name">{{ item.item_name }}</span>
-              <span class="item-change">+{{ getChangePercent(item) }}%</span>
+              <!-- getChangePercent already prefixes "+" for positive changes -->
+              <span class="item-change">{{ getChangePercent(item) }}%</span>
             </div>
             <div v-if="getForecastsByTrend('increasing').length > 5" class="more-items">
               +{{ getForecastsByTrend('increasing').length - 5 }} {{ t('demand.more') }}
@@ -234,13 +235,13 @@ export default {
 .trend-card {
   background: white;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   transition: all 0.2s ease;
 }
 
 .trend-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .increasing-card {
@@ -270,7 +271,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   font-size: 1.75rem;
   font-weight: 700;
   flex-shrink: 0;

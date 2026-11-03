@@ -52,6 +52,12 @@ export function useI18n() {
   }
 
   const replacePlaceholders = (text, params) => {
+    // "singular | plural" strings pick a side by params.count, so English can say "1 item".
+    // Strings without " | " (such as the Japanese ones) are left untouched.
+    if (params.count !== undefined && text.includes(' | ')) {
+      const [singular, plural] = text.split(' | ')
+      text = Number(params.count) === 1 ? singular : plural
+    }
     return text.replace(/\{(\w+)\}/g, (match, key) => {
       return params[key] !== undefined ? params[key] : match
     })
