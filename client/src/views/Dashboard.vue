@@ -760,9 +760,10 @@ export default {
 
 .kpi-card {
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
 }
 
 .kpi-header {
@@ -812,9 +813,16 @@ export default {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* minmax(0, 1fr) lets columns shrink below their content width, avoiding overflow */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   margin-bottom: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+  .charts-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .chart-card.full-width {
@@ -860,7 +868,7 @@ export default {
 /* Order Health Dashboard Styles */
 .order-health-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.5rem;
   align-items: center;
   padding: 1rem;
@@ -1138,22 +1146,22 @@ export default {
 
 .task-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-accent);
 }
 
 .task-add-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--color-text);
   color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
 }
 
 .task-add-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+  background: var(--color-text-secondary);
 }
 
 .task-add-btn:disabled {
@@ -1203,7 +1211,7 @@ export default {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--color-accent);
 }
 
 .task-text {

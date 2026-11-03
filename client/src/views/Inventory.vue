@@ -242,9 +242,10 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  gap: var(--space-4);
+  /* the shared .card already provides outer padding */
+  padding: 0 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-title {
@@ -258,7 +259,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 300px;
+  min-width: min(300px, 100%);
 }
 
 .search-icon {
