@@ -8,6 +8,7 @@ export default {
     demandForecast: "Demand Forecast",
     restocking: "Restocking",
     reports: "Reports",
+    backlog: "Backlog",
     companyName: "Catalyst Components",
     subtitle: "Inventory Management System",
   },
