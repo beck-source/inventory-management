@@ -1,31 +1,42 @@
 <template>
   <div class="reports">
     <div class="page-header">
-      <h2>Performance Reports</h2>
-      <p>View quarterly performance metrics and monthly trends</p>
+      <h2>{{ t("reports.title") }}</h2>
+      <p>{{ t("reports.description") }}</p>
     </div>
 
-    <div v-if="loading" class="loading">Loading reports...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorState
+      v-if="loading || error"
+      :loading="loading"
+      :message="error || ''"
+      @retry="loadData"
+    />
     <div v-else>
       <!-- Quarterly Performance -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Quarterly Performance</h3>
+          <h3 class="card-title">{{ t("reports.quarterly.title") }}</h3>
         </div>
         <div class="table-container">
           <table class="reports-table">
+            <caption class="sr-only">
+              {{
+                t("reports.quarterly.title")
+              }}
+            </caption>
             <thead>
               <tr>
-                <th>Quarter</th>
-                <th>Total Orders</th>
-                <th>Total Revenue</th>
-                <th>Avg Order Value</th>
-                <th>Fulfillment Rate</th>
+                <th scope="col">{{ t("reports.quarterly.quarter") }}</th>
+                <th scope="col">{{ t("reports.quarterly.totalOrders") }}</th>
+                <th scope="col">{{ t("reports.quarterly.totalRevenue") }}</th>
+                <th scope="col">{{ t("reports.quarterly.avgOrderValue") }}</th>
+                <th scope="col">
+                  {{ t("reports.quarterly.fulfillmentRate") }}
+                </th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(q, index) in quarterlyData" :key="index">
+              <tr v-for="q in quarterlyData" :key="q.quarter">
                 <td>
                   <strong>{{ q.quarter }}</strong>
                 </td>
@@ -46,13 +57,13 @@
       <!-- Monthly Trends Chart -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Monthly Revenue Trend</h3>
+          <h3 class="card-title">{{ t("reports.trend.title") }}</h3>
         </div>
         <div class="chart-container">
           <div class="bar-chart">
             <div
-              v-for="(month, index) in monthlyData"
-              :key="index"
+              v-for="month in monthlyData"
+              :key="month.month"
               class="bar-wrapper"
             >
               <div class="bar-container">
@@ -71,21 +82,26 @@
       <!-- Month-over-Month Comparison -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Month-over-Month Analysis</h3>
+          <h3 class="card-title">{{ t("reports.mom.title") }}</h3>
         </div>
         <div class="table-container">
           <table class="reports-table">
+            <caption class="sr-only">
+              {{
+                t("reports.mom.title")
+              }}
+            </caption>
             <thead>
               <tr>
-                <th>Month</th>
-                <th>Orders</th>
-                <th>Revenue</th>
-                <th>Change</th>
-                <th>Growth Rate</th>
+                <th scope="col">{{ t("reports.mom.month") }}</th>
+                <th scope="col">{{ t("reports.mom.orders") }}</th>
+                <th scope="col">{{ t("reports.mom.revenue") }}</th>
+                <th scope="col">{{ t("reports.mom.change") }}</th>
+                <th scope="col">{{ t("reports.mom.growthRate") }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(month, index) in monthlyData" :key="index">
+              <tr v-for="(month, index) in monthlyData" :key="month.month">
                 <td>
                   <strong>{{ formatMonth(month.month) }}</strong>
                 </td>
@@ -138,19 +154,25 @@
       <!-- Summary Stats -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Total Revenue (YTD)</div>
+          <div class="stat-label">
+            {{ t("reports.summary.totalRevenueYtd") }}
+          </div>
           <div class="stat-value">${{ formatNumber(totalRevenue) }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Avg Monthly Revenue</div>
+          <div class="stat-label">
+            {{ t("reports.summary.avgMonthlyRevenue") }}
+          </div>
           <div class="stat-value">${{ formatNumber(avgMonthlyRevenue) }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Total Orders (YTD)</div>
+          <div class="stat-label">
+            {{ t("reports.summary.totalOrdersYtd") }}
+          </div>
           <div class="stat-value">{{ totalOrders }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Best Performing Quarter</div>
+          <div class="stat-label">{{ t("reports.summary.bestQuarter") }}</div>
           <div class="stat-value">{{ bestQuarter }}</div>
         </div>
       </div>
@@ -159,10 +181,17 @@
 </template>
 
 <script>
-import axios from "axios";
+import { api } from "../api";
+import { useI18n } from "../composables/useI18n";
+import ErrorState from "../components/ErrorState.vue";
 
 export default {
   name: "Reports",
+  components: { ErrorState },
+  setup() {
+    const { t } = useI18n();
+    return { t };
+  },
   data() {
     return {
       loading: true,
@@ -182,24 +211,16 @@ export default {
     async loadData() {
       try {
         this.loading = true;
+        this.error = null;
 
-        // Fetch quarterly data
-        const quarterlyResponse = await axios.get(
-          "http://localhost:8001/api/reports/quarterly",
-        );
-        this.quarterlyData = quarterlyResponse.data;
-
-        // Fetch monthly data
-        const monthlyResponse = await axios.get(
-          "http://localhost:8001/api/reports/monthly-trends",
-        );
-        this.monthlyData = monthlyResponse.data;
+        this.quarterlyData = await api.getQuarterlyReports();
+        this.monthlyData = await api.getMonthlyTrends();
 
         // Calculate summary stats
         this.calculateSummaryStats();
       } catch (err) {
         console.error("Error loading reports:", err);
-        this.error = "Failed to load reports: " + err.message;
+        this.error = this.t("reports.loadFailed");
       } finally {
         this.loading = false;
       }
@@ -272,23 +293,24 @@ export default {
       var year = parts[0];
       var month = parts[1];
 
-      var monthNames = [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
+      var monthKeys = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
       ];
       var monthIndex = parseInt(month) - 1;
+      if (!parts[1] || monthIndex < 0 || monthIndex > 11) return monthStr;
 
-      return monthNames[monthIndex] + " " + year;
+      return this.t("months." + monthKeys[monthIndex]) + " " + year;
     },
 
     getBarHeight(revenue) {
@@ -342,7 +364,7 @@ export default {
 
     getGrowthRate(current, previous) {
       if (previous === 0) {
-        return "N/A";
+        return this.t("reports.notAvailable");
       }
 
       var rate = ((current - previous) / previous) * 100;
@@ -402,11 +424,14 @@ export default {
 }
 
 .chart-container {
+  overflow-x: auto;
   padding: 2rem 1rem;
   min-height: 300px;
 }
 
 .bar-chart {
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
@@ -419,6 +444,7 @@ export default {
   flex-direction: column;
   align-items: center;
   flex: 1;
+  min-width: 0;
   max-width: 80px;
 }
 

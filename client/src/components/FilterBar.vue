@@ -3,8 +3,12 @@
     <div class="filters-container">
       <div class="filters-grid">
         <div class="filter-group">
-          <label>{{ t("filters.timePeriod") }}</label>
-          <select v-model="selectedPeriod" class="filter-select">
+          <label :for="`${uid}-period`">{{ t("filters.timePeriod") }}</label>
+          <select
+            :id="`${uid}-period`"
+            v-model="selectedPeriod"
+            class="filter-select"
+          >
             <option value="all">{{ t("filters.allMonths") }}</option>
             <option value="2025-01">{{ t("months.january") }}</option>
             <option value="2025-02">{{ t("months.february") }}</option>
@@ -22,8 +26,12 @@
         </div>
 
         <div class="filter-group">
-          <label>{{ t("filters.location") }}</label>
-          <select v-model="selectedLocation" class="filter-select">
+          <label :for="`${uid}-location`">{{ t("filters.location") }}</label>
+          <select
+            :id="`${uid}-location`"
+            v-model="selectedLocation"
+            class="filter-select"
+          >
             <option value="all">{{ t("filters.all") }}</option>
             <option value="San Francisco">
               {{ t("warehouses.sanFrancisco") }}
@@ -34,8 +42,12 @@
         </div>
 
         <div class="filter-group">
-          <label>{{ t("filters.category") }}</label>
-          <select v-model="selectedCategory" class="filter-select">
+          <label :for="`${uid}-category`">{{ t("filters.category") }}</label>
+          <select
+            :id="`${uid}-category`"
+            v-model="selectedCategory"
+            class="filter-select"
+          >
             <option value="all">{{ t("filters.all") }}</option>
             <option value="circuit boards">
               {{ t("categories.circuitBoards") }}
@@ -52,8 +64,12 @@
         </div>
 
         <div class="filter-group">
-          <label>{{ t("filters.orderStatus") }}</label>
-          <select v-model="selectedStatus" class="filter-select">
+          <label :for="`${uid}-status`">{{ t("filters.orderStatus") }}</label>
+          <select
+            :id="`${uid}-status`"
+            v-model="selectedStatus"
+            class="filter-select"
+          >
             <option value="all">{{ t("filters.all") }}</option>
             <option value="delivered">{{ t("status.delivered") }}</option>
             <option value="shipped">{{ t("status.shipped") }}</option>
@@ -65,9 +81,11 @@
 
       <button
         class="reset-filters-btn"
+        type="button"
         @click="resetFilters"
         :disabled="!hasActiveFilters"
-        title="Reset all filters"
+        :title="t('filters.reset')"
+        :aria-label="t('filters.reset')"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -89,6 +107,8 @@
 import { useFilters } from "../composables/useFilters";
 import { useI18n } from "../composables/useI18n";
 
+let instanceCounter = 0;
+
 export default {
   name: "FilterBar",
   setup() {
@@ -102,9 +122,11 @@ export default {
     } = useFilters();
 
     const { t } = useI18n();
+    const uid = `filter-${++instanceCounter}`;
 
     return {
       t,
+      uid,
       selectedPeriod,
       selectedLocation,
       selectedCategory,
@@ -172,10 +194,14 @@ export default {
   border-color: var(--text-subtle);
 }
 
+.filter-select:focus-visible,
+.reset-filters-btn:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
 .filter-select:focus {
-  outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px var(--accent-ring-soft);
 }
 
 .reset-filters-btn {
@@ -206,5 +232,34 @@ export default {
 .reset-filters-btn svg {
   width: 18px;
   height: 18px;
+}
+
+@media (max-width: 1024px) {
+  .filters-grid {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .filters-container {
+    padding: 0 1rem;
+    align-items: flex-start;
+  }
+
+  .filters-grid {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .filter-group {
+    justify-content: space-between;
+  }
+
+  .filter-select {
+    min-width: 0;
+    flex: 1;
+    max-width: 60%;
+  }
 }
 </style>

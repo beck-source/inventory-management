@@ -5,8 +5,12 @@
       <p>{{ t("finance.description") }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t("common.loading") }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorState
+      v-if="loading || error"
+      :loading="loading"
+      :message="error || ''"
+      @retry="reload"
+    />
     <div v-else>
       <!-- Revenue & Financial KPIs -->
       <div class="stats-grid-finance">
@@ -86,12 +90,12 @@
                     :style="{
                       height: getRevenueBarHeight(month.revenue) + '%',
                     }"
-                    :title="`Revenue: ${currencySymbol}${month.revenue.toLocaleString()}`"
+                    :title="`${t('finance.revenueVsCosts.revenue')}: ${currencySymbol}${month.revenue.toLocaleString()}`"
                   ></div>
                   <div
                     class="cost-bar"
                     :style="{ height: getRevenueBarHeight(month.costs) + '%' }"
-                    :title="`Costs: ${currencySymbol}${month.costs.toLocaleString()}`"
+                    :title="`${t('finance.revenueVsCosts.costs')}: ${currencySymbol}${month.costs.toLocaleString()}`"
                   ></div>
                 </div>
                 <span class="bar-label">{{ translateMonth(month.month) }}</span>
@@ -140,28 +144,33 @@
                 :key="month.month"
                 class="bar-group"
               >
-                <div class="stacked-bar" @click="showCostDetail(month)">
+                <button
+                  type="button"
+                  class="stacked-bar"
+                  :aria-label="`${translateMonth(month.month)} - ${t('finance.monthlyCostFlow.title')}`"
+                  @click="showCostDetail(month)"
+                >
                   <div
                     class="bar-segment procurement"
                     :style="{ height: getBarHeight(month.procurement) + '%' }"
-                    :title="`Procurement: ${currencySymbol}${month.procurement.toLocaleString()}`"
+                    :title="`${t('finance.monthlyCostFlow.procurement')}: ${currencySymbol}${month.procurement.toLocaleString()}`"
                   ></div>
                   <div
                     class="bar-segment operational"
                     :style="{ height: getBarHeight(month.operational) + '%' }"
-                    :title="`Operational: ${currencySymbol}${month.operational.toLocaleString()}`"
+                    :title="`${t('finance.monthlyCostFlow.operational')}: ${currencySymbol}${month.operational.toLocaleString()}`"
                   ></div>
                   <div
                     class="bar-segment labor"
                     :style="{ height: getBarHeight(month.labor) + '%' }"
-                    :title="`Labor: ${currencySymbol}${month.labor.toLocaleString()}`"
+                    :title="`${t('finance.monthlyCostFlow.labor')}: ${currencySymbol}${month.labor.toLocaleString()}`"
                   ></div>
                   <div
                     class="bar-segment overhead"
                     :style="{ height: getBarHeight(month.overhead) + '%' }"
-                    :title="`Overhead: ${currencySymbol}${month.overhead.toLocaleString()}`"
+                    :title="`${t('finance.monthlyCostFlow.overhead')}: ${currencySymbol}${month.overhead.toLocaleString()}`"
                   ></div>
-                </div>
+                </button>
                 <span class="bar-label">{{ translateMonth(month.month) }}</span>
               </div>
             </div>
@@ -223,13 +232,20 @@
           </div>
           <div class="transactions-table-container">
             <table class="transactions-table">
+              <caption class="sr-only">
+                {{
+                  t("finance.transactions.title")
+                }}
+              </caption>
               <thead>
                 <tr>
-                  <th>{{ t("finance.transactions.id") }}</th>
-                  <th>{{ t("finance.transactions.description") }}</th>
-                  <th>{{ t("finance.transactions.vendor") }}</th>
-                  <th>{{ t("finance.transactions.date") }}</th>
-                  <th class="text-right">
+                  <th scope="col">{{ t("finance.transactions.id") }}</th>
+                  <th scope="col">
+                    {{ t("finance.transactions.description") }}
+                  </th>
+                  <th scope="col">{{ t("finance.transactions.vendor") }}</th>
+                  <th scope="col">{{ t("finance.transactions.date") }}</th>
+                  <th scope="col" class="text-right">
                     {{ t("finance.transactions.amount") }}
                   </th>
                 </tr>
@@ -245,7 +261,13 @@
                     {{ transaction.id.toString().padStart(3, "0") }}
                   </td>
                   <td class="transaction-description">
-                    {{ transaction.description }}
+                    <button
+                      type="button"
+                      class="row-link"
+                      @click.stop="handleTransactionClick(transaction)"
+                    >
+                      {{ transaction.description }}
+                    </button>
                   </td>
                   <td class="transaction-vendor">{{ transaction.vendor }}</td>
                   <td class="transaction-date">
@@ -268,26 +290,35 @@
       :cost-data="selectedCostData"
       @close="showCostModal = false"
     />
+
+    <TransactionDetailModal
+      :is-open="showTransactionModal"
+      :transaction="selectedTransaction"
+      @close="showTransactionModal = false"
+    />
   </div>
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, computed } from "vue";
 import { api } from "../api";
 import { useFilters } from "../composables/useFilters";
 import { useI18n } from "../composables/useI18n";
 import { formatCurrency as formatCurrencyUtil } from "../utils/currency";
+import { useFilteredLoad } from "../composables/useFilteredLoad";
 import CostDetailModal from "../components/CostDetailModal.vue";
+import TransactionDetailModal from "../components/TransactionDetailModal.vue";
+import ErrorState from "../components/ErrorState.vue";
 
 export default {
   name: "Spending",
   components: {
     CostDetailModal,
+    TransactionDetailModal,
+    ErrorState,
   },
   setup() {
     const { t, currentCurrency } = useI18n();
-    const loading = ref(true);
-    const error = ref(null);
     const allMonthlySpending = ref([]);
     const allCategorySpending = ref([]);
     const allTransactions = ref([]);
@@ -297,9 +328,18 @@ export default {
     // Modal state
     const showCostModal = ref(false);
     const selectedCostData = ref(null);
+    const showTransactionModal = ref(false);
+    const selectedTransaction = ref(null);
 
     // Use shared filters
-    const { selectedPeriod, getCurrentFilters } = useFilters();
+    const { selectedPeriod } = useFilters();
+
+    // YYYY-MM prefix of an ISO date string, or null if the value isn't a valid date
+    const monthKey = (dateString) => {
+      if (typeof dateString !== "string" || !/^\d{4}-\d{2}/.test(dateString))
+        return null;
+      return dateString.slice(0, 7);
+    };
 
     // Monthly spending chart always shows all months (not filtered)
     const monthlySpending = computed(() => {
@@ -340,10 +380,9 @@ export default {
         return allTransactions.value;
       }
       // Filter transactions by selected month
-      return allTransactions.value.filter((t) => {
-        const transactionMonth = new Date(t.date).toISOString().slice(0, 7);
-        return transactionMonth === selectedPeriod.value;
-      });
+      return allTransactions.value.filter(
+        (tx) => monthKey(tx.date) === selectedPeriod.value,
+      );
     });
 
     const summary = computed(() => {
@@ -381,10 +420,9 @@ export default {
       }
 
       // Filter orders by selected month
-      return allOrders.value.filter((order) => {
-        const orderMonth = new Date(order.order_date).toISOString().slice(0, 7);
-        return orderMonth === selectedPeriod.value;
-      });
+      return allOrders.value.filter(
+        (order) => monthKey(order.order_date) === selectedPeriod.value,
+      );
     });
 
     // Revenue metrics from filtered orders
@@ -455,6 +493,7 @@ export default {
       // Calculate revenue from orders
       allOrders.value.forEach((order) => {
         const orderDate = new Date(order.order_date);
+        if (isNaN(orderDate.getTime())) return;
         const monthIndex = orderDate.getMonth();
         if (monthIndex >= 0 && monthIndex < 12) {
           revenueByMonth[monthIndex].revenue += order.total_value || 0;
@@ -486,16 +525,9 @@ export default {
       return Math.ceil(max / 1000); // Return in K
     });
 
-    const loadData = async () => {
-      try {
-        loading.value = true;
-        const [
-          summaryRes,
-          monthlyRes,
-          categoryRes,
-          transactionsRes,
-          ordersRes,
-        ] = await Promise.all([
+    const { loading, error, reload } = useFilteredLoad(async () => {
+      const [summaryRes, monthlyRes, categoryRes, transactionsRes, ordersRes] =
+        await Promise.all([
           api.getSpendingSummary(),
           api.getMonthlySpending(),
           api.getCategorySpending(),
@@ -503,21 +535,11 @@ export default {
           api.getOrders(),
         ]);
 
-        summaryData.value = summaryRes;
-        allMonthlySpending.value = monthlyRes;
-        allCategorySpending.value = categoryRes;
-        allTransactions.value = transactionsRes;
-        allOrders.value = ordersRes;
-      } catch (err) {
-        error.value = "Failed to load financial data: " + err.message;
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    // Watch for period filter changes
-    watch([selectedPeriod], () => {
-      // Data will automatically update via computed properties
+      summaryData.value = summaryRes;
+      allMonthlySpending.value = monthlyRes;
+      allCategorySpending.value = categoryRes;
+      allTransactions.value = transactionsRes;
+      allOrders.value = ordersRes;
     });
 
     const formatCurrency = (value) => {
@@ -597,9 +619,8 @@ export default {
     };
 
     const handleTransactionClick = (transaction) => {
-      alert(
-        `Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: $${transaction.amount.toLocaleString()}`,
-      );
+      selectedTransaction.value = transaction;
+      showTransactionModal.value = true;
     };
 
     const showCostDetail = (monthData) => {
@@ -607,12 +628,11 @@ export default {
       showCostModal.value = true;
     };
 
-    onMounted(loadData);
-
     return {
       t,
       loading,
       error,
+      reload,
       summary,
       monthlySpending,
       categorySpending,
@@ -635,6 +655,8 @@ export default {
       showCostModal,
       selectedCostData,
       showCostDetail,
+      showTransactionModal,
+      selectedTransaction,
       Math,
     };
   },
@@ -699,7 +721,7 @@ export default {
   background: var(--yellow);
 }
 .legend-dot.revenue-color {
-  background: var(--text-strong);
+  background: var(--strong-bg);
 }
 .legend-dot.cost-color {
   background: var(--red);
@@ -713,7 +735,7 @@ export default {
 }
 
 .revenue-card {
-  border-left: 4px solid var(--text-strong);
+  border-left: 4px solid var(--strong-bg);
 }
 
 .cost-card {
@@ -731,6 +753,7 @@ export default {
 }
 
 .bar-group-revenue {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -760,7 +783,7 @@ export default {
 }
 
 .revenue-bar {
-  background: var(--text-strong);
+  background: var(--strong-bg);
 }
 
 .cost-bar {
@@ -774,6 +797,7 @@ export default {
 }
 
 .chart-container {
+  overflow-x: auto;
   padding: 1.5rem 0;
 }
 
@@ -795,6 +819,7 @@ export default {
 
 .chart-area {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
@@ -802,6 +827,7 @@ export default {
 }
 
 .bar-group {
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -810,6 +836,9 @@ export default {
 }
 
 .stacked-bar {
+  background: none;
+  border: none;
+  font: inherit;
   width: 100%;
   max-width: 60px;
   display: flex;
@@ -858,6 +887,9 @@ export default {
 }
 
 .bar-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: clip;
   margin-top: 0.5rem;
   font-size: 0.75rem;
   font-weight: 600;
@@ -866,7 +898,7 @@ export default {
 
 .two-column-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(450px, 100%), 1fr));
   gap: 1.75rem;
 }
 
@@ -942,7 +974,7 @@ export default {
 }
 
 .transactions-table-container {
-  overflow-y: auto;
+  overflow: auto;
   max-height: 400px;
 }
 

@@ -6,7 +6,7 @@
           <h1>{{ t("nav.companyName") }}</h1>
           <span class="subtitle">{{ t("nav.subtitle") }}</span>
         </div>
-        <nav class="nav-tabs">
+        <nav class="nav-tabs" :aria-label="t('nav.companyName')">
           <router-link to="/" :class="{ active: $route.path === '/' }">
             {{ t("nav.overview") }}
           </router-link>
@@ -44,7 +44,7 @@
             to="/reports"
             :class="{ active: $route.path === '/reports' }"
           >
-            Reports
+            {{ t("nav.reports") }}
           </router-link>
         </nav>
         <ThemeToggle />
@@ -246,6 +246,8 @@ export default {
   --shadow-a: rgba(0, 0, 0, 0.08);
   --shadow-b: rgba(0, 0, 0, 0.15);
   --overlay: rgba(0, 0, 0, 0.5);
+  --strong-bg: #0f172a;
+  --strong-bg-hover: #1e293b;
 }
 
 :root[data-theme="dark"] {
@@ -293,12 +295,50 @@ export default {
   --shadow-a: rgba(0, 0, 0, 0.35);
   --shadow-b: rgba(0, 0, 0, 0.55);
   --overlay: rgba(0, 0, 0, 0.65);
+  --strong-bg: #334155;
+  --strong-bg-hover: #475569;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+/* Text-style button used inside clickable table rows for keyboard access */
+.row-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row-link:hover {
+  color: var(--accent);
 }
 
 body {
@@ -312,7 +352,7 @@ body {
     Ubuntu,
     Cantarell,
     sans-serif;
-  background: var(--bg);
+  background: var(--surface-muted);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -379,6 +419,10 @@ body {
 .nav-tabs {
   display: flex;
   gap: 0.25rem;
+}
+
+.nav-tabs a {
+  white-space: nowrap;
 }
 
 .nav-tabs a {
@@ -474,7 +518,7 @@ body {
 }
 
 .stat-card.warning .stat-value {
-  color: var(--warning-fg);
+  color: var(--orange);
 }
 
 .stat-card.success .stat-value {
@@ -628,5 +672,60 @@ tbody tr:hover {
   border-radius: 8px;
   margin: 1rem 0;
   font-size: 0.938rem;
+}
+
+@media (max-width: 1024px) {
+  .nav-container {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 0.5rem 1rem;
+    row-gap: 0.5rem;
+  }
+
+  .nav-container > .nav-tabs {
+    order: 3;
+    flex: 0 0 100%;
+    margin: 0;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .nav-container > .language-switcher {
+    margin-left: auto;
+  }
+
+  .main-content {
+    padding: 1.25rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .subtitle {
+    display: none;
+  }
+
+  .logo h1 {
+    font-size: 1.125rem;
+  }
+
+  .page-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .nav-tabs a {
+    padding: 0.5rem 0.875rem;
+  }
+
+  .main-content {
+    padding: 1rem 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
 }
 </style>

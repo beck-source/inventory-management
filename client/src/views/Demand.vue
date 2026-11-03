@@ -5,8 +5,12 @@
       <p>{{ t("demand.description") }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t("common.loading") }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorState
+      v-if="loading || error"
+      :loading="loading"
+      :message="error || ''"
+      @retry="reload"
+    />
     <div v-else>
       <div class="demand-trend-cards">
         <div class="trend-card increasing-card">
@@ -117,15 +121,20 @@
         </div>
         <div class="table-container">
           <table>
+            <caption class="sr-only">
+              {{
+                t("demand.demandForecasts")
+              }}
+            </caption>
             <thead>
               <tr>
-                <th>{{ t("demand.table.sku") }}</th>
-                <th>{{ t("demand.table.itemName") }}</th>
-                <th>{{ t("demand.table.currentDemand") }}</th>
-                <th>{{ t("demand.table.forecastedDemand") }}</th>
-                <th>{{ t("demand.table.change") }}</th>
-                <th>{{ t("demand.table.trend") }}</th>
-                <th>{{ t("demand.table.period") }}</th>
+                <th scope="col">{{ t("demand.table.sku") }}</th>
+                <th scope="col">{{ t("demand.table.itemName") }}</th>
+                <th scope="col">{{ t("demand.table.currentDemand") }}</th>
+                <th scope="col">{{ t("demand.table.forecastedDemand") }}</th>
+                <th scope="col">{{ t("demand.table.change") }}</th>
+                <th scope="col">{{ t("demand.table.trend") }}</th>
+                <th scope="col">{{ t("demand.table.period") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -159,17 +168,18 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import { api } from "../api";
 import { useFilters } from "../composables/useFilters";
 import { useI18n } from "../composables/useI18n";
+import { useFilteredLoad } from "../composables/useFilteredLoad";
+import ErrorState from "../components/ErrorState.vue";
 
 export default {
   name: "Demand",
+  components: { ErrorState },
   setup() {
     const { t } = useI18n();
-    const loading = ref(true);
-    const error = ref(null);
     const allForecasts = ref([]);
     const inventoryItems = ref([]);
 
@@ -191,32 +201,23 @@ export default {
       return allForecasts.value.filter((f) => validSkus.has(f.item_sku));
     });
 
-    const loadForecasts = async () => {
-      try {
-        loading.value = true;
-        const filters = getCurrentFilters();
+    const { loading, error, reload } = useFilteredLoad(async () => {
+      const filters = getCurrentFilters();
 
-        const [forecastsData, inventoryData] = await Promise.all([
-          api.getDemandForecasts(),
-          api.getInventory({
-            warehouse: filters.warehouse,
-            category: filters.category,
-          }),
-        ]);
+      const [forecastsData, inventoryData] = await Promise.all([
+        api.getDemandForecasts(),
+        api.getInventory({
+          warehouse: filters.warehouse,
+          category: filters.category,
+        }),
+      ]);
 
-        allForecasts.value = forecastsData;
-        inventoryItems.value = inventoryData;
-      } catch (err) {
-        error.value = "Failed to load demand forecasts: " + err.message;
-      } finally {
-        loading.value = false;
-      }
-    };
+      allForecasts.value = forecastsData;
+      inventoryItems.value = inventoryData;
+    });
 
     // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadForecasts();
-    });
+    watch([selectedLocation, selectedCategory], reload);
 
     const getForecastsByTrend = (trend) => {
       return forecasts.value.filter((f) => f.trend === trend);
@@ -237,12 +238,12 @@ export default {
 
       // If change is within ±2%, consider it stable and show blue
       if (changePercent <= 2) {
-        return "var(--accent)"; // Blue for stable
+        return "var(--blue)"; // Blue for stable
       }
 
-      if (change > 0) return "var(--success-fg)"; // Green for increasing
-      if (change < 0) return "var(--danger-fg)"; // Red for decreasing
-      return "var(--accent)"; // Blue for no change
+      if (change > 0) return "var(--green)"; // Green for increasing
+      if (change < 0) return "var(--red)"; // Red for decreasing
+      return "var(--blue)"; // Blue for no change
     };
 
     const translatePeriod = (period) => {
@@ -263,12 +264,11 @@ export default {
       return period;
     };
 
-    onMounted(loadForecasts);
-
     return {
       t,
       loading,
       error,
+      reload,
       forecasts,
       getForecastsByTrend,
       getChangePercent,
@@ -282,7 +282,7 @@ export default {
 <style scoped>
 .demand-trend-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -404,7 +404,7 @@ export default {
 }
 
 .stable-card .item-change {
-  color: var(--accent);
+  color: var(--blue);
 }
 
 .decreasing-card .item-change {

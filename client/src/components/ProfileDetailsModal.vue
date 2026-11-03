@@ -1,11 +1,28 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="modal-overlay" @click="close">
+      <div
+        ref="dialogRef"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="titleId"
+        tabindex="-1"
+        v-if="isOpen"
+        class="modal-overlay"
+        @click="close"
+        @keydown="onKeydown"
+      >
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3 class="modal-title">{{ t("profileDetails.title") }}</h3>
-            <button class="close-button" @click="close">
+            <h3 :id="titleId" class="modal-title">
+              {{ t("profileDetails.title") }}
+            </h3>
+            <button
+              class="close-button"
+              type="button"
+              :aria-label="t('common.close')"
+              @click="close"
+            >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M15 5L5 15M5 5L15 15"
@@ -87,6 +104,7 @@
 <script setup>
 import { useAuth } from "../composables/useAuth";
 import { useI18n } from "../composables/useI18n";
+import { useModalA11y } from "../composables/useModalA11y";
 
 const { currentUser, getInitials } = useAuth();
 const { t, currentLocale } = useI18n();
@@ -99,6 +117,8 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close"]);
+
+const { dialogRef, titleId, onKeydown } = useModalA11y(() => emit("close"));
 
 const close = () => {
   emit("close");
@@ -299,5 +319,10 @@ const formatDate = (dateString) => {
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
   transform: scale(0.95);
+}
+
+.modal-container :focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 </style>

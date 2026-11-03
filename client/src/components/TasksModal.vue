@@ -1,11 +1,26 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="modal-overlay" @click="close">
+      <div
+        v-if="isOpen"
+        ref="dialogRef"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="titleId"
+        tabindex="-1"
+        class="modal-overlay"
+        @click="close"
+        @keydown="onKeydown"
+      >
         <div class="modal-container tasks-modal-container" @click.stop>
           <div class="modal-header">
-            <h3 class="modal-title">{{ t("tasks.title") }}</h3>
-            <button class="close-button" @click="close">
+            <h3 :id="titleId" class="modal-title">{{ t("tasks.title") }}</h3>
+            <button
+              class="close-button"
+              type="button"
+              :aria-label="t('common.close')"
+              @click="close"
+            >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path
                   d="M15 5L5 15M5 5L15 15"
@@ -95,18 +110,22 @@
                       @change="$emit('toggle-task', task.id)"
                       class="task-checkbox"
                     />
-                    <span
+                    <button
+                      type="button"
                       class="task-title"
                       @click="$emit('toggle-task', task.id)"
-                      >{{ task.title }}</span
                     >
+                      {{ task.title }}
+                    </button>
                   </div>
                   <button
+                    type="button"
                     @click="$emit('delete-task', task.id)"
                     class="task-delete-btn"
-                    title="Delete task"
+                    :title="t('tasks.deleteTask', { title: task.title })"
+                    :aria-label="t('tasks.deleteTask', { title: task.title })"
                   >
-                    ×
+                    <span aria-hidden="true">×</span>
                   </button>
                 </div>
 
@@ -159,6 +178,7 @@
 <script>
 import { ref, computed } from "vue";
 import { useI18n } from "../composables/useI18n";
+import { useModalA11y } from "../composables/useModalA11y";
 
 export default {
   name: "TasksModal",
@@ -189,6 +209,8 @@ export default {
     const close = () => {
       emit("close");
     };
+
+    const { dialogRef, titleId, onKeydown } = useModalA11y(close);
 
     const handleAddTask = () => {
       if (newTask.value.title.trim() && newTask.value.dueDate) {
@@ -275,6 +297,9 @@ export default {
 
     return {
       t,
+      dialogRef,
+      titleId,
+      onKeydown,
       newTask,
       sortedTasks,
       close,
@@ -431,8 +456,14 @@ label {
 
 .task-input:focus,
 .task-select:focus {
-  outline: none;
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
   border-color: var(--brand-1);
+}
+
+.modal-container :focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
 }
 
 .task-select {
@@ -506,7 +537,7 @@ label {
 }
 
 .task-item.priority-low {
-  border-left: 4px solid var(--accent);
+  border-left: 4px solid var(--accent-solid);
 }
 
 .task-item.completed {
@@ -538,6 +569,11 @@ label {
 
 .task-title {
   flex: 1;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
   cursor: pointer;
   user-select: none;
   color: var(--text-strong);
