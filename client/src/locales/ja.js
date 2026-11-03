@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -125,8 +126,54 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      submittedDate: '送信日',
+      leadTime: 'リードタイム（日）'
+    },
+    submitted: {
+      title: '送信済み注文',
+      empty: '送信済みの補充注文はまだありません',
+      loadFailed: '送信済み注文の読み込みに失敗しました'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、予測不足数の大きい品目を発注します',
+    budget: '予算',
+    recommendations: '推奨品目',
+    empty: 'この予算で推奨できる品目はありません',
+    loadFailed: '推奨の読み込みに失敗しました',
+    orderFailed: '注文の送信に失敗しました',
+    table: {
+      select: '選択',
+      sku: 'SKU',
+      name: '品目',
+      category: 'カテゴリ',
+      trend: 'トレンド',
+      stock: '在庫数',
+      forecast: '予測需要',
+      shortfall: '不足数',
+      quantity: '発注数量',
+      unitCost: '単価',
+      lineCost: '明細金額',
+      leadTime: 'リードタイム（日）'
+    },
+    summary: {
+      selectedTotal: '選択合計',
+      budget: '予算',
+      remaining: '残り予算',
+      leadTime: '注文リードタイム',
+      days: '{count}日',
+      overBudget: '選択合計が予算を超えています。数量を減らすか品目の選択を外してください。',
+      nothingSelected: '注文するには1つ以上の品目を選択してください。',
+      invalidQty: '選択した各品目の数量は、1以上で不足数以下の整数にしてください。'
+    },
+    placeOrder: '注文する',
+    placing: '注文を送信中...',
+    confirmation: '注文 {number} を送信しました。配達予定日: {date}',
+    viewOrders: '注文を表示'
   },
 
   // Finance/Spending
@@ -206,7 +253,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    submitted: '送信済み'
   },
 
   // Trends
