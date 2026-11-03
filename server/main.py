@@ -1,8 +1,11 @@
+import uuid
+from datetime import datetime
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
-from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -114,11 +117,25 @@ class PurchaseOrder(BaseModel):
 
 class CreatePurchaseOrderRequest(BaseModel):
     backlog_item_id: str
-    supplier_name: str
-    quantity: int
-    unit_cost: float
+    supplier_name: str = Field(min_length=1)
+    quantity: int = Field(gt=0)
+    unit_cost: float = Field(ge=0)
     expected_delivery_date: str
     notes: Optional[str] = None
+
+# Task models. Field names are camelCase (dueDate) because the client's Tasks modal
+# and the demo tasks in useAuth.js already use that shape.
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    title: str = Field(min_length=1)
+    priority: Literal['high', 'medium', 'low'] = 'medium'
+    dueDate: str
 
 # API endpoints
 @app.get("/")
@@ -178,6 +195,92 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog (inventory shortage) item. One PO per backlog item."""
+    if not any(item["id"] == request.backlog_item_id for item in backlog_items):
+        raise HTTPException(status_code=404, detail=f"Backlog item {request.backlog_item_id} not found")
+
+    if any(po["backlog_item_id"] == request.backlog_item_id for po in purchase_orders):
+        raise HTTPException(
+            status_code=409,
+            detail=f"Backlog item {request.backlog_item_id} already has a purchase order"
+        )
+
+    sequence = len(purchase_orders) + 1
+    purchase_order = {
+        "id": f"PO-{sequence:04d}",
+        "backlog_item_id": request.backlog_item_id,
+        "supplier_name": request.supplier_name,
+        "quantity": request.quantity,
+        "unit_cost": request.unit_cost,
+        "expected_delivery_date": request.expected_delivery_date,
+        "status": "Pending",
+        "created_date": datetime.now().date().isoformat(),
+        "notes": request.notes,
+    }
+    purchase_orders.append(purchase_order)
+    return purchase_order
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order raised for a backlog item"""
+    for po in purchase_orders:
+        if po["backlog_item_id"] == backlog_item_id:
+            return po
+    raise HTTPException(
+        status_code=404,
+        detail=f"Purchase order for backlog item {backlog_item_id} not found"
+    )
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get user-created tasks, newest first (the client prepends new tasks the same way)"""
+    return list(reversed(tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a task. New tasks always start as pending."""
+    title = request.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Task title cannot be blank")
+
+    # Validate the date here so the client's date math never receives an unparseable string.
+    try:
+        datetime.strptime(request.dueDate, "%Y-%m-%d")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="dueDate must be in YYYY-MM-DD format")
+
+    # uuid ids stay unique after deletes and can't collide with the demo tasks' integer ids,
+    # which App.vue uses to tell demo tasks from API tasks.
+    task = {
+        "id": f"task-{uuid.uuid4().hex[:8]}",
+        "title": title,
+        "priority": request.priority,
+        "dueDate": request.dueDate,
+        "status": "pending",
+    }
+    tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task between pending and completed"""
+    for task in tasks:
+        if task["id"] == task_id:
+            task["status"] = "completed" if task["status"] == "pending" else "pending"
+            return task
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+@app.delete("/api/tasks/{task_id}", status_code=204)
+def delete_task(task_id: str):
+    """Delete a task"""
+    for index, task in enumerate(tasks):
+        if task["id"] == task_id:
+            del tasks[index]
+            return
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
