@@ -1,7 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime, timedelta
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -89,6 +90,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +122,20 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int = Field(gt=0)
+    unit_cost: float
+    lead_time_days: int
+
+class CreateRestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockingOrderItem]
+
+# Submitted restocking orders are kept in memory only (lost on restart, like all other data)
+restocking_orders: list = []
 
 # API endpoints
 @app.get("/")
@@ -303,6 +320,52 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking-orders")
+def get_restocking_orders():
+    """List submitted restocking orders, newest first"""
+    return list(reversed(restocking_orders))
+
+@app.post("/api/restocking-orders")
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order; delivery lead time is the longest lead time of its items"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    # Cost and lead time come from the demand forecast, not the client, so a
+    # tampered request can't understate the total or the delivery time
+    forecast_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+    items = []
+    for item in request.items:
+        forecast = forecast_by_sku.get(item.sku)
+        if forecast is None:
+            raise HTTPException(status_code=400, detail=f"Unknown SKU: {item.sku}")
+        items.append(item.model_copy(update={
+            "name": forecast["item_name"],
+            "unit_cost": forecast["unit_cost"],
+            "lead_time_days": forecast["lead_time_days"],
+        }))
+
+    total_value = round(sum(item.quantity * item.unit_cost for item in items), 2)
+    if total_value > request.budget:
+        raise HTTPException(status_code=400, detail="Order total exceeds budget")
+
+    # Items ship separately, so the order is complete only when the slowest supplier delivers
+    lead_time_days = max(item.lead_time_days for item in items)
+    submitted = datetime.now()
+    order = {
+        "id": str(len(restocking_orders) + 1),
+        "order_number": f"RST-{submitted.year}-{len(restocking_orders) + 1:04d}",
+        "status": "Submitted",
+        "budget": request.budget,
+        "items": [item.model_dump() for item in items],
+        "total_value": total_value,
+        "submitted_date": submitted.isoformat(timespec="seconds"),
+        "lead_time_days": lead_time_days,
+        "expected_delivery": (submitted + timedelta(days=lead_time_days)).isoformat(timespec="seconds"),
+    }
+    restocking_orders.append(order)
+    return order
 
 if __name__ == "__main__":
     import uvicorn

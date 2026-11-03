@@ -124,31 +124,34 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  height: 36px;
+  padding: 0 var(--space-3) 0 var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
 }
 
+.profile-button:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: var(--accent);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   letter-spacing: 0.025em;
 }
 
@@ -173,9 +176,9 @@ const handleLogout = () => {
   right: 0;
   min-width: 280px;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
   overflow: hidden;
 }
@@ -185,14 +188,14 @@ const handleLogout = () => {
   display: flex;
   gap: 0.875rem;
   align-items: center;
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .avatar-large {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  background: var(--accent);
   color: white;
   display: flex;
   align-items: center;
@@ -225,7 +228,7 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
+  background: var(--border);
   margin: 0.5rem 0;
 }
 
@@ -247,7 +250,7 @@ const handleLogout = () => {
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .dropdown-item svg {
@@ -269,7 +272,7 @@ const handleLogout = () => {
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
+  background: var(--accent);
   color: white;
   font-size: 0.75rem;
   font-weight: 600;
@@ -277,5 +280,11 @@ const handleLogout = () => {
   border-radius: 12px;
   min-width: 20px;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  .profile-name, .profile-button .chevron { display: none; }
+  .profile-button { padding: 0 var(--space-2); }
+  .dropdown-menu { min-width: 240px; }
 }
 </style>

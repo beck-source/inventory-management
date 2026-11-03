@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: redesign-inventory-app
+expected_outcome: |
+  The top nav is replaced by a collapsible left sidebar containing all seven routes. Items that lived in the top bar (language switcher, profile menu) and the global filter bar still exist and work. Spacing, colors and radii come from shared CSS variables. The production build succeeds and no old top-nav markup or styles remain.
