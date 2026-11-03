@@ -99,6 +99,23 @@ export const api = {
     return response.data
   },
 
+  // Restocking: recommendations are ranked and fitted to the budget server-side
+  async getRestockRecommendations(budget = 0) {
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations`, { params: { budget } })
+    return response.data
+  },
+
+  // payload: { budget, items: [{ sku, quantity }] }; prices/lead times are recomputed server-side
+  async createRestockOrder(payload) {
+    const response = await axios.post(`${API_BASE_URL}/restocking/orders`, payload)
+    return response.data
+  },
+
+  async getRestockOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/orders`)
+    return response.data
+  },
+
   async getPurchaseOrderByBacklogItem(backlogItemId) {
     const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
     return response.data
