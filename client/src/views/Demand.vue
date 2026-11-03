@@ -227,21 +227,20 @@ export default {
 .demand-trend-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .trend-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-5);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.5rem;
   transition: all 0.2s ease;
 }
 
 .trend-card:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .increasing-card {
@@ -262,7 +261,7 @@ export default {
   gap: 1rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--bg-muted);
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .trend-icon {
@@ -271,7 +270,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   font-size: 1.75rem;
   font-weight: 700;
   flex-shrink: 0;
@@ -284,7 +283,7 @@ export default {
 
 .stable-card .trend-icon {
   background: #dbeafe;
-  color: var(--accent);
+  color: #2563eb;
 }
 
 .decreasing-card .trend-icon {
@@ -295,7 +294,7 @@ export default {
 .trend-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -303,7 +302,7 @@ export default {
 .trend-count {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
   margin-top: 0.25rem;
 }
 
@@ -318,18 +317,18 @@ export default {
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0.75rem;
-  background: var(--bg-app);
-  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  border-radius: 6px;
   transition: background 0.2s;
 }
 
 .trend-item:hover {
-  background: var(--bg-muted);
+  background: #f1f5f9;
 }
 
 .item-name {
   font-size: 0.875rem;
-  color: var(--text);
+  color: #0f172a;
   font-weight: 500;
   flex: 1;
   overflow: hidden;
@@ -357,20 +356,14 @@ export default {
 }
 
 .item-change.neutral {
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .more-items {
   font-size: 0.813rem;
-  color: var(--text-muted);
+  color: #64748b;
   font-style: italic;
   text-align: center;
   padding: 0.5rem;
-}
-
-@media (max-width: 720px) {
-  .demand-trend-cards {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

@@ -165,9 +165,9 @@ const close = () => {
 }
 
 .modal-container {
-  background: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
@@ -181,32 +181,32 @@ const close = () => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #64748b;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 
 .close-button:hover {
-  background: var(--bg-muted);
-  color: var(--text);
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .modal-body {
@@ -221,7 +221,7 @@ const close = () => {
 
 .summary-card {
   padding: 1.5rem;
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   text-align: center;
 }
 
@@ -252,13 +252,13 @@ const close = () => {
 
 .cost-item {
   padding: 1.25rem;
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   border: 2px solid;
 }
 
 .cost-item.procurement {
   border-color: #93c5fd;
-  background: var(--accent-soft);
+  background: #eff6ff;
 }
 
 .cost-item.operational {
@@ -286,7 +286,7 @@ const close = () => {
 .cost-icon {
   width: 48px;
   height: 48px;
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -319,7 +319,7 @@ const close = () => {
 
 .cost-name {
   font-weight: 600;
-  color: var(--text);
+  color: #0f172a;
   font-size: 1rem;
   margin-bottom: 0.25rem;
 }
@@ -327,27 +327,27 @@ const close = () => {
 .cost-amount {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
 }
 
 .cost-percentage {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #64748b;
   font-weight: 500;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: flex-end;
 }
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: var(--bg-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-weight: 500;
   font-size: 0.875rem;
   color: #334155;
@@ -357,7 +357,7 @@ const close = () => {
 }
 
 .btn-secondary:hover {
-  background: var(--border);
+  background: #e2e8f0;
   border-color: #cbd5e1;
 }
 

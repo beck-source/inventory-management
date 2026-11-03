@@ -1,58 +1,42 @@
 <template>
-  <div class="app-shell">
-    <AppSidebar
-      :items="navItems"
-      :brand="t('nav.companyName')"
-      :subtitle="t('nav.subtitle')"
-      :open="mobileMenuOpen"
-      @close="closeMobileMenu"
-    >
-      <template #footer="{ collapsed }">
+  <div class="app">
+    <header class="top-nav">
+      <div class="nav-container">
+        <div class="logo">
+          <h1>{{ t('nav.companyName') }}</h1>
+          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+        </div>
+        <nav class="nav-tabs">
+          <router-link to="/" :class="{ active: $route.path === '/' }">
+            {{ t('nav.overview') }}
+          </router-link>
+          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
+            {{ t('nav.inventory') }}
+          </router-link>
+          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
+            {{ t('nav.orders') }}
+          </router-link>
+          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
+            {{ t('nav.finance') }}
+          </router-link>
+          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
+            {{ t('nav.demandForecast') }}
+          </router-link>
+          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
+            Reports
+          </router-link>
+        </nav>
+        <LanguageSwitcher />
         <ProfileMenu
-          :compact="collapsed"
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
-      </template>
-    </AppSidebar>
-
-    <div class="app-main">
-      <header class="app-topbar">
-        <button
-          ref="menuButton"
-          type="button"
-          class="app-menu-btn"
-          :aria-label="t('nav.openMenu')"
-          :title="t('nav.openMenu')"
-          aria-controls="app-sidebar"
-          :aria-expanded="mobileMenuOpen ? 'true' : 'false'"
-          @click="mobileMenuOpen = !mobileMenuOpen"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="22"
-            height="22"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.75"
-            stroke-linecap="round"
-            aria-hidden="true"
-          >
-            <path d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-        </button>
-        <h1 class="app-topbar-title">{{ pageTitle }}</h1>
-        <div class="app-topbar-actions">
-          <LanguageSwitcher />
-        </div>
-      </header>
-
-      <FilterBar />
-
-      <main class="main-content">
-        <router-view />
-      </main>
-    </div>
+      </div>
+    </header>
+    <FilterBar />
+    <main class="main-content">
+      <router-view />
+    </main>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -71,12 +55,10 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, computed } from 'vue'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
-import AppSidebar from './components/AppSidebar.vue'
 import FilterBar from './components/FilterBar.vue'
 import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
@@ -86,7 +68,6 @@ import LanguageSwitcher from './components/LanguageSwitcher.vue'
 export default {
   name: 'App',
   components: {
-    AppSidebar,
     FilterBar,
     ProfileMenu,
     ProfileDetailsModal,
@@ -96,42 +77,8 @@ export default {
   setup() {
     const { currentUser } = useAuth()
     const { t } = useI18n()
-    const route = useRoute()
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
-    const mobileMenuOpen = ref(false)
-    const menuButton = ref(null)
-
-    // Sidebar items, in the original top-nav order. Icons are inline SVG path data
-    // (24x24 viewBox, stroked by AppSidebar) so no icon dependency is needed.
-    const navItems = computed(() => [
-      { to: '/', label: t('nav.overview'), icon: 'M4 4h6v7H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 15h6v5H4z' },
-      { to: '/inventory', label: t('nav.inventory'), icon: 'M21 8l-9-5-9 5v8l9 5 9-5zM3 8l9 5 9-5M12 13v8' },
-      { to: '/orders', label: t('nav.orders'), icon: 'M9 4h6v3H9zM9 5.5H5.5A1.5 1.5 0 0 0 4 7v12.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V7a1.5 1.5 0 0 0-1.5-1.5H15M8 12h8M8 16h5' },
-      { to: '/spending', label: t('nav.finance'), icon: 'M4 4v16h16M8 16v-4M12 16V8M16 16v-6' },
-      { to: '/demand', label: t('nav.demandForecast'), icon: 'M3 17l6-6 4 4 8-8M15 7h6v6' },
-      { to: '/restocking', label: t('nav.restocking'), icon: 'M20 11a8 8 0 0 0-14.9-3M4 5v3.5h3.5M4 13a8 8 0 0 0 14.9 3M20 19v-3.5h-3.5' },
-      { to: '/reports', label: t('nav.reports'), icon: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6' }
-    ])
-
-    // Top bar title follows the active route's nav label
-    const pageTitle = computed(() => {
-      const active = navItems.value.find(item => item.to === route.path)
-      return active ? active.label : t('nav.companyName')
-    })
-
-    const closeMobileMenu = (options = {}) => {
-      mobileMenuOpen.value = false
-      // Escape / scrim click: hand focus back to the control that opened the drawer
-      if (options && options.restoreFocus && menuButton.value) {
-        menuButton.value.focus()
-      }
-    }
-
-    // Any navigation (including browser back/forward) closes the drawer
-    watch(() => route.path, () => {
-      mobileMenuOpen.value = false
-    })
     const apiTasks = ref([])
 
     // Merge mock tasks from currentUser with API tasks
@@ -203,11 +150,6 @@ export default {
 
     return {
       t,
-      navItems,
-      pageTitle,
-      mobileMenuOpen,
-      menuButton,
-      closeMobileMenu,
       showProfileDetails,
       showTasks,
       tasks,
@@ -227,119 +169,162 @@ export default {
 }
 
 body {
-  font-family: var(--font-sans);
-  background: var(--bg-app);
-  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ---- Top bar controls (layout classes live in styles/tokens.css) ---- */
-.app-topbar-title {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.app-menu-btn {
-  display: none; /* only shown below 720px, where the sidebar becomes a drawer */
+.top-nav {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  margin-left: calc(var(--space-2) * -1);
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-md);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: background-color 0.15s ease;
+  padding: 0 2rem;
+  height: 70px;
 }
 
-.app-menu-btn:hover {
-  background: var(--bg-muted);
-  color: var(--text);
+.nav-container > .nav-tabs {
+  margin-left: auto;
+  margin-right: 1rem;
 }
 
-@media (max-width: 719px) {
-  .app-menu-btn {
-    display: inline-flex;
-  }
-
-  .app-topbar {
-    padding: 0 var(--space-4);
-  }
+.nav-container > .language-switcher {
+  margin-right: 1rem;
 }
 
-/* ---- Content column ---- */
+.logo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.logo h1 {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.025em;
+}
+
+.subtitle {
+  font-size: 0.813rem;
+  color: #64748b;
+  font-weight: 400;
+  padding-left: 0.75rem;
+  border-left: 1px solid #e2e8f0;
+}
+
+.nav-tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.nav-tabs a {
+  padding: 0.625rem 1.25rem;
+  color: #64748b;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.938rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-tabs a:hover {
+  color: #0f172a;
+  background: #f1f5f9;
+}
+
+.nav-tabs a.active {
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.nav-tabs a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2563eb;
+}
+
 .main-content {
   flex: 1;
-  max-width: var(--content-max-width);
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
-  padding: var(--space-5) var(--space-6);
-}
-
-@media (max-width: 719px) {
-  .main-content {
-    padding: var(--space-4);
-  }
+  padding: 1.5rem 2rem;
 }
 
 .page-header {
-  margin-bottom: var(--space-5);
+  margin-bottom: 1.5rem;
 }
 
 .page-header h2 {
-  font-size: var(--text-xl);
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: var(--space-1);
-  letter-spacing: -0.02em;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 0.375rem;
+  letter-spacing: -0.025em;
 }
 
 .page-header p {
-  color: var(--text-muted);
-  font-size: var(--text-sm);
+  color: #64748b;
+  font-size: 0.938rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17.5rem), 1fr));
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .stat-card {
-  background: var(--bg-surface);
-  padding: var(--space-5);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: white;
+  padding: 1.25rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
 }
 
 .stat-card:hover {
-  border-color: var(--border-strong, #cbd5e1);
-  box-shadow: var(--shadow-md);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .stat-label {
-  color: var(--text-muted);
-  font-size: var(--text-sm);
+  color: #64748b;
+  font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-2);
+  letter-spacing: 0.5px;
+  margin-bottom: 0.625rem;
 }
 
 .stat-value {
-  font-size: var(--text-2xl);
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.02em;
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.025em;
 }
 
 .stat-card.warning .stat-value {
@@ -355,32 +340,31 @@ body {
 }
 
 .stat-card.info .stat-value {
-  color: var(--accent);
+  color: #2563eb;
 }
 
 .card {
-  background: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--space-5);
+  background: white;
+  border-radius: 10px;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1.25rem;
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-4);
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--border);
+  margin-bottom: 1rem;
+  padding-bottom: 0.875rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .card-title {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.01em;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.025em;
 }
 
 .table-container {
@@ -393,26 +377,26 @@ table {
 }
 
 thead {
-  background: var(--bg-app);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 th {
   text-align: left;
-  padding: var(--space-3) var(--space-4);
+  padding: 0.5rem 0.75rem;
   font-weight: 600;
-  color: var(--text-muted);
-  font-size: var(--text-xs);
+  color: #475569;
+  font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 td {
-  padding: var(--space-3) var(--space-4);
-  border-top: 1px solid var(--bg-muted);
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 0.875rem;
 }
 
 tbody tr {
@@ -420,15 +404,14 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: var(--bg-app);
+  background: #f8fafc;
 }
 
-/* Status colours are intentionally unchanged from the previous design */
 .badge {
   display: inline-block;
-  padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-xs);
+  padding: 0.313rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -486,18 +469,18 @@ tbody tr:hover {
 
 .loading {
   text-align: center;
-  padding: var(--space-8);
-  color: var(--text-muted);
-  font-size: var(--text-sm);
+  padding: 3rem;
+  color: #64748b;
+  font-size: 0.938rem;
 }
 
 .error {
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #991b1b;
-  padding: var(--space-4);
-  border-radius: var(--radius-md);
-  margin: var(--space-4) 0;
-  font-size: var(--text-sm);
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  font-size: 0.938rem;
 }
 </style>

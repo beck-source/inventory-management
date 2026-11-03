@@ -89,7 +89,6 @@ const selectLanguage = (locale) => {
 </script>
 
 <style scoped>
-/* Sits on the white top bar; the dropdown opens downward and is right-aligned to the button */
 .language-switcher {
   position: relative;
 }
@@ -97,26 +96,25 @@ const selectLanguage = (locale) => {
 .language-button {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  height: 2.25rem;
-  padding: 0 var(--space-3);
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.2s ease, border-color 0.2s ease;
+  transition: all 0.2s ease;
   font-family: inherit;
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
+  font-size: 0.875rem;
+  color: #334155;
 }
 
 .language-button:hover {
-  background: var(--bg-app);
-  border-color: var(--border-strong, #cbd5e1);
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .globe-icon {
-  color: var(--text-muted);
+  color: #64748b;
   flex-shrink: 0;
 }
 
@@ -125,7 +123,7 @@ const selectLanguage = (locale) => {
 }
 
 .chevron {
-  color: var(--text-muted);
+  color: #64748b;
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -139,11 +137,10 @@ const selectLanguage = (locale) => {
   top: calc(100% + 0.5rem);
   right: 0;
   min-width: 160px;
-  max-width: calc(100vw - 1rem);
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 10px 25px rgb(15 23 42 / 0.1);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   overflow: hidden;
 }
@@ -153,26 +150,26 @@ const selectLanguage = (locale) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
   transition: background 0.15s ease;
   font-family: inherit;
-  font-size: var(--text-sm);
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: #334155;
 }
 
 .dropdown-item:hover {
-  background: var(--bg-app);
+  background: #f8fafc;
 }
 
 .dropdown-item.active {
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: #eff6ff;
+  color: #2563eb;
 }
 
 .language-name {
@@ -180,7 +177,7 @@ const selectLanguage = (locale) => {
 }
 
 .check-icon {
-  color: var(--accent);
+  color: #2563eb;
   flex-shrink: 0;
 }
 </style>

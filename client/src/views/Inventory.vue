@@ -226,7 +226,7 @@ export default {
 
 <style scoped>
 .page-header {
-  margin-bottom: var(--space-5);
+  margin-bottom: 1.5rem;
 }
 
 .page-header h2 {
@@ -234,7 +234,7 @@ export default {
 }
 
 .page-header p {
-  color: var(--text-muted);
+  color: #64748b;
   font-size: 0.875rem;
 }
 
@@ -242,17 +242,15 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--space-5);
-  /* The shared .card already pads its content with --space-5; keep only a bottom gap so the header does not double-indent */
-  padding: 0 0 var(--space-3);
-  margin-bottom: var(--space-4);
-  border-bottom: 1px solid var(--border);
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .card-title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text);
+  color: #0f172a;
   margin: 0;
 }
 
@@ -276,17 +274,17 @@ export default {
   width: 100%;
   padding: 0.5rem 2.5rem 0.5rem 2.5rem;
   border: 1px solid #cbd5e1;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   font-size: 0.875rem;
-  color: var(--text);
-  background: var(--bg-app);
+  color: #0f172a;
+  background: #f8fafc;
   transition: all 0.2s;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #3b82f6;
-  background: var(--bg-surface);
+  background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -310,8 +308,8 @@ export default {
 }
 
 .clear-search:hover {
-  background: var(--border);
-  color: var(--text-muted);
+  background: #e2e8f0;
+  color: #64748b;
 }
 
 .clear-search svg {
@@ -323,7 +321,7 @@ export default {
 .error {
   padding: 2rem;
   text-align: center;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .error {
@@ -336,18 +334,6 @@ export default {
 }
 
 .clickable-row:hover {
-  background: var(--accent-soft) !important;
-}
-
-@media (max-width: 720px) {
-  .card-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .search-box {
-    min-width: 0;
-    width: 100%;
-  }
+  background: #eff6ff !important;
 }
 </style>

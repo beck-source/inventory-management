@@ -731,49 +731,48 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-5);
+  margin-bottom: 1rem;
 }
 
 .header-meta {
   font-size: 0.813rem;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .kpi-section {
-  margin-bottom: var(--space-5);
+  margin-bottom: 1.5rem;
 }
 
 .section-title {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: #475569;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: var(--space-4);
+  margin-bottom: 1rem;
 }
 
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-4);
+  gap: 1rem;
 }
 
 .kpi-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-5);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
 }
 
 .kpi-header {
-  margin-bottom: var(--space-3);
+  margin-bottom: 0.75rem;
 }
 
 .kpi-label {
   font-size: 0.813rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.025em;
 }
@@ -781,21 +780,21 @@ export default {
 .kpi-value {
   font-size: 2rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
   margin-bottom: 0.5rem;
   letter-spacing: -0.025em;
 }
 
 .kpi-goal {
   font-size: 0.813rem;
-  color: var(--text-muted);
+  color: #64748b;
   margin-bottom: 0.75rem;
 }
 
 .kpi-progress-bar {
   width: 100%;
   height: 6px;
-  background: var(--bg-muted);
+  background: #f1f5f9;
   border-radius: 3px;
   overflow: hidden;
 }
@@ -814,8 +813,8 @@ export default {
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-5);
-  margin-bottom: var(--space-5);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .chart-card.full-width {
@@ -849,7 +848,7 @@ export default {
   align-items: center;
   gap: 0.625rem;
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: #475569;
 }
 
 .legend-dot {
@@ -884,7 +883,7 @@ export default {
 
 .donut-center-label {
   font-size: 12px;
-  fill: var(--text-muted);
+  fill: #64748b;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -892,7 +891,7 @@ export default {
 
 .donut-center-value {
   font-size: 36px;
-  fill: var(--text);
+  fill: #0f172a;
   font-weight: 700;
 }
 
@@ -907,7 +906,7 @@ export default {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: #475569;
   font-weight: 500;
 }
 
@@ -929,7 +928,7 @@ export default {
 
 .health-metric-label {
   font-size: 0.688rem;
-  color: var(--text-muted);
+  color: #64748b;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -938,7 +937,7 @@ export default {
 .health-metric-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
   letter-spacing: -0.025em;
 }
 
@@ -972,15 +971,15 @@ export default {
   min-width: 120px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-secondary);
+  color: #475569;
   flex-shrink: 0;
 }
 
 .h-bar-container {
   flex: 1;
   height: 32px;
-  background: var(--bg-app);
-  border-radius: var(--radius-sm);
+  background: #f8fafc;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -1012,7 +1011,7 @@ export default {
   padding-right: 1rem;
   font-size: 0.75rem;
   color: #94a3b8;
-  border-right: 1px solid var(--border);
+  border-right: 1px solid #e2e8f0;
 }
 
 .line-chart-area {
@@ -1053,13 +1052,13 @@ export default {
 }
 
 .line-bar.empty-bar {
-  background: var(--border);
+  background: #e2e8f0;
   box-shadow: none;
   min-height: 4px;
 }
 
 .line-bar:hover {
-  background: var(--accent);
+  background: #2563eb;
   transform: scaleY(1.05);
 }
 
@@ -1071,7 +1070,7 @@ export default {
 .line-bar-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: #64748b;
   white-space: nowrap;
 }
 
@@ -1110,12 +1109,12 @@ export default {
 }
 
 .clickable-row:hover {
-  background: var(--accent-soft) !important;
+  background: #eff6ff !important;
 }
 
 /* Tasks Card Styles */
 .tasks-card {
-  margin-bottom: var(--space-5);
+  margin-bottom: 2rem;
 }
 
 .tasks-content {
@@ -1131,8 +1130,8 @@ export default {
 .task-input {
   flex: 1;
   padding: 0.75rem;
-  border: 2px solid var(--border);
-  border-radius: var(--radius-md);
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
   font-size: 0.95rem;
   transition: border-color 0.2s ease;
 }
@@ -1147,7 +1146,7 @@ export default {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
@@ -1165,7 +1164,7 @@ export default {
 .no-tasks {
   text-align: center;
   padding: 2rem;
-  color: var(--text-muted);
+  color: #64748b;
   font-style: italic;
 }
 
@@ -1180,15 +1179,15 @@ export default {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem;
-  background: var(--bg-app);
-  border-radius: var(--radius-md);
+  background: #f8fafc;
+  border-radius: 8px;
   border: 2px solid transparent;
   transition: all 0.2s ease;
 }
 
 .task-item:hover {
-  border-color: var(--border);
-  background: var(--bg-surface);
+  border-color: #e2e8f0;
+  background: white;
 }
 
 .task-item.completed {
@@ -1211,7 +1210,7 @@ export default {
   flex: 1;
   cursor: pointer;
   user-select: none;
-  color: var(--text);
+  color: #0f172a;
   font-size: 0.95rem;
 }
 
@@ -1221,7 +1220,7 @@ export default {
   background: #ef4444;
   color: white;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
@@ -1240,7 +1239,7 @@ export default {
 .po-button {
   padding: 0.5rem 1rem;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   font-size: 0.813rem;
   font-weight: 600;
   cursor: pointer;
@@ -1254,33 +1253,19 @@ export default {
 }
 
 .po-button.create:hover {
-  background: var(--accent);
+  background: #2563eb;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
 .po-button.view {
-  background: var(--text-muted);
+  background: #64748b;
   color: white;
 }
 
 .po-button.view:hover {
-  background: var(--text-secondary);
+  background: #475569;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
-}
-
-/* Narrow screens: collapse multi-column card grids to a single column */
-@media (max-width: 720px) {
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-  }
-
-  .charts-grid,
-  .order-health-container {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

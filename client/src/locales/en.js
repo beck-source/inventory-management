@@ -6,13 +6,8 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
-    restocking: 'Restocking',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System',
-    reports: 'Reports',
-    collapse: 'Collapse sidebar',
-    expand: 'Expand sidebar',
-    openMenu: 'Open menu'
+    subtitle: 'Inventory Management System'
   },
 
   // Dashboard
@@ -111,10 +106,6 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
-    submittedOrders: 'Submitted Orders',
-    noSubmittedOrders: 'No restocking orders have been submitted yet.',
-    submittedOrdersError: 'Failed to load submitted orders.',
-    leadDays: '{count} days',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -134,9 +125,6 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      totalCost: 'Total Cost',
-      submittedDate: 'Submitted',
-      leadTime: 'Lead Time',
       actualDelivery: 'Actual Delivery'
     }
   },
@@ -200,47 +188,6 @@ export default {
     }
   },
 
-  // Restocking
-  restocking: {
-    title: 'Restocking',
-    description: 'Plan replenishment purchases within a budget. Items below their reorder point are prioritized.',
-    filtersNotice: 'The global filters above do not apply to this page.',
-    budgetLabel: 'Restocking Budget',
-    budgetHint: 'Drag to set the maximum amount to spend on this restocking order.',
-    stats: {
-      budget: 'Budget',
-      recommendedSpend: 'Recommended Spend',
-      remainingBudget: 'Remaining Budget'
-    },
-    recommendedItems: 'Recommended Items',
-    table: {
-      sku: 'SKU',
-      name: 'Item Name',
-      category: 'Category',
-      warehouse: 'Warehouse',
-      onHand: 'On Hand',
-      reorderPoint: 'Reorder Point',
-      forecastedDemand: 'Forecasted Demand',
-      recommendedQty: 'Recommended Qty',
-      unitCost: 'Unit Cost',
-      lineTotal: 'Line Total',
-      leadTime: 'Lead Time',
-      reason: 'Reason'
-    },
-    badge: {
-      belowReorder: 'Below reorder point',
-      forecastDemand: 'Forecast demand'
-    },
-    leadDays: '{count} days',
-    placeOrder: 'Place Order',
-    submitting: 'Submitting...',
-    orderSuccess: 'Order {orderNumber} submitted. Lead time: {days} days.',
-    orderError: 'Failed to place the restocking order.',
-    loadError: 'Failed to load restocking recommendations.',
-    viewInOrders: 'View in Orders',
-    noRecommendations: 'No items can be recommended for the selected budget. Increase the budget to see recommendations.'
-  },
-
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -257,7 +204,6 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
-    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

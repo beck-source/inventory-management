@@ -74,56 +74,6 @@
           </table>
         </div>
       </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ submittedOrders.length }})</h3>
-        </div>
-        <div v-if="submittedOrdersError" class="inline-message inline-error">{{ submittedOrdersError }}</div>
-        <div v-else-if="submittedOrders.length === 0" class="inline-message">
-          {{ t('orders.noSubmittedOrders') }}
-        </div>
-        <div v-else class="table-container">
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
-                <th class="col-items">{{ t('orders.table.items') }}</th>
-                <th class="col-value">{{ t('orders.table.totalCost') }}</th>
-                <th class="col-date">{{ t('orders.table.submittedDate') }}</th>
-                <th class="col-lead">{{ t('orders.table.leadTime') }}</th>
-                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                <th class="col-status">{{ t('orders.table.status') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="order in submittedOrders" :key="order.id">
-                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
-                <td class="col-items">
-                  <details class="items-details">
-                    <summary class="items-summary">
-                      {{ t('orders.itemsCount', { count: order.items.length }) }}
-                    </summary>
-                    <div class="items-dropdown">
-                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
-                        <span class="item-name">{{ translateProductName(item.name) }}</span>
-                        <span class="item-meta">{{ item.sku }} - {{ t('orders.quantity') }}: {{ item.quantity }}</span>
-                      </div>
-                    </div>
-                  </details>
-                </td>
-                <td class="col-value"><strong>{{ formatMoney(order.total_cost) }}</strong></td>
-                <td class="col-date">{{ formatDate(order.order_date) }}</td>
-                <td class="col-lead"><span class="lead-time">{{ t('orders.leadDays', { count: order.lead_time_days }) }}</span></td>
-                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                <td class="col-status">
-                  <span class="badge info">{{ t('status.submitted') }}</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -133,7 +83,6 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
-import { formatCurrency as formatCurrencyUtil } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -175,22 +124,6 @@ export default {
       }
     }
 
-    // Submitted restocking orders ignore the global filters and load independently
-    const submittedOrders = ref([])
-    const submittedOrdersError = ref(null)
-
-    const loadSubmittedOrders = async () => {
-      try {
-        submittedOrdersError.value = null
-        submittedOrders.value = await api.getRestockingOrders()
-      } catch (err) {
-        submittedOrdersError.value = t('orders.submittedOrdersError')
-        console.error('Failed to load submitted orders:', err)
-      }
-    }
-
-    const formatMoney = (value) => formatCurrencyUtil(value, currentCurrency.value)
-
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -220,19 +153,13 @@ export default {
       })
     }
 
-    onMounted(() => {
-      loadOrders()
-      loadSubmittedOrders()
-    })
+    onMounted(loadOrders)
 
     return {
       t,
       loading,
       error,
       orders,
-      submittedOrders,
-      submittedOrdersError,
-      formatMoney,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -276,31 +203,6 @@ export default {
   width: 120px;
 }
 
-.col-lead {
-  width: 110px;
-}
-
-/* Submitted orders */
-.lead-time {
-  display: inline-block;
-  padding: 0.25rem 0.625rem;
-  border-radius: var(--radius-sm);
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.inline-message {
-  padding: 1rem 0.25rem;
-  color: var(--text-muted);
-  font-size: 0.875rem;
-}
-
-.inline-message.inline-error {
-  color: #991b1b;
-}
-
 /* Items details styling */
 .items-details {
   position: relative;
@@ -332,7 +234,7 @@ export default {
 }
 
 .items-summary:hover {
-  color: var(--accent);
+  color: #2563eb;
   text-decoration: underline;
 }
 
@@ -342,9 +244,9 @@ export default {
   top: 100%;
   left: 0;
   margin-top: 0.5rem;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   padding: 0.75rem;
   z-index: 10;
@@ -357,7 +259,7 @@ export default {
   flex-direction: column;
   gap: 0.25rem;
   padding: 0.5rem;
-  border-bottom: 1px solid var(--bg-muted);
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .item-entry:last-child {
@@ -367,11 +269,11 @@ export default {
 .item-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text);
+  color: #0f172a;
 }
 
 .item-meta {
   font-size: 0.813rem;
-  color: var(--text-muted);
+  color: #64748b;
 }
 </style>

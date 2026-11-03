@@ -322,22 +322,21 @@ export default {
 }
 
 .card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  margin-bottom: var(--space-5);
-  box-shadow: var(--shadow-sm);
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
-  margin-bottom: var(--space-5);
+  margin-bottom: 1.5rem;
 }
 
 .card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text);
+  color: #0f172a;
   margin: 0;
 }
 
@@ -347,21 +346,21 @@ export default {
 }
 
 .reports-table th {
-  background: var(--bg-app);
+  background: #f8fafc;
   padding: 0.75rem;
   text-align: left;
   font-weight: 600;
-  color: var(--text-muted);
-  border-bottom: 2px solid var(--border);
+  color: #64748b;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .reports-table td {
   padding: 0.75rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .reports-table tr:hover {
-  background: var(--bg-app);
+  background: #f8fafc;
 }
 
 .chart-container {
@@ -407,7 +406,7 @@ export default {
 .bar-label {
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #64748b;
   text-align: center;
   transform: rotate(-45deg);
   white-space: nowrap;
@@ -417,28 +416,28 @@ export default {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--space-4);
-  margin-top: var(--space-5);
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .stat-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5);
-  box-shadow: var(--shadow-sm);
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #3b82f6;
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #64748b;
   margin-bottom: 0.5rem;
 }
 
 .stat-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
 }
 
 .badge {
@@ -476,20 +475,14 @@ export default {
 .loading {
   text-align: center;
   padding: 3rem;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .error {
   background: #fee2e2;
   color: #991b1b;
   padding: 1rem;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   margin: 1rem 0;
-}
-
-@media (max-width: 720px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

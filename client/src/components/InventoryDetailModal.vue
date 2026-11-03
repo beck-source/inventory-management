@@ -190,9 +190,9 @@ const getSummaryCardClass = () => {
 }
 
 .modal-container {
-  background: var(--bg-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
@@ -206,32 +206,32 @@ const getSummaryCardClass = () => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #64748b;
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 
 .close-button:hover {
-  background: var(--bg-muted);
-  color: var(--text);
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
 .modal-body {
@@ -245,14 +245,14 @@ const getSummaryCardClass = () => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #e2e8f0;
   margin-bottom: 1.5rem;
 }
 
 .item-icon {
   width: 64px;
   height: 64px;
-  border-radius: var(--radius-lg);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -280,19 +280,19 @@ const getSummaryCardClass = () => {
 .item-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
   margin: 0 0 0.5rem 0;
 }
 
 .item-sku {
   font-size: 0.875rem;
-  color: var(--text-muted);
+  color: #64748b;
   font-family: 'Monaco', 'Courier New', monospace;
 }
 
 .stock-badge {
   padding: 0.5rem 1rem;
-  border-radius: var(--radius-sm);
+  border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -324,13 +324,13 @@ const getSummaryCardClass = () => {
 
 .summary-card {
   padding: 1.25rem;
-  border-radius: var(--radius-lg);
+  border-radius: 10px;
   border: 2px solid;
 }
 
 .summary-card.primary {
   border-color: #bfdbfe;
-  background: var(--accent-soft);
+  background: #eff6ff;
 }
 
 .summary-card.success-card {
@@ -353,19 +353,19 @@ const getSummaryCardClass = () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
+  color: #64748b;
   margin-bottom: 0.5rem;
 }
 
 .summary-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: var(--text);
+  color: #0f172a;
 }
 
 .summary-subtitle {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: #64748b;
   margin-top: 0.25rem;
 }
 
@@ -386,24 +386,24 @@ const getSummaryCardClass = () => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-muted);
+  color: #64748b;
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: var(--text);
+  color: #0f172a;
   font-weight: 500;
 }
 
 .info-value.total-value {
   font-size: 1.125rem;
-  color: var(--accent);
+  color: #2563eb;
   font-weight: 700;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid #e2e8f0;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -411,9 +411,9 @@ const getSummaryCardClass = () => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: var(--bg-muted);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
   font-weight: 500;
   font-size: 0.875rem;
   color: #334155;
@@ -423,7 +423,7 @@ const getSummaryCardClass = () => {
 }
 
 .btn-secondary:hover {
-  background: var(--border);
+  background: #e2e8f0;
   border-color: #cbd5e1;
 }
 
