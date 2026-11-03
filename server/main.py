@@ -8,7 +8,6 @@ import os
 import re
 import threading
 from datetime import date, datetime, timedelta
-from functools import lru_cache
 from typing import List, Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, submitted_orders
@@ -449,12 +448,10 @@ def get_recent_transactions():
     """Get recent transactions"""
     return recent_transactions
 
-@lru_cache(maxsize=1)
-def _quarterly_report() -> tuple:
-    # Orders are static mock data, so the aggregate is computed once
+def _quarterly_report(order_list: list) -> list:
     quarters = {}
 
-    for order in orders:
+    for order in order_list:
         quarter = MONTH_TO_QUARTER.get(order.get('order_date', '')[:7])
         if quarter is None:
             continue
@@ -476,19 +473,19 @@ def _quarterly_report() -> tuple:
     # Calculate averages and fulfillment rate
     result = []
     for data in quarters.values():
+        data['fulfillment_rate'] = 0
         if data['total_orders'] > 0:
             data['avg_order_value'] = round(data['total_revenue'] / data['total_orders'], 2)
             data['fulfillment_rate'] = round((data['delivered_orders'] / data['total_orders']) * 100, 1)
         result.append(data)
 
     result.sort(key=lambda x: x['quarter'])
-    return tuple(result)
+    return result
 
-@lru_cache(maxsize=1)
-def _monthly_trends() -> tuple:
+def _monthly_trends(order_list: list) -> list:
     months = {}
 
-    for order in orders:
+    for order in order_list:
         order_date = order.get('order_date', '')
         if not order_date:
             continue
@@ -508,17 +505,29 @@ def _monthly_trends() -> tuple:
         if order.get('status') == 'Delivered':
             months[month]['delivered_count'] += 1
 
-    return tuple(sorted(months.values(), key=lambda x: x['month']))
+    return sorted(months.values(), key=lambda x: x['month'])
 
 @app.get("/api/reports/quarterly")
-def get_quarterly_reports():
-    """Get quarterly performance reports"""
-    return list(_quarterly_report())
+def get_quarterly_reports(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get quarterly performance reports with optional filtering"""
+    filtered = filter_by_month(apply_filters(orders, warehouse, category, status), month)
+    return _quarterly_report(filtered)
 
 @app.get("/api/reports/monthly-trends")
-def get_monthly_trends():
-    """Get month-over-month trends"""
-    return list(_monthly_trends())
+def get_monthly_trends(
+    warehouse: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = None,
+    month: Optional[str] = None
+):
+    """Get month-over-month trends with optional filtering"""
+    filtered = filter_by_month(apply_filters(orders, warehouse, category, status), month)
+    return _monthly_trends(filtered)
 
 class Task(BaseModel):
     id: str

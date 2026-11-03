@@ -1,66 +1,64 @@
 <template>
   <div class="backlog">
     <div class="page-header">
-      <h2>Backlog Management</h2>
-      <p>Track and resolve inventory shortages</p>
+      <h2>{{ t("backlog.title") }}</h2>
+      <p>{{ t("backlog.description") }}</p>
     </div>
 
-    <div v-if="loading" class="loading">Loading backlog...</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorState
+      v-if="loading || error"
+      :loading="loading"
+      :message="error || ''"
+      @retry="reload"
+    />
     <div v-else>
       <div class="stats-grid">
         <div class="stat-card danger">
-          <div class="stat-label">High Priority</div>
+          <div class="stat-label">{{ t("backlog.highPriority") }}</div>
           <div class="stat-value">
             {{ getBacklogByPriority("high").length }}
           </div>
         </div>
         <div class="stat-card warning">
-          <div class="stat-label">Medium Priority</div>
+          <div class="stat-label">{{ t("backlog.mediumPriority") }}</div>
           <div class="stat-value">
             {{ getBacklogByPriority("medium").length }}
           </div>
         </div>
         <div class="stat-card info">
-          <div class="stat-label">Low Priority</div>
+          <div class="stat-label">{{ t("backlog.lowPriority") }}</div>
           <div class="stat-value">{{ getBacklogByPriority("low").length }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Total Backlog Items</div>
+          <div class="stat-label">{{ t("backlog.totalItems") }}</div>
           <div class="stat-value">{{ backlogItems.length }}</div>
         </div>
       </div>
 
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">Backlog Items</h3>
+          <h3 class="card-title">{{ t("backlog.itemsHeading") }}</h3>
         </div>
-        <div
-          v-if="backlogItems.length === 0"
-          style="padding: 3rem; text-align: center"
-        >
-          <p
-            style="
-              font-size: 1.125rem;
-              color: var(--success-fg);
-              font-weight: 600;
-            "
-          >
-            ✓ No backlog items - all orders can be fulfilled!
-          </p>
+        <div v-if="backlogItems.length === 0" class="empty-state">
+          {{ t("backlog.empty") }}
         </div>
         <div v-else class="table-container">
           <table>
+            <caption class="sr-only">
+              {{
+                t("backlog.itemsHeading")
+              }}
+            </caption>
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>SKU</th>
-                <th>Item Name</th>
-                <th>Quantity Needed</th>
-                <th>Quantity Available</th>
-                <th>Shortage</th>
-                <th>Days Delayed</th>
-                <th>Priority</th>
+                <th scope="col">{{ t("backlog.table.orderId") }}</th>
+                <th scope="col">{{ t("backlog.table.sku") }}</th>
+                <th scope="col">{{ t("backlog.table.itemName") }}</th>
+                <th scope="col">{{ t("backlog.table.quantityNeeded") }}</th>
+                <th scope="col">{{ t("backlog.table.quantityAvailable") }}</th>
+                <th scope="col">{{ t("backlog.table.shortage") }}</th>
+                <th scope="col">{{ t("backlog.table.daysDelayed") }}</th>
+                <th scope="col">{{ t("backlog.table.priority") }}</th>
               </tr>
             </thead>
             <tbody>
@@ -71,30 +69,30 @@
                 <td>
                   <strong>{{ item.item_sku }}</strong>
                 </td>
-                <td>{{ item.item_name }}</td>
+                <td>{{ translateProductName(item.item_name) }}</td>
                 <td>{{ item.quantity_needed }}</td>
                 <td>{{ item.quantity_available }}</td>
                 <td>
                   <span class="badge danger">
-                    {{ item.quantity_needed - item.quantity_available }} units
-                    short
+                    {{
+                      t("backlog.unitsShort", {
+                        n: item.quantity_needed - item.quantity_available,
+                      })
+                    }}
                   </span>
                 </td>
                 <td>
                   <span
-                    :style="{
-                      color:
-                        item.days_delayed > 7
-                          ? 'var(--danger-fg)'
-                          : 'var(--warning-fg)',
-                    }"
+                    :class="
+                      item.days_delayed > 7 ? 'delay-severe' : 'delay-moderate'
+                    "
                   >
-                    {{ item.days_delayed }} days
+                    {{ t("backlog.days", { n: item.days_delayed }) }}
                   </span>
                 </td>
                 <td>
                   <span :class="['badge', item.priority]">
-                    {{ item.priority }}
+                    {{ t("priority." + item.priority) }}
                   </span>
                 </td>
               </tr>
@@ -107,15 +105,18 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { api } from "../api";
 import { useFilters } from "../composables/useFilters";
+import { useFilteredLoad } from "../composables/useFilteredLoad";
+import { useI18n } from "../composables/useI18n";
+import ErrorState from "../components/ErrorState.vue";
 
 export default {
   name: "Backlog",
+  components: { ErrorState },
   setup() {
-    const loading = ref(true);
-    const error = ref(null);
+    const { t, translateProductName } = useI18n();
     const allBacklogItems = ref([]);
     const inventoryItems = ref([]);
 
@@ -137,45 +138,55 @@ export default {
       return allBacklogItems.value.filter((b) => validSkus.has(b.item_sku));
     });
 
-    const loadBacklog = async () => {
-      try {
-        loading.value = true;
-        const filters = getCurrentFilters();
+    const { loading, error, reload } = useFilteredLoad(async () => {
+      const filters = getCurrentFilters();
 
-        const [backlogData, inventoryData] = await Promise.all([
-          api.getBacklog(),
-          api.getInventory({
-            warehouse: filters.warehouse,
-            category: filters.category,
-          }),
-        ]);
+      const [backlogData, inventoryData] = await Promise.all([
+        api.getBacklog(),
+        api.getInventory({
+          warehouse: filters.warehouse,
+          category: filters.category,
+        }),
+      ]);
 
-        allBacklogItems.value = backlogData;
-        inventoryItems.value = inventoryData;
-      } catch (err) {
-        error.value = "Failed to load backlog: " + err.message;
-      } finally {
-        loading.value = false;
-      }
-    };
+      allBacklogItems.value = backlogData;
+      inventoryItems.value = inventoryData;
+    });
 
     const getBacklogByPriority = (priority) => {
       return backlogItems.value.filter((item) => item.priority === priority);
     };
 
     // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadBacklog();
-    });
-
-    onMounted(loadBacklog);
+    watch([selectedLocation, selectedCategory], reload);
 
     return {
+      t,
+      translateProductName,
       loading,
       error,
+      reload,
       backlogItems,
       getBacklogByPriority,
     };
   },
 };
 </script>
+
+<style scoped>
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--success-fg);
+}
+
+.delay-severe {
+  color: var(--danger-fg);
+}
+
+.delay-moderate {
+  color: var(--warning-fg);
+}
+</style>

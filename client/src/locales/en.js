@@ -201,6 +201,7 @@ export default {
     },
     trend: {
       title: "Monthly Revenue Trend",
+      barLabel: "{month}: {value}",
     },
     mom: {
       title: "Month-over-Month Analysis",
@@ -309,6 +310,32 @@ export default {
     increasing: "increasing",
     stable: "stable",
     decreasing: "decreasing",
+  },
+
+  // Backlog
+  backlog: {
+    title: "Backlog Management",
+    description: "Track and resolve inventory shortages",
+    loading: "Loading backlog...",
+    loadFailed: "Failed to load backlog",
+    highPriority: "High Priority",
+    mediumPriority: "Medium Priority",
+    lowPriority: "Low Priority",
+    totalItems: "Total Backlog Items",
+    itemsHeading: "Backlog Items",
+    empty: "No backlog items - all orders can be fulfilled.",
+    table: {
+      orderId: "Order ID",
+      sku: "SKU",
+      itemName: "Item Name",
+      quantityNeeded: "Quantity Needed",
+      quantityAvailable: "Quantity Available",
+      shortage: "Shortage",
+      daysDelayed: "Days Delayed",
+      priority: "Priority",
+    },
+    unitsShort: "{n} units short",
+    days: "{n} days",
   },
 
   // Priority

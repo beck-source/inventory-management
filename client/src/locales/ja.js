@@ -200,6 +200,7 @@ export default {
     },
     trend: {
       title: "月次収益トレンド",
+      barLabel: "{month}：{value}",
     },
     mom: {
       title: "前月比分析",
@@ -308,6 +309,32 @@ export default {
     increasing: "増加",
     stable: "安定",
     decreasing: "減少",
+  },
+
+  // Backlog
+  backlog: {
+    title: "バックログ管理",
+    description: "在庫不足の追跡と解消",
+    loading: "バックログを読み込み中...",
+    loadFailed: "バックログの読み込みに失敗しました",
+    highPriority: "優先度：高",
+    mediumPriority: "優先度：中",
+    lowPriority: "優先度：低",
+    totalItems: "バックログ総数",
+    itemsHeading: "バックログ品目",
+    empty: "バックログはありません - すべての注文を出荷できます。",
+    table: {
+      orderId: "注文ID",
+      sku: "SKU",
+      itemName: "品名",
+      quantityNeeded: "必要数量",
+      quantityAvailable: "在庫数量",
+      shortage: "不足数",
+      daysDelayed: "遅延日数",
+      priority: "優先度",
+    },
+    unitsShort: "{n}個不足",
+    days: "{n}日",
   },
 
   // Priority
