@@ -1,3 +1,5 @@
+// Tokens first so every component stylesheet can reference them
+import './styles/tokens.css'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'

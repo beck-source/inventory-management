@@ -31,8 +31,8 @@
         <div class="card-header">
           <h3 class="card-title">Backlog Items</h3>
         </div>
-        <div v-if="backlogItems.length === 0" style="padding: 3rem; text-align: center;">
-          <p style="font-size: 1.125rem; color: #10b981; font-weight: 600;">
+        <div v-if="backlogItems.length === 0" class="empty-state">
+          <p class="empty-state-text">
             ✓ No backlog items - all orders can be fulfilled!
           </p>
         </div>
@@ -43,8 +43,8 @@
                 <th>Order ID</th>
                 <th>SKU</th>
                 <th>Item Name</th>
-                <th>Quantity Needed</th>
-                <th>Quantity Available</th>
+                <th class="num">Quantity Needed</th>
+                <th class="num">Quantity Available</th>
                 <th>Shortage</th>
                 <th>Days Delayed</th>
                 <th>Priority</th>
@@ -55,15 +55,15 @@
                 <td><strong>{{ item.order_id }}</strong></td>
                 <td><strong>{{ item.item_sku }}</strong></td>
                 <td>{{ item.item_name }}</td>
-                <td>{{ item.quantity_needed }}</td>
-                <td>{{ item.quantity_available }}</td>
+                <td class="num">{{ item.quantity_needed }}</td>
+                <td class="num">{{ item.quantity_available }}</td>
                 <td>
                   <span class="badge danger">
                     {{ item.quantity_needed - item.quantity_available }} units short
                   </span>
                 </td>
                 <td>
-                  <span :style="{ color: item.days_delayed > 7 ? '#ef4444' : '#f59e0b' }">
+                  <span :style="{ color: item.days_delayed > 7 ? 'var(--color-danger)' : 'var(--color-warning)' }">
                     {{ item.days_delayed }} days
                   </span>
                 </td>
@@ -150,3 +150,28 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+/* Table sits inside a card, so drop any container frame to avoid a doubled border */
+.table-container {
+  border: 0;
+  border-radius: 0;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty-state {
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+}
+
+.empty-state-text {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-success);
+}
+</style>

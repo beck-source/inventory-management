@@ -1,0 +1,192 @@
+/*
+ * Design tokens for the SaaS shell.
+ *
+ * Light values live on :root; dark values on :root[data-theme="dark"].
+ * The theme-init script (theme-init.html) always writes a resolved
+ * data-theme ("light" or "dark") before the app mounts, so a single dark
+ * block is enough and "system" is handled in JS rather than duplicated
+ * under a prefers-color-scheme media query.
+ *
+ * Adapt the accent hue to the product's brand; keep the neutral ramp.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Spacing: 4px base. Use these for padding, margin and gap. */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, monospace;
+  --text-xs: 0.75rem;    /* 12px: table headers, captions, badges */
+  --text-sm: 0.8125rem;  /* 13px: secondary text, nav items */
+  --text-base: 0.875rem; /* 14px: body copy in dense app UI */
+  --text-md: 1rem;       /* 16px: card titles */
+  --text-lg: 1.125rem;   /* 18px: section titles */
+  --text-xl: 1.375rem;   /* 22px: page titles */
+  --text-2xl: 1.75rem;   /* 28px: KPI values */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Layout */
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 64px;
+  --topbar-height: 56px;
+  --content-max-width: 1440px;
+  --content-padding: var(--space-8);
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration: 200ms;
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Stacking: modals must sit above the sidebar and its mobile backdrop. */
+  --z-topbar: 30;
+  --z-sidebar: 40;
+  --z-backdrop: 45;
+  --z-dropdown: 60;
+  --z-modal: 100;
+
+  /* Neutrals (slate) */
+  --color-bg: #f8fafc;             /* app canvas behind cards */
+  --color-surface: #ffffff;        /* cards, sidebar, top bar, modals */
+  --color-surface-muted: #f1f5f9;  /* table header, inset panels */
+  --color-surface-hover: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-text: #0f172a;
+  --color-text-muted: #475569;
+  --color-text-subtle: #64748b;    /* lowest-contrast text still AA on surface */
+
+  /* Accent */
+  --color-accent: #4f46e5;
+  --color-accent-hover: #4338ca;
+  --color-accent-soft: #eef2ff;    /* active nav item, selected rows */
+  --color-accent-text: #4338ca;    /* accent-colored text on soft bg */
+  --color-on-accent: #ffffff;
+
+  /* Status: text color + soft background pairs for badges and alerts */
+  --color-success: #15803d;
+  --color-success-soft: #dcfce7;
+  --color-warning: #a16207;
+  --color-warning-soft: #fef9c3;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fee2e2;
+  --color-info: #0369a1;
+  --color-info-soft: #e0f2fe;
+
+  /* Charts: categorical series, in order of use */
+  --chart-1: #4f46e5;
+  --chart-2: #0d9488;
+  --chart-3: #d97706;
+  --chart-4: #7c3aed;
+  --chart-5: #db2777;
+  --chart-grid: #e2e8f0;
+  --chart-axis: #64748b;
+
+  /* Elevation */
+  --shadow-xs: 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-sm: 0 1px 3px rgb(15 23 42 / 0.08), 0 1px 2px rgb(15 23 42 / 0.04);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 16px 40px rgb(15 23 42 / 0.16);
+  --overlay: rgb(15 23 42 / 0.45);  /* modal and drawer backdrop */
+  --focus-ring: 0 0 0 3px rgb(79 70 229 / 0.35);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg: #0b1120;
+  --color-surface: #0f172a;
+  --color-surface-muted: #1e293b;
+  --color-surface-hover: #1e293b;
+  --color-border: #1e293b;
+  --color-border-strong: #334155;
+  --color-text: #f1f5f9;
+  --color-text-muted: #cbd5e1;
+  --color-text-subtle: #94a3b8;
+
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-accent-soft: rgb(99 102 241 / 0.18);
+  --color-accent-text: #a5b4fc;
+  --color-on-accent: #ffffff;
+
+  --color-success: #4ade80;
+  --color-success-soft: rgb(34 197 94 / 0.16);
+  --color-warning: #facc15;
+  --color-warning-soft: rgb(234 179 8 / 0.16);
+  --color-danger: #f87171;
+  --color-danger-soft: rgb(239 68 68 / 0.16);
+  --color-info: #38bdf8;
+  --color-info-soft: rgb(14 165 233 / 0.16);
+
+  --chart-1: #818cf8;
+  --chart-2: #2dd4bf;
+  --chart-3: #fbbf24;
+  --chart-4: #a78bfa;
+  --chart-5: #f472b6;
+  --chart-grid: #1e293b;
+  --chart-axis: #94a3b8;
+
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 0.3);
+  --shadow-sm: 0 1px 3px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.4);
+  --shadow-lg: 0 16px 40px rgb(0 0 0 / 0.5);
+  --overlay: rgb(2 6 23 / 0.65);
+  --focus-ring: 0 0 0 3px rgb(129 140 248 / 0.5);
+}
+
+/* Base element styles that every redesigned app needs. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
