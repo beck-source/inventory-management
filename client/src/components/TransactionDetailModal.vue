@@ -110,7 +110,7 @@ const formattedDate = computed(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,9 +119,9 @@ const formattedDate = computed(() => {
 }
 
 .modal-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 50px var(--shadow-b);
   max-width: 480px;
   width: 100%;
   max-height: 90vh;
@@ -135,20 +135,20 @@ const formattedDate = computed(() => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-strong);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -159,8 +159,8 @@ const formattedDate = computed(() => {
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--surface-sunken);
+  color: var(--text-strong);
 }
 
 .modal-body {
@@ -176,7 +176,7 @@ const formattedDate = computed(() => {
   justify-content: space-between;
   gap: 1.5rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .detail-row:last-child {
@@ -189,11 +189,11 @@ dt {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 dd {
-  color: #0f172a;
+  color: var(--text-strong);
   font-size: 0.938rem;
   text-align: right;
   overflow-wrap: anywhere;

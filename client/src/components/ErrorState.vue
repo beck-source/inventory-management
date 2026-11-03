@@ -38,9 +38,9 @@ const retryable = computed(() => !!instance?.vnode.props?.onRetry);
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: var(--red-bg);
+  border: 1px solid var(--red-soft);
+  color: var(--red-text);
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;
@@ -50,16 +50,16 @@ const retryable = computed(() => !!instance?.vnode.props?.onRetry);
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.938rem;
 }
 
 .retry-button {
   padding: 0.4rem 1rem;
-  background: white;
-  border: 1px solid #fecaca;
+  background: var(--surface);
+  border: 1px solid var(--red-soft);
   border-radius: 6px;
-  color: #991b1b;
+  color: var(--red-text);
   font-size: 0.813rem;
   font-weight: 500;
   font-family: inherit;
@@ -68,11 +68,11 @@ const retryable = computed(() => !!instance?.vnode.props?.onRetry);
 }
 
 .retry-button:hover {
-  background: #fee2e2;
+  background: var(--red-soft);
 }
 
 .retry-button:focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 </style>

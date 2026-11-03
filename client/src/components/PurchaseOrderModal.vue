@@ -468,7 +468,7 @@ const viewRows = computed(() => {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -477,9 +477,9 @@ const viewRows = computed(() => {
 }
 
 .modal-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 50px var(--shadow-b);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
@@ -493,20 +493,20 @@ const viewRows = computed(() => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-strong);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -515,8 +515,8 @@ const viewRows = computed(() => {
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--surface-sunken);
+  color: var(--text-strong);
 }
 
 .modal-body {
@@ -527,20 +527,20 @@ const viewRows = computed(() => {
 
 .item-header {
   padding-bottom: 1.25rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 1.5rem;
 }
 
 .item-name {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-strong);
   margin: 0 0 0.375rem 0;
 }
 
 .item-sku {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-family: "Monaco", "Courier New", monospace;
 }
 
@@ -567,35 +567,35 @@ const viewRows = computed(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .form-field input,
 .form-field textarea {
   padding: 0.625rem 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 0.938rem;
   font-family: inherit;
-  color: #0f172a;
-  background: white;
+  color: var(--text-strong);
+  background: var(--surface);
 }
 
 .form-field input:focus,
 .form-field textarea:focus {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
-  border-color: #64748b;
+  border-color: var(--text-muted);
 }
 
 .form-field input[aria-invalid="true"],
 .form-field textarea[aria-invalid="true"] {
-  border-color: #dc2626;
+  border-color: var(--red-solid);
 }
 
 .field-error {
   font-size: 0.813rem;
-  color: #991b1b;
+  color: var(--red-text);
 }
 
 .error-list {
@@ -605,21 +605,21 @@ const viewRows = computed(() => {
 }
 
 .modal-container :focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 
 .state-message {
   padding: 1rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: center;
   font-size: 0.938rem;
 }
 
 .state-message.error {
-  color: #991b1b;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  color: var(--red-text);
+  background: var(--red-bg);
+  border: 1px solid var(--red-soft);
   border-radius: 8px;
 }
 
@@ -640,18 +640,18 @@ const viewRows = computed(() => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--text-strong);
   font-weight: 500;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -669,24 +669,24 @@ const viewRows = computed(() => {
 }
 
 .btn-secondary {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #334155;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--border);
+  border-color: var(--border-strong);
 }
 
 .btn-primary {
-  background: #0f172a;
-  border: 1px solid #0f172a;
-  color: white;
+  background: var(--strong-bg);
+  border: 1px solid var(--strong-bg);
+  color: var(--on-accent);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #1e293b;
+  background: var(--strong-bg-hover);
 }
 
 .btn-primary:disabled {

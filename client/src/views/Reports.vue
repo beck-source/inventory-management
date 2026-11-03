@@ -1,32 +1,45 @@
 <template>
   <div class="reports">
     <div class="page-header">
-      <h2>{{ t('reports.title') }}</h2>
-      <p>{{ t('reports.description') }}</p>
+      <h2>{{ t("reports.title") }}</h2>
+      <p>{{ t("reports.description") }}</p>
     </div>
 
-    <ErrorState v-if="loading || error" :loading="loading" :message="error || ''" @retry="loadData" />
+    <ErrorState
+      v-if="loading || error"
+      :loading="loading"
+      :message="error || ''"
+      @retry="loadData"
+    />
     <div v-else>
       <!-- Quarterly Performance -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('reports.quarterly.title') }}</h3>
+          <h3 class="card-title">{{ t("reports.quarterly.title") }}</h3>
         </div>
         <div class="table-container">
           <table class="reports-table">
-            <caption class="sr-only">{{ t('reports.quarterly.title') }}</caption>
+            <caption class="sr-only">
+              {{
+                t("reports.quarterly.title")
+              }}
+            </caption>
             <thead>
               <tr>
-                <th scope="col">{{ t('reports.quarterly.quarter') }}</th>
-                <th scope="col">{{ t('reports.quarterly.totalOrders') }}</th>
-                <th scope="col">{{ t('reports.quarterly.totalRevenue') }}</th>
-                <th scope="col">{{ t('reports.quarterly.avgOrderValue') }}</th>
-                <th scope="col">{{ t('reports.quarterly.fulfillmentRate') }}</th>
+                <th scope="col">{{ t("reports.quarterly.quarter") }}</th>
+                <th scope="col">{{ t("reports.quarterly.totalOrders") }}</th>
+                <th scope="col">{{ t("reports.quarterly.totalRevenue") }}</th>
+                <th scope="col">{{ t("reports.quarterly.avgOrderValue") }}</th>
+                <th scope="col">
+                  {{ t("reports.quarterly.fulfillmentRate") }}
+                </th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="q in quarterlyData" :key="q.quarter">
-                <td><strong>{{ q.quarter }}</strong></td>
+                <td>
+                  <strong>{{ q.quarter }}</strong>
+                </td>
                 <td>{{ q.total_orders }}</td>
                 <td>${{ formatNumber(q.total_revenue) }}</td>
                 <td>${{ formatNumber(q.avg_order_value) }}</td>
@@ -44,11 +57,15 @@
       <!-- Monthly Trends Chart -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('reports.trend.title') }}</h3>
+          <h3 class="card-title">{{ t("reports.trend.title") }}</h3>
         </div>
         <div class="chart-container">
           <div class="bar-chart">
-            <div v-for="month in monthlyData" :key="month.month" class="bar-wrapper">
+            <div
+              v-for="month in monthlyData"
+              :key="month.month"
+              class="bar-wrapper"
+            >
               <div class="bar-container">
                 <div
                   class="bar"
@@ -65,34 +82,66 @@
       <!-- Month-over-Month Comparison -->
       <div class="card">
         <div class="card-header">
-          <h3 class="card-title">{{ t('reports.mom.title') }}</h3>
+          <h3 class="card-title">{{ t("reports.mom.title") }}</h3>
         </div>
         <div class="table-container">
           <table class="reports-table">
-            <caption class="sr-only">{{ t('reports.mom.title') }}</caption>
+            <caption class="sr-only">
+              {{
+                t("reports.mom.title")
+              }}
+            </caption>
             <thead>
               <tr>
-                <th scope="col">{{ t('reports.mom.month') }}</th>
-                <th scope="col">{{ t('reports.mom.orders') }}</th>
-                <th scope="col">{{ t('reports.mom.revenue') }}</th>
-                <th scope="col">{{ t('reports.mom.change') }}</th>
-                <th scope="col">{{ t('reports.mom.growthRate') }}</th>
+                <th scope="col">{{ t("reports.mom.month") }}</th>
+                <th scope="col">{{ t("reports.mom.orders") }}</th>
+                <th scope="col">{{ t("reports.mom.revenue") }}</th>
+                <th scope="col">{{ t("reports.mom.change") }}</th>
+                <th scope="col">{{ t("reports.mom.growthRate") }}</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(month, index) in monthlyData" :key="month.month">
-                <td><strong>{{ formatMonth(month.month) }}</strong></td>
+                <td>
+                  <strong>{{ formatMonth(month.month) }}</strong>
+                </td>
                 <td>{{ month.order_count }}</td>
                 <td>${{ formatNumber(month.revenue) }}</td>
                 <td>
-                  <span v-if="index > 0" :class="getChangeClass(month.revenue, monthlyData[index - 1].revenue)">
-                    {{ getChangeValue(month.revenue, monthlyData[index - 1].revenue) }}
+                  <span
+                    v-if="index > 0"
+                    :class="
+                      getChangeClass(
+                        month.revenue,
+                        monthlyData[index - 1].revenue,
+                      )
+                    "
+                  >
+                    {{
+                      getChangeValue(
+                        month.revenue,
+                        monthlyData[index - 1].revenue,
+                      )
+                    }}
                   </span>
                   <span v-else>-</span>
                 </td>
                 <td>
-                  <span v-if="index > 0" :class="getChangeClass(month.revenue, monthlyData[index - 1].revenue)">
-                    {{ getGrowthRate(month.revenue, monthlyData[index - 1].revenue) }}
+                  <span
+                    v-if="index > 0"
+                    :class="
+                      getChangeClass(
+                        month.revenue,
+                        monthlyData[index - 1].revenue,
+                      )
+                    "
+                  >
+                    {{
+                      getGrowthRate(
+                        month.revenue,
+                        monthlyData[index - 1].revenue,
+                      )
+                    }}
                   </span>
                   <span v-else>-</span>
                 </td>
@@ -105,19 +154,25 @@
       <!-- Summary Stats -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">{{ t('reports.summary.totalRevenueYtd') }}</div>
+          <div class="stat-label">
+            {{ t("reports.summary.totalRevenueYtd") }}
+          </div>
           <div class="stat-value">${{ formatNumber(totalRevenue) }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">{{ t('reports.summary.avgMonthlyRevenue') }}</div>
+          <div class="stat-label">
+            {{ t("reports.summary.avgMonthlyRevenue") }}
+          </div>
           <div class="stat-value">${{ formatNumber(avgMonthlyRevenue) }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">{{ t('reports.summary.totalOrdersYtd') }}</div>
+          <div class="stat-label">
+            {{ t("reports.summary.totalOrdersYtd") }}
+          </div>
           <div class="stat-value">{{ totalOrders }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">{{ t('reports.summary.bestQuarter') }}</div>
+          <div class="stat-label">{{ t("reports.summary.bestQuarter") }}</div>
           <div class="stat-value">{{ bestQuarter }}</div>
         </div>
       </div>
@@ -126,16 +181,16 @@
 </template>
 
 <script>
-import { api } from '../api'
-import { useI18n } from '../composables/useI18n'
-import ErrorState from '../components/ErrorState.vue'
+import { api } from "../api";
+import { useI18n } from "../composables/useI18n";
+import ErrorState from "../components/ErrorState.vue";
 
 export default {
-  name: 'Reports',
+  name: "Reports",
   components: { ErrorState },
   setup() {
-    const { t } = useI18n()
-    return { t }
+    const { t } = useI18n();
+    return { t };
   },
   data() {
     return {
@@ -146,167 +201,179 @@ export default {
       totalRevenue: 0,
       avgMonthlyRevenue: 0,
       totalOrders: 0,
-      bestQuarter: ''
-    }
+      bestQuarter: "",
+    };
   },
   mounted() {
-    this.loadData()
+    this.loadData();
   },
   methods: {
     async loadData() {
       try {
-        this.loading = true
-        this.error = null
+        this.loading = true;
+        this.error = null;
 
-        this.quarterlyData = await api.getQuarterlyReports()
-        this.monthlyData = await api.getMonthlyTrends()
+        this.quarterlyData = await api.getQuarterlyReports();
+        this.monthlyData = await api.getMonthlyTrends();
 
         // Calculate summary stats
-        this.calculateSummaryStats()
-
+        this.calculateSummaryStats();
       } catch (err) {
-        console.error('Error loading reports:', err)
-        this.error = this.t('reports.loadFailed')
+        console.error("Error loading reports:", err);
+        this.error = this.t("reports.loadFailed");
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
 
     calculateSummaryStats() {
       // Calculate total revenue
-      var total = 0
+      var total = 0;
       for (var i = 0; i < this.monthlyData.length; i++) {
-        total = total + this.monthlyData[i].revenue
+        total = total + this.monthlyData[i].revenue;
       }
-      this.totalRevenue = total
+      this.totalRevenue = total;
 
       // Calculate average monthly revenue
       if (this.monthlyData.length > 0) {
-        this.avgMonthlyRevenue = total / this.monthlyData.length
+        this.avgMonthlyRevenue = total / this.monthlyData.length;
       } else {
-        this.avgMonthlyRevenue = 0
+        this.avgMonthlyRevenue = 0;
       }
 
       // Calculate total orders
-      var orders = 0
+      var orders = 0;
       for (var i = 0; i < this.monthlyData.length; i++) {
-        orders = orders + this.monthlyData[i].order_count
+        orders = orders + this.monthlyData[i].order_count;
       }
-      this.totalOrders = orders
+      this.totalOrders = orders;
 
       // Find best quarter
-      var bestQ = ''
-      var bestRevenue = 0
+      var bestQ = "";
+      var bestRevenue = 0;
       for (var i = 0; i < this.quarterlyData.length; i++) {
         if (this.quarterlyData[i].total_revenue > bestRevenue) {
-          bestRevenue = this.quarterlyData[i].total_revenue
-          bestQ = this.quarterlyData[i].quarter
+          bestRevenue = this.quarterlyData[i].total_revenue;
+          bestQ = this.quarterlyData[i].quarter;
         }
       }
-      this.bestQuarter = bestQ
+      this.bestQuarter = bestQ;
     },
 
     formatNumber(num) {
       // Format number with commas
-      var str = num.toString()
-      var parts = str.split('.')
-      var intPart = parts[0]
-      var decPart = parts.length > 1 ? parts[1] : '00'
+      var str = num.toString();
+      var parts = str.split(".");
+      var intPart = parts[0];
+      var decPart = parts.length > 1 ? parts[1] : "00";
 
-      var formatted = ''
-      var count = 0
+      var formatted = "";
+      var count = 0;
       for (var i = intPart.length - 1; i >= 0; i--) {
         if (count > 0 && count % 3 === 0) {
-          formatted = ',' + formatted
+          formatted = "," + formatted;
         }
-        formatted = intPart[i] + formatted
-        count++
+        formatted = intPart[i] + formatted;
+        count++;
       }
 
       if (decPart.length === 1) {
-        decPart = decPart + '0'
+        decPart = decPart + "0";
       }
       if (decPart.length > 2) {
-        decPart = decPart.substring(0, 2)
+        decPart = decPart.substring(0, 2);
       }
 
-      return formatted + '.' + decPart
+      return formatted + "." + decPart;
     },
 
     formatMonth(monthStr) {
       // Convert YYYY-MM to readable format
-      var parts = monthStr.split('-')
-      var year = parts[0]
-      var month = parts[1]
+      var parts = monthStr.split("-");
+      var year = parts[0];
+      var month = parts[1];
 
-      var monthKeys = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-      var monthIndex = parseInt(month) - 1
-      if (!parts[1] || monthIndex < 0 || monthIndex > 11) return monthStr
+      var monthKeys = [
+        "jan",
+        "feb",
+        "mar",
+        "apr",
+        "may",
+        "jun",
+        "jul",
+        "aug",
+        "sep",
+        "oct",
+        "nov",
+        "dec",
+      ];
+      var monthIndex = parseInt(month) - 1;
+      if (!parts[1] || monthIndex < 0 || monthIndex > 11) return monthStr;
 
-      return this.t('months.' + monthKeys[monthIndex]) + ' ' + year
+      return this.t("months." + monthKeys[monthIndex]) + " " + year;
     },
 
     getBarHeight(revenue) {
       // Calculate bar height (max height 200px)
-      var maxRevenue = 0
+      var maxRevenue = 0;
       for (var i = 0; i < this.monthlyData.length; i++) {
         if (this.monthlyData[i].revenue > maxRevenue) {
-          maxRevenue = this.monthlyData[i].revenue
+          maxRevenue = this.monthlyData[i].revenue;
         }
       }
 
       if (maxRevenue === 0) {
-        return 0
+        return 0;
       }
 
-      var height = (revenue / maxRevenue) * 200
-      return height
+      var height = (revenue / maxRevenue) * 200;
+      return height;
     },
 
     getFulfillmentClass(rate) {
       if (rate >= 90) {
-        return 'badge success'
+        return "badge success";
       } else if (rate >= 75) {
-        return 'badge warning'
+        return "badge warning";
       } else {
-        return 'badge danger'
+        return "badge danger";
       }
     },
 
     getChangeValue(current, previous) {
-      var change = current - previous
+      var change = current - previous;
       if (change > 0) {
-        return '+$' + this.formatNumber(change)
+        return "+$" + this.formatNumber(change);
       } else if (change < 0) {
-        return '-$' + this.formatNumber(Math.abs(change))
+        return "-$" + this.formatNumber(Math.abs(change));
       } else {
-        return '$0.00'
+        return "$0.00";
       }
     },
 
     getChangeClass(current, previous) {
-      var change = current - previous
+      var change = current - previous;
       if (change > 0) {
-        return 'positive-change'
+        return "positive-change";
       } else if (change < 0) {
-        return 'negative-change'
+        return "negative-change";
       } else {
-        return ''
+        return "";
       }
     },
 
     getGrowthRate(current, previous) {
       if (previous === 0) {
-        return this.t('reports.notAvailable')
+        return this.t("reports.notAvailable");
       }
 
-      var rate = ((current - previous) / previous) * 100
-      var sign = rate > 0 ? '+' : ''
+      var rate = ((current - previous) / previous) * 100;
+      var sign = rate > 0 ? "+" : "";
 
-      return sign + rate.toFixed(1) + '%'
-    }
-  }
-}
+      return sign + rate.toFixed(1) + "%";
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -315,11 +382,11 @@ export default {
 }
 
 .card {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px var(--shadow-a);
 }
 
 .card-header {
@@ -329,7 +396,7 @@ export default {
 .card-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-strong);
   margin: 0;
 }
 
@@ -339,21 +406,21 @@ export default {
 }
 
 .reports-table th {
-  background: #f8fafc;
+  background: var(--surface-muted);
   padding: 0.75rem;
   text-align: left;
   font-weight: 600;
-  color: #64748b;
-  border-bottom: 2px solid #e2e8f0;
+  color: var(--text-muted);
+  border-bottom: 2px solid var(--border);
 }
 
 .reports-table td {
   padding: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .reports-table tr:hover {
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .chart-container {
@@ -390,20 +457,20 @@ export default {
 
 .bar {
   width: 100%;
-  background: linear-gradient(to top, #3b82f6, #60a5fa);
+  background: linear-gradient(to top, var(--blue), var(--blue-light));
   border-radius: 4px 4px 0 0;
   transition: all 0.3s;
   cursor: pointer;
 }
 
 .bar:hover {
-  background: linear-gradient(to top, #2563eb, #3b82f6);
+  background: linear-gradient(to top, var(--accent-solid), var(--blue));
 }
 
 .bar-label {
   margin-top: 0.5rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: center;
   transform: rotate(-45deg);
   white-space: nowrap;
@@ -418,23 +485,23 @@ export default {
 }
 
 .stat-card {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #3b82f6;
+  box-shadow: 0 1px 3px var(--shadow-a);
+  border-left: 4px solid var(--blue);
 }
 
 .stat-label {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .stat-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-strong);
 }
 
 .badge {
@@ -445,39 +512,39 @@ export default {
 }
 
 .badge.success {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--green-soft);
+  color: var(--green-text);
 }
 
 .badge.warning {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--yellow-soft);
+  color: var(--orange-text);
 }
 
 .badge.danger {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--red-soft);
+  color: var(--red-text);
 }
 
 .positive-change {
-  color: #16a34a;
+  color: var(--success-fg);
   font-weight: 600;
 }
 
 .negative-change {
-  color: #dc2626;
+  color: var(--danger-fg);
   font-weight: 600;
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .error {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--red-soft);
+  color: var(--red-text);
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;

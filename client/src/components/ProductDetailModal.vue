@@ -182,7 +182,7 @@ const getStockBadgeClass = (stockLevel) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -191,9 +191,9 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .modal-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 50px var(--shadow-b);
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
@@ -207,20 +207,20 @@ const getStockBadgeClass = (stockLevel) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-strong);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -231,8 +231,8 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--surface-sunken);
+  color: var(--text-strong);
 }
 
 .modal-body {
@@ -246,19 +246,19 @@ const getStockBadgeClass = (stockLevel) => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 2rem;
 }
 
 .product-icon {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, var(--blue) 0%, var(--accent-solid) 100%);
   border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--on-accent);
   flex-shrink: 0;
 }
 
@@ -270,13 +270,13 @@ const getStockBadgeClass = (stockLevel) => {
 .product-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-strong);
   margin: 0 0 0.5rem 0;
 }
 
 .product-sku {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-family: "Monaco", "Courier New", monospace;
 }
 
@@ -291,18 +291,18 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--green-soft);
+  color: var(--green-text);
 }
 
 .stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--orange-soft);
+  color: var(--orange-text);
 }
 
 .stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--red-soft);
+  color: var(--red-text);
 }
 
 .info-grid {
@@ -322,18 +322,18 @@ const getStockBadgeClass = (stockLevel) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--text-strong);
   font-weight: 500;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -341,20 +341,20 @@ const getStockBadgeClass = (stockLevel) => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--border);
+  border-color: var(--border-strong);
 }
 
 /* Modal transition animations */
@@ -379,7 +379,7 @@ const getStockBadgeClass = (stockLevel) => {
 }
 
 .modal-container :focus-visible {
-  outline: 2px solid #3b82f6;
+  outline: 2px solid var(--blue);
   outline-offset: 2px;
 }
 </style>

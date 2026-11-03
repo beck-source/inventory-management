@@ -1,10 +1,6 @@
 <template>
   <div class="profile-menu">
-    <button
-      class="profile-button"
-      @click="toggleDropdown"
-      @blur="handleBlur"
-    >
+    <button class="profile-button" @click="toggleDropdown" @blur="handleBlur">
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
       </div>
@@ -17,7 +13,12 @@
         viewBox="0 0 16 16"
         fill="none"
       >
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path
+          d="M4 6L8 10L12 6"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
       </svg>
     </button>
 
@@ -34,85 +35,109 @@
 
       <div class="dropdown-divider"></div>
 
-      <button
-        class="dropdown-item"
-        @mousedown.prevent="showProfileDetails"
-      >
+      <button class="dropdown-item" @mousedown.prevent="showProfileDetails">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M15 15C15 12.7909 12.3137 11 9 11C5.68629 11 3 12.7909 3 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path
+            d="M9 9C10.6569 9 12 7.65685 12 6C12 4.34315 10.6569 3 9 3C7.34315 3 6 4.34315 6 6C6 7.65685 7.34315 9 9 9Z"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M15 15C15 12.7909 12.3137 11 9 11C5.68629 11 3 12.7909 3 15"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
         </svg>
-        {{ t('profile.profileDetails') }}
+        {{ t("profile.profileDetails") }}
       </button>
 
-      <button
-        class="dropdown-item"
-        @mousedown.prevent="showTasks"
-      >
+      <button class="dropdown-item" @mousedown.prevent="showTasks">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M15 3H3C2.44772 3 2 3.44772 2 4V14C2 14.5523 2.44772 15 3 15H15C15.5523 15 16 14.5523 16 14V4C16 3.44772 15.5523 3 15 3Z" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M6 7L8 9L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M15 3H3C2.44772 3 2 3.44772 2 4V14C2 14.5523 2.44772 15 3 15H15C15.5523 15 16 14.5523 16 14V4C16 3.44772 15.5523 3 15 3Z"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <path
+            d="M6 7L8 9L12 5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
-        {{ t('profile.myTasks') }}
-        <span v-if="pendingTaskCount > 0" class="task-badge">{{ pendingTaskCount }}</span>
+        {{ t("profile.myTasks") }}
+        <span v-if="pendingTaskCount > 0" class="task-badge">{{
+          pendingTaskCount
+        }}</span>
       </button>
 
       <div class="dropdown-divider"></div>
 
-      <button
-        class="dropdown-item logout"
-        @mousedown.prevent="handleLogout"
-      >
+      <button class="dropdown-item logout" @mousedown.prevent="handleLogout">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M7 15H4C3.44772 15 3 14.5523 3 14V4C3 3.44772 3.44772 3 4 3H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M11 12L15 9M15 9L11 6M15 9H7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M7 15H4C3.44772 15 3 14.5523 3 14V4C3 3.44772 3.44772 3 4 3H7"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+          <path
+            d="M11 12L15 9M15 9L11 6M15 9H7"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
-        {{ t('profile.logout') }}
+        {{ t("profile.logout") }}
       </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useAuth } from '../composables/useAuth'
-import { useI18n } from '../composables/useI18n'
+import { ref, computed } from "vue";
+import { useAuth } from "../composables/useAuth";
+import { useI18n } from "../composables/useI18n";
 
-const { currentUser, logout, getInitials } = useAuth()
-const { t } = useI18n()
+const { currentUser, logout, getInitials } = useAuth();
+const { t } = useI18n();
 
-const isDropdownOpen = ref(false)
-const emit = defineEmits(['show-profile-details', 'show-tasks'])
+const isDropdownOpen = ref(false);
+const emit = defineEmits(["show-profile-details", "show-tasks"]);
 
 const pendingTaskCount = computed(() => {
-  return currentUser.value.tasks.filter(task => task.status === 'pending').length
-})
+  return currentUser.value.tasks.filter((task) => task.status === "pending")
+    .length;
+});
 
 const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
 
 const handleBlur = () => {
   // Delay to allow mousedown events on dropdown items to fire first
   setTimeout(() => {
-    isDropdownOpen.value = false
-  }, 200)
-}
+    isDropdownOpen.value = false;
+  }, 200);
+};
 
 const showProfileDetails = () => {
-  isDropdownOpen.value = false
-  emit('show-profile-details')
-}
+  isDropdownOpen.value = false;
+  emit("show-profile-details");
+};
 
 const showTasks = () => {
-  isDropdownOpen.value = false
-  emit('show-tasks')
-}
+  isDropdownOpen.value = false;
+  emit("show-tasks");
+};
 
 const handleLogout = () => {
-  isDropdownOpen.value = false
-  logout()
-}
+  isDropdownOpen.value = false;
+  logout();
+};
 </script>
 
 <style scoped>
@@ -125,8 +150,8 @@ const handleLogout = () => {
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -134,16 +159,20 @@ const handleLogout = () => {
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
 }
 
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--accent-solid) 0%,
+    var(--blue-text) 100%
+  );
+  color: var(--on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -155,11 +184,11 @@ const handleLogout = () => {
 .profile-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text-strong);
 }
 
 .chevron {
-  color: #64748b;
+  color: var(--text-muted);
   transition: transform 0.2s ease;
 }
 
@@ -172,10 +201,10 @@ const handleLogout = () => {
   top: calc(100% + 0.5rem);
   right: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px var(--shadow-a);
   z-index: 1000;
   overflow: hidden;
 }
@@ -185,15 +214,19 @@ const handleLogout = () => {
   display: flex;
   gap: 0.875rem;
   align-items: center;
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .avatar-large {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--accent-solid) 0%,
+    var(--blue-text) 100%
+  );
+  color: var(--on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,14 +243,14 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-strong);
   font-size: 0.938rem;
   margin-bottom: 0.25rem;
 }
 
 .user-email {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,7 +258,7 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
+  background: var(--border);
   margin: 0.5rem 0;
 }
 
@@ -243,34 +276,34 @@ const handleLogout = () => {
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--text);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .dropdown-item.logout {
-  color: #dc2626;
+  color: var(--danger-fg);
 }
 
 .dropdown-item.logout svg {
-  color: #dc2626;
+  color: var(--danger-fg);
 }
 
 .dropdown-item.logout:hover {
-  background: #fef2f2;
+  background: var(--red-bg);
 }
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
-  color: white;
+  background: var(--accent-solid);
+  color: var(--on-accent);
   font-size: 0.75rem;
   font-weight: 600;
   padding: 0.125rem 0.5rem;
