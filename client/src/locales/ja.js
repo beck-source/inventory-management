@@ -112,6 +112,48 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'バックログ管理',
+    description: '在庫不足の追跡と解消',
+    loading: 'バックログを読み込み中...',
+    loadError: 'バックログの読み込みに失敗しました: {message}',
+    highPriority: '優先度: 高',
+    mediumPriority: '優先度: 中',
+    lowPriority: '優先度: 低',
+    totalItems: 'バックログ品目の合計',
+    itemsTitle: 'バックログ品目',
+    empty: 'バックログ品目なし - すべての注文を履行できます！',
+    unitsShort: '{count}個不足',
+    daysCount: '{count}日',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    },
+    detail: {
+      title: '在庫不足の詳細',
+      sku: 'SKU: {sku}',
+      priorityBadge: '優先度: {priority}',
+      shortageAmount: '不足数量',
+      daysDelayed: '遅延日数',
+      orderId: '注文ID',
+      itemSku: '品目SKU',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      expectedDate: '入荷予定日',
+      status: 'ステータス',
+      units: '{count}個',
+      days: '{count}日',
+      notAvailable: '該当なし'
+    }
+  },
+
   // Orders
   orders: {
     title: '注文',
@@ -196,6 +238,42 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期の業績指標と月次トレンドを表示',
+    loading: 'レポートを読み込み中...',
+    loadFailed: 'レポートの読み込みに失敗しました',
+    noData: '選択したフィルターに該当するレポートデータがありません',
+    quarterLabel: '{year}年第{q}四半期',
+    quarterly: {
+      title: '四半期パフォーマンス',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総売上',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '出荷完了率'
+    },
+    trend: {
+      title: '月次売上トレンド'
+    },
+    mom: {
+      title: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '売上',
+      change: '増減',
+      growthRate: '成長率',
+      notAvailable: 'N/A'
+    },
+    summary: {
+      totalRevenue: '総売上',
+      avgMonthlyRevenue: '月平均売上',
+      totalOrders: '総注文数',
+      bestQuarter: '最高業績の四半期'
     }
   },
 

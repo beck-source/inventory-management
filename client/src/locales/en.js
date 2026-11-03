@@ -112,6 +112,48 @@ export default {
     }
   },
 
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    loadError: 'Failed to load backlog: {message}',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    itemsTitle: 'Backlog Items',
+    empty: 'No backlog items - all orders can be fulfilled!',
+    unitsShort: '{count} units short',
+    daysCount: '{count} days',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    },
+    detail: {
+      title: 'Inventory Shortage Details',
+      sku: 'SKU: {sku}',
+      priorityBadge: '{priority} Priority',
+      shortageAmount: 'Shortage Amount',
+      daysDelayed: 'Days Delayed',
+      orderId: 'Order ID',
+      itemSku: 'Item SKU',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      expectedDate: 'Expected Date',
+      status: 'Status',
+      units: '{count} units',
+      days: '{count} days',
+      notAvailable: 'N/A'
+    }
+  },
+
   // Orders
   orders: {
     title: 'Orders',
@@ -196,6 +238,42 @@ export default {
       change: 'Change',
       trend: 'Trend',
       period: 'Period'
+    }
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadFailed: 'Failed to load reports',
+    noData: 'No report data for the selected filters',
+    quarterLabel: 'Q{q}-{year}',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    trend: {
+      title: 'Monthly Revenue Trend'
+    },
+    mom: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate',
+      notAvailable: 'N/A'
+    },
+    summary: {
+      totalRevenue: 'Total Revenue',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders',
+      bestQuarter: 'Best Performing Quarter'
     }
   },
 
