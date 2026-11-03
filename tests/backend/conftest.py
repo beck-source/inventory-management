@@ -12,6 +12,15 @@ server_path = Path(__file__).parent.parent.parent / "server"
 sys.path.insert(0, str(server_path))
 
 from main import app
+from mock_data import submitted_orders
+
+
+@pytest.fixture(autouse=True)
+def restore_submitted_orders():
+    """Snapshot and restore in-memory submitted orders so tests don't leak state."""
+    snapshot = list(submitted_orders)
+    yield
+    submitted_orders[:] = snapshot
 
 
 @pytest.fixture

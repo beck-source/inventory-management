@@ -6,7 +6,10 @@
     "current_demand": 300,
     "forecasted_demand": 450,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 18.5,
+    "lead_time_days": 7,
+    "supplier": "Apex Industrial Supply"
   },
   {
     "id": "2",
@@ -15,7 +18,10 @@
     "current_demand": 150,
     "forecasted_demand": 152,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 42.0,
+    "lead_time_days": 14,
+    "supplier": "Nordic Bearing Co."
   },
   {
     "id": "3",
@@ -24,7 +30,10 @@
     "current_demand": 500,
     "forecasted_demand": 600,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 12.75,
+    "lead_time_days": 10,
+    "supplier": "ThermoSeal Ltd."
   },
   {
     "id": "4",
@@ -33,7 +42,10 @@
     "current_demand": 50,
     "forecasted_demand": 35,
     "trend": "decreasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 185.0,
+    "lead_time_days": 21,
+    "supplier": "Kinetic Motors Inc."
   },
   {
     "id": "5",
@@ -42,7 +54,10 @@
     "current_demand": 800,
     "forecasted_demand": 950,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 6.4,
+    "lead_time_days": 3,
+    "supplier": "CleanFlow Filters"
   },
   {
     "id": "6",
@@ -51,7 +66,10 @@
     "current_demand": 120,
     "forecasted_demand": 121,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 67.25,
+    "lead_time_days": 12,
+    "supplier": "Precision Valve Works"
   },
   {
     "id": "7",
@@ -60,7 +78,10 @@
     "current_demand": 250,
     "forecasted_demand": 252,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 54.0,
+    "lead_time_days": 9,
+    "supplier": "VoltEdge Power"
   },
   {
     "id": "8",
@@ -69,7 +90,10 @@
     "current_demand": 180,
     "forecasted_demand": 182,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 31.8,
+    "lead_time_days": 5,
+    "supplier": "SensorTech Global"
   },
   {
     "id": "9",
@@ -78,6 +102,9 @@
     "current_demand": 95,
     "forecasted_demand": 96,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 96.5,
+    "lead_time_days": 16,
+    "supplier": "Meridian Controls"
   }
 ]

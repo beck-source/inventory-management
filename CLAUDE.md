@@ -53,6 +53,8 @@ npm install && npm run dev
 - `GET /api/orders` - Filters: warehouse, category, status, month
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
+- `POST /api/restocking/orders` - Place restock order (costs/lead times looked up server-side); 201
+- `GET /api/submitted-orders` - Submitted restock orders, newest first
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
 
 ## Common Issues
