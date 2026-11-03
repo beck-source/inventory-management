@@ -74,6 +74,39 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ submittedOrders.length }})</h3>
+        </div>
+        <div v-if="submittedOrders.length === 0" class="loading">{{ t('orders.submitted.empty') }}</div>
+        <div v-else class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.table.orderNumber') }}</th>
+                <th>{{ t('orders.table.items') }}</th>
+                <th>{{ t('orders.submitted.total') }}</th>
+                <th>{{ t('orders.submitted.submittedDate') }}</th>
+                <th>{{ t('orders.submitted.leadTime') }}</th>
+                <th>{{ t('orders.submitted.expectedDelivery') }}</th>
+                <th>{{ t('orders.submitted.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td><strong>{{ order.order_number }}</strong></td>
+                <td>{{ t('orders.submitted.itemsCount', { count: order.items.length }) }}</td>
+                <td><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td>{{ formatDate(order.submitted_date) }}</td>
+                <td>{{ order.lead_time_days }}</td>
+                <td>{{ formatDate(order.expected_delivery) }}</td>
+                <td><span class="badge info">{{ order.status }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -95,6 +128,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -153,13 +187,27 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    // Submitted restock orders are not affected by the page filters; failures are non-fatal
+    const loadSubmittedOrders = async () => {
+      try {
+        const result = await api.getSubmittedOrders()
+        submittedOrders.value = Array.isArray(result) ? result : []
+      } catch (err) {
+        console.error('Failed to load submitted orders:', err)
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      submittedOrders,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
