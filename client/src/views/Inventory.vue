@@ -5,12 +5,12 @@
       <p>{{ t('inventory.description') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorState v-if="loading || error" :loading="loading" :message="error || ''" @retry="reload" />
     <div v-else>
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('inventory.stockLevels') }} ({{ filteredItems.length }} {{ t('inventory.skus') }})</h3>
+          <div class="header-actions">
           <div class="search-box">
             <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -23,6 +23,7 @@
             />
             <button
               v-if="searchQuery"
+              type="button"
               @click="searchQuery = ''"
               class="clear-search"
               :title="t('inventory.clearSearch')"
@@ -32,20 +33,33 @@
               </svg>
             </button>
           </div>
+          <button
+            type="button"
+            class="export-btn"
+            :disabled="filteredItems.length === 0"
+            @click="exportCsv"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+            {{ t('inventory.exportCsv') }}
+          </button>
+          </div>
         </div>
         <div class="table-container">
           <table>
+            <caption class="sr-only">{{ t('inventory.stockLevels') }}</caption>
             <thead>
               <tr>
-                <th>{{ t('inventory.table.sku') }}</th>
-                <th>{{ t('inventory.table.itemName') }}</th>
-                <th>{{ t('inventory.table.category') }}</th>
-                <th>{{ t('inventory.table.quantityOnHand') }}</th>
-                <th>{{ t('inventory.table.reorderPoint') }}</th>
-                <th>{{ t('inventory.table.unitCost') }}</th>
-                <th>{{ t('inventory.table.totalValue') }}</th>
-                <th>{{ t('inventory.table.location') }}</th>
-                <th>{{ t('inventory.table.status') }}</th>
+                <th scope="col">{{ t('inventory.table.sku') }}</th>
+                <th scope="col">{{ t('inventory.table.itemName') }}</th>
+                <th scope="col">{{ t('inventory.table.category') }}</th>
+                <th scope="col">{{ t('inventory.table.quantityOnHand') }}</th>
+                <th scope="col">{{ t('inventory.table.reorderPoint') }}</th>
+                <th scope="col">{{ t('inventory.table.unitCost') }}</th>
+                <th scope="col">{{ t('inventory.table.totalValue') }}</th>
+                <th scope="col">{{ t('inventory.table.location') }}</th>
+                <th scope="col">{{ t('inventory.table.status') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -55,7 +69,7 @@
                 class="clickable-row"
                 @click="showItemDetail(item)"
               >
-                <td><strong>{{ item.sku }}</strong></td>
+                <td><button type="button" class="row-link" :aria-label="`${item.sku} ${translateProductName(item.name)}`" @click.stop="showItemDetail(item)"><strong>{{ item.sku }}</strong></button></td>
                 <td>{{ translateProductName(item.name) }}</td>
                 <td>{{ translateCategory(item.category) }}</td>
                 <td><strong>{{ item.quantity_on_hand }}</strong></td>
@@ -84,16 +98,20 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { useFilteredLoad } from '../composables/useFilteredLoad'
+import { toCsv, downloadCsv } from '../utils/csv'
+import ErrorState from '../components/ErrorState.vue'
 import InventoryDetailModal from '../components/InventoryDetailModal.vue'
 
 export default {
   name: 'Inventory',
   components: {
-    InventoryDetailModal
+    InventoryDetailModal,
+    ErrorState
   },
   setup() {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
@@ -102,8 +120,6 @@ export default {
       return currentCurrency.value === 'JPY' ? '¥' : '$'
     })
 
-    const loading = ref(true)
-    const error = ref(null)
     const items = ref([])
     const searchQuery = ref('')
 
@@ -149,26 +165,17 @@ export default {
       })
     })
 
-    const loadInventory = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-        // Inventory doesn't support month/status filters, only warehouse and category
-        items.value = await api.getInventory({
-          warehouse: filters.warehouse,
-          category: filters.category
-        })
-      } catch (err) {
-        error.value = 'Failed to load inventory: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
+    const { loading, error, reload } = useFilteredLoad(async () => {
+      const filters = getCurrentFilters()
+      // Inventory doesn't support month/status filters, only warehouse and category
+      items.value = await api.getInventory({
+        warehouse: filters.warehouse,
+        category: filters.category
+      })
+    })
 
     // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadInventory()
-    })
+    watch([selectedLocation, selectedCategory], reload)
 
     const getStockStatus = (item) => {
       const key = getStockStatusKey(item)
@@ -201,12 +208,41 @@ export default {
       showItemModal.value = true
     }
 
-    onMounted(loadInventory)
+    const exportCsv = () => {
+      if (filteredItems.value.length === 0) return
+      const headers = [
+        t('inventory.table.sku'),
+        t('inventory.table.itemName'),
+        t('inventory.table.category'),
+        t('inventory.table.quantityOnHand'),
+        t('inventory.table.reorderPoint'),
+        t('inventory.table.unitCost'),
+        t('inventory.table.totalValue'),
+        t('inventory.table.location'),
+        t('inventory.table.status')
+      ]
+      const rows = filteredItems.value.map(item => [
+        item.sku,
+        translateProductName(item.name),
+        translateCategory(item.category),
+        item.quantity_on_hand,
+        item.reorder_point,
+        item.unit_cost.toFixed(2),
+        (item.quantity_on_hand * item.unit_cost).toFixed(2),
+        translateWarehouse(item.location),
+        getStockStatus(item)
+      ])
+      const now = new Date()
+      const pad = (n) => String(n).padStart(2, '0')
+      const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+      downloadCsv(`inventory-${date}.csv`, toCsv(headers, rows))
+    }
 
     return {
       t,
       loading,
       error,
+      reload,
       items,
       searchQuery,
       filteredItems,
@@ -216,6 +252,7 @@ export default {
       showItemModal,
       selectedItem,
       showItemDetail,
+      exportCsv,
       currencySymbol,
       translateProductName,
       translateWarehouse
@@ -245,6 +282,7 @@ export default {
   gap: 1.5rem;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
 }
 
 .card-title {
@@ -254,11 +292,56 @@ export default {
   margin: 0;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: white;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.export-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.export-btn:hover:not(:disabled) {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.export-btn:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+.export-btn:disabled {
+  color: #94a3b8;
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 300px;
+  flex: 1 1 300px;
+  min-width: 0;
 }
 
 .search-icon {
@@ -281,8 +364,9 @@ export default {
   transition: all 0.2s;
 }
 
-.search-input:focus {
-  outline: none;
+.search-input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
   border-color: #3b82f6;
   background: white;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -315,17 +399,6 @@ export default {
 .clear-search svg {
   width: 18px;
   height: 18px;
-}
-
-.loading,
-.error {
-  padding: 2rem;
-  text-align: center;
-  color: #64748b;
-}
-
-.error {
-  color: #ef4444;
 }
 
 .clickable-row {

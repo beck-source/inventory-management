@@ -7,6 +7,7 @@ export default {
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -44,6 +45,10 @@ export default {
       title: 'Inventory Value by Category'
     },
     inventoryShortages: {
+      actions: 'Actions',
+      createPo: 'Create PO',
+      viewPo: 'View PO',
+      viewDetails: 'View details for order {id}',
       title: 'Inventory Shortages',
       noShortages: 'No inventory shortages - all orders can be fulfilled!',
       noData: 'No inventory data for selected filters',
@@ -81,6 +86,7 @@ export default {
     skus: 'SKUs',
     searchPlaceholder: 'Search by item name...',
     clearSearch: 'Clear search',
+    exportCsv: 'Export CSV',
     totalItems: 'Total Items',
     totalValue: 'Total Value',
     lowStockItems: 'Low Stock Items',
@@ -176,6 +182,40 @@ export default {
     viewOrders: 'View in Orders'
   },
 
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadFailed: 'Failed to load reports',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    trend: {
+      title: 'Monthly Revenue Trend'
+    },
+    mom: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    summary: {
+      totalRevenueYtd: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrdersYtd: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    },
+    notAvailable: 'N/A'
+  },
+
   // Finance/Spending
   finance: {
     title: 'Finance Dashboard',
@@ -203,6 +243,9 @@ export default {
     categorySpending: {
       title: 'Spending by Category',
       ofTotal: 'of total'
+    },
+    transactionDetail: {
+      title: 'Transaction Details'
     },
     transactions: {
       title: 'Recent Transactions',
@@ -242,7 +285,8 @@ export default {
     category: 'Category',
     orderStatus: 'Order Status',
     all: 'All',
-    allMonths: 'All Months'
+    allMonths: 'All Months',
+    reset: 'Reset all filters'
   },
 
   // Statuses
@@ -349,7 +393,43 @@ export default {
     priority: 'Priority',
     dueDate: 'Due Date',
     addTask: 'Add Task',
-    noTasks: 'No tasks yet. Add your first task above!'
+    noTasks: 'No tasks yet. Add your first task above!',
+    deleteTask: 'Delete task: {title}'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    detailsTitle: 'Purchase Order Details',
+    sku: 'SKU',
+    supplierName: 'Supplier Name',
+    quantity: 'Quantity',
+    unitCost: 'Unit Cost',
+    expectedDeliveryDate: 'Expected Delivery Date',
+    notes: 'Notes',
+    cancel: 'Cancel',
+    close: 'Close',
+    create: 'Create Purchase Order',
+    creating: 'Creating...',
+    notFound: 'No purchase order found.',
+    loadFailed: 'Failed to load purchase order',
+    createFailed: 'Failed to create purchase order',
+    errorSummary: 'Please correct the highlighted fields.',
+    poNumber: 'PO Number',
+    status: 'Status',
+    supplier: 'Supplier',
+    totalCost: 'Total Cost',
+    expectedDelivery: 'Expected Delivery',
+    created: 'Created',
+    units: '{count} units',
+    none: 'None',
+    na: 'N/A',
+    validation: {
+      supplierRequired: 'Supplier name is required.',
+      quantityInvalid: 'Quantity must be a whole number of at least 1.',
+      unitCostInvalid: 'Unit cost must be a number greater than 0.',
+      dateRequired: 'A valid expected delivery date is required.'
+    }
   },
 
   // Language
@@ -362,6 +442,8 @@ export default {
   // Common
   common: {
     loading: 'Loading...',
+    loadFailed: 'Failed to load data',
+    retry: 'Retry',
     error: 'Error',
     noData: 'No data available',
     viewDetails: 'View Details',

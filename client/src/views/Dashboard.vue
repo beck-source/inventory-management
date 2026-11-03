@@ -4,8 +4,7 @@
       <h2>{{ t('dashboard.title') }}</h2>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <ErrorState v-if="loading || error" :loading="loading" :message="error || ''" @retry="retryAll" />
     <div v-else>
       <!-- Key Performance Indicators -->
       <div class="kpi-section">
@@ -170,17 +169,18 @@
           </div>
           <div v-else class="table-container">
             <table>
+              <caption class="sr-only">{{ t('dashboard.inventoryShortages.title') }}</caption>
               <thead>
                 <tr>
-                  <th>{{ t('dashboard.inventoryShortages.orderId') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.sku') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.itemName') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.quantityNeeded') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.quantityAvailable') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.shortage') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.daysDelayed') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.priority') }}</th>
-                  <th>Actions</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.orderId') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.sku') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.itemName') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.quantityNeeded') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.quantityAvailable') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.shortage') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.daysDelayed') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.priority') }}</th>
+                  <th scope="col">{{ t('dashboard.inventoryShortages.actions') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,7 +188,14 @@
                   v-for="item in backlogItems"
                   :key="item.id"
                 >
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.order_id }}</strong></td>
+                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">
+                    <button
+                      type="button"
+                      class="row-link"
+                      :aria-label="t('dashboard.inventoryShortages.viewDetails', { id: item.order_id })"
+                      @click.stop="showBacklogDetail(item)"
+                    ><strong>{{ item.order_id }}</strong></button>
+                  </td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.item_sku }}</strong></td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ translateProductName(item.item_name) }}</td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_needed }}</td>
@@ -211,17 +218,19 @@
                   <td>
                     <button
                       v-if="!item.purchase_order_id && !item.has_purchase_order"
+                      type="button"
                       @click.stop="openPOModal(item)"
                       class="po-button create"
                     >
-                      Create PO
+                      {{ t('dashboard.inventoryShortages.createPo') }}
                     </button>
                     <button
                       v-else
+                      type="button"
                       @click.stop="viewPO(item)"
                       class="po-button view"
                     >
-                      View PO
+                      {{ t('dashboard.inventoryShortages.viewPo') }}
                     </button>
                   </td>
                 </tr>
@@ -237,15 +246,16 @@
           </div>
           <div class="table-container">
             <table>
+              <caption class="sr-only">{{ t('dashboard.topProducts.title') }}</caption>
               <thead>
                 <tr>
-                  <th>{{ t('dashboard.topProducts.product') }}</th>
-                  <th>{{ t('dashboard.topProducts.sku') }}</th>
-                  <th>{{ t('dashboard.topProducts.category') }}</th>
-                  <th>{{ t('dashboard.topProducts.unitsOrdered') }}</th>
-                  <th>{{ t('dashboard.topProducts.revenue') }}</th>
-                  <th>{{ t('dashboard.topProducts.firstOrder') }}</th>
-                  <th>{{ t('dashboard.topProducts.stockStatus') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.product') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.sku') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.category') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.unitsOrdered') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.revenue') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.firstOrder') }}</th>
+                  <th scope="col">{{ t('dashboard.topProducts.stockStatus') }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -255,7 +265,9 @@
                   class="clickable-row"
                   @click="showProductDetail(item)"
                 >
-                  <td><strong>{{ translateProductName(item.name) }}</strong></td>
+                  <td>
+                    <button type="button" class="row-link" @click.stop="showProductDetail(item)"><strong>{{ translateProductName(item.name) }}</strong></button>
+                  </td>
                   <td>{{ item.sku }}</td>
                   <td>{{ translateCategory(item.category) }}</td>
                   <td>{{ item.unitsOrdered }}</td>
@@ -297,7 +309,7 @@
 </template>
 
 <script>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
@@ -305,6 +317,8 @@ import { formatCurrency } from '../utils/currency'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
 import BacklogDetailModal from '../components/BacklogDetailModal.vue'
 import PurchaseOrderModal from '../components/PurchaseOrderModal.vue'
+import ErrorState from '../components/ErrorState.vue'
+import { useFilteredLoad } from '../composables/useFilteredLoad'
 
 export default {
   name: 'Dashboard',
@@ -312,11 +326,10 @@ export default {
     ProductDetailModal,
     BacklogDetailModal,
     PurchaseOrderModal,
+    ErrorState,
   },
   setup() {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
-    const loading = ref(true)
-    const error = ref(null)
     const summary = ref({})
     const allOrders = ref([])
     const inventoryItems = ref([])
@@ -405,6 +418,20 @@ export default {
       }
     })
 
+    // SKUs from orders in the filtered time period
+    const orderedSkus = computed(() => {
+      const skus = new Set()
+      allOrders.value.forEach(order => {
+        if (order.items) {
+          order.items.forEach(item => skus.add(item.sku))
+        }
+      })
+      return skus
+    })
+
+    // Inventory (already filtered by the API) indexed by SKU
+    const inventoryBySku = computed(() => new Map(inventoryItems.value.map(item => [item.sku, item])))
+
     const categoryData = computed(() => {
       // Group inventory by category and calculate values
       // Filter inventory items to only include those with orders in the selected period
@@ -413,21 +440,11 @@ export default {
       // Use a single neutral slate/gray color for all categories
       const singleColor = '#64748b' // Neutral slate gray color
 
-      // Get SKUs from orders in the filtered time period
-      const orderedSkus = new Set()
-      allOrders.value.forEach(order => {
-        if (order.items) {
-          order.items.forEach(item => {
-            orderedSkus.add(item.sku)
-          })
-        }
-      })
-
       // Only include inventory items that have orders in the selected period
       // If no period is selected (all), include all inventory items
       const itemsToInclude = selectedPeriod.value === 'all'
         ? inventoryItems.value
-        : inventoryItems.value.filter(item => orderedSkus.has(item.sku))
+        : inventoryItems.value.filter(item => orderedSkus.value.has(item.sku))
 
       itemsToInclude.forEach(item => {
         const cat = item.category.toLowerCase()
@@ -500,7 +517,7 @@ export default {
 
             // Find matching inventory item to get full product details
             // Note: inventoryItems is also filtered by API based on: warehouse, category
-            const invItem = inventoryItems.value.find(i => i.sku === sku)
+            const invItem = inventoryBySku.value.get(sku)
 
             // Skip products that don't match current inventory filters
             // (e.g., if filtering by warehouse A, don't show products from warehouse B)
@@ -534,12 +551,12 @@ export default {
       // Convert to array, sort by first order date (earliest first = January at top), then by revenue, and take top 12
       return Object.values(productMap)
         .sort((a, b) => {
-          // Sort by first order date (earliest first)
+          // Sort by first order date (earliest first); ISO date strings compare lexicographically
           // This ensures products first ordered in January appear before those first ordered in December
-          const dateA = new Date(a.firstOrderDate || '9999-12-31')
-          const dateB = new Date(b.firstOrderDate || '9999-12-31')
-          if (dateA.getTime() !== dateB.getTime()) {
-            return dateA.getTime() - dateB.getTime() // Earlier dates come first
+          const dateA = a.firstOrderDate || '9999-12-31'
+          const dateB = b.firstOrderDate || '9999-12-31'
+          if (dateA !== dateB) {
+            return dateA < dateB ? -1 : 1 // Earlier dates come first
           }
           // If dates are equal, sort by revenue (highest first)
           return b.revenue - a.revenue
@@ -556,31 +573,38 @@ export default {
       }
 
       // Get SKUs of items that match the filters
-      const validSkus = new Set(inventoryItems.value.map(item => item.sku))
-      return allBacklogItems.value.filter(b => validSkus.has(b.item_sku))
+      return allBacklogItems.value.filter(b => inventoryBySku.value.has(b.item_sku))
     })
 
-    const loadData = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
+    const { loading: dataLoading, error: dataError, reload } = useFilteredLoad(async () => {
+      const filters = getCurrentFilters()
 
-        const [summaryData, ordersData, inventoryData, backlogData] = await Promise.all([
-          api.getDashboardSummary(filters),
-          api.getOrders(filters),
-          api.getInventory(filters),
-          api.getBacklog()
-        ])
+      const [summaryData, ordersData, inventoryData] = await Promise.all([
+        api.getDashboardSummary(filters),
+        api.getOrders(filters),
+        api.getInventory(filters)
+      ])
 
-        summary.value = summaryData
-        allOrders.value = ordersData
-        inventoryItems.value = inventoryData
-        allBacklogItems.value = backlogData
-      } catch (err) {
-        error.value = 'Failed to load dashboard data: ' + err.message
-      } finally {
-        loading.value = false
-      }
+      summary.value = summaryData
+      allOrders.value = ordersData
+      inventoryItems.value = inventoryData
+    })
+
+    // Backlog takes no filters, so it is fetched once on mount
+    const {
+      loading: backlogLoading,
+      error: backlogError,
+      reload: reloadBacklog
+    } = useFilteredLoad(async () => {
+      allBacklogItems.value = await api.getBacklog()
+    })
+
+    const loading = computed(() => dataLoading.value || backlogLoading.value)
+    const error = computed(() => dataError.value || backlogError.value)
+
+    const retryAll = () => {
+      if (dataError.value || !backlogError.value) reload()
+      if (backlogError.value) reloadBacklog()
     }
 
     const calculatePercentage = (value, goal) => {
@@ -594,7 +618,7 @@ export default {
     })
 
     const getCircleSegment = (value) => {
-      return totalOrders.value > 0 ? (value / totalOrders.value) * 440 : 0
+      return totalOrders.value > 0 ? (value / totalOrders.value) * 408 : 0
     }
 
     const getStockBadge = (level) => {
@@ -675,16 +699,13 @@ export default {
     }
 
     // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadData()
-    })
-
-    onMounted(loadData)
+    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], reload)
 
     return {
       t,
       loading,
       error,
+      retryAll,
       summary,
       ordersData,
       fillRate,
@@ -814,7 +835,7 @@ export default {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   margin-bottom: 1.5rem;
 }
@@ -1138,8 +1159,9 @@ export default {
   transition: border-color 0.2s ease;
 }
 
-.task-input:focus {
-  outline: none;
+.task-input:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
   border-color: #667eea;
 }
 
@@ -1269,5 +1291,61 @@ export default {
   background: #475569;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .chart-card,
+  .chart-card .card-header,
+  .chart-content,
+  .order-health-chart {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .order-health-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .order-health-chart {
+    padding: 0;
+  }
+
+  .donut-svg-compact,
+  .donut-svg {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+  }
+
+  .chart-card .card-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .h-bar-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+
+  .h-bar-label {
+    width: auto;
+    min-width: 0;
+  }
+
+  .kpi-value {
+    font-size: 1.625rem;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 </style>

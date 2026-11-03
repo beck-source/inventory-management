@@ -1,13 +1,35 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen && costData" class="modal-overlay" @click="close">
+      <div
+        ref="dialogRef"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="titleId"
+        tabindex="-1"
+        v-if="isOpen && costData"
+        class="modal-overlay"
+        @click="close"
+        @keydown="onKeydown"
+      >
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3 class="modal-title">{{ costData.month }} Cost Breakdown</h3>
-            <button class="close-button" @click="close">
+            <h3 :id="titleId" class="modal-title">
+              {{ costData.month }} Cost Breakdown
+            </h3>
+            <button
+              class="close-button"
+              type="button"
+              :aria-label="t('common.close')"
+              @click="close"
+            >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path
+                  d="M15 5L5 15M5 5L15 15"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -16,7 +38,9 @@
             <div class="cost-summary">
               <div class="summary-card total">
                 <div class="summary-label">Total Costs</div>
-                <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
+                <div class="summary-value">
+                  {{ currencySymbol }}{{ totalCosts.toLocaleString() }}
+                </div>
               </div>
             </div>
 
@@ -25,63 +49,121 @@
                 <div class="cost-header">
                   <div class="cost-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <rect x="4" y="6" width="16" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
-                      <path d="M8 6V4M16 6V4M4 10H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <rect
+                        x="4"
+                        y="6"
+                        width="16"
+                        height="14"
+                        rx="2"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M8 6V4M16 6V4M4 10H20"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
                     </svg>
                   </div>
                   <div class="cost-info">
                     <div class="cost-name">Procurement</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.procurement.toLocaleString() }}</div>
+                    <div class="cost-amount">
+                      {{ currencySymbol
+                      }}{{ costData.procurement.toLocaleString() }}
+                    </div>
                   </div>
                 </div>
-                <div class="cost-percentage">{{ getProcurementPercentage() }}% of total</div>
+                <div class="cost-percentage">
+                  {{ getProcurementPercentage() }}% of total
+                </div>
               </div>
 
               <div class="cost-item operational">
                 <div class="cost-header">
                   <div class="cost-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="8" stroke="currentColor" stroke-width="2"/>
-                      <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="8"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M12 8V12L15 15"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
                     </svg>
                   </div>
                   <div class="cost-info">
                     <div class="cost-name">Operational</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.operational.toLocaleString() }}</div>
+                    <div class="cost-amount">
+                      {{ currencySymbol
+                      }}{{ costData.operational.toLocaleString() }}
+                    </div>
                   </div>
                 </div>
-                <div class="cost-percentage">{{ getOperationalPercentage() }}% of total</div>
+                <div class="cost-percentage">
+                  {{ getOperationalPercentage() }}% of total
+                </div>
               </div>
 
               <div class="cost-item labor">
                 <div class="cost-header">
                   <div class="cost-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
-                      <path d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20" stroke="currentColor" stroke-width="2"/>
+                      <circle
+                        cx="12"
+                        cy="8"
+                        r="4"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
+                      <path
+                        d="M6 20C6 16.6863 8.68629 14 12 14C15.3137 14 18 16.6863 18 20"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      />
                     </svg>
                   </div>
                   <div class="cost-info">
                     <div class="cost-name">Labor</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.labor.toLocaleString() }}</div>
+                    <div class="cost-amount">
+                      {{ currencySymbol }}{{ costData.labor.toLocaleString() }}
+                    </div>
                   </div>
                 </div>
-                <div class="cost-percentage">{{ getLaborPercentage() }}% of total</div>
+                <div class="cost-percentage">
+                  {{ getLaborPercentage() }}% of total
+                </div>
               </div>
 
               <div class="cost-item overhead">
                 <div class="cost-header">
                   <div class="cost-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9 21 9 18 9 16C9 14 10 14 12 14C14 14 15 14 15 16C15 18 15 21 15 21M9 21H15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path
+                        d="M3 12L5 10M5 10L12 3L19 10M5 10V20C5 20.5523 5.44772 21 6 21H9M19 10L21 12M19 10V20C19 20.5523 18.5523 21 18 21H15M9 21C9 21 9 18 9 16C9 14 10 14 12 14C14 14 15 14 15 16C15 18 15 21 15 21M9 21H15"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
                     </svg>
                   </div>
                   <div class="cost-info">
                     <div class="cost-name">Overhead</div>
-                    <div class="cost-amount">{{ currencySymbol }}{{ costData.overhead.toLocaleString() }}</div>
+                    <div class="cost-amount">
+                      {{ currencySymbol
+                      }}{{ costData.overhead.toLocaleString() }}
+                    </div>
                   </div>
                 </div>
-                <div class="cost-percentage">{{ getOverheadPercentage() }}% of total</div>
+                <div class="cost-percentage">
+                  {{ getOverheadPercentage() }}% of total
+                </div>
               </div>
             </div>
           </div>
@@ -96,57 +178,64 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useI18n } from '../composables/useI18n'
+import { computed } from "vue";
+import { useI18n } from "../composables/useI18n";
+import { useModalA11y } from "../composables/useModalA11y";
 
-const { currentCurrency } = useI18n()
+const { t, currentCurrency } = useI18n();
 
 const currencySymbol = computed(() => {
-  return currentCurrency.value === 'JPY' ? '¥' : '$'
-})
+  return currentCurrency.value === "JPY" ? "¥" : "$";
+});
 
 const props = defineProps({
   isOpen: {
     type: Boolean,
-    default: false
+    default: false,
   },
   costData: {
     type: Object,
-    default: null
-  }
-})
+    default: null,
+  },
+});
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(["close"]);
+
+const { dialogRef, titleId, onKeydown } = useModalA11y(() => emit("close"));
 
 const totalCosts = computed(() => {
-  if (!props.costData) return 0
-  return props.costData.procurement + props.costData.operational +
-         props.costData.labor + props.costData.overhead
-})
+  if (!props.costData) return 0;
+  return (
+    props.costData.procurement +
+    props.costData.operational +
+    props.costData.labor +
+    props.costData.overhead
+  );
+});
 
 const getProcurementPercentage = () => {
-  if (!props.costData || totalCosts.value === 0) return 0
-  return ((props.costData.procurement / totalCosts.value) * 100).toFixed(1)
-}
+  if (!props.costData || totalCosts.value === 0) return 0;
+  return ((props.costData.procurement / totalCosts.value) * 100).toFixed(1);
+};
 
 const getOperationalPercentage = () => {
-  if (!props.costData || totalCosts.value === 0) return 0
-  return ((props.costData.operational / totalCosts.value) * 100).toFixed(1)
-}
+  if (!props.costData || totalCosts.value === 0) return 0;
+  return ((props.costData.operational / totalCosts.value) * 100).toFixed(1);
+};
 
 const getLaborPercentage = () => {
-  if (!props.costData || totalCosts.value === 0) return 0
-  return ((props.costData.labor / totalCosts.value) * 100).toFixed(1)
-}
+  if (!props.costData || totalCosts.value === 0) return 0;
+  return ((props.costData.labor / totalCosts.value) * 100).toFixed(1);
+};
 
 const getOverheadPercentage = () => {
-  if (!props.costData || totalCosts.value === 0) return 0
-  return ((props.costData.overhead / totalCosts.value) * 100).toFixed(1)
-}
+  if (!props.costData || totalCosts.value === 0) return 0;
+  return ((props.costData.overhead / totalCosts.value) * 100).toFixed(1);
+};
 
 const close = () => {
-  emit('close')
-}
+  emit("close");
+};
 </script>
 
 <style scoped>
@@ -380,5 +469,10 @@ const close = () => {
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
   transform: scale(0.95);
+}
+
+.modal-container :focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 </style>

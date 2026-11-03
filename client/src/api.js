@@ -74,6 +74,16 @@ export const api = {
     return response.data
   },
 
+  async getQuarterlyReports() {
+    const response = await axios.get(`${API_BASE_URL}/reports/quarterly`)
+    return response.data
+  },
+
+  async getMonthlyTrends() {
+    const response = await axios.get(`${API_BASE_URL}/reports/monthly-trends`)
+    return response.data
+  },
+
   async getTasks() {
     const response = await axios.get(`${API_BASE_URL}/tasks`)
     return response.data
@@ -117,5 +127,18 @@ export const api = {
   async getPurchaseOrderByBacklogItem(backlogItemId) {
     const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
     return response.data
+  },
+
+      async   getLowStockItems( threshold=10 ,filters ={}   )
+  {
+        const params   =new URLSearchParams( )
+     if(filters.warehouse&&filters.warehouse!=='all')   params.append( 'warehouse',filters.warehouse )
+            if (filters.category   &&   filters.category !== 'all')params.append('category' ,filters.category)
+
+
+   const response=await    axios.get(`${API_BASE_URL}/inventory?${params.toString()}`)
+        const   items = response.data
+      return items.filter( item=>item.quantity<threshold )
+           .sort((a,b)=>a.quantity-b.quantity)
   }
 }
