@@ -5,8 +5,54 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ submittedOrders.length }})</h3>
+      </div>
+      <ErrorState v-if="submittedLoading || submittedError" :loading="submittedLoading" :message="submittedError || ''" @retry="reloadSubmitted" />
+      <div v-else-if="submittedOrders.length === 0" class="empty-state">{{ t('orders.submitted.empty') }}</div>
+      <div v-else class="table-container">
+        <table class="orders-table">
+          <caption class="sr-only">{{ t('orders.submitted.title') }}</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+              <th scope="col" class="col-date">{{ t('orders.table.submittedDate') }}</th>
+              <th scope="col" class="col-items">{{ t('orders.table.items') }}</th>
+              <th scope="col" class="col-value">{{ t('orders.table.totalValue') }}</th>
+              <th scope="col" class="col-date">{{ t('orders.table.leadTime') }}</th>
+              <th scope="col" class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+              <th scope="col" class="col-status">{{ t('orders.table.status') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in submittedOrders" :key="order.id">
+              <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+              <td class="col-date">{{ formatDate(order.submitted_at) }}</td>
+              <td class="col-items">
+                <details class="items-details">
+                  <summary class="items-summary">
+                    {{ t('orders.itemsCount', { count: order.items.length }) }}
+                  </summary>
+                  <div class="items-dropdown">
+                    <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                      <span class="item-name">{{ translateProductName(item.name) }}</span>
+                      <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ formatAmount(item.unit_cost) }}</span>
+                    </div>
+                  </div>
+                </details>
+              </td>
+              <td class="col-value"><strong>{{ currencySymbol }}{{ formatAmount(order.total_cost) }}</strong></td>
+              <td class="col-date">{{ order.lead_time_days }}</td>
+              <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+              <td class="col-status"><span class="badge info">{{ t('status.submitted') }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <ErrorState v-if="loading || error" :loading="loading" :message="error || ''" @retry="reload" />
     <div v-else>
       <div class="stats-grid">
         <div class="stat-card success">
@@ -33,15 +79,16 @@
         </div>
         <div class="table-container">
           <table class="orders-table">
+            <caption class="sr-only">{{ t('orders.allOrders') }}</caption>
             <thead>
               <tr>
-                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
-                <th class="col-customer">{{ t('orders.table.customer') }}</th>
-                <th class="col-items">{{ t('orders.table.items') }}</th>
-                <th class="col-status">{{ t('orders.table.status') }}</th>
-                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
-                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+                <th scope="col" class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th scope="col" class="col-customer">{{ t('orders.table.customer') }}</th>
+                <th scope="col" class="col-items">{{ t('orders.table.items') }}</th>
+                <th scope="col" class="col-status">{{ t('orders.table.status') }}</th>
+                <th scope="col" class="col-date">{{ t('orders.table.orderDate') }}</th>
+                <th scope="col" class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th scope="col" class="col-value">{{ t('orders.table.totalValue') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -79,22 +126,24 @@
 </template>
 
 <script>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { useFilteredLoad } from '../composables/useFilteredLoad'
+import ErrorState from '../components/ErrorState.vue'
 
 export default {
   name: 'Orders',
+  components: { ErrorState },
   setup() {
     const { t, currentCurrency, translateProductName, translateCustomerName } = useI18n()
 
     const currencySymbol = computed(() => {
       return currentCurrency.value === 'JPY' ? '¥' : '$'
     })
-    const loading = ref(true)
-    const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -105,29 +154,19 @@ export default {
       getCurrentFilters
     } = useFilters()
 
-    const loadOrders = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
+    const { loading, error, reload } = useFilteredLoad(async () => {
+      const fetchedOrders = await api.getOrders(getCurrentFilters())
 
-        // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
-          const dateA = new Date(a.order_date)
-          const dateB = new Date(b.order_date)
-          return dateA - dateB
-        })
-      } catch (err) {
-        error.value = 'Failed to load orders: ' + err.message
-      } finally {
-        loading.value = false
-      }
-    }
+      // Sort orders by order_date (earliest first)
+      orders.value = fetchedOrders.sort((a, b) => {
+        const dateA = new Date(a.order_date)
+        const dateB = new Date(b.order_date)
+        return dateA - dateB
+      })
+    })
 
     // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadOrders()
-    })
+    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], reload)
 
     const getOrdersByStatus = (status) => {
       return orders.value.filter(order => order.status === status)
@@ -143,23 +182,43 @@ export default {
       return statusMap[status] || 'info'
     }
 
+    const formatAmount = (value) =>
+      value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
     const formatDate = (dateString) => {
       const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
-      return new Date(dateString).toLocaleDateString(locale, {
+      const dateOnly = typeof dateString === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString)
+      const date = dateOnly
+        ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+        : new Date(dateString)
+      if (isNaN(date.getTime())) return dateString || '-'
+      return date.toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       })
     }
 
-    onMounted(loadOrders)
+    const {
+      loading: submittedLoading,
+      error: submittedError,
+      reload: reloadSubmitted
+    } = useFilteredLoad(async () => {
+      submittedOrders.value = await api.getSubmittedOrders()
+    })
 
     return {
+      formatAmount,
       t,
       loading,
       error,
+      reload,
+      reloadSubmitted,
       orders,
+      submittedOrders,
+      submittedLoading,
+      submittedError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -274,6 +333,12 @@ export default {
 
 .item-meta {
   font-size: 0.813rem;
+  color: #64748b;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
   color: #64748b;
 }
 </style>

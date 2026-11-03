@@ -6,6 +6,8 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -43,6 +45,10 @@ export default {
       title: 'カテゴリ別在庫価値'
     },
     inventoryShortages: {
+      actions: '操作',
+      createPo: '発注書を作成',
+      viewPo: '発注書を表示',
+      viewDetails: '注文{id}の詳細を表示',
       title: '在庫不足',
       noShortages: '在庫不足なし - すべての注文を履行できます！',
       noData: '選択したフィルターのデータがありません',
@@ -80,6 +86,7 @@ export default {
     skus: 'SKU',
     searchPlaceholder: '品目名で検索...',
     clearSearch: '検索をクリア',
+    exportCsv: 'CSVエクスポート',
     totalItems: '総品目数',
     totalValue: '総価値',
     lowStockItems: '在庫僅少品目',
@@ -125,8 +132,88 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
-      actualDelivery: '実際の配達日'
+      actualDelivery: '実際の配達日',
+      submittedDate: '送信日',
+      leadTime: 'リードタイム（日）'
+    },
+    submitted: {
+      title: '送信済み注文',
+      empty: '送信済みの補充注文はまだありません',
+      loadFailed: '送信済み注文の読み込みに失敗しました'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定し、予測不足数の大きい品目を発注します',
+    budget: '予算',
+    recommendations: '推奨品目',
+    empty: 'この予算で推奨できる品目はありません',
+    loadFailed: '推奨の読み込みに失敗しました',
+    orderFailed: '注文の送信に失敗しました',
+    table: {
+      select: '選択',
+      sku: 'SKU',
+      name: '品目',
+      category: 'カテゴリ',
+      trend: 'トレンド',
+      stock: '在庫数',
+      forecast: '予測需要',
+      shortfall: '不足数',
+      quantity: '発注数量',
+      unitCost: '単価',
+      lineCost: '明細金額',
+      leadTime: 'リードタイム（日）'
+    },
+    summary: {
+      selectedTotal: '選択合計',
+      budget: '予算',
+      remaining: '残り予算',
+      leadTime: '注文リードタイム',
+      days: '{count}日',
+      overBudget: '選択合計が予算を超えています。数量を減らすか品目の選択を外してください。',
+      nothingSelected: '注文するには1つ以上の品目を選択してください。',
+      invalidQty: '選択した各品目の数量は、1以上で不足数以下の整数にしてください。'
+    },
+    placeOrder: '注文する',
+    placing: '注文を送信中...',
+    confirmation: '注文 {number} を送信しました。配達予定日: {date}',
+    viewOrders: '注文を表示'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期ごとの業績指標と月次トレンドを表示',
+    loading: 'レポートを読み込み中...',
+    loadFailed: 'レポートの読み込みに失敗しました',
+    quarterly: {
+      title: '四半期パフォーマンス',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '充足率'
+    },
+    trend: {
+      title: '月次収益トレンド'
+    },
+    mom: {
+      title: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '収益',
+      change: '増減',
+      growthRate: '成長率'
+    },
+    summary: {
+      totalRevenueYtd: '総収益（年初来）',
+      avgMonthlyRevenue: '月平均収益',
+      totalOrdersYtd: '総注文数（年初来）',
+      bestQuarter: '最高業績の四半期'
+    },
+    notAvailable: '該当なし'
   },
 
   // Finance/Spending
@@ -156,6 +243,9 @@ export default {
     categorySpending: {
       title: 'カテゴリ別支出',
       ofTotal: '全体の'
+    },
+    transactionDetail: {
+      title: '取引の詳細'
     },
     transactions: {
       title: '最近の取引',
@@ -195,7 +285,8 @@ export default {
     category: 'カテゴリ',
     orderStatus: '注文ステータス',
     all: 'すべて',
-    allMonths: 'すべての月'
+    allMonths: 'すべての月',
+    reset: 'フィルターをすべてリセット'
   },
 
   // Statuses
@@ -206,7 +297,8 @@ export default {
     backordered: 'バックオーダー',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
-    adequate: '適量'
+    adequate: '適量',
+    submitted: '送信済み'
   },
 
   // Trends
@@ -301,7 +393,43 @@ export default {
     priority: '優先度',
     dueDate: '期限',
     addTask: 'タスクを追加',
-    noTasks: 'タスクがありません。上記からタスクを追加してください！'
+    noTasks: 'タスクがありません。上記からタスクを追加してください！',
+    deleteTask: 'タスクを削除: {title}'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    detailsTitle: '発注書の詳細',
+    sku: 'SKU',
+    supplierName: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価',
+    expectedDeliveryDate: '納品予定日',
+    notes: '備考',
+    cancel: 'キャンセル',
+    close: '閉じる',
+    create: '発注書を作成',
+    creating: '作成中...',
+    notFound: '発注書が見つかりません。',
+    loadFailed: '発注書の読み込みに失敗しました',
+    createFailed: '発注書の作成に失敗しました',
+    errorSummary: '強調表示された項目を修正してください。',
+    poNumber: '発注番号',
+    status: 'ステータス',
+    supplier: '仕入先',
+    totalCost: '合計金額',
+    expectedDelivery: '納品予定',
+    created: '作成日',
+    units: '{count}個',
+    none: 'なし',
+    na: 'なし',
+    validation: {
+      supplierRequired: '仕入先名は必須です。',
+      quantityInvalid: '数量は1以上の整数で入力してください。',
+      unitCostInvalid: '単価は0より大きい数値で入力してください。',
+      dateRequired: '有効な納品予定日を入力してください。'
+    }
   },
 
   // Language
@@ -318,6 +446,8 @@ export default {
     noData: 'データがありません',
     viewDetails: '詳細を見る',
     close: '閉じる',
+    loadFailed: 'データの読み込みに失敗しました',
+    retry: '再試行',
     save: '保存',
     cancel: 'キャンセル',
     search: '検索',

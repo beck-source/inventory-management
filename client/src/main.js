@@ -1,22 +1,17 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
-import Dashboard from './views/Dashboard.vue'
-import Inventory from './views/Inventory.vue'
-import Orders from './views/Orders.vue'
-import Demand from './views/Demand.vue'
-import Spending from './views/Spending.vue'
-import Reports from './views/Reports.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', component: Dashboard },
-    { path: '/inventory', component: Inventory },
-    { path: '/orders', component: Orders },
-    { path: '/demand', component: Demand },
-    { path: '/spending', component: Spending },
-    { path: '/reports', component: Reports }
+    { path: '/', component: () => import('./views/Dashboard.vue') },
+    { path: '/inventory', component: () => import('./views/Inventory.vue') },
+    { path: '/orders', component: () => import('./views/Orders.vue') },
+    { path: '/demand', component: () => import('./views/Demand.vue') },
+    { path: '/restocking', component: () => import('./views/Restocking.vue') },
+    { path: '/spending', component: () => import('./views/Spending.vue') },
+    { path: '/reports', component: () => import('./views/Reports.vue') }
   ]
 })
 

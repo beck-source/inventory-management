@@ -6,7 +6,7 @@
           <h1>{{ t('nav.companyName') }}</h1>
           <span class="subtitle">{{ t('nav.subtitle') }}</span>
         </div>
-        <nav class="nav-tabs">
+        <nav class="nav-tabs" :aria-label="t('nav.companyName')">
           <router-link to="/" :class="{ active: $route.path === '/' }">
             {{ t('nav.overview') }}
           </router-link>
@@ -22,8 +22,11 @@
           <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
             {{ t('nav.demandForecast') }}
           </router-link>
+          <router-link to="/restocking" :class="{ active: $route.path === '/restocking' }">
+            {{ t('nav.restocking') }}
+          </router-link>
           <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
+            {{ t('nav.reports') }}
           </router-link>
         </nav>
         <LanguageSwitcher />
@@ -168,6 +171,42 @@ export default {
   box-sizing: border-box;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+[role='button']:focus-visible,
+[tabindex='0']:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Text-style button used inside clickable table rows for keyboard access */
+.row-link {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.row-link:hover {
+  color: #2563eb;
+}
+
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: #f8fafc;
@@ -233,6 +272,10 @@ body {
 .nav-tabs {
   display: flex;
   gap: 0.25rem;
+}
+
+.nav-tabs a {
+  white-space: nowrap;
 }
 
 .nav-tabs a {
@@ -482,5 +525,60 @@ tbody tr:hover {
   border-radius: 8px;
   margin: 1rem 0;
   font-size: 0.938rem;
+}
+
+@media (max-width: 1024px) {
+  .nav-container {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 0.5rem 1rem;
+    row-gap: 0.5rem;
+  }
+
+  .nav-container > .nav-tabs {
+    order: 3;
+    flex: 0 0 100%;
+    margin: 0;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .nav-container > .language-switcher {
+    margin-left: auto;
+  }
+
+  .main-content {
+    padding: 1.25rem 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .subtitle {
+    display: none;
+  }
+
+  .logo h1 {
+    font-size: 1.125rem;
+  }
+
+  .page-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .nav-tabs a {
+    padding: 0.5rem 0.875rem;
+  }
+
+  .main-content {
+    padding: 1rem 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
 }
 </style>
