@@ -1,3 +1,6 @@
+import math
+import threading
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -89,6 +92,9 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: Optional[float] = None
+    quantity_on_hand: Optional[int] = None
+    lead_time_days: Optional[int] = None
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +125,36 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockingOrderLine(BaseModel):
+    sku: str
+    quantity: int
+
+class CreateRestockingOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockingOrderLine]
+
+class RestockingOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    submitted_date: str
+    budget: float
+    items: List[RestockingOrderItem]
+    total_cost: float
+    lead_time_days: int
+    expected_delivery: str
+    status: str
+
+restocking_orders: List[dict] = []
+restocking_orders_lock = threading.Lock()
 
 # API endpoints
 @app.get("/")
@@ -165,6 +201,64 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get submitted restocking orders, newest first"""
+    return list(reversed(restocking_orders))
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order. Prices and lead times come from the demand forecast, not the client."""
+    # Checked here rather than in the model: a 422 body would echo NaN/Infinity and fail JSON encoding
+    if not math.isfinite(request.budget) or request.budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be a non-negative number")
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+
+    forecasts_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+    items = []
+    seen_skus = set()
+    for line in request.items:
+        if line.sku in seen_skus:
+            raise HTTPException(status_code=400, detail=f"Duplicate SKU: {line.sku}")
+        seen_skus.add(line.sku)
+        forecast = forecasts_by_sku.get(line.sku)
+        if not forecast or forecast.get("unit_cost") is None or forecast.get("lead_time_days") is None:
+            raise HTTPException(status_code=400, detail=f"Unknown or non-restockable SKU: {line.sku}")
+        if line.quantity <= 0:
+            raise HTTPException(status_code=400, detail=f"Quantity must be positive for {line.sku}")
+        items.append({
+            "sku": line.sku,
+            "name": forecast["item_name"],
+            "quantity": line.quantity,
+            "unit_cost": forecast["unit_cost"],
+            "line_total": round(line.quantity * forecast["unit_cost"], 2),
+            "lead_time_days": forecast["lead_time_days"],
+        })
+
+    total_cost = round(sum(item["line_total"] for item in items), 2)
+    if round(total_cost - request.budget, 2) > 0:
+        raise HTTPException(status_code=400, detail="Order total exceeds budget")
+
+    submitted = datetime.now()
+    lead_time_days = max(item["lead_time_days"] for item in items)
+    # Number assignment and append happen under a lock because sync endpoints run in a threadpool
+    with restocking_orders_lock:
+        sequence = len(restocking_orders) + 1
+        order = {
+            "id": str(sequence),
+            "order_number": f"RST-{submitted.year}-{sequence:04d}",
+            "submitted_date": submitted.isoformat(timespec="seconds"),
+            "budget": request.budget,
+            "items": items,
+            "total_cost": total_cost,
+            "lead_time_days": lead_time_days,
+            "expected_delivery": (submitted + timedelta(days=lead_time_days)).isoformat(timespec="seconds"),
+            "status": "Submitted",
+        }
+        restocking_orders.append(order)
+    return order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():

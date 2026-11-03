@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,7 +113,14 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No restocking orders have been submitted yet',
+    loadSubmittedFailed: 'Failed to load submitted orders',
+    leadTime: 'Lead Time',
+    days: '{count} days',
     table: {
+      submittedDate: 'Submitted',
+      totalCost: 'Total Cost',
       orderNumber: 'Order Number',
       orderId: 'Order ID',
       orderDate: 'Order Date',
@@ -188,6 +196,38 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan a restocking order within budget, prioritizing items with rising demand',
+    budget: 'Budget',
+    spent: 'Spent',
+    remaining: 'Remaining',
+    longestLeadTime: 'Longest Lead Time',
+    days: 'days',
+    recommendations: 'Recommended Order',
+    noShortfalls: 'No items need restocking - stock covers all forecasted demand',
+    overBudget: 'The order exceeds the budget by {amount}. Reduce quantities or raise the budget to place the order.',
+    placeOrder: 'Place Order',
+    placingOrder: 'Placing order...',
+    loadFailed: 'Failed to load demand forecasts',
+    submitFailed: 'Failed to place the order',
+    orderPlaced: 'Order placed.',
+    orderPlacedDetail: '{orderNumber} was submitted with a lead time of {days} days.',
+    viewInOrders: 'View in Orders',
+    table: {
+      item: 'Item',
+      trend: 'Trend',
+      stock: 'In Stock',
+      forecast: 'Forecast',
+      shortfall: 'Shortfall',
+      unitCost: 'Unit Cost',
+      quantity: 'Order Qty',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +244,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'
