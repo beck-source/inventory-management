@@ -36,11 +36,24 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-          # The org's managed policy blocks anthropics/claude-code.git as a plugin source;
-          # claude-plugins-official is on the allow list and ships the same code-review plugin.
-          plugin_marketplaces: 'https://github.com/anthropics/claude-plugins-official.git'
-          plugins: 'code-review@claude-plugins-official'
-          prompt: '/code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          # No plugin marketplace on purpose: the org's managed policy only allows GitHub-type
+          # marketplace sources, but this action only accepts https://...git URLs for
+          # plugin_marketplaces (a "git:" source), so every plugin install is blocked.
+          # A plain prompt needs no plugin.
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request. Focus on correctness bugs, security issues, regressions,
+            and missing test coverage; mention style only when it clearly breaks the conventions
+            in CLAUDE.md. Be specific and constructive, and skip praise and restating the diff.
+
+            Use `gh pr diff` and `gh pr view` to read the change. Use
+            `mcp__github_inline_comment__create_inline_comment` for issues tied to specific lines,
+            and `gh pr comment` for one short top-level summary. Only post GitHub comments; do not
+            output the review as plain messages.
+          claude_args: |
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
           # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
           # or https://code.claude.com/docs/en/cli-reference for available options
 
