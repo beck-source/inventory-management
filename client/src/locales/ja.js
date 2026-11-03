@@ -6,6 +6,12 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
+    reports: 'レポート',
+    mainNavigation: 'メインナビゲーション',
+    // Kept short so the label is not truncated in the 240px expanded sidebar
+    collapseSidebar: 'サイドバーを閉じる',
+    expandSidebar: 'サイドバーを開く',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -106,6 +112,19 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedOrders: '送信済み補充発注',
+    submittedEmpty: '送信済みの補充発注はまだありません。',
+    submittedLoadError: '送信済み補充発注の読み込みに失敗しました',
+    submittedTable: {
+      orderNumber: '注文番号',
+      items: '品目',
+      total: '合計金額',
+      orderDate: '注文日',
+      leadTime: 'リードタイム',
+      days: '{count}日',
+      expectedDelivery: '予定配達日',
+      status: 'ステータス'
+    },
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -188,6 +207,44 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定すると、需要トレンドと不足数に基づいて優先順位付けされた補充推奨品目が表示されます',
+    budgetTitle: '補充予算',
+    budgetLabel: '予算',
+    budgetMin: '最小',
+    budgetMax: '最大(不足分をすべて補充)',
+    summary: {
+      budget: '予算',
+      selectedTotal: '選択合計',
+      remaining: '残額',
+      leadTime: '注文リードタイム'
+    },
+    days: '{count}日',
+    recommendationsTitle: '推奨品目',
+    table: {
+      include: '選択',
+      sku: 'SKU',
+      name: '品目名',
+      trend: 'トレンド',
+      shortfall: '不足数',
+      quantity: '数量',
+      unitCost: '単価',
+      lineCost: '小計',
+      leadTime: 'リードタイム(日)'
+    },
+    selectAll: 'すべての品目を選択',
+    totals: '選択品目の合計',
+    placeOrder: '発注する',
+    placing: '発注中...',
+    empty: 'この予算で推奨できる品目はありません。予算を増やすと推奨品目が表示されます。',
+    success: '注文 {orderNumber} を送信しました。合計 {total}、配達予定日 {date}。',
+    viewOrders: '注文を表示',
+    loadError: '補充推奨の読み込みに失敗しました',
+    errorFallback: '補充発注に失敗しました'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +261,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'

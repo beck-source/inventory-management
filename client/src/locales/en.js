@@ -6,6 +6,11 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
+    mainNavigation: 'Main navigation',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +111,19 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    submittedEmpty: 'No restock orders have been submitted yet.',
+    submittedLoadError: 'Failed to load submitted restock orders',
+    submittedTable: {
+      orderNumber: 'Order Number',
+      items: 'Items',
+      total: 'Total Value',
+      orderDate: 'Order Date',
+      leadTime: 'Lead Time',
+      days: '{count} days',
+      expectedDelivery: 'Expected Delivery',
+      status: 'Status'
+    },
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -188,6 +206,44 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Choose a budget to get ranked restock recommendations based on demand trends and shortfalls',
+    budgetTitle: 'Restocking Budget',
+    budgetLabel: 'Budget',
+    budgetMin: 'Min',
+    budgetMax: 'Max (cover all shortfalls)',
+    summary: {
+      budget: 'Budget',
+      selectedTotal: 'Selected Total',
+      remaining: 'Remaining',
+      leadTime: 'Order Lead Time'
+    },
+    days: '{count} days',
+    recommendationsTitle: 'Recommended Items',
+    table: {
+      include: 'Include',
+      sku: 'SKU',
+      name: 'Item Name',
+      trend: 'Trend',
+      shortfall: 'Shortfall',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time (days)'
+    },
+    selectAll: 'Select all items',
+    totals: 'Selected totals',
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    empty: 'No items can be recommended for this budget. Increase the budget to see recommendations.',
+    success: 'Order {orderNumber} submitted. Total {total}, expected delivery {date}.',
+    viewOrders: 'View orders',
+    loadError: 'Failed to load restocking recommendations',
+    errorFallback: 'Failed to place restock order'
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +260,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

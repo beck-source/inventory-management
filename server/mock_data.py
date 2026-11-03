@@ -35,5 +35,15 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Restocking orders submitted through POST /api/restocking/orders.
+# In-memory only: starts empty and resets on server restart, like all other data.
+# Kept separate from `orders` so customer-order stats (dashboard, reports) are unaffected.
+restock_orders = []
+
+# User tasks created through POST /api/tasks (the Tasks modal in the top nav).
+# In-memory only: starts empty and resets on server restart. The four built-in demo tasks
+# live in the client (useAuth.js) and are never stored here.
+tasks = []
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
