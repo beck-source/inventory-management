@@ -5,6 +5,7 @@ export default {
     inventory: '在庫',
     orders: '注文',
     finance: '財務',
+    restocking: '補充発注',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
@@ -105,6 +106,8 @@ export default {
   orders: {
     title: '注文',
     description: '顧客注文の表示と管理',
+    submittedOrders: '送信済み注文',
+    noSubmittedOrders: '送信済みの補充発注はまだありません。',
     allOrders: 'すべての注文',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
@@ -125,7 +128,36 @@ export default {
       totalValue: '合計金額',
       status: 'ステータス',
       expectedDelivery: '予定配達日',
+      total: '合計',
+      submitted: '送信日',
+      leadTime: 'リードタイム',
       actualDelivery: '実際の配達日'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '予算内で需要ギャップを満たす補充発注を計画します',
+    budget: '予算',
+    plannedSpend: '計画支出',
+    remaining: '残予算',
+    items: '品目数',
+    placeOrder: '発注する',
+    placing: '発注中...',
+    orderPlaced: '注文 {orderNumber} を送信しました。',
+    viewOrders: '注文を表示',
+    noItems: 'この予算で購入できる品目はありません',
+    leadTimeDays: '{days}日',
+    table: {
+      sku: 'SKU',
+      name: '品名',
+      trend: 'トレンド',
+      demandGap: '需要ギャップ',
+      quantity: '数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム'
     }
   },
 
@@ -201,6 +233,7 @@ export default {
   // Statuses
   status: {
     delivered: '配達済み',
+    submitted: '送信済み',
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
