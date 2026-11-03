@@ -276,7 +276,7 @@ export default {
 
 /* Budget slider card */
 .budget-card {
-  padding: 1.5rem 1.25rem;
+  padding: var(--space-5);
 }
 
 .budget-header {
@@ -287,7 +287,7 @@ export default {
 }
 
 .budget-label {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -297,7 +297,7 @@ export default {
 .budget-value {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #2563eb;
+  color: var(--accent);
   letter-spacing: -0.025em;
 }
 
@@ -319,7 +319,7 @@ export default {
 .budget-slider::-webkit-slider-runnable-track {
   height: 6px;
   border-radius: 3px;
-  background: linear-gradient(to right, #2563eb 0%, #2563eb var(--fill), #e2e8f0 var(--fill), #e2e8f0 100%);
+  background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--fill), var(--border) var(--fill), var(--border) 100%);
 }
 
 .budget-slider::-webkit-slider-thumb {
@@ -329,8 +329,8 @@ export default {
   height: 20px;
   margin-top: -7px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #2563eb;
+  background: var(--bg-surface);
+  border: 2px solid var(--accent);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
   transition: box-shadow 0.15s ease;
 }
@@ -347,21 +347,21 @@ export default {
 .budget-slider::-moz-range-track {
   height: 6px;
   border-radius: 3px;
-  background: #e2e8f0;
+  background: var(--border);
 }
 
 .budget-slider::-moz-range-progress {
   height: 6px;
   border-radius: 3px;
-  background: #2563eb;
+  background: var(--accent);
 }
 
 .budget-slider::-moz-range-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid #2563eb;
+  background: var(--bg-surface);
+  border: 2px solid var(--accent);
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
 }
 
@@ -378,21 +378,21 @@ export default {
   justify-content: space-between;
   margin-top: 0.375rem;
   font-size: 0.75rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .budget-hint {
   margin-top: 0.75rem;
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 /* Primary button */
 .btn-primary {
-  background: #2563eb;
+  background: var(--accent);
   color: #ffffff;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
   padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -402,18 +402,18 @@ export default {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .btn-primary:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
 .btn-primary:disabled {
-  background: #e2e8f0;
-  border-color: #e2e8f0;
+  background: var(--border);
+  border-color: var(--border);
   color: #94a3b8;
   cursor: not-allowed;
 }
@@ -428,13 +428,13 @@ export default {
   border: 1px solid #a7f3d0;
   color: #065f46;
   padding: 1rem;
-  border-radius: 8px;
-  margin: 0 0 1.25rem;
+  border-radius: var(--radius-md);
+  margin: 0 0 var(--space-5);
   font-size: 0.938rem;
 }
 
 .success-link {
-  color: #2563eb;
+  color: var(--accent);
   font-weight: 600;
   text-decoration: none;
 }
@@ -458,7 +458,7 @@ td.num {
 .empty-state {
   text-align: center;
   padding: 2.5rem 1rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.938rem;
 }
 </style>
