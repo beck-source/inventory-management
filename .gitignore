@@ -53,3 +53,7 @@ logs/
 
 # Environment variables
 .env
+
+# Skill scratch output
+.claude/skills/**/_*.md
+

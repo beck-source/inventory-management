@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: demand-page-sluggish
+expected_outcome: |
+  A focused analysis of views/Demand.vue. It identifies the three getForecastsByTrend(...).slice(0, 5) calls in the template as recomputed on every render and proposes computed properties instead, and examines the filter watcher / data loading. It suggests concrete code, does not wander into unrelated files except shared code Demand depends on, and does not edit files without asking.

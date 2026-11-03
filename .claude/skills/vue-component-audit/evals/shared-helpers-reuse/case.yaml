@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: shared-helpers-reuse
+expected_outcome: |
+  A reuse-focused report. It finds formatDate defined in multiple files and compares the bodies to say whether they are identical, finds translateCategory / translatePriority / getStockStatus duplicates, notices the repeated watch([...filters]) + load wiring and proposes a composable, and points at the existing utils/ and composables/ folders as the destination. It asks before editing.

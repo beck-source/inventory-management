@@ -1,79 +1,85 @@
 <template>
   <div class="orders">
-    <div class="page-header">
-      <h2>{{ t('orders.title') }}</h2>
-      <p>{{ t('orders.description') }}</p>
-    </div>
+    <PageHeader :title="t('orders.title')" />
+    <FilterBar />
 
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div class="stats-grid">
-        <div class="stat-card success">
-          <div class="stat-label">{{ t('status.delivered') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Delivered').length }}</div>
-        </div>
-        <div class="stat-card info">
-          <div class="stat-label">{{ t('status.shipped') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Shipped').length }}</div>
-        </div>
-        <div class="stat-card warning">
-          <div class="stat-label">{{ t('status.processing') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Processing').length }}</div>
-        </div>
-        <div class="stat-card danger">
-          <div class="stat-label">{{ t('status.backordered') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Backordered').length }}</div>
-        </div>
+        <Card>
+          <CardContent>
+            <div class="stat-label">{{ t('status.delivered') }}</div>
+            <div class="stat-value success">{{ getOrdersByStatus('Delivered').length }}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div class="stat-label">{{ t('status.shipped') }}</div>
+            <div class="stat-value accent">{{ getOrdersByStatus('Shipped').length }}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div class="stat-label">{{ t('status.processing') }}</div>
+            <div class="stat-value warn">{{ getOrdersByStatus('Processing').length }}</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div class="stat-label">{{ t('status.backordered') }}</div>
+            <div class="stat-value danger">{{ getOrdersByStatus('Backordered').length }}</div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
-        </div>
-        <div class="table-container">
-          <table class="orders-table">
-            <thead>
-              <tr>
-                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
-                <th class="col-customer">{{ t('orders.table.customer') }}</th>
-                <th class="col-items">{{ t('orders.table.items') }}</th>
-                <th class="col-status">{{ t('orders.table.status') }}</th>
-                <th class="col-date">{{ t('orders.table.orderDate') }}</th>
-                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="order in orders" :key="order.id">
-                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
-                <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
-                <td class="col-items">
-                  <details class="items-details">
-                    <summary class="items-summary">
-                      {{ t('orders.itemsCount', { count: order.items.length }) }}
-                    </summary>
-                    <div class="items-dropdown">
-                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
-                        <span class="item-name">{{ translateProductName(item.name) }}</span>
-                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+      <Card class="gap-4">
+        <CardHeader><CardTitle>{{ t('orders.allOrders') }} ({{ orders.length }})</CardTitle></CardHeader>
+        <CardContent>
+          <div class="table-no-pad">
+            <Table class="orders-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead class="col-order-number">{{ t('orders.table.orderNumber') }}</TableHead>
+                  <TableHead class="col-customer">{{ t('orders.table.customer') }}</TableHead>
+                  <TableHead class="col-items">{{ t('orders.table.items') }}</TableHead>
+                  <TableHead class="col-status">{{ t('orders.table.status') }}</TableHead>
+                  <TableHead class="col-date">{{ t('orders.table.orderDate') }}</TableHead>
+                  <TableHead class="col-date">{{ t('orders.table.expectedDelivery') }}</TableHead>
+                  <TableHead class="col-value">{{ t('orders.table.totalValue') }}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="order in orders" :key="order.id">
+                  <TableCell class="col-order-number"><strong>{{ order.order_number }}</strong></TableCell>
+                  <TableCell class="col-customer">{{ translateCustomerName(order.customer) }}</TableCell>
+                  <TableCell class="col-items">
+                    <details class="items-details">
+                      <summary class="items-summary">
+                        {{ t('orders.itemsCount', { count: order.items.length }) }}
+                      </summary>
+                      <div class="items-dropdown">
+                        <div v-for="(item, idx) in order.items" :key="item.sku" class="item-entry">
+                          <span class="item-name">{{ translateProductName(item.name) }}</span>
+                          <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                        </div>
                       </div>
-                    </div>
-                  </details>
-                </td>
-                <td class="col-status">
-                  <span :class="['badge', getOrderStatusClass(order.status)]">
-                    {{ t(`status.${order.status.toLowerCase()}`) }}
-                  </span>
-                </td>
-                <td class="col-date">{{ formatDate(order.order_date) }}</td>
-                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    </details>
+                  </TableCell>
+                  <TableCell class="col-status">
+                    <Badge :variant="getOrderStatusVariant(order.status)">
+                      {{ t(`status.${order.status.toLowerCase()}`) }}
+                    </Badge>
+                  </TableCell>
+                  <TableCell class="col-date">{{ formatDate(order.order_date) }}</TableCell>
+                  <TableCell class="col-date">{{ formatDate(order.expected_delivery) }}</TableCell>
+                  <TableCell class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   </div>
 </template>
@@ -83,9 +89,29 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import PageHeader from '../components/ui/PageHeader.vue'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
+import { Badge } from '@/components/ui/badge'
+import FilterBar from '../components/FilterBar.vue'
 
 export default {
   name: 'Orders',
+  components: {
+    PageHeader,
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
+    Badge,
+    FilterBar
+  },
   setup() {
     const { t, currentCurrency, translateProductName, translateCustomerName } = useI18n()
 
@@ -96,7 +122,6 @@ export default {
     const error = ref(null)
     const orders = ref([])
 
-    // Use shared filters
     const {
       selectedPeriod,
       selectedLocation,
@@ -111,7 +136,6 @@ export default {
         const filters = getCurrentFilters()
         const fetchedOrders = await api.getOrders(filters)
 
-        // Sort orders by order_date (earliest first)
         orders.value = fetchedOrders.sort((a, b) => {
           const dateA = new Date(a.order_date)
           const dateB = new Date(b.order_date)
@@ -124,7 +148,6 @@ export default {
       }
     }
 
-    // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
     })
@@ -133,14 +156,14 @@ export default {
       return orders.value.filter(order => order.status === status)
     }
 
-    const getOrderStatusClass = (status) => {
-      const statusMap = {
+    const getOrderStatusVariant = (status) => {
+      const map = {
         'Delivered': 'success',
-        'Shipped': 'info',
-        'Processing': 'warning',
+        'Shipped': 'accent',
+        'Processing': 'warn',
         'Backordered': 'danger'
       }
-      return statusMap[status] || 'info'
+      return map[status] || 'neutral'
     }
 
     const formatDate = (dateString) => {
@@ -161,7 +184,7 @@ export default {
       error,
       orders,
       getOrdersByStatus,
-      getOrderStatusClass,
+      getOrderStatusVariant,
       formatDate,
       currencySymbol,
       translateProductName,
@@ -172,49 +195,64 @@ export default {
 </script>
 
 <style scoped>
-/* Fixed table layout to prevent column shifting */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.stat-value.success { color: var(--success); }
+.stat-value.accent { color: var(--accent); }
+.stat-value.warn { color: var(--warn); }
+.stat-value.danger { color: var(--danger); }
+
+.table-no-pad {
+  margin: 0 calc(-1 * var(--sp-6));
+  margin-bottom: calc(-1 * var(--sp-6));
+}
+
 .orders-table {
   table-layout: fixed;
   width: 100%;
 }
 
-/* Column widths */
-.col-order-number {
-  width: 130px;
-}
+.col-order-number { width: 10%; }
+.col-customer { width: 16%; }
+.col-items { width: 20%; }
+.col-status { width: 10%; }
+.col-date { width: 12%; }
+.col-value { width: 10%; }
 
-.col-customer {
-  width: 180px;
-}
-
-.col-items {
-  width: 200px;
-}
-
-.col-status {
-  width: 130px;
-}
-
-.col-date {
-  width: 140px;
-}
-
-.col-value {
-  width: 120px;
-}
-
-/* Items details styling */
 .items-details {
   position: relative;
 }
 
 .items-summary {
   cursor: pointer;
-  color: #3b82f6;
+  color: var(--accent);
   font-weight: 500;
   list-style: none;
   user-select: none;
   display: inline-block;
+  font-size: 13px;
 }
 
 .items-summary::-webkit-details-marker {
@@ -224,8 +262,8 @@ export default {
 .items-summary::before {
   content: '▶';
   display: inline-block;
-  margin-right: 0.375rem;
-  font-size: 0.75rem;
+  margin-right: 6px;
+  font-size: 11px;
   transition: transform 0.2s;
 }
 
@@ -233,33 +271,27 @@ export default {
   transform: rotate(90deg);
 }
 
-.items-summary:hover {
-  color: #2563eb;
-  text-decoration: underline;
-}
-
-/* Dropdown container */
 .items-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 0.75rem;
+  margin-top: 8px;
+  background: var(--surface-card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 12px;
   z-index: 10;
-  min-width: 300px;
-  max-width: 400px;
+  min-width: 240px;
+  max-width: none;
 }
 
 .item-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 4px;
+  padding: 8px;
+  border-bottom: 1px solid var(--surface-muted);
 }
 
 .item-entry:last-child {
@@ -267,13 +299,13 @@ export default {
 }
 
 .item-name {
-  font-size: 0.875rem;
+  font-size: 13px;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--ink-primary);
 }
 
 .item-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: 12px;
+  color: var(--ink-muted);
 }
 </style>

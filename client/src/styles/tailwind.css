@@ -1,0 +1,83 @@
+/*
+ * Tailwind + shadcn-vue entry.
+ *
+ * Preflight is deliberately NOT imported: the app's existing scoped CSS was
+ * written against the small reset below, and preflight would restyle headings,
+ * lists, buttons and form controls across every page that hasn't migrated.
+ *
+ * Unlayered CSS always beats layered CSS regardless of specificity, so any
+ * global element rule (e.g. the * reset) must live in @layer base here. If it
+ * stays unlayered in App.vue it silently overrides Tailwind utilities on the
+ * shadcn components (e.g. `* { padding: 0 }` would cancel every `px-4`).
+ */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Map shadcn's semantic colors onto the app's existing tokens (App.vue :root).
+ * We set the Tailwind --color-* names directly instead of shadcn's usual
+ * --primary/--accent variables, because the app already uses --accent for its
+ * brand blue and shadcn uses --accent for a muted hover surface. Defining
+ * shadcn's --accent on :root would turn every blue accent in the app grey.
+ */
+@theme inline {
+  --color-background: var(--surface-bg);
+  --color-foreground: var(--ink-primary);
+  --color-card: var(--surface-card);
+  --color-card-foreground: var(--ink-primary);
+  --color-popover: var(--surface-card);
+  --color-popover-foreground: var(--ink-primary);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--ink-inverse);
+  --color-secondary: var(--surface-muted);
+  --color-secondary-foreground: var(--ink-secondary);
+  --color-muted: var(--surface-muted);
+  --color-muted-foreground: var(--ink-muted);
+  --color-accent: var(--surface-muted);
+  --color-accent-foreground: var(--ink-primary);
+  --color-destructive: var(--danger);
+  --color-border: var(--line);
+  --color-input: var(--line);
+  --color-ring: var(--accent);
+
+  /* App status colors, used by the extra Badge variants */
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-danger: var(--danger);
+  --color-info: var(--accent);
+
+  /* shadcn uses rounded-md for controls and rounded-xl for cards */
+  --radius-sm: 4px;
+  --radius-md: var(--r-sm);
+  --radius-lg: var(--r-md);
+  --radius-xl: var(--r-md);
+}
+
+@layer base {
+  /* Moved from App.vue so it no longer overrides Tailwind utilities */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /*
+   * The one piece of preflight shadcn depends on: utilities like `border` only
+   * set border-width, so without a default style and color borders are
+   * invisible. Unlayered rules elsewhere still override this.
+   */
+  *,
+  ::before,
+  ::after {
+    border-width: 0;
+    border-style: solid;
+    /* var(--line), not var(--color-border): @theme inline values are inlined into
+     utilities and never emitted on :root, so --color-border is undefined here */
+    border-color: var(--line);
+  }
+}
