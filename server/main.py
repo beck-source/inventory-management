@@ -1,8 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
+from typing import List, Literal, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import date
+from itertools import count
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -100,6 +102,8 @@ class BacklogItem(BaseModel):
     days_delayed: int
     priority: str
     has_purchase_order: Optional[bool] = False
+    # The frontend decides between "Create PO" and "View PO" on this field
+    purchase_order_id: Optional[str] = None
 
 class PurchaseOrder(BaseModel):
     id: str
@@ -174,10 +178,113 @@ def get_backlog():
     for item in backlog_items:
         item_dict = dict(item)
         # Check if this backlog item has a purchase order
-        has_po = any(po["backlog_item_id"] == item["id"] for po in purchase_orders)
-        item_dict["has_purchase_order"] = has_po
+        po = next((p for p in purchase_orders if p["backlog_item_id"] == item["id"]), None)
+        item_dict["has_purchase_order"] = po is not None
+        item_dict["purchase_order_id"] = po["id"] if po else None
         result.append(item_dict)
     return result
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order created for a backlog item"""
+    po = next((p for p in purchase_orders if p["backlog_item_id"] == backlog_item_id), None)
+    if not po:
+        raise HTTPException(status_code=404, detail="Purchase order not found")
+    return po
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog item (one per item, in-memory only)"""
+    if not any(b["id"] == request.backlog_item_id for b in backlog_items):
+        raise HTTPException(status_code=404, detail="Backlog item not found")
+    if any(p["backlog_item_id"] == request.backlog_item_id for p in purchase_orders):
+        raise HTTPException(status_code=409, detail="Purchase order already exists for this backlog item")
+    if not request.supplier_name.strip():
+        raise HTTPException(status_code=400, detail="Supplier name is required")
+    if request.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be greater than zero")
+    if request.unit_cost < 0:
+        raise HTTPException(status_code=400, detail="Unit cost must not be negative")
+    try:
+        date.fromisoformat(request.expected_delivery_date)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Expected delivery date must be YYYY-MM-DD")
+
+    po = {
+        "id": f"PO-{len(purchase_orders) + 1:04d}",
+        "backlog_item_id": request.backlog_item_id,
+        "supplier_name": request.supplier_name.strip(),
+        "quantity": request.quantity,
+        "unit_cost": request.unit_cost,
+        "expected_delivery_date": request.expected_delivery_date,
+        "status": "Pending",
+        "created_date": date.today().isoformat(),
+        "notes": request.notes,
+    }
+    purchase_orders.append(po)
+    return po
+
+# Tasks created through the API. The frontend also keeps a few mock tasks with small
+# integer ids (1, 2, ...) and tells the two apart by id, so API ids must start above them.
+TASK_ID_START = 1000
+# A counter, not max(id) + 1: deleting the newest task must not free its id for reuse
+task_id_counter = count(TASK_ID_START)
+
+class Task(BaseModel):
+    id: int
+    title: str
+    priority: Literal["high", "medium", "low"]
+    dueDate: str
+    status: Literal["pending", "completed"]
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: Literal["high", "medium", "low"] = "medium"
+    dueDate: str
+
+def find_task(task_id: int) -> dict:
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return task
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get tasks created through the API (newest first)"""
+    return list(reversed(tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a pending task (in-memory only)"""
+    if not request.title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
+    try:
+        date.fromisoformat(request.dueDate)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Due date must be YYYY-MM-DD")
+    task = {
+        "id": next(task_id_counter),
+        "title": request.title.strip(),
+        "priority": request.priority,
+        "dueDate": request.dueDate,
+        "status": "pending",
+    }
+    tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: int):
+    """Toggle a task between pending and completed"""
+    task = find_task(task_id)
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.delete("/api/tasks/{task_id}")
+def delete_task(task_id: int):
+    """Delete a task"""
+    task = find_task(task_id)
+    tasks.remove(task)
+    return {"id": task_id, "deleted": True}
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
