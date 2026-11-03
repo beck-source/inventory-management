@@ -698,6 +698,30 @@ export default {
   gap: 1.75rem;
 }
 
+/* Mobile: stack to one column; minmax(0, 1fr) lets tracks shrink below content width */
+@media (max-width: 767px) {
+  /* Legend wraps instead of extending past the card */
+  .chart-legend {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+
+  .two-column-grid,
+  .stats-grid-finance {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* 12-month bar charts scroll inside their card instead of widening the page */
+  .chart-container {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  .bar-chart {
+    min-width: 560px;
+  }
+}
+
 .category-list {
   display: flex;
   flex-direction: column;
@@ -770,6 +794,8 @@ export default {
 }
 
 .transactions-table-container {
+  overflow-x: auto;
+  max-width: 100%;
   overflow-y: auto;
   max-height: 400px;
 }

@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -302,6 +303,33 @@ export default {
     dueDate: '期限',
     addTask: 'タスクを追加',
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
+  },
+
+  // Purchase orders
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    viewTitle: '発注書の詳細',
+    supplierName: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価',
+    expectedDelivery: '納品予定日',
+    notes: '備考(任意)',
+    totalCost: '合計金額',
+    status: 'ステータス',
+    createdDate: '作成日',
+    poNumber: '発注書番号',
+    submit: '発注書を作成',
+    saving: '保存中...',
+    loadingPO: '発注書を読み込み中...',
+    notFound: 'この商品の発注書は見つかりませんでした。',
+    loadError: '発注書の読み込みに失敗しました。',
+    submitError: '発注書の作成に失敗しました。もう一度お試しください。',
+    supplierRequired: '仕入先名は必須です。',
+    quantityInvalid: '数量は1以上の整数で入力してください。',
+    unitCostRequired: '単価は必須です。',
+    unitCostInvalid: '単価は0以上で入力してください。',
+    deliveryRequired: '納品予定日は必須です。',
+    shortage: '不足数'
   },
 
   // Language

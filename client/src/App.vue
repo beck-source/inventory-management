@@ -1,42 +1,71 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+  <div class="app" :class="{ 'drawer-open': drawerOpen, 'rail': rail }">
+    <div class="sidebar-backdrop" @click="closeDrawer"></div>
+    <aside id="app-sidebar" class="sidebar">
+      <div class="brand">
+        <div class="brand-text">
+          <h1 class="brand-name">{{ t('nav.companyName') }}</h1>
+          <span class="brand-subtitle">{{ t('nav.subtitle') }}</span>
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
-          </router-link>
-        </nav>
+        <button
+          type="button"
+          class="collapse-toggle"
+          :aria-label="rail ? 'Expand sidebar' : 'Collapse sidebar'"
+          :aria-expanded="rail ? 'false' : 'true'"
+          aria-controls="app-sidebar"
+          @click="toggleRail"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path v-if="rail" d="M9 6l6 6-6 6" />
+            <path v-else d="M15 6l-6 6 6 6" />
+          </svg>
+        </button>
+      </div>
+      <nav class="sidebar-nav">
+        <router-link
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          class="nav-item"
+          :class="{ active: $route.path === item.to }"
+          :title="rail ? item.label : null"
+        >
+          <span class="nav-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path v-for="d in item.icon" :key="d" :d="d" />
+            </svg>
+          </span>
+          <span class="nav-label">{{ item.label }}</span>
+        </router-link>
+      </nav>
+      <div class="sidebar-footer">
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
           @show-tasks="showTasks = true"
         />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+    </aside>
+    <div class="workspace">
+      <header class="topbar">
+        <button
+          type="button"
+          class="menu-button"
+          aria-label="Toggle navigation menu"
+          aria-controls="app-sidebar"
+          :aria-expanded="drawerOpen ? 'true' : 'false'"
+          @click="drawerOpen = !drawerOpen"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 5H17M3 10H17M3 15H17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <FilterBar />
+      </header>
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -55,7 +84,8 @@
 </template>
 
 <script>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
@@ -80,6 +110,56 @@ export default {
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
+    const drawerOpen = ref(false)
+    const route = useRoute()
+    const closeDrawer = () => { drawerOpen.value = false }
+    watch(() => route.path, closeDrawer)
+
+    // Sidebar collapse: desktop persists, tablet defaults to rail (not persisted)
+    const STORAGE_KEY = 'sidebar-collapsed'
+    const readStored = () => {
+      try { return localStorage.getItem(STORAGE_KEY) === 'true' } catch (e) { return false }
+    }
+    const collapsedPref = ref(readStored())
+    const tabletExpanded = ref(false)
+    const viewport = ref('desktop')
+    const rail = computed(() => {
+      if (viewport.value === 'desktop') return collapsedPref.value
+      if (viewport.value === 'tablet') return !tabletExpanded.value
+      return false
+    })
+    const toggleRail = () => {
+      if (viewport.value === 'desktop') {
+        collapsedPref.value = !collapsedPref.value
+        try { localStorage.setItem(STORAGE_KEY, String(collapsedPref.value)) } catch (e) { /* ignore */ }
+      } else if (viewport.value === 'tablet') {
+        tabletExpanded.value = !tabletExpanded.value
+      }
+    }
+    const desktopMq = window.matchMedia('(min-width: 1024px)')
+    const tabletMq = window.matchMedia('(min-width: 768px)')
+    const updateViewport = () => {
+      const next = desktopMq.matches ? 'desktop' : tabletMq.matches ? 'tablet' : 'phone'
+      if (next === 'tablet' && viewport.value !== 'tablet') tabletExpanded.value = false
+      viewport.value = next
+    }
+    updateViewport()
+    desktopMq.addEventListener('change', updateViewport)
+    tabletMq.addEventListener('change', updateViewport)
+    onBeforeUnmount(() => {
+      desktopMq.removeEventListener('change', updateViewport)
+      tabletMq.removeEventListener('change', updateViewport)
+    })
+
+    const navItems = computed(() => [
+      { to: '/', label: t('nav.overview'), icon: ['M4 4h6v6H4z', 'M14 4h6v6h-6z', 'M4 14h6v6H4z', 'M14 14h6v6h-6z'] },
+      { to: '/inventory', label: t('nav.inventory'), icon: ['M21 8l-9-5-9 5 9 5 9-5z', 'M3 8v8l9 5 9-5V8', 'M12 13v8'] },
+      { to: '/orders', label: t('nav.orders'), icon: ['M9 3h6v4H9z', 'M9 5H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3', 'M9 12h6', 'M9 16h4'] },
+      { to: '/spending', label: t('nav.finance'), icon: ['M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18z', 'M14.5 9.5C14 8.5 13 8 12 8c-1.4 0-2.5.8-2.5 2s1.1 1.7 2.5 2 2.5.8 2.5 2-1.1 2-2.5 2c-1 0-2-.5-2.5-1.5', 'M12 6v2', 'M12 16v2'] },
+      { to: '/demand', label: t('nav.demandForecast'), icon: ['M3 17l6-6 4 4 8-8', 'M15 7h6v6'] },
+      { to: '/restocking', label: t('nav.restocking'), icon: ['M20 11a8 8 0 0 0-14.5-4.5L4 8', 'M4 4v4h4', 'M4 13a8 8 0 0 0 14.5 4.5L20 16', 'M20 20v-4h-4'] },
+      { to: '/reports', label: 'Reports', icon: ['M6 4a1 1 0 0 1 1-1h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1z', 'M14 3v4h4', 'M9 13h6', 'M9 17h6'] }
+    ])
 
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
@@ -152,6 +232,11 @@ export default {
       t,
       showProfileDetails,
       showTasks,
+      drawerOpen,
+      closeDrawer,
+      rail,
+      toggleRail,
+      navItems,
       tasks,
       addTask,
       deleteTask,
@@ -162,6 +247,26 @@ export default {
 </script>
 
 <style>
+:root {
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-bg: #f8fafc;
+  --color-accent: #2563eb;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --font-title: 24px;
+  --font-heading: 16px;
+  --font-body: 14px;
+  --font-caption: 12px;
+  --sidebar-width: 240px;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -170,108 +275,360 @@ export default {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
+  font-size: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+.app {
+  --rail-width: 64px;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+  min-height: 100vh;
+  transition: grid-template-columns 0.2s ease;
+}
+
+.app.rail {
+  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+}
+
+.sidebar {
+  background: var(--color-ink);
+  color: #e2e8f0;
+  height: 100vh;
   position: sticky;
   top: 0;
-  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
 }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
+.brand {
   display: flex;
   align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.12);
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
+.brand-name {
+  font-size: var(--font-heading);
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.01em;
 }
 
-.nav-container > .language-switcher {
-  margin-right: 1rem;
+.brand-subtitle {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--font-caption);
+  color: #94a3b8;
 }
 
-.logo {
+.sidebar-nav {
+  flex: 1;
   display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-3);
 }
 
-.logo h1 {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+.brand-text {
+  min-width: 0;
 }
 
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.938rem;
+.collapse-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(226, 232, 240, 0.18);
   border-radius: 6px;
-  transition: all 0.2s ease;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.collapse-toggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  flex-shrink: 0;
+  margin-right: var(--space-3);
+}
+
+.nav-label {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-item {
   position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: var(--font-body);
+  font-weight: 500;
+  border-radius: 6px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #ffffff;
 }
 
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
+.nav-item.active {
+  background: rgba(37, 99, 235, 0.18);
+  color: #ffffff;
 }
 
-.nav-tabs a.active::after {
+.nav-item.active::before {
   content: '';
   position: absolute;
-  bottom: -1px;
   left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
+  top: var(--space-2);
+  bottom: var(--space-2);
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: #3b82f6;
+}
+
+.sidebar .nav-item:focus-visible,
+.sidebar button:focus-visible {
+  outline-color: #93c5fd;
+}
+
+.sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-3);
+  border-top: 1px solid rgba(226, 232, 240, 0.12);
+}
+
+/* Icon rail mode (desktop and tablet only; never set on phones) */
+.app.rail .sidebar {
+  overflow: visible;
+}
+
+.app.rail .brand {
+  justify-content: center;
+  padding: var(--space-5) var(--space-2);
+}
+
+.app.rail .brand-text {
+  display: none;
+}
+
+.app.rail .sidebar-nav,
+.app.rail .sidebar-footer {
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.app.rail .nav-item {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.app.rail .nav-icon {
+  margin-right: 0;
+}
+
+/* Visually hidden but kept in the accessibility tree */
+.app.rail .nav-label,
+.app.rail .language-label,
+.app.rail .profile-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.app.rail .chevron {
+  display: none;
+}
+
+.app.rail .language-button,
+.app.rail .profile-button {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.app.rail .language-button {
+  height: 40px;
+}
+
+.app.rail .profile-button {
+  gap: 0;
+}
+
+.app.rail .language-switcher .dropdown-menu,
+.app.rail .profile-menu .dropdown-menu {
+  left: calc(100% + var(--space-2));
+  right: auto;
+  bottom: 0;
+  min-width: 180px;
+}
+
+.app.rail .profile-menu .dropdown-menu {
+  min-width: 264px;
+}
+
+.app.rail .nav-item::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + var(--space-2));
+  top: 50%;
+  transform: translateY(-50%);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-ink);
+  color: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.18);
+  border-radius: 6px;
+  font-size: var(--font-caption);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 300;
+}
+
+.app.rail .nav-item:hover::after,
+.app.rail .nav-item:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 56px;
+  padding: var(--space-2) var(--space-5);
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.menu-button {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.menu-button:hover {
+  background: var(--color-bg);
+}
+
+.sidebar-backdrop {
+  display: none;
 }
 
 .main-content {
   flex: 1;
-  max-width: 1600px;
   width: 100%;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 1.5rem 2rem;
+  padding: var(--space-5);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app,
+  .nav-item,
+  .collapse-toggle {
+    transition: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .app {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .collapse-toggle {
+    display: none;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    max-width: 85vw;
+    z-index: 200;
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform 0.2s ease, visibility 0.2s;
+  }
+
+  .app.drawer-open .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  .app.drawer-open .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(15, 23, 42, 0.5);
+  }
+
+  .menu-button {
+    display: inline-flex;
+  }
+
+  .topbar {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .main-content {
+    padding: var(--space-4);
+  }
 }
 
 .page-header {

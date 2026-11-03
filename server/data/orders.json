@@ -16,7 +16,7 @@
     "category": "Sensors",
     "order_date": "2025-01-08T10:19:00",
     "expected_delivery": "2025-01-21T10:19:00",
-    "total_value": 87799.5,
+    "total_value": 99213.43,
     "actual_delivery": "2025-01-20T10:19:00"
   },
   {
@@ -36,7 +36,7 @@
     "category": "Sensors",
     "order_date": "2025-01-24T12:00:00",
     "expected_delivery": "2025-02-05T12:00:00",
-    "total_value": 7892.25,
+    "total_value": 8918.24,
     "actual_delivery": "2025-01-31T12:00:00"
   },
   {
@@ -68,7 +68,7 @@
     "category": "Controllers",
     "order_date": "2025-01-22T10:50:00",
     "expected_delivery": "2025-02-02T10:50:00",
-    "total_value": 473280.25,
+    "total_value": 534806.68,
     "actual_delivery": "2025-02-02T10:50:00"
   },
   {
@@ -94,7 +94,7 @@
     "category": "Actuators",
     "order_date": "2025-01-02T10:57:00",
     "expected_delivery": "2025-01-10T10:57:00",
-    "total_value": 335470.0
+    "total_value": 379081.1
   },
   {
     "id": "5",
@@ -125,7 +125,7 @@
     "category": "Sensors",
     "order_date": "2025-01-03T12:06:00",
     "expected_delivery": "2025-01-16T12:06:00",
-    "total_value": 31652.6,
+    "total_value": 35767.44,
     "actual_delivery": "2025-01-10T12:06:00"
   },
   {
@@ -145,7 +145,7 @@
     "category": "Controllers",
     "order_date": "2025-01-24T16:01:00",
     "expected_delivery": "2025-02-04T16:01:00",
-    "total_value": 2249.0
+    "total_value": 2541.37
   },
   {
     "id": "7",
@@ -164,7 +164,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-01-27T10:06:00",
     "expected_delivery": "2025-02-07T10:06:00",
-    "total_value": 1274.49,
+    "total_value": 1440.17,
     "actual_delivery": "2025-02-05T10:06:00"
   },
   {
@@ -184,7 +184,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-01-10T13:27:00",
     "expected_delivery": "2025-01-21T13:27:00",
-    "total_value": 22990.8,
+    "total_value": 25979.6,
     "actual_delivery": "2025-01-20T13:27:00"
   },
   {
@@ -204,7 +204,7 @@
     "category": "Controllers",
     "order_date": "2025-01-25T15:21:00",
     "expected_delivery": "2025-02-05T15:21:00",
-    "total_value": 7207.5
+    "total_value": 8144.47
   },
   {
     "id": "10",
@@ -235,7 +235,7 @@
     "category": "Controllers",
     "order_date": "2025-02-06T12:30:00",
     "expected_delivery": "2025-02-18T12:30:00",
-    "total_value": 643050.0,
+    "total_value": 726646.5,
     "actual_delivery": "2025-02-14T12:30:00"
   },
   {
@@ -267,7 +267,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-02-10T09:29:00",
     "expected_delivery": "2025-02-23T09:29:00",
-    "total_value": 723003.0
+    "total_value": 816993.39
   },
   {
     "id": "12",
@@ -292,7 +292,7 @@
     "category": "Sensors",
     "order_date": "2025-02-07T08:30:00",
     "expected_delivery": "2025-02-16T08:30:00",
-    "total_value": 20687.5,
+    "total_value": 23376.87,
     "actual_delivery": "2025-02-15T08:30:00"
   },
   {
@@ -318,7 +318,7 @@
     "category": "Actuators",
     "order_date": "2025-02-07T15:26:00",
     "expected_delivery": "2025-02-15T15:26:00",
-    "total_value": 141695.83,
+    "total_value": 160116.29,
     "actual_delivery": "2025-02-14T15:26:00"
   },
   {
@@ -338,7 +338,7 @@
     "category": "Sensors",
     "order_date": "2025-02-24T12:06:00",
     "expected_delivery": "2025-03-07T12:06:00",
-    "total_value": 56385.0,
+    "total_value": 63715.05,
     "actual_delivery": "2025-03-02T12:06:00"
   },
   {
@@ -370,7 +370,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-02-26T10:46:00",
     "expected_delivery": "2025-03-05T10:46:00",
-    "total_value": 68099.91,
+    "total_value": 76952.9,
     "actual_delivery": "2025-03-04T10:46:00"
   },
   {
@@ -396,7 +396,7 @@
     "category": "Sensors",
     "order_date": "2025-02-26T10:55:00",
     "expected_delivery": "2025-03-12T10:55:00",
-    "total_value": 82490.75,
+    "total_value": 93214.55,
     "actual_delivery": "2025-03-04T10:55:00"
   },
   {
@@ -428,7 +428,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-02-13T08:25:00",
     "expected_delivery": "2025-02-26T08:25:00",
-    "total_value": 398914.83,
+    "total_value": 450773.76,
     "actual_delivery": "2025-02-25T08:25:00"
   },
   {
@@ -454,7 +454,7 @@
     "category": "Controllers",
     "order_date": "2025-03-01T13:43:00",
     "expected_delivery": "2025-03-14T13:43:00",
-    "total_value": 15188.0
+    "total_value": 17162.44
   },
   {
     "id": "19",
@@ -479,7 +479,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-03-18T09:01:00",
     "expected_delivery": "2025-03-30T09:01:00",
-    "total_value": 15755.57,
+    "total_value": 17803.79,
     "actual_delivery": "2025-03-24T09:01:00"
   },
   {
@@ -505,7 +505,7 @@
     "category": "Actuators",
     "order_date": "2025-03-05T17:40:00",
     "expected_delivery": "2025-03-15T17:40:00",
-    "total_value": 98284.86,
+    "total_value": 111061.89,
     "actual_delivery": "2025-03-12T17:40:00"
   },
   {
@@ -525,7 +525,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-03-21T16:15:00",
     "expected_delivery": "2025-04-04T16:15:00",
-    "total_value": 10270.89,
+    "total_value": 11606.11,
     "actual_delivery": "2025-04-03T16:15:00"
   },
   {
@@ -557,7 +557,7 @@
     "category": "Sensors",
     "order_date": "2025-03-17T11:29:00",
     "expected_delivery": "2025-03-31T11:29:00",
-    "total_value": 437793.0,
+    "total_value": 494706.09,
     "actual_delivery": "2025-03-31T11:29:00"
   },
   {
@@ -589,7 +589,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-03-11T17:34:00",
     "expected_delivery": "2025-03-22T17:34:00",
-    "total_value": 41238.1,
+    "total_value": 46599.05,
     "actual_delivery": "2025-03-21T17:34:00"
   },
   {
@@ -609,7 +609,7 @@
     "category": "Sensors",
     "order_date": "2025-03-22T10:22:00",
     "expected_delivery": "2025-03-31T10:22:00",
-    "total_value": 9673.95,
+    "total_value": 10931.56,
     "actual_delivery": "2025-03-30T10:22:00"
   },
   {
@@ -635,7 +635,7 @@
     "category": "Controllers",
     "order_date": "2025-03-01T14:41:00",
     "expected_delivery": "2025-03-11T14:41:00",
-    "total_value": 24989.5
+    "total_value": 28238.13
   },
   {
     "id": "26",
@@ -666,7 +666,7 @@
     "category": "Actuators",
     "order_date": "2025-03-14T08:05:00",
     "expected_delivery": "2025-03-21T08:05:00",
-    "total_value": 208450.75,
+    "total_value": 235549.35,
     "actual_delivery": "2025-03-21T08:05:00"
   },
   {
@@ -698,7 +698,7 @@
     "category": "Actuators",
     "order_date": "2025-03-06T15:48:00",
     "expected_delivery": "2025-03-16T15:48:00",
-    "total_value": 198852.34
+    "total_value": 224703.14
   },
   {
     "id": "28",
@@ -723,7 +723,7 @@
     "category": "Sensors",
     "order_date": "2025-03-01T11:58:00",
     "expected_delivery": "2025-03-15T11:58:00",
-    "total_value": 75512.0,
+    "total_value": 85328.56,
     "actual_delivery": "2025-03-15T11:58:00"
   },
   {
@@ -749,7 +749,7 @@
     "category": "Sensors",
     "order_date": "2025-03-19T08:14:00",
     "expected_delivery": "2025-03-31T08:14:00",
-    "total_value": 38517.75,
+    "total_value": 43525.06,
     "actual_delivery": "2025-03-30T08:14:00"
   },
   {
@@ -769,7 +769,7 @@
     "category": "Sensors",
     "order_date": "2025-04-26T17:02:00",
     "expected_delivery": "2025-05-06T17:02:00",
-    "total_value": 4258.5,
+    "total_value": 4812.1,
     "actual_delivery": "2025-05-05T17:02:00"
   },
   {
@@ -801,7 +801,7 @@
     "category": "Sensors",
     "order_date": "2025-04-22T16:06:00",
     "expected_delivery": "2025-05-05T16:06:00",
-    "total_value": 99114.25,
+    "total_value": 111999.1,
     "actual_delivery": "2025-05-04T16:06:00"
   },
   {
@@ -827,7 +827,7 @@
     "category": "Sensors",
     "order_date": "2025-04-17T11:07:00",
     "expected_delivery": "2025-04-24T11:07:00",
-    "total_value": 56685.52,
+    "total_value": 64054.64,
     "actual_delivery": "2025-04-24T11:07:00"
   },
   {
@@ -847,7 +847,7 @@
     "category": "Sensors",
     "order_date": "2025-04-27T10:08:00",
     "expected_delivery": "2025-05-11T10:08:00",
-    "total_value": 2490.5,
+    "total_value": 2814.26,
     "actual_delivery": "2025-05-05T10:08:00"
   },
   {
@@ -873,7 +873,7 @@
     "category": "Sensors",
     "order_date": "2025-04-09T16:58:00",
     "expected_delivery": "2025-04-23T16:58:00",
-    "total_value": 86494.0,
+    "total_value": 97738.22,
     "actual_delivery": "2025-04-21T16:58:00"
   },
   {
@@ -899,7 +899,7 @@
     "category": "Sensors",
     "order_date": "2025-04-12T14:35:00",
     "expected_delivery": "2025-04-19T14:35:00",
-    "total_value": 8873.01,
+    "total_value": 10026.5,
     "actual_delivery": "2025-04-18T14:35:00"
   },
   {
@@ -925,7 +925,7 @@
     "category": "Sensors",
     "order_date": "2025-04-27T11:28:00",
     "expected_delivery": "2025-05-06T11:28:00",
-    "total_value": 44268.75
+    "total_value": 50023.69
   },
   {
     "id": "37",
@@ -950,7 +950,7 @@
     "category": "Sensors",
     "order_date": "2025-04-19T08:05:00",
     "expected_delivery": "2025-04-29T08:05:00",
-    "total_value": 69971.64
+    "total_value": 79067.95
   },
   {
     "id": "38",
@@ -969,7 +969,7 @@
     "category": "Actuators",
     "order_date": "2025-04-15T10:54:00",
     "expected_delivery": "2025-04-25T10:54:00",
-    "total_value": 380625.0,
+    "total_value": 430106.25,
     "actual_delivery": "2025-04-24T10:54:00"
   },
   {
@@ -995,7 +995,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-05-12T15:43:00",
     "expected_delivery": "2025-05-24T15:43:00",
-    "total_value": 31178.6,
+    "total_value": 35231.82,
     "actual_delivery": "2025-05-23T15:43:00"
   },
   {
@@ -1015,7 +1015,7 @@
     "category": "Sensors",
     "order_date": "2025-05-15T09:23:00",
     "expected_delivery": "2025-05-23T09:23:00",
-    "total_value": 16796.0
+    "total_value": 18979.48
   },
   {
     "id": "41",
@@ -1034,7 +1034,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-05-10T11:38:00",
     "expected_delivery": "2025-05-22T11:38:00",
-    "total_value": 21262.91,
+    "total_value": 24027.09,
     "actual_delivery": "2025-05-17T11:38:00"
   },
   {
@@ -1060,7 +1060,7 @@
     "category": "Sensors",
     "order_date": "2025-05-10T09:25:00",
     "expected_delivery": "2025-05-21T09:25:00",
-    "total_value": 73357.5,
+    "total_value": 82893.97,
     "actual_delivery": "2025-05-16T09:25:00"
   },
   {
@@ -1080,7 +1080,7 @@
     "category": "Controllers",
     "order_date": "2025-05-27T11:24:00",
     "expected_delivery": "2025-06-06T11:24:00",
-    "total_value": 4380.75,
+    "total_value": 4950.25,
     "actual_delivery": "2025-06-05T11:24:00"
   },
   {
@@ -1106,7 +1106,7 @@
     "category": "Sensors",
     "order_date": "2025-05-06T09:55:00",
     "expected_delivery": "2025-05-13T09:55:00",
-    "total_value": 25949.04,
+    "total_value": 29322.42,
     "actual_delivery": "2025-05-12T09:55:00"
   },
   {
@@ -1138,7 +1138,7 @@
     "category": "Sensors",
     "order_date": "2025-05-20T14:07:00",
     "expected_delivery": "2025-05-29T14:07:00",
-    "total_value": 118662.0
+    "total_value": 134088.06
   },
   {
     "id": "46",
@@ -1163,7 +1163,7 @@
     "category": "Sensors",
     "order_date": "2025-05-15T11:21:00",
     "expected_delivery": "2025-05-23T11:21:00",
-    "total_value": 86255.95
+    "total_value": 97469.22
   },
   {
     "id": "47",
@@ -1182,7 +1182,7 @@
     "category": "Sensors",
     "order_date": "2025-05-05T09:42:00",
     "expected_delivery": "2025-05-12T09:42:00",
-    "total_value": 1415.25,
+    "total_value": 1599.23,
     "actual_delivery": "2025-05-11T09:42:00"
   },
   {
@@ -1214,7 +1214,7 @@
     "category": "Sensors",
     "order_date": "2025-05-04T09:57:00",
     "expected_delivery": "2025-05-11T09:57:00",
-    "total_value": 310238.61,
+    "total_value": 350569.63,
     "actual_delivery": "2025-05-11T09:57:00"
   },
   {
@@ -1234,7 +1234,7 @@
     "category": "Controllers",
     "order_date": "2025-05-18T13:47:00",
     "expected_delivery": "2025-05-25T13:47:00",
-    "total_value": 594.0,
+    "total_value": 671.22,
     "actual_delivery": "2025-05-24T13:47:00"
   },
   {
@@ -1254,7 +1254,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-05-06T17:37:00",
     "expected_delivery": "2025-05-15T17:37:00",
-    "total_value": 27151.5,
+    "total_value": 30681.19,
     "actual_delivery": "2025-05-14T17:37:00"
   },
   {
@@ -1274,7 +1274,7 @@
     "category": "Sensors",
     "order_date": "2025-06-04T08:13:00",
     "expected_delivery": "2025-06-12T08:13:00",
-    "total_value": 9498.06
+    "total_value": 10732.81
   },
   {
     "id": "52",
@@ -1293,7 +1293,7 @@
     "category": "Controllers",
     "order_date": "2025-06-10T15:23:00",
     "expected_delivery": "2025-06-21T15:23:00",
-    "total_value": 7564.0,
+    "total_value": 8547.32,
     "actual_delivery": "2025-06-19T15:23:00"
   },
   {
@@ -1325,7 +1325,7 @@
     "category": "Actuators",
     "order_date": "2025-06-06T10:04:00",
     "expected_delivery": "2025-06-13T10:04:00",
-    "total_value": 203003.0,
+    "total_value": 229393.39,
     "actual_delivery": "2025-06-12T10:04:00"
   },
   {
@@ -1345,7 +1345,7 @@
     "category": "Actuators",
     "order_date": "2025-06-17T11:46:00",
     "expected_delivery": "2025-06-27T11:46:00",
-    "total_value": 303550.0,
+    "total_value": 343011.5,
     "actual_delivery": "2025-06-25T11:46:00"
   },
   {
@@ -1365,7 +1365,7 @@
     "category": "Sensors",
     "order_date": "2025-06-01T16:23:00",
     "expected_delivery": "2025-06-10T16:23:00",
-    "total_value": 1751.0
+    "total_value": 1978.63
   },
   {
     "id": "56",
@@ -1390,7 +1390,7 @@
     "category": "Sensors",
     "order_date": "2025-06-25T13:47:00",
     "expected_delivery": "2025-07-03T13:47:00",
-    "total_value": 23964.75,
+    "total_value": 27080.17,
     "actual_delivery": "2025-07-01T13:47:00"
   },
   {
@@ -1422,7 +1422,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-06-03T10:34:00",
     "expected_delivery": "2025-06-14T10:34:00",
-    "total_value": 64695.81,
+    "total_value": 73106.27,
     "actual_delivery": "2025-06-14T10:34:00"
   },
   {
@@ -1448,7 +1448,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-06-14T14:11:00",
     "expected_delivery": "2025-06-24T14:11:00",
-    "total_value": 109606.82,
+    "total_value": 123855.71,
     "actual_delivery": "2025-06-20T14:11:00"
   },
   {
@@ -1468,7 +1468,7 @@
     "category": "Controllers",
     "order_date": "2025-07-09T08:26:00",
     "expected_delivery": "2025-07-18T08:26:00",
-    "total_value": 4053.25
+    "total_value": 4580.17
   },
   {
     "id": "60",
@@ -1499,7 +1499,7 @@
     "category": "Controllers",
     "order_date": "2025-07-09T13:31:00",
     "expected_delivery": "2025-07-18T13:31:00",
-    "total_value": 36987.13,
+    "total_value": 41795.46,
     "actual_delivery": "2025-07-17T13:31:00"
   },
   {
@@ -1525,7 +1525,7 @@
     "category": "Sensors",
     "order_date": "2025-07-21T13:17:00",
     "expected_delivery": "2025-07-28T13:17:00",
-    "total_value": 95105.5,
+    "total_value": 107469.21,
     "actual_delivery": "2025-07-28T13:17:00"
   },
   {
@@ -1551,7 +1551,7 @@
     "category": "Sensors",
     "order_date": "2025-07-19T12:19:00",
     "expected_delivery": "2025-07-30T12:19:00",
-    "total_value": 757516.0,
+    "total_value": 855993.08,
     "actual_delivery": "2025-07-29T12:19:00"
   },
   {
@@ -1577,7 +1577,7 @@
     "category": "Actuators",
     "order_date": "2025-07-24T08:33:00",
     "expected_delivery": "2025-08-07T08:33:00",
-    "total_value": 158676.75
+    "total_value": 179304.73
   },
   {
     "id": "64",
@@ -1602,7 +1602,7 @@
     "category": "Actuators",
     "order_date": "2025-07-15T17:53:00",
     "expected_delivery": "2025-07-28T17:53:00",
-    "total_value": 228371.0,
+    "total_value": 258059.23,
     "actual_delivery": "2025-07-27T17:53:00"
   },
   {
@@ -1622,7 +1622,7 @@
     "category": "Sensors",
     "order_date": "2025-07-21T17:26:00",
     "expected_delivery": "2025-07-31T17:26:00",
-    "total_value": 118875.0
+    "total_value": 134328.75
   },
   {
     "id": "66",
@@ -1647,7 +1647,7 @@
     "category": "Sensors",
     "order_date": "2025-07-23T10:59:00",
     "expected_delivery": "2025-08-04T10:59:00",
-    "total_value": 106943.25
+    "total_value": 120845.87
   },
   {
     "id": "67",
@@ -1666,7 +1666,7 @@
     "category": "Sensors",
     "order_date": "2025-08-12T11:11:00",
     "expected_delivery": "2025-08-25T11:11:00",
-    "total_value": 12265.5,
+    "total_value": 13860.01,
     "actual_delivery": "2025-08-21T11:11:00"
   },
   {
@@ -1686,7 +1686,7 @@
     "category": "Sensors",
     "order_date": "2025-08-19T15:05:00",
     "expected_delivery": "2025-08-27T15:05:00",
-    "total_value": 5737.5
+    "total_value": 6483.37
   },
   {
     "id": "69",
@@ -1717,7 +1717,7 @@
     "category": "Actuators",
     "order_date": "2025-08-03T14:06:00",
     "expected_delivery": "2025-08-12T14:06:00",
-    "total_value": 287593.58,
+    "total_value": 324980.75,
     "actual_delivery": "2025-08-11T14:06:00"
   },
   {
@@ -1737,7 +1737,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-08-21T11:57:00",
     "expected_delivery": "2025-08-30T11:57:00",
-    "total_value": 19665.0,
+    "total_value": 22221.45,
     "actual_delivery": "2025-08-30T11:57:00"
   },
   {
@@ -1763,7 +1763,7 @@
     "category": "Sensors",
     "order_date": "2025-08-19T09:17:00",
     "expected_delivery": "2025-08-30T09:17:00",
-    "total_value": 406247.75,
+    "total_value": 459059.96,
     "actual_delivery": "2025-08-29T09:17:00"
   },
   {
@@ -1789,7 +1789,7 @@
     "category": "Controllers",
     "order_date": "2025-08-26T09:14:00",
     "expected_delivery": "2025-09-05T09:14:00",
-    "total_value": 90280.5,
+    "total_value": 102016.96,
     "actual_delivery": "2025-09-04T09:14:00"
   },
   {
@@ -1821,7 +1821,7 @@
     "category": "Sensors",
     "order_date": "2025-08-18T10:07:00",
     "expected_delivery": "2025-08-29T10:07:00",
-    "total_value": 95097.25
+    "total_value": 107459.89
   },
   {
     "id": "74",
@@ -1840,7 +1840,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-08-19T08:17:00",
     "expected_delivery": "2025-08-27T08:17:00",
-    "total_value": 2324.07,
+    "total_value": 2626.2,
     "actual_delivery": "2025-08-26T08:17:00"
   },
   {
@@ -1860,7 +1860,7 @@
     "category": "Sensors",
     "order_date": "2025-08-14T13:17:00",
     "expected_delivery": "2025-08-28T13:17:00",
-    "total_value": 7004.0,
+    "total_value": 7914.52,
     "actual_delivery": "2025-08-28T13:17:00"
   },
   {
@@ -1886,7 +1886,7 @@
     "category": "Sensors",
     "order_date": "2025-09-03T14:38:00",
     "expected_delivery": "2025-09-15T14:38:00",
-    "total_value": 28942.0
+    "total_value": 32704.46
   },
   {
     "id": "77",
@@ -1917,7 +1917,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-09-12T10:54:00",
     "expected_delivery": "2025-09-25T10:54:00",
-    "total_value": 25950.78,
+    "total_value": 29324.38,
     "actual_delivery": "2025-09-24T10:54:00"
   },
   {
@@ -1949,7 +1949,7 @@
     "category": "Sensors",
     "order_date": "2025-09-13T09:30:00",
     "expected_delivery": "2025-09-21T09:30:00",
-    "total_value": 131259.46
+    "total_value": 148323.19
   },
   {
     "id": "79",
@@ -1974,7 +1974,7 @@
     "category": "Sensors",
     "order_date": "2025-09-05T14:24:00",
     "expected_delivery": "2025-09-16T14:24:00",
-    "total_value": 127694.5
+    "total_value": 144294.78
   },
   {
     "id": "80",
@@ -2005,7 +2005,7 @@
     "category": "Controllers",
     "order_date": "2025-09-19T12:44:00",
     "expected_delivery": "2025-10-01T12:44:00",
-    "total_value": 294570.0,
+    "total_value": 332864.1,
     "actual_delivery": "2025-09-29T12:44:00"
   },
   {
@@ -2031,7 +2031,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-09-01T11:36:00",
     "expected_delivery": "2025-09-10T11:36:00",
-    "total_value": 38154.47,
+    "total_value": 43114.55,
     "actual_delivery": "2025-09-08T11:36:00"
   },
   {
@@ -2051,7 +2051,7 @@
     "category": "Sensors",
     "order_date": "2025-09-14T08:43:00",
     "expected_delivery": "2025-09-27T08:43:00",
-    "total_value": 25500.0,
+    "total_value": 28815.0,
     "actual_delivery": "2025-09-23T08:43:00"
   },
   {
@@ -2071,7 +2071,7 @@
     "category": "Sensors",
     "order_date": "2025-09-20T14:51:00",
     "expected_delivery": "2025-09-29T14:51:00",
-    "total_value": 9320.25
+    "total_value": 10531.88
   },
   {
     "id": "84",
@@ -2102,7 +2102,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-09-12T14:21:00",
     "expected_delivery": "2025-09-23T14:21:00",
-    "total_value": 304040.5
+    "total_value": 343565.76
   },
   {
     "id": "85",
@@ -2121,7 +2121,7 @@
     "category": "Sensors",
     "order_date": "2025-09-19T09:54:00",
     "expected_delivery": "2025-09-30T09:54:00",
-    "total_value": 64863.5
+    "total_value": 73295.75
   },
   {
     "id": "86",
@@ -2140,7 +2140,7 @@
     "category": "Actuators",
     "order_date": "2025-09-26T09:55:00",
     "expected_delivery": "2025-10-08T09:55:00",
-    "total_value": 261625.0
+    "total_value": 295636.25
   },
   {
     "id": "87",
@@ -2165,7 +2165,7 @@
     "category": "Sensors",
     "order_date": "2025-10-17T17:54:00",
     "expected_delivery": "2025-10-26T17:54:00",
-    "total_value": 77022.37,
+    "total_value": 87035.28,
     "actual_delivery": "2025-10-25T17:54:00"
   },
   {
@@ -2185,7 +2185,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-10-24T10:42:00",
     "expected_delivery": "2025-11-04T10:42:00",
-    "total_value": 20191.92,
+    "total_value": 22816.87,
     "actual_delivery": "2025-11-06T10:42:00"
   },
   {
@@ -2211,7 +2211,7 @@
     "category": "Sensors",
     "order_date": "2025-10-01T09:42:00",
     "expected_delivery": "2025-10-11T09:42:00",
-    "total_value": 146370.0,
+    "total_value": 165398.1,
     "actual_delivery": "2025-10-08T09:42:00"
   },
   {
@@ -2237,7 +2237,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-10-09T15:35:00",
     "expected_delivery": "2025-10-23T15:35:00",
-    "total_value": 53670.08
+    "total_value": 60647.19
   },
   {
     "id": "91",
@@ -2256,7 +2256,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-10-10T08:14:00",
     "expected_delivery": "2025-10-24T08:14:00",
-    "total_value": 7696.92
+    "total_value": 8697.52
   },
   {
     "id": "92",
@@ -2287,7 +2287,7 @@
     "category": "Sensors",
     "order_date": "2025-10-14T10:37:00",
     "expected_delivery": "2025-10-25T10:37:00",
-    "total_value": 100185.98
+    "total_value": 113210.16
   },
   {
     "id": "93",
@@ -2312,7 +2312,7 @@
     "category": "Sensors",
     "order_date": "2025-10-21T10:58:00",
     "expected_delivery": "2025-11-02T10:58:00",
-    "total_value": 15596.89
+    "total_value": 17624.49
   },
   {
     "id": "94",
@@ -2343,7 +2343,7 @@
     "category": "Sensors",
     "order_date": "2025-10-23T12:30:00",
     "expected_delivery": "2025-11-02T12:30:00",
-    "total_value": 92691.0,
+    "total_value": 104740.83,
     "actual_delivery": "2025-10-31T12:30:00"
   },
   {
@@ -2375,7 +2375,7 @@
     "category": "Actuators",
     "order_date": "2025-10-15T09:56:00",
     "expected_delivery": "2025-10-25T09:56:00",
-    "total_value": 757204.5
+    "total_value": 855641.08
   },
   {
     "id": "96",
@@ -2406,7 +2406,7 @@
     "category": "Sensors",
     "order_date": "2025-11-09T12:29:00",
     "expected_delivery": "2025-11-18T12:29:00",
-    "total_value": 128524.0
+    "total_value": 145232.12
   },
   {
     "id": "97",
@@ -2425,7 +2425,7 @@
     "category": "Sensors",
     "order_date": "2025-11-06T16:06:00",
     "expected_delivery": "2025-11-20T16:06:00",
-    "total_value": 8083.5
+    "total_value": 9134.35
   },
   {
     "id": "98",
@@ -2450,7 +2450,7 @@
     "category": "Controllers",
     "order_date": "2025-11-22T17:38:00",
     "expected_delivery": "2025-11-30T17:38:00",
-    "total_value": 4292.41
+    "total_value": 4850.42
   },
   {
     "id": "99",
@@ -2469,7 +2469,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-19T14:52:00",
     "expected_delivery": "2025-11-28T14:52:00",
-    "total_value": 4978.34
+    "total_value": 5625.52
   },
   {
     "id": "100",
@@ -2488,7 +2488,7 @@
     "category": "Sensors",
     "order_date": "2025-11-12T13:54:00",
     "expected_delivery": "2025-11-20T13:54:00",
-    "total_value": 36605.5
+    "total_value": 41364.21
   },
   {
     "id": "101",
@@ -2507,7 +2507,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-23T14:50:00",
     "expected_delivery": "2025-12-07T14:50:00",
-    "total_value": 25219.5
+    "total_value": 28498.03
   },
   {
     "id": "102",
@@ -2532,7 +2532,7 @@
     "category": "Actuators",
     "order_date": "2025-11-12T16:11:00",
     "expected_delivery": "2025-11-25T16:11:00",
-    "total_value": 233603.5
+    "total_value": 263971.95
   },
   {
     "id": "103",
@@ -2557,7 +2557,7 @@
     "category": "Actuators",
     "order_date": "2025-11-01T10:10:00",
     "expected_delivery": "2025-11-12T10:10:00",
-    "total_value": 686125.0
+    "total_value": 775321.25
   },
   {
     "id": "104",
@@ -2576,7 +2576,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-21T13:23:00",
     "expected_delivery": "2025-12-03T13:23:00",
-    "total_value": 7348.5
+    "total_value": 8303.8
   },
   {
     "id": "105",
@@ -2601,7 +2601,7 @@
     "category": "Sensors",
     "order_date": "2025-11-23T15:29:00",
     "expected_delivery": "2025-11-30T15:29:00",
-    "total_value": 16387.5
+    "total_value": 18517.88
   },
   {
     "id": "106",
@@ -2626,7 +2626,7 @@
     "category": "Sensors",
     "order_date": "2025-11-03T16:43:00",
     "expected_delivery": "2025-11-10T16:43:00",
-    "total_value": 141509.0
+    "total_value": 159905.17
   },
   {
     "id": "107",
@@ -2645,7 +2645,7 @@
     "category": "Sensors",
     "order_date": "2025-12-23T10:49:00",
     "expected_delivery": "2026-01-05T10:49:00",
-    "total_value": 43225.0
+    "total_value": 48844.25
   },
   {
     "id": "108",
@@ -2670,7 +2670,7 @@
     "category": "Sensors",
     "order_date": "2025-12-14T11:23:00",
     "expected_delivery": "2025-12-21T11:23:00",
-    "total_value": 78679.9
+    "total_value": 88908.29
   },
   {
     "id": "109",
@@ -2701,7 +2701,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-12-03T16:15:00",
     "expected_delivery": "2025-12-13T16:15:00",
-    "total_value": 131702.0
+    "total_value": 148823.26
   },
   {
     "id": "110",
@@ -2726,7 +2726,7 @@
     "category": "Actuators",
     "order_date": "2025-12-02T14:23:00",
     "expected_delivery": "2025-12-15T14:23:00",
-    "total_value": 220828.5
+    "total_value": 249536.2
   },
   {
     "id": "111",
@@ -2751,7 +2751,7 @@
     "category": "Sensors",
     "order_date": "2025-12-23T13:46:00",
     "expected_delivery": "2026-01-01T13:46:00",
-    "total_value": 79439.0
+    "total_value": 89766.07
   },
   {
     "id": "112",
@@ -2782,7 +2782,7 @@
     "category": "Actuators",
     "order_date": "2025-12-26T15:02:00",
     "expected_delivery": "2026-01-05T15:02:00",
-    "total_value": 734470.75
+    "total_value": 829951.95
   },
   {
     "id": "113",
@@ -2807,7 +2807,7 @@
     "category": "Controllers",
     "order_date": "2025-12-18T09:45:00",
     "expected_delivery": "2025-12-27T09:45:00",
-    "total_value": 57513.5
+    "total_value": 64990.25
   },
   {
     "id": "114",
@@ -2826,7 +2826,7 @@
     "category": "Actuators",
     "order_date": "2025-12-09T14:57:00",
     "expected_delivery": "2025-12-21T14:57:00",
-    "total_value": 636550.0
+    "total_value": 719301.5
   },
   {
     "id": "115",
@@ -2857,7 +2857,7 @@
     "category": "Controllers",
     "order_date": "2025-12-17T17:39:00",
     "expected_delivery": "2025-12-24T17:39:00",
-    "total_value": 708723.25,
+    "total_value": 800857.27,
     "actual_delivery": "2025-12-23T17:39:00"
   },
   {
@@ -2877,7 +2877,7 @@
     "category": "Power Supplies",
     "order_date": "2025-02-15T09:30:00",
     "expected_delivery": "2025-02-25T09:30:00",
-    "total_value": 4747.5,
+    "total_value": 5364.67,
     "actual_delivery": "2025-02-24T09:30:00"
   },
   {
@@ -2903,7 +2903,7 @@
     "category": "Power Supplies",
     "order_date": "2025-03-08T14:20:00",
     "expected_delivery": "2025-03-18T14:20:00",
-    "total_value": 9540.0,
+    "total_value": 10780.2,
     "actual_delivery": "2025-03-17T14:20:00"
   },
   {
@@ -2923,7 +2923,7 @@
     "category": "Power Supplies",
     "order_date": "2025-04-12T11:45:00",
     "expected_delivery": "2025-04-22T11:45:00",
-    "total_value": 3633.75,
+    "total_value": 4106.14,
     "actual_delivery": null
   },
   {
@@ -2949,7 +2949,7 @@
     "category": "Power Supplies",
     "order_date": "2025-05-20T08:15:00",
     "expected_delivery": "2025-05-30T08:15:00",
-    "total_value": 11060.5,
+    "total_value": 12498.36,
     "actual_delivery": "2025-05-29T08:15:00"
   },
   {
@@ -2969,7 +2969,7 @@
     "category": "Power Supplies",
     "order_date": "2025-06-18T16:30:00",
     "expected_delivery": "2025-06-28T16:30:00",
-    "total_value": 5625.0,
+    "total_value": 6356.25,
     "actual_delivery": null
   },
   {
@@ -2995,7 +2995,7 @@
     "category": "Power Supplies",
     "order_date": "2025-07-22T10:00:00",
     "expected_delivery": "2025-08-01T10:00:00",
-    "total_value": 8413.5,
+    "total_value": 9507.25,
     "actual_delivery": "2025-07-31T10:00:00"
   },
   {
@@ -3015,7 +3015,7 @@
     "category": "Power Supplies",
     "order_date": "2025-08-05T13:45:00",
     "expected_delivery": "2025-08-15T13:45:00",
-    "total_value": 4950.0,
+    "total_value": 5593.5,
     "actual_delivery": "2025-08-14T13:45:00"
   },
   {
@@ -3041,7 +3041,7 @@
     "category": "Power Supplies",
     "order_date": "2025-09-10T09:20:00",
     "expected_delivery": "2025-09-20T09:20:00",
-    "total_value": 15717.2,
+    "total_value": 17760.44,
     "actual_delivery": null
   },
   {
@@ -3067,7 +3067,7 @@
     "category": "Power Supplies",
     "order_date": "2025-10-14T15:10:00",
     "expected_delivery": "2025-10-24T15:10:00",
-    "total_value": 9945.0,
+    "total_value": 11237.85,
     "actual_delivery": "2025-10-23T15:10:00"
   },
   {
@@ -3087,7 +3087,7 @@
     "category": "Power Supplies",
     "order_date": "2025-11-08T12:30:00",
     "expected_delivery": "2025-11-18T12:30:00",
-    "total_value": 8125.0,
+    "total_value": 9181.25,
     "actual_delivery": "2025-11-17T12:30:00"
   },
   {
@@ -3107,7 +3107,7 @@
     "category": "Sensors",
     "order_date": "2025-01-09T10:19:00",
     "expected_delivery": "2025-01-22T10:19:00",
-    "total_value": 91916.5,
+    "total_value": 103865.64,
     "actual_delivery": "2025-01-21T10:19:00"
   },
   {
@@ -3127,7 +3127,7 @@
     "category": "Sensors",
     "order_date": "2025-01-24T12:00:00",
     "expected_delivery": "2025-02-05T12:00:00",
-    "total_value": 7242.0,
+    "total_value": 8183.46,
     "actual_delivery": "2025-01-31T12:00:00"
   },
   {
@@ -3159,7 +3159,7 @@
     "category": "Controllers",
     "order_date": "2025-01-18T10:50:00",
     "expected_delivery": "2025-01-29T10:50:00",
-    "total_value": 462724.75,
+    "total_value": 522878.97,
     "actual_delivery": "2025-01-29T10:50:00"
   },
   {
@@ -3185,7 +3185,7 @@
     "category": "Actuators",
     "order_date": "2025-01-03T10:57:00",
     "expected_delivery": "2025-01-11T10:57:00",
-    "total_value": 399435.75
+    "total_value": 451362.4
   },
   {
     "id": "130",
@@ -3216,7 +3216,7 @@
     "category": "Sensors",
     "order_date": "2025-01-02T12:06:00",
     "expected_delivery": "2025-01-15T12:06:00",
-    "total_value": 30259.27,
+    "total_value": 34192.98,
     "actual_delivery": "2025-01-09T12:06:00"
   },
   {
@@ -3236,7 +3236,7 @@
     "category": "Controllers",
     "order_date": "2025-01-25T16:01:00",
     "expected_delivery": "2025-02-05T16:01:00",
-    "total_value": 2223.0
+    "total_value": 2511.99
   },
   {
     "id": "132",
@@ -3255,7 +3255,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-01-29T10:06:00",
     "expected_delivery": "2025-02-09T10:06:00",
-    "total_value": 1199.52,
+    "total_value": 1355.46,
     "actual_delivery": "2025-02-07T10:06:00"
   },
   {
@@ -3275,7 +3275,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-01-07T13:27:00",
     "expected_delivery": "2025-01-18T13:27:00",
-    "total_value": 21716.31,
+    "total_value": 24539.43,
     "actual_delivery": "2025-01-17T13:27:00"
   },
   {
@@ -3295,7 +3295,7 @@
     "category": "Controllers",
     "order_date": "2025-01-22T15:21:00",
     "expected_delivery": "2025-02-02T15:21:00",
-    "total_value": 7122.25
+    "total_value": 8048.14
   },
   {
     "id": "135",
@@ -3326,7 +3326,7 @@
     "category": "Controllers",
     "order_date": "2025-02-01T12:30:00",
     "expected_delivery": "2025-02-13T12:30:00",
-    "total_value": 706040.75,
+    "total_value": 797826.05,
     "actual_delivery": "2025-02-09T12:30:00"
   },
   {
@@ -3358,7 +3358,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-02-05T09:29:00",
     "expected_delivery": "2025-02-18T09:29:00",
-    "total_value": 630041.5
+    "total_value": 711946.89
   },
   {
     "id": "137",
@@ -3383,7 +3383,7 @@
     "category": "Sensors",
     "order_date": "2025-02-10T08:30:00",
     "expected_delivery": "2025-02-19T08:30:00",
-    "total_value": 19091.0,
+    "total_value": 21572.83,
     "actual_delivery": "2025-02-18T08:30:00"
   },
   {
@@ -3409,7 +3409,7 @@
     "category": "Actuators",
     "order_date": "2025-02-04T15:26:00",
     "expected_delivery": "2025-02-12T15:26:00",
-    "total_value": 167330.9,
+    "total_value": 189083.92,
     "actual_delivery": "2025-02-11T15:26:00"
   },
   {
@@ -3429,7 +3429,7 @@
     "category": "Sensors",
     "order_date": "2025-02-25T12:06:00",
     "expected_delivery": "2025-03-08T12:06:00",
-    "total_value": 45376.5,
+    "total_value": 51275.44,
     "actual_delivery": "2025-03-03T12:06:00"
   },
   {
@@ -3461,7 +3461,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-02-27T10:46:00",
     "expected_delivery": "2025-03-06T10:46:00",
-    "total_value": 60721.23,
+    "total_value": 68614.99,
     "actual_delivery": "2025-03-05T10:46:00"
   },
   {
@@ -3487,7 +3487,7 @@
     "category": "Sensors",
     "order_date": "2025-02-23T10:55:00",
     "expected_delivery": "2025-03-09T10:55:00",
-    "total_value": 81970.25,
+    "total_value": 92626.38,
     "actual_delivery": "2025-03-01T10:55:00"
   },
   {
@@ -3519,7 +3519,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-02-13T08:25:00",
     "expected_delivery": "2025-02-26T08:25:00",
-    "total_value": 427195.05,
+    "total_value": 482730.41,
     "actual_delivery": "2025-02-25T08:25:00"
   },
   {
@@ -3545,7 +3545,7 @@
     "category": "Controllers",
     "order_date": "2025-02-26T13:43:00",
     "expected_delivery": "2025-03-11T13:43:00",
-    "total_value": 13861.0
+    "total_value": 15662.93
   },
   {
     "id": "144",
@@ -3570,7 +3570,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-03-23T09:01:00",
     "expected_delivery": "2025-04-04T09:01:00",
-    "total_value": 17693.94,
+    "total_value": 19994.15,
     "actual_delivery": "2025-03-29T09:01:00"
   },
   {
@@ -3596,7 +3596,7 @@
     "category": "Actuators",
     "order_date": "2025-03-06T17:40:00",
     "expected_delivery": "2025-03-16T17:40:00",
-    "total_value": 98195.43,
+    "total_value": 110960.84,
     "actual_delivery": "2025-03-13T17:40:00"
   },
   {
@@ -3616,7 +3616,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-03-19T16:15:00",
     "expected_delivery": "2025-04-02T16:15:00",
-    "total_value": 11895.24,
+    "total_value": 13441.62,
     "actual_delivery": "2025-04-01T16:15:00"
   },
   {
@@ -3648,7 +3648,7 @@
     "category": "Sensors",
     "order_date": "2025-03-16T11:29:00",
     "expected_delivery": "2025-03-30T11:29:00",
-    "total_value": 410089.5,
+    "total_value": 463401.13,
     "actual_delivery": "2025-03-30T11:29:00"
   },
   {
@@ -3680,7 +3680,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-03-16T17:34:00",
     "expected_delivery": "2025-03-27T17:34:00",
-    "total_value": 37803.28,
+    "total_value": 42717.71,
     "actual_delivery": "2025-03-26T17:34:00"
   },
   {
@@ -3700,7 +3700,7 @@
     "category": "Sensors",
     "order_date": "2025-03-23T10:22:00",
     "expected_delivery": "2025-04-01T10:22:00",
-    "total_value": 10473.45,
+    "total_value": 11835.0,
     "actual_delivery": "2025-03-31T10:22:00"
   },
   {
@@ -3726,7 +3726,7 @@
     "category": "Controllers",
     "order_date": "2025-03-03T14:41:00",
     "expected_delivery": "2025-03-13T14:41:00",
-    "total_value": 25708.25
+    "total_value": 29050.32
   },
   {
     "id": "151",
@@ -3757,7 +3757,7 @@
     "category": "Actuators",
     "order_date": "2025-03-10T08:05:00",
     "expected_delivery": "2025-03-17T08:05:00",
-    "total_value": 204034.5,
+    "total_value": 230558.98,
     "actual_delivery": "2025-03-17T08:05:00"
   },
   {
@@ -3789,7 +3789,7 @@
     "category": "Actuators",
     "order_date": "2025-03-05T15:48:00",
     "expected_delivery": "2025-03-15T15:48:00",
-    "total_value": 234384.71
+    "total_value": 264854.72
   },
   {
     "id": "153",
@@ -3814,7 +3814,7 @@
     "category": "Sensors",
     "order_date": "2025-02-25T11:58:00",
     "expected_delivery": "2025-03-11T11:58:00",
-    "total_value": 80015.5,
+    "total_value": 90417.51,
     "actual_delivery": "2025-03-11T11:58:00"
   },
   {
@@ -3840,7 +3840,7 @@
     "category": "Sensors",
     "order_date": "2025-03-21T08:14:00",
     "expected_delivery": "2025-04-02T08:14:00",
-    "total_value": 40906.25,
+    "total_value": 46224.06,
     "actual_delivery": "2025-04-01T08:14:00"
   },
   {
@@ -3860,7 +3860,7 @@
     "category": "Sensors",
     "order_date": "2025-04-23T17:02:00",
     "expected_delivery": "2025-05-03T17:02:00",
-    "total_value": 5040.5,
+    "total_value": 5695.76,
     "actual_delivery": "2025-05-02T17:02:00"
   },
   {
@@ -3892,7 +3892,7 @@
     "category": "Sensors",
     "order_date": "2025-04-25T16:06:00",
     "expected_delivery": "2025-05-08T16:06:00",
-    "total_value": 83907.75,
+    "total_value": 94815.76,
     "actual_delivery": "2025-05-07T16:06:00"
   },
   {
@@ -3918,7 +3918,7 @@
     "category": "Sensors",
     "order_date": "2025-04-15T11:07:00",
     "expected_delivery": "2025-04-22T11:07:00",
-    "total_value": 49940.56,
+    "total_value": 56432.83,
     "actual_delivery": "2025-04-22T11:07:00"
   },
   {
@@ -3938,7 +3938,7 @@
     "category": "Sensors",
     "order_date": "2025-05-02T10:08:00",
     "expected_delivery": "2025-05-16T10:08:00",
-    "total_value": 2694.5,
+    "total_value": 3044.78,
     "actual_delivery": "2025-05-10T10:08:00"
   },
   {
@@ -3964,7 +3964,7 @@
     "category": "Sensors",
     "order_date": "2025-04-10T16:58:00",
     "expected_delivery": "2025-04-24T16:58:00",
-    "total_value": 83641.0,
+    "total_value": 94514.33,
     "actual_delivery": "2025-04-22T16:58:00"
   },
   {
@@ -3990,7 +3990,7 @@
     "category": "Sensors",
     "order_date": "2025-04-12T14:35:00",
     "expected_delivery": "2025-04-19T14:35:00",
-    "total_value": 8407.35,
+    "total_value": 9500.31,
     "actual_delivery": "2025-04-18T14:35:00"
   },
   {
@@ -4016,7 +4016,7 @@
     "category": "Sensors",
     "order_date": "2025-04-26T11:28:00",
     "expected_delivery": "2025-05-05T11:28:00",
-    "total_value": 44155.5
+    "total_value": 49895.71
   },
   {
     "id": "162",
@@ -4041,7 +4041,7 @@
     "category": "Sensors",
     "order_date": "2025-04-17T08:05:00",
     "expected_delivery": "2025-04-27T08:05:00",
-    "total_value": 62647.39
+    "total_value": 70791.55
   },
   {
     "id": "163",
@@ -4060,7 +4060,7 @@
     "category": "Actuators",
     "order_date": "2025-04-15T10:54:00",
     "expected_delivery": "2025-04-25T10:54:00",
-    "total_value": 392225.0,
+    "total_value": 443214.25,
     "actual_delivery": "2025-04-24T10:54:00"
   },
   {
@@ -4086,7 +4086,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-05-13T15:43:00",
     "expected_delivery": "2025-05-25T15:43:00",
-    "total_value": 28289.19,
+    "total_value": 31966.78,
     "actual_delivery": "2025-05-24T15:43:00"
   },
   {
@@ -4106,7 +4106,7 @@
     "category": "Sensors",
     "order_date": "2025-05-13T09:23:00",
     "expected_delivery": "2025-05-21T09:23:00",
-    "total_value": 20000.5
+    "total_value": 22600.56
   },
   {
     "id": "166",
@@ -4125,7 +4125,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-05-11T11:38:00",
     "expected_delivery": "2025-05-23T11:38:00",
-    "total_value": 24291.9,
+    "total_value": 27449.85,
     "actual_delivery": "2025-05-18T11:38:00"
   },
   {
@@ -4151,7 +4151,7 @@
     "category": "Sensors",
     "order_date": "2025-05-06T09:25:00",
     "expected_delivery": "2025-05-17T09:25:00",
-    "total_value": 84937.0,
+    "total_value": 95978.81,
     "actual_delivery": "2025-05-12T09:25:00"
   },
   {
@@ -4171,7 +4171,7 @@
     "category": "Controllers",
     "order_date": "2025-05-28T11:24:00",
     "expected_delivery": "2025-06-07T11:24:00",
-    "total_value": 4875.75,
+    "total_value": 5509.6,
     "actual_delivery": "2025-06-06T11:24:00"
   },
   {
@@ -4197,7 +4197,7 @@
     "category": "Sensors",
     "order_date": "2025-05-02T09:55:00",
     "expected_delivery": "2025-05-09T09:55:00",
-    "total_value": 30565.21,
+    "total_value": 34538.69,
     "actual_delivery": "2025-05-08T09:55:00"
   },
   {
@@ -4229,7 +4229,7 @@
     "category": "Sensors",
     "order_date": "2025-05-15T14:07:00",
     "expected_delivery": "2025-05-24T14:07:00",
-    "total_value": 100630.5
+    "total_value": 113712.46
   },
   {
     "id": "171",
@@ -4254,7 +4254,7 @@
     "category": "Sensors",
     "order_date": "2025-05-19T11:21:00",
     "expected_delivery": "2025-05-27T11:21:00",
-    "total_value": 91505.35
+    "total_value": 103401.05
   },
   {
     "id": "172",
@@ -4273,7 +4273,7 @@
     "category": "Sensors",
     "order_date": "2025-05-09T09:42:00",
     "expected_delivery": "2025-05-16T09:42:00",
-    "total_value": 1504.5,
+    "total_value": 1700.08,
     "actual_delivery": "2025-05-15T09:42:00"
   },
   {
@@ -4305,7 +4305,7 @@
     "category": "Sensors",
     "order_date": "2025-05-04T09:57:00",
     "expected_delivery": "2025-05-11T09:57:00",
-    "total_value": 303818.9,
+    "total_value": 343315.36,
     "actual_delivery": "2025-05-11T09:57:00"
   },
   {
@@ -4325,7 +4325,7 @@
     "category": "Controllers",
     "order_date": "2025-05-21T13:47:00",
     "expected_delivery": "2025-05-28T13:47:00",
-    "total_value": 528.0,
+    "total_value": 596.64,
     "actual_delivery": "2025-05-27T13:47:00"
   },
   {
@@ -4345,7 +4345,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-05-07T17:37:00",
     "expected_delivery": "2025-05-16T17:37:00",
-    "total_value": 26392.5,
+    "total_value": 29823.52,
     "actual_delivery": "2025-05-15T17:37:00"
   },
   {
@@ -4365,7 +4365,7 @@
     "category": "Sensors",
     "order_date": "2025-06-08T08:13:00",
     "expected_delivery": "2025-06-16T08:13:00",
-    "total_value": 9625.98
+    "total_value": 10877.36
   },
   {
     "id": "177",
@@ -4384,7 +4384,7 @@
     "category": "Controllers",
     "order_date": "2025-06-13T15:23:00",
     "expected_delivery": "2025-06-24T15:23:00",
-    "total_value": 8470.75,
+    "total_value": 9571.95,
     "actual_delivery": "2025-06-22T15:23:00"
   },
   {
@@ -4416,7 +4416,7 @@
     "category": "Actuators",
     "order_date": "2025-06-02T10:04:00",
     "expected_delivery": "2025-06-09T10:04:00",
-    "total_value": 171683.5,
+    "total_value": 194002.35,
     "actual_delivery": "2025-06-08T10:04:00"
   },
   {
@@ -4436,7 +4436,7 @@
     "category": "Actuators",
     "order_date": "2025-06-21T11:46:00",
     "expected_delivery": "2025-07-01T11:46:00",
-    "total_value": 283075.0,
+    "total_value": 319874.75,
     "actual_delivery": "2025-06-29T11:46:00"
   },
   {
@@ -4456,7 +4456,7 @@
     "category": "Sensors",
     "order_date": "2025-06-04T16:23:00",
     "expected_delivery": "2025-06-13T16:23:00",
-    "total_value": 1649.0
+    "total_value": 1863.37
   },
   {
     "id": "181",
@@ -4481,7 +4481,7 @@
     "category": "Sensors",
     "order_date": "2025-06-26T13:47:00",
     "expected_delivery": "2025-07-04T13:47:00",
-    "total_value": 27714.0,
+    "total_value": 31316.82,
     "actual_delivery": "2025-07-02T13:47:00"
   },
   {
@@ -4513,7 +4513,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-06-05T10:34:00",
     "expected_delivery": "2025-06-16T10:34:00",
-    "total_value": 59548.29,
+    "total_value": 67289.57,
     "actual_delivery": "2025-06-16T10:34:00"
   },
   {
@@ -4539,7 +4539,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-06-13T14:11:00",
     "expected_delivery": "2025-06-23T14:11:00",
-    "total_value": 97110.97,
+    "total_value": 109735.4,
     "actual_delivery": "2025-06-19T14:11:00"
   },
   {
@@ -4559,7 +4559,7 @@
     "category": "Controllers",
     "order_date": "2025-07-14T08:26:00",
     "expected_delivery": "2025-07-23T08:26:00",
-    "total_value": 4588.0
+    "total_value": 5184.44
   },
   {
     "id": "185",
@@ -4590,7 +4590,7 @@
     "category": "Controllers",
     "order_date": "2025-07-06T13:31:00",
     "expected_delivery": "2025-07-15T13:31:00",
-    "total_value": 33045.62,
+    "total_value": 37341.55,
     "actual_delivery": "2025-07-14T13:31:00"
   },
   {
@@ -4616,7 +4616,7 @@
     "category": "Sensors",
     "order_date": "2025-07-18T13:17:00",
     "expected_delivery": "2025-07-25T13:17:00",
-    "total_value": 99981.5,
+    "total_value": 112979.09,
     "actual_delivery": "2025-07-25T13:17:00"
   },
   {
@@ -4642,7 +4642,7 @@
     "category": "Sensors",
     "order_date": "2025-07-15T12:19:00",
     "expected_delivery": "2025-07-26T12:19:00",
-    "total_value": 783452.0,
+    "total_value": 885300.76,
     "actual_delivery": "2025-07-25T12:19:00"
   },
   {
@@ -4668,7 +4668,7 @@
     "category": "Actuators",
     "order_date": "2025-07-26T08:33:00",
     "expected_delivery": "2025-08-09T08:33:00",
-    "total_value": 179282.5
+    "total_value": 202589.22
   },
   {
     "id": "189",
@@ -4693,7 +4693,7 @@
     "category": "Actuators",
     "order_date": "2025-07-15T17:53:00",
     "expected_delivery": "2025-07-28T17:53:00",
-    "total_value": 206762.25,
+    "total_value": 233641.34,
     "actual_delivery": "2025-07-27T17:53:00"
   },
   {
@@ -4713,7 +4713,7 @@
     "category": "Sensors",
     "order_date": "2025-07-25T17:26:00",
     "expected_delivery": "2025-08-04T17:26:00",
-    "total_value": 104750.0
+    "total_value": 118367.5
   },
   {
     "id": "191",
@@ -4738,7 +4738,7 @@
     "category": "Sensors",
     "order_date": "2025-07-27T10:59:00",
     "expected_delivery": "2025-08-08T10:59:00",
-    "total_value": 102513.5
+    "total_value": 115840.25
   },
   {
     "id": "192",
@@ -4757,7 +4757,7 @@
     "category": "Sensors",
     "order_date": "2025-08-17T11:11:00",
     "expected_delivery": "2025-08-30T11:11:00",
-    "total_value": 14144.0,
+    "total_value": 15982.72,
     "actual_delivery": "2025-08-26T11:11:00"
   },
   {
@@ -4777,7 +4777,7 @@
     "category": "Sensors",
     "order_date": "2025-08-24T15:05:00",
     "expected_delivery": "2025-09-01T15:05:00",
-    "total_value": 6145.5
+    "total_value": 6944.41
   },
   {
     "id": "194",
@@ -4808,7 +4808,7 @@
     "category": "Actuators",
     "order_date": "2025-08-07T14:06:00",
     "expected_delivery": "2025-08-16T14:06:00",
-    "total_value": 283101.45,
+    "total_value": 319904.64,
     "actual_delivery": "2025-08-15T14:06:00"
   },
   {
@@ -4828,7 +4828,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-08-23T11:57:00",
     "expected_delivery": "2025-09-01T11:57:00",
-    "total_value": 17802.0,
+    "total_value": 20116.26,
     "actual_delivery": "2025-09-01T11:57:00"
   },
   {
@@ -4854,7 +4854,7 @@
     "category": "Sensors",
     "order_date": "2025-08-23T09:17:00",
     "expected_delivery": "2025-09-03T09:17:00",
-    "total_value": 338470.0,
+    "total_value": 382471.1,
     "actual_delivery": "2025-09-02T09:17:00"
   },
   {
@@ -4880,7 +4880,7 @@
     "category": "Controllers",
     "order_date": "2025-08-29T09:14:00",
     "expected_delivery": "2025-09-08T09:14:00",
-    "total_value": 85738.0,
+    "total_value": 96883.94,
     "actual_delivery": "2025-09-07T09:14:00"
   },
   {
@@ -4912,7 +4912,7 @@
     "category": "Sensors",
     "order_date": "2025-08-22T10:07:00",
     "expected_delivery": "2025-09-02T10:07:00",
-    "total_value": 92261.0
+    "total_value": 104254.93
   },
   {
     "id": "199",
@@ -4931,7 +4931,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-08-17T08:17:00",
     "expected_delivery": "2025-08-25T08:17:00",
-    "total_value": 2299.08,
+    "total_value": 2597.96,
     "actual_delivery": "2025-08-24T08:17:00"
   },
   {
@@ -4951,7 +4951,7 @@
     "category": "Sensors",
     "order_date": "2025-08-15T13:17:00",
     "expected_delivery": "2025-08-29T13:17:00",
-    "total_value": 7794.5,
+    "total_value": 8807.78,
     "actual_delivery": "2025-08-29T13:17:00"
   },
   {
@@ -4977,7 +4977,7 @@
     "category": "Sensors",
     "order_date": "2025-08-30T14:38:00",
     "expected_delivery": "2025-09-11T14:38:00",
-    "total_value": 31154.0
+    "total_value": 35204.02
   },
   {
     "id": "202",
@@ -5008,7 +5008,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-09-13T10:54:00",
     "expected_delivery": "2025-09-26T10:54:00",
-    "total_value": 24893.52,
+    "total_value": 28129.68,
     "actual_delivery": "2025-09-25T10:54:00"
   },
   {
@@ -5040,7 +5040,7 @@
     "category": "Sensors",
     "order_date": "2025-09-09T09:30:00",
     "expected_delivery": "2025-09-17T09:30:00",
-    "total_value": 147090.44
+    "total_value": 166212.2
   },
   {
     "id": "204",
@@ -5065,7 +5065,7 @@
     "category": "Sensors",
     "order_date": "2025-09-06T14:24:00",
     "expected_delivery": "2025-09-17T14:24:00",
-    "total_value": 134397.0
+    "total_value": 151868.61
   },
   {
     "id": "205",
@@ -5096,7 +5096,7 @@
     "category": "Controllers",
     "order_date": "2025-09-15T12:44:00",
     "expected_delivery": "2025-09-27T12:44:00",
-    "total_value": 329053.5,
+    "total_value": 371830.45,
     "actual_delivery": "2025-09-25T12:44:00"
   },
   {
@@ -5122,7 +5122,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-08-27T11:36:00",
     "expected_delivery": "2025-09-05T11:36:00",
-    "total_value": 33556.95,
+    "total_value": 37919.35,
     "actual_delivery": "2025-09-03T11:36:00"
   },
   {
@@ -5142,7 +5142,7 @@
     "category": "Sensors",
     "order_date": "2025-09-18T08:43:00",
     "expected_delivery": "2025-10-01T08:43:00",
-    "total_value": 21750.0,
+    "total_value": 24577.5,
     "actual_delivery": "2025-09-27T08:43:00"
   },
   {
@@ -5162,7 +5162,7 @@
     "category": "Sensors",
     "order_date": "2025-09-21T14:51:00",
     "expected_delivery": "2025-09-30T14:51:00",
-    "total_value": 7535.25
+    "total_value": 8514.83
   },
   {
     "id": "209",
@@ -5193,7 +5193,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-09-12T14:21:00",
     "expected_delivery": "2025-09-23T14:21:00",
-    "total_value": 305296.0
+    "total_value": 344984.48
   },
   {
     "id": "210",
@@ -5212,7 +5212,7 @@
     "category": "Sensors",
     "order_date": "2025-09-20T09:54:00",
     "expected_delivery": "2025-10-01T09:54:00",
-    "total_value": 73482.5
+    "total_value": 83035.22
   },
   {
     "id": "211",
@@ -5231,7 +5231,7 @@
     "category": "Actuators",
     "order_date": "2025-09-21T09:55:00",
     "expected_delivery": "2025-10-03T09:55:00",
-    "total_value": 280150.0
+    "total_value": 316569.5
   },
   {
     "id": "212",
@@ -5256,7 +5256,7 @@
     "category": "Sensors",
     "order_date": "2025-10-17T17:54:00",
     "expected_delivery": "2025-10-26T17:54:00",
-    "total_value": 88941.42,
+    "total_value": 100503.8,
     "actual_delivery": "2025-10-25T17:54:00"
   },
   {
@@ -5276,7 +5276,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-10-27T10:42:00",
     "expected_delivery": "2025-11-07T10:42:00",
-    "total_value": 20641.74,
+    "total_value": 23325.17,
     "actual_delivery": "2025-11-09T10:42:00"
   },
   {
@@ -5302,7 +5302,7 @@
     "category": "Sensors",
     "order_date": "2025-10-03T09:42:00",
     "expected_delivery": "2025-10-13T09:42:00",
-    "total_value": 168723.0,
+    "total_value": 190656.99,
     "actual_delivery": "2025-10-10T09:42:00"
   },
   {
@@ -5328,7 +5328,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-10-14T15:35:00",
     "expected_delivery": "2025-10-28T15:35:00",
-    "total_value": 52649.69
+    "total_value": 59494.15
   },
   {
     "id": "216",
@@ -5347,7 +5347,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-10-09T08:14:00",
     "expected_delivery": "2025-10-23T08:14:00",
-    "total_value": 8096.76
+    "total_value": 9149.34
   },
   {
     "id": "217",
@@ -5378,7 +5378,7 @@
     "category": "Sensors",
     "order_date": "2025-10-17T10:37:00",
     "expected_delivery": "2025-10-28T10:37:00",
-    "total_value": 103110.95
+    "total_value": 116515.37
   },
   {
     "id": "218",
@@ -5403,7 +5403,7 @@
     "category": "Sensors",
     "order_date": "2025-10-19T10:58:00",
     "expected_delivery": "2025-10-31T10:58:00",
-    "total_value": 15712.2
+    "total_value": 17754.79
   },
   {
     "id": "219",
@@ -5434,7 +5434,7 @@
     "category": "Sensors",
     "order_date": "2025-10-25T12:30:00",
     "expected_delivery": "2025-11-04T12:30:00",
-    "total_value": 103628.0,
+    "total_value": 117099.64,
     "actual_delivery": "2025-11-02T12:30:00"
   },
   {
@@ -5466,7 +5466,7 @@
     "category": "Actuators",
     "order_date": "2025-10-11T09:56:00",
     "expected_delivery": "2025-10-21T09:56:00",
-    "total_value": 861945.0
+    "total_value": 973997.85
   },
   {
     "id": "221",
@@ -5497,7 +5497,7 @@
     "category": "Sensors",
     "order_date": "2025-11-05T12:29:00",
     "expected_delivery": "2025-11-14T12:29:00",
-    "total_value": 115830.0
+    "total_value": 130887.9
   },
   {
     "id": "222",
@@ -5516,7 +5516,7 @@
     "category": "Sensors",
     "order_date": "2025-11-07T16:06:00",
     "expected_delivery": "2025-11-21T16:06:00",
-    "total_value": 8019.75
+    "total_value": 9062.32
   },
   {
     "id": "223",
@@ -5541,7 +5541,7 @@
     "category": "Controllers",
     "order_date": "2025-11-19T17:38:00",
     "expected_delivery": "2025-11-27T17:38:00",
-    "total_value": 3972.92
+    "total_value": 4489.4
   },
   {
     "id": "224",
@@ -5560,7 +5560,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-17T14:52:00",
     "expected_delivery": "2025-11-26T14:52:00",
-    "total_value": 5218.26
+    "total_value": 5896.63
   },
   {
     "id": "225",
@@ -5579,7 +5579,7 @@
     "category": "Sensors",
     "order_date": "2025-11-17T13:54:00",
     "expected_delivery": "2025-11-25T13:54:00",
-    "total_value": 43855.0
+    "total_value": 49556.15
   },
   {
     "id": "226",
@@ -5598,7 +5598,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-19T14:50:00",
     "expected_delivery": "2025-12-03T14:50:00",
-    "total_value": 29497.5
+    "total_value": 33332.17
   },
   {
     "id": "227",
@@ -5623,7 +5623,7 @@
     "category": "Actuators",
     "order_date": "2025-11-16T16:11:00",
     "expected_delivery": "2025-11-29T16:11:00",
-    "total_value": 248150.5
+    "total_value": 280410.07
   },
   {
     "id": "228",
@@ -5648,7 +5648,7 @@
     "category": "Actuators",
     "order_date": "2025-11-02T10:10:00",
     "expected_delivery": "2025-11-13T10:10:00",
-    "total_value": 643900.0
+    "total_value": 727607.0
   },
   {
     "id": "229",
@@ -5667,7 +5667,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-21T13:23:00",
     "expected_delivery": "2025-12-03T13:23:00",
-    "total_value": 7797.0
+    "total_value": 8810.61
   },
   {
     "id": "230",
@@ -5692,7 +5692,7 @@
     "category": "Sensors",
     "order_date": "2025-11-24T15:29:00",
     "expected_delivery": "2025-12-01T15:29:00",
-    "total_value": 14906.25
+    "total_value": 16844.06
   },
   {
     "id": "231",
@@ -5717,7 +5717,7 @@
     "category": "Sensors",
     "order_date": "2025-11-06T16:43:00",
     "expected_delivery": "2025-11-13T16:43:00",
-    "total_value": 123574.0
+    "total_value": 139638.62
   },
   {
     "id": "232",
@@ -5736,7 +5736,7 @@
     "category": "Sensors",
     "order_date": "2025-12-28T10:49:00",
     "expected_delivery": "2026-01-10T10:49:00",
-    "total_value": 35150.0
+    "total_value": 39719.5
   },
   {
     "id": "233",
@@ -5761,7 +5761,7 @@
     "category": "Sensors",
     "order_date": "2025-12-18T11:23:00",
     "expected_delivery": "2025-12-25T11:23:00",
-    "total_value": 83395.29
+    "total_value": 94236.68
   },
   {
     "id": "234",
@@ -5792,7 +5792,7 @@
     "category": "Circuit Boards",
     "order_date": "2025-11-30T16:15:00",
     "expected_delivery": "2025-12-10T16:15:00",
-    "total_value": 113791.0
+    "total_value": 128583.83
   },
   {
     "id": "235",
@@ -5817,7 +5817,7 @@
     "category": "Actuators",
     "order_date": "2025-12-05T14:23:00",
     "expected_delivery": "2025-12-18T14:23:00",
-    "total_value": 241127.0
+    "total_value": 272473.51
   },
   {
     "id": "236",
@@ -5842,7 +5842,7 @@
     "category": "Sensors",
     "order_date": "2025-12-21T13:46:00",
     "expected_delivery": "2025-12-30T13:46:00",
-    "total_value": 89966.0
+    "total_value": 101661.58
   },
   {
     "id": "237",
@@ -5873,7 +5873,7 @@
     "category": "Actuators",
     "order_date": "2025-12-31T15:02:00",
     "expected_delivery": "2026-01-10T15:02:00",
-    "total_value": 789658.25
+    "total_value": 892313.82
   },
   {
     "id": "238",
@@ -5898,7 +5898,7 @@
     "category": "Controllers",
     "order_date": "2025-12-22T09:45:00",
     "expected_delivery": "2025-12-31T09:45:00",
-    "total_value": 47019.25
+    "total_value": 53131.75
   },
   {
     "id": "239",
@@ -5917,7 +5917,7 @@
     "category": "Actuators",
     "order_date": "2025-12-12T14:57:00",
     "expected_delivery": "2025-12-24T14:57:00",
-    "total_value": 632200.0
+    "total_value": 714386.0
   },
   {
     "id": "240",
@@ -5948,7 +5948,7 @@
     "category": "Controllers",
     "order_date": "2025-12-18T17:39:00",
     "expected_delivery": "2025-12-25T17:39:00",
-    "total_value": 623428.25,
+    "total_value": 704473.92,
     "actual_delivery": "2025-12-24T17:39:00"
   },
   {
@@ -5968,7 +5968,7 @@
     "category": "Power Supplies",
     "order_date": "2025-02-20T09:30:00",
     "expected_delivery": "2025-03-02T09:30:00",
-    "total_value": 3798.0,
+    "total_value": 4291.74,
     "actual_delivery": "2025-03-01T09:30:00"
   },
   {
@@ -5994,7 +5994,7 @@
     "category": "Power Supplies",
     "order_date": "2025-03-03T14:20:00",
     "expected_delivery": "2025-03-13T14:20:00",
-    "total_value": 9942.0,
+    "total_value": 11234.46,
     "actual_delivery": "2025-03-12T14:20:00"
   },
   {
@@ -6014,7 +6014,7 @@
     "category": "Power Supplies",
     "order_date": "2025-04-14T11:45:00",
     "expected_delivery": "2025-04-24T11:45:00",
-    "total_value": 4284.0,
+    "total_value": 4840.92,
     "actual_delivery": null
   },
   {
@@ -6040,7 +6040,7 @@
     "category": "Power Supplies",
     "order_date": "2025-05-19T08:15:00",
     "expected_delivery": "2025-05-29T08:15:00",
-    "total_value": 12245.33,
+    "total_value": 13837.22,
     "actual_delivery": "2025-05-28T08:15:00"
   },
   {
@@ -6060,7 +6060,7 @@
     "category": "Power Supplies",
     "order_date": "2025-06-17T16:30:00",
     "expected_delivery": "2025-06-27T16:30:00",
-    "total_value": 6000.0,
+    "total_value": 6780.0,
     "actual_delivery": null
   },
   {
@@ -6086,7 +6086,7 @@
     "category": "Power Supplies",
     "order_date": "2025-07-18T10:00:00",
     "expected_delivery": "2025-07-28T10:00:00",
-    "total_value": 6825.75,
+    "total_value": 7713.1,
     "actual_delivery": "2025-07-27T10:00:00"
   },
   {
@@ -6106,7 +6106,7 @@
     "category": "Power Supplies",
     "order_date": "2025-08-01T13:45:00",
     "expected_delivery": "2025-08-11T13:45:00",
-    "total_value": 5062.5,
+    "total_value": 5720.62,
     "actual_delivery": "2025-08-10T13:45:00"
   },
   {
@@ -6132,7 +6132,7 @@
     "category": "Power Supplies",
     "order_date": "2025-09-06T09:20:00",
     "expected_delivery": "2025-09-16T09:20:00",
-    "total_value": 15854.91,
+    "total_value": 17916.05,
     "actual_delivery": null
   },
   {
@@ -6158,7 +6158,7 @@
     "category": "Power Supplies",
     "order_date": "2025-10-13T15:10:00",
     "expected_delivery": "2025-10-23T15:10:00",
-    "total_value": 10590.75,
+    "total_value": 11967.55,
     "actual_delivery": "2025-10-22T15:10:00"
   },
   {
@@ -6178,7 +6178,7 @@
     "category": "Power Supplies",
     "order_date": "2025-11-09T12:30:00",
     "expected_delivery": "2025-11-19T12:30:00",
-    "total_value": 9125.0,
+    "total_value": 10311.25,
     "actual_delivery": "2025-11-18T12:30:00"
   }
 ]

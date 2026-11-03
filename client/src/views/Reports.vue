@@ -420,6 +420,28 @@ export default {
   margin-top: 1.5rem;
 }
 
+/* Mobile: one column; the 12-bar chart scrolls inside its card, tables get max-width */
+@media (max-width: 767px) {
+  .stats-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reports,
+  .reports .card {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .chart-container {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  .bar-chart {
+    min-width: 560px;
+  }
+}
+
 .stat-card {
   background: white;
   border-radius: 12px;

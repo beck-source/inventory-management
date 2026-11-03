@@ -40,7 +40,26 @@ uv run python main.py
 # Frontend
 cd client
 npm install && npm run dev
+
+# Both at once (macOS/Linux): ./scripts/start.sh  |  stop: ./scripts/stop.sh
 ```
+
+## Testing and Build
+
+```bash
+# All backend tests (run from server/ so the uv venv has pytest)
+cd server && uv run pytest ../tests/backend -c ../tests/pytest.ini
+
+# One test file / one test
+cd server && uv run pytest ../tests/backend/test_inventory.py -c ../tests/pytest.ini
+cd server && uv run pytest "../tests/backend/test_inventory.py::TestInventoryEndpoints::test_get_all_inventory" -c ../tests/pytest.ini
+
+# Frontend production build (output: client/dist/)
+cd client && npm run build
+```
+
+- No linter is configured for either the frontend or the backend.
+- Do not run pytest from `tests/` directly; that directory has no Python project and `uv run pytest` fails there.
 
 ## Key Patterns
 
@@ -63,11 +82,18 @@ npm install && npm run dev
 5. Revenue goals: $800K/month single, $9.6M YTD all months
 
 ## File Locations
-- Views: `client/src/views/*.vue`
+- Views: `client/src/views/*.vue` (Dashboard, Inventory, Orders, Demand, Backlog, Spending, Reports)
+- Components: `client/src/components/*.vue` (detail modals, FilterBar, ProfileMenu, LanguageSwitcher)
+- Composables: `client/src/composables/` (`useFilters.js`, `useAuth.js`, `useI18n.js`)
+- Locales: `client/src/locales/en.js`, `client/src/locales/ja.js`
+- Utils: `client/src/utils/currency.js`
 - API Client: `client/src/api.js`
 - Backend: `server/main.py`, `server/mock_data.py`
 - Data: `server/data/*.json`
 - Styles: `client/src/App.vue`
+
+## Code Comments
+- Always document non-obvious logic changes with comments
 
 ## Design System
 - Colors: Slate/gray (#0f172a, #64748b, #e2e8f0)

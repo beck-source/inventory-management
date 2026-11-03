@@ -304,12 +304,14 @@ import { useI18n } from '../composables/useI18n'
 import { formatCurrency } from '../utils/currency'
 import ProductDetailModal from '../components/ProductDetailModal.vue'
 import BacklogDetailModal from '../components/BacklogDetailModal.vue'
+import PurchaseOrderModal from '../components/PurchaseOrderModal.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     ProductDetailModal,
     BacklogDetailModal,
+    PurchaseOrderModal,
   },
   setup() {
     const { t, currentCurrency, translateProductName, translateWarehouse } = useI18n()
@@ -812,9 +814,21 @@ export default {
 
 .charts-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  /* minmax(0, 1fr) lets tracks shrink below wide nowrap table content */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
   margin-bottom: 1.5rem;
+}
+
+/* Grid children must be allowed to shrink so inner tables scroll instead */
+.charts-grid > .chart-card {
+  min-width: 0;
+}
+
+/* Tables scroll horizontally inside their card instead of widening the page */
+.table-container {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .chart-card.full-width {
@@ -860,7 +874,7 @@ export default {
 /* Order Health Dashboard Styles */
 .order-health-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 1.5rem;
   align-items: center;
   padding: 1rem;
@@ -897,7 +911,7 @@ export default {
 
 .donut-legend-compact {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.625rem 1.25rem;
 }
 
@@ -1267,5 +1281,13 @@ export default {
   background: #475569;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
+}
+
+/* Mobile: stack every two-column dashboard grid into one column */
+@media (max-width: 767px) {
+  .charts-grid,
+  .order-health-container {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 </style>

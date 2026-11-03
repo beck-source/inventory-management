@@ -27,6 +27,45 @@
         </div>
       </div>
 
+      <div class="card submitted-orders">
+        <div class="card-header">
+          <h3 class="card-title">Submitted Orders ({{ submittedOrders.length }})</h3>
+        </div>
+        <div v-if="submittedOrders.length === 0" class="empty-state">
+          No restocking orders have been submitted yet.
+        </div>
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">Order Number</th>
+                <th class="col-customer">Warehouse</th>
+                <th class="col-items">Items</th>
+                <th class="col-date">Order Date</th>
+                <th class="col-status">Lead time</th>
+                <th class="col-status">Status</th>
+                <th class="col-value">Total Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in submittedOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-customer">{{ order.warehouse || '-' }}</td>
+                <td class="col-items">{{ t('orders.itemsCount', { count: order.items.length }) }}</td>
+                <td class="col-date">{{ formatDate(order.order_date) }}</td>
+                <td class="col-status">{{ getLeadTimeDays(order) === null ? '-' : getLeadTimeDays(order) + ' days' }}</td>
+                <td class="col-status">
+                  <span :class="['badge', getOrderStatusClass(order.status)]">
+                    {{ t(`status.${order.status.toLowerCase()}`) }}
+                  </span>
+                </td>
+                <td class="col-value"><strong>${{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +134,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
 
     // Use shared filters
     const {
@@ -105,9 +145,29 @@ export default {
       getCurrentFilters
     } = useFilters()
 
+    // Submitted restocking orders are shown regardless of the page filters
+    const loadSubmittedOrders = async () => {
+      try {
+        const all = await api.getOrders({})
+        submittedOrders.value = all
+          .filter(o => o.source === 'restocking')
+          .sort((a, b) => new Date(b.order_date) - new Date(a.order_date))
+      } catch (err) {
+        console.error('Failed to load submitted orders:', err)
+      }
+    }
+
+    const getLeadTimeDays = (order) => {
+      const start = new Date(order.order_date)
+      const end = new Date(order.expected_delivery)
+      if (isNaN(start.getTime()) || isNaN(end.getTime())) return null
+      return Math.round((end - start) / 86400000)
+    }
+
     const loadOrders = async () => {
       try {
         loading.value = true
+        loadSubmittedOrders()
         const filters = getCurrentFilters()
         const fetchedOrders = await api.getOrders(filters)
 
@@ -160,6 +220,8 @@ export default {
       loading,
       error,
       orders,
+      submittedOrders,
+      getLeadTimeDays,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -172,6 +234,16 @@ export default {
 </script>
 
 <style scoped>
+.submitted-orders {
+  margin-bottom: 1.5rem;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

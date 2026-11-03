@@ -261,6 +261,14 @@ export default {
   min-width: 300px;
 }
 
+/* Mobile: drop the 300px floor that forced page-level horizontal overflow */
+@media (max-width: 767px) {
+  .search-box {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 .search-icon {
   position: absolute;
   left: 0.75rem;

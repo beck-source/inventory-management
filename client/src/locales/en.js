@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -302,6 +303,33 @@ export default {
     dueDate: 'Due Date',
     addTask: 'Add Task',
     noTasks: 'No tasks yet. Add your first task above!'
+  },
+
+  // Purchase orders
+  purchaseOrder: {
+    createTitle: 'Create Purchase Order',
+    viewTitle: 'Purchase Order Details',
+    supplierName: 'Supplier Name',
+    quantity: 'Quantity',
+    unitCost: 'Unit Cost',
+    expectedDelivery: 'Expected Delivery Date',
+    notes: 'Notes (optional)',
+    totalCost: 'Total Cost',
+    status: 'Status',
+    createdDate: 'Created',
+    poNumber: 'PO Number',
+    submit: 'Create Purchase Order',
+    saving: 'Saving...',
+    loadingPO: 'Loading purchase order...',
+    notFound: 'No purchase order was found for this item.',
+    loadError: 'Failed to load the purchase order.',
+    submitError: 'Failed to create the purchase order. Please try again.',
+    supplierRequired: 'Supplier name is required.',
+    quantityInvalid: 'Quantity must be a whole number of at least 1.',
+    unitCostRequired: 'Unit cost is required.',
+    unitCostInvalid: 'Unit cost must be 0 or greater.',
+    deliveryRequired: 'Expected delivery date is required.',
+    shortage: 'Shortage'
   },
 
   // Language

@@ -102,84 +102,85 @@ export default {
 
 <style scoped>
 .filters-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 0;
-  position: sticky;
-  top: 70px;
-  z-index: 90;
+  flex: 1;
+  min-width: 0;
 }
 
 .filters-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-3);
 }
 
 .filters-grid {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-2) var(--space-4);
   flex: 1;
 }
 
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .filter-group label {
-  font-size: 0.75rem;
+  font-size: var(--font-caption);
   font-weight: 600;
-  color: #64748b;
+  color: var(--color-muted);
   white-space: nowrap;
 }
 
 .filter-select {
-  padding: 0.4rem 0.75rem;
+  height: 32px;
+  padding: 0 var(--space-3);
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  font-size: 0.813rem;
-  color: #0f172a;
+  font-size: var(--font-caption);
+  color: var(--color-ink);
   background: white;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s;
   font-weight: 500;
-  min-width: 140px;
+  min-width: 120px;
 }
 
 .filter-select:hover {
   border-color: #94a3b8;
 }
 
-.filter-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.filter-select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+  border-color: var(--color-accent);
 }
 
 .reset-filters-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem;
+  width: 32px;
+  height: 32px;
   background: white;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
-  color: #64748b;
+  color: var(--color-muted);
   cursor: pointer;
   transition: all 0.2s;
   flex-shrink: 0;
 }
 
 .reset-filters-btn:hover:not(:disabled) {
-  background: #f8fafc;
+  background: var(--color-bg);
   border-color: #cbd5e1;
-  color: #0f172a;
+  color: var(--color-ink);
+}
+
+.reset-filters-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 .reset-filters-btn:disabled {
@@ -188,7 +189,15 @@ export default {
 }
 
 .reset-filters-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 767px) {
+  .filter-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+  }
 }
 </style>
