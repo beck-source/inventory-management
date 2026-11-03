@@ -6,6 +6,14 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    reports: 'Reports',
+    // Shell strings (sidebar, top bar)
+    mainNavigation: 'Main navigation',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
+    collapse: 'Collapse',
+    openNavigation: 'Open navigation',
+    closeNavigation: 'Close navigation',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -188,6 +196,14 @@ export default {
     }
   },
 
+  // Theme toggle (top bar)
+  theme: {
+    system: 'System',
+    light: 'Light',
+    dark: 'Dark',
+    toggle: 'Theme: {current}. Switch to {next}'
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -195,7 +211,9 @@ export default {
     category: 'Category',
     orderStatus: 'Order Status',
     all: 'All',
-    allMonths: 'All Months'
+    allMonths: 'All Months',
+    reset: 'Reset all filters',
+    toolbarLabel: 'Filters'
   },
 
   // Statuses

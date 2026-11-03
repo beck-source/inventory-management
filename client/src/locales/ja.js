@@ -6,6 +6,14 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    reports: 'レポート',
+    // Shell strings (sidebar, top bar)
+    mainNavigation: 'メインナビゲーション',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開',
+    collapse: '折りたたむ',
+    openNavigation: 'ナビゲーションを開く',
+    closeNavigation: 'ナビゲーションを閉じる',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -188,6 +196,14 @@ export default {
     }
   },
 
+  // Theme toggle (top bar)
+  theme: {
+    system: 'システム',
+    light: 'ライト',
+    dark: 'ダーク',
+    toggle: 'テーマ: {current}。{next}に切り替え'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -195,7 +211,9 @@ export default {
     category: 'カテゴリ',
     orderStatus: '注文ステータス',
     all: 'すべて',
-    allMonths: 'すべての月'
+    allMonths: 'すべての月',
+    reset: 'フィルターをリセット',
+    toolbarLabel: 'フィルター'
   },
 
   // Statuses
