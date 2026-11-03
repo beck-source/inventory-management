@@ -516,7 +516,7 @@ def delete_task(task_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    # The Vite dev proxy in the client expects the API on this port
+    # client/src/api.js hardcodes API_BASE_URL to localhost:8001; change both together
     port = 8001
     print(f"Starting server on port {port}")
     uvicorn.run(app, host="0.0.0.0", port=port)
