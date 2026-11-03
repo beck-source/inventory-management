@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -112,6 +113,15 @@ export default {
     onTimeDelivery: '定時配達',
     itemsCount: '{count}件',
     quantity: '数量',
+    submittedOrders: {
+      title: '送信済み注文',
+      empty: '送信済みの補充注文はまだありません',
+      loadError: '送信済み注文の読み込みに失敗しました',
+      submittedDate: '送信日',
+      leadTime: '納期リードタイム',
+      days: '{count}日',
+      unitCost: '@'
+    },
     table: {
       orderNumber: '注文番号',
       orderId: '注文ID',
@@ -185,6 +195,39 @@ export default {
       change: '変化',
       trend: 'トレンド',
       period: '期間'
+    }
+  },
+
+  restocking: {
+    title: '補充発注',
+    description: '需要予測に基づき、予算内で補充注文を計画します',
+    budget: '予算',
+    budgetHint: '予算を調整すると推奨注文が更新されます',
+    recommendations: '推奨注文',
+    summary: '注文サマリー',
+    totalCost: '合計費用',
+    remainingBudget: '残り予算',
+    itemsCount: '{count}件',
+    empty: '選択した予算内に収まる商品がありません',
+    placeOrder: '注文する',
+    submitting: '送信中...',
+    successMessage: '注文 {orderNumber} を送信しました。納期リードタイム: {days}日',
+    errorMessage: '注文の送信に失敗しました',
+    loadError: '需要予測の読み込みに失敗しました',
+    table: {
+      sku: 'SKU',
+      itemName: '商品名',
+      trend: 'トレンド',
+      forecastedDemand: '予測需要',
+      quantity: '注文数量',
+      unitCost: '単価',
+      lineCost: '明細金額',
+      leadTime: 'リードタイム(日)'
+    },
+    trend: {
+      increasing: '増加',
+      stable: '安定',
+      decreasing: '減少'
     }
   },
 
