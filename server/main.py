@@ -2,7 +2,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from datetime import datetime, timedelta
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, submitted_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +90,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    category: str
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +122,38 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    category: str
+    quantity: int
+    unit_cost: float
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderItem]
+
+class SubmittedOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockOrderItem]
+    total_cost: float
+    budget: float
+    submitted_date: str
+    lead_time_days: int
+    expected_delivery: str
+    status: str
+
+# Supplier lead time in days per item category
+CATEGORY_LEAD_TIME_DAYS = {
+    'Actuators': 10,
+    'Circuit Boards': 14,
+    'Controllers': 12,
+    'Power Supplies': 7,
+    'Sensors': 5,
+}
+DEFAULT_LEAD_TIME_DAYS = 10
 
 # API endpoints
 @app.get("/")
@@ -165,6 +200,42 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.post("/api/restocking/orders", response_model=SubmittedOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order. Lead time is the longest among the items' categories."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+    if any(item.quantity <= 0 for item in request.items):
+        raise HTTPException(status_code=400, detail="Item quantities must be greater than zero")
+
+    total_cost = round(sum(item.quantity * item.unit_cost for item in request.items), 2)
+    if total_cost > request.budget:
+        raise HTTPException(status_code=400, detail="Order total exceeds the budget")
+
+    lead_time_days = max(
+        CATEGORY_LEAD_TIME_DAYS.get(item.category, DEFAULT_LEAD_TIME_DAYS) for item in request.items
+    )
+    now = datetime.now()
+    sequence = len(submitted_orders) + 1
+    order = {
+        "id": f"RS-{sequence}",
+        "order_number": f"RST-{now.year}-{sequence:04d}",
+        "items": [item.model_dump() for item in request.items],
+        "total_cost": total_cost,
+        "budget": request.budget,
+        "submitted_date": now.isoformat(timespec="seconds"),
+        "lead_time_days": lead_time_days,
+        "expected_delivery": (now + timedelta(days=lead_time_days)).isoformat(timespec="seconds"),
+        "status": "Submitted",
+    }
+    submitted_orders.append(order)
+    return order
+
+@app.get("/api/restocking/orders", response_model=List[SubmittedOrder])
+def get_restock_orders():
+    """Get submitted restocking orders, newest first"""
+    return list(reversed(submitted_orders))
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():

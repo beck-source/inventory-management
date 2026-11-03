@@ -14,6 +14,15 @@ sys.path.insert(0, str(server_path))
 from main import app
 
 
+@pytest.fixture(autouse=True)
+def reset_submitted_orders():
+    """Clear in-memory restocking orders so tests don't leak state."""
+    from mock_data import submitted_orders
+    submitted_orders.clear()
+    yield
+    submitted_orders.clear()
+
+
 @pytest.fixture
 def client():
     """Create a test client for the FastAPI application."""
