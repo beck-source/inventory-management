@@ -4,7 +4,7 @@
       <div v-if="isOpen && backlogItem" class="modal-overlay" @click="close">
         <div class="modal-container" @click.stop>
           <div class="modal-header">
-            <h3 class="modal-title">Inventory Shortage Details</h3>
+            <h3 class="modal-title">{{ t('backlog.detail.title') }}</h3>
             <button class="close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -22,61 +22,61 @@
               </div>
               <div class="shortage-title-section">
                 <h4 class="item-name">{{ translateProductName(backlogItem.item_name) }}</h4>
-                <div class="item-sku">SKU: {{ backlogItem.item_sku }}</div>
+                <div class="item-sku">{{ t('backlog.detail.sku', { sku: backlogItem.item_sku }) }}</div>
               </div>
               <span class="priority-badge" :class="backlogItem.priority">
-                {{ backlogItem.priority }} Priority
+                {{ t('backlog.detail.priorityBadge', { priority: t(`priority.${backlogItem.priority}`) }) }}
               </span>
             </div>
 
             <div class="shortage-summary">
               <div class="summary-card danger">
-                <div class="summary-label">Shortage Amount</div>
-                <div class="summary-value">{{ shortage }} units</div>
+                <div class="summary-label">{{ t('backlog.detail.shortageAmount') }}</div>
+                <div class="summary-value">{{ t('backlog.detail.units', { count: shortage }) }}</div>
               </div>
               <div class="summary-card warning">
-                <div class="summary-label">Days Delayed</div>
-                <div class="summary-value">{{ backlogItem.days_delayed }} days</div>
+                <div class="summary-label">{{ t('backlog.detail.daysDelayed') }}</div>
+                <div class="summary-value">{{ t('backlog.detail.days', { count: backlogItem.days_delayed }) }}</div>
               </div>
             </div>
 
             <div class="info-grid">
               <div class="info-item">
-                <div class="info-label">Order ID</div>
+                <div class="info-label">{{ t('backlog.detail.orderId') }}</div>
                 <div class="info-value order-id">{{ backlogItem.order_id }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Item SKU</div>
+                <div class="info-label">{{ t('backlog.detail.itemSku') }}</div>
                 <div class="info-value sku">{{ backlogItem.item_sku }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Quantity Needed</div>
-                <div class="info-value">{{ backlogItem.quantity_needed }} units</div>
+                <div class="info-label">{{ t('backlog.detail.quantityNeeded') }}</div>
+                <div class="info-value">{{ t('backlog.detail.units', { count: backlogItem.quantity_needed }) }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Quantity Available</div>
-                <div class="info-value">{{ backlogItem.quantity_available }} units</div>
+                <div class="info-label">{{ t('backlog.detail.quantityAvailable') }}</div>
+                <div class="info-value">{{ t('backlog.detail.units', { count: backlogItem.quantity_available }) }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Expected Date</div>
+                <div class="info-label">{{ t('backlog.detail.expectedDate') }}</div>
                 <div class="info-value">{{ formatDate(backlogItem.expected_date) }}</div>
               </div>
 
               <div class="info-item">
-                <div class="info-label">Status</div>
+                <div class="info-label">{{ t('backlog.detail.status') }}</div>
                 <div class="info-value">
-                  <span class="badge danger">Backordered</span>
+                  <span class="badge danger">{{ t('status.backordered') }}</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <button class="btn-secondary" @click="close">{{ t('common.close') }}</button>
           </div>
         </div>
       </div>
@@ -88,7 +88,7 @@
 import { computed } from 'vue'
 import { useI18n } from '../composables/useI18n'
 
-const { translateProductName } = useI18n()
+const { t, currentLocale, translateProductName } = useI18n()
 
 const props = defineProps({
   isOpen: {
@@ -113,9 +113,9 @@ const close = () => {
 }
 
 const formatDate = (dateString) => {
-  if (!dateString) return 'N/A'
+  if (!dateString) return t('backlog.detail.notAvailable')
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(currentLocale.value === 'ja' ? 'ja-JP' : 'en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -139,7 +139,7 @@ const formatDate = (dateString) => {
 }
 
 .modal-container {
-  background: white;
+  background: var(--color-surface);
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 700px;
@@ -155,20 +155,20 @@ const formatDate = (dateString) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--color-text-muted);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -179,8 +179,8 @@ const formatDate = (dateString) => {
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--color-hover);
+  color: var(--color-text);
 }
 
 .modal-body {
@@ -194,7 +194,7 @@ const formatDate = (dateString) => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
   margin-bottom: 1.5rem;
 }
 
@@ -218,13 +218,13 @@ const formatDate = (dateString) => {
 .item-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
   margin: 0 0 0.5rem 0;
 }
 
 .item-sku {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--color-text-muted);
   font-family: 'Monaco', 'Courier New', monospace;
 }
 
@@ -281,14 +281,14 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--color-text-muted);
   margin-bottom: 0.5rem;
 }
 
 .summary-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text);
 }
 
 .summary-card.danger .summary-value {
@@ -316,12 +316,12 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 500;
 }
 
@@ -333,7 +333,7 @@ const formatDate = (dateString) => {
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--color-border);
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -341,20 +341,20 @@ const formatDate = (dateString) => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--color-hover);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--color-border);
+  border-color: var(--color-border-strong);
 }
 
 /* Modal transition animations */

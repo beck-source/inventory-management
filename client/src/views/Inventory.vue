@@ -234,7 +234,7 @@ export default {
 }
 
 .page-header p {
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
 }
 
@@ -244,13 +244,13 @@ export default {
   align-items: center;
   gap: 1.5rem;
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--color-text);
   margin: 0;
 }
 
@@ -258,7 +258,7 @@ export default {
   position: relative;
   display: flex;
   align-items: center;
-  min-width: 300px;
+  min-width: min(300px, 100%);
 }
 
 .search-icon {
@@ -273,18 +273,18 @@ export default {
 .search-input {
   width: 100%;
   padding: 0.5rem 2.5rem 0.5rem 2.5rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border-strong);
   border-radius: 8px;
   font-size: 0.875rem;
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--color-text);
+  background: var(--color-surface-muted);
   transition: all 0.2s;
 }
 
 .search-input:focus {
   outline: none;
   border-color: #3b82f6;
-  background: white;
+  background: var(--color-surface);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
@@ -308,8 +308,8 @@ export default {
 }
 
 .clear-search:hover {
-  background: #e2e8f0;
-  color: #64748b;
+  background: var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .clear-search svg {
@@ -321,7 +321,7 @@ export default {
 .error {
   padding: 2rem;
   text-align: center;
-  color: #64748b;
+  color: var(--color-text-muted);
 }
 
 .error {
