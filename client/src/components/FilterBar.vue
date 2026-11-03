@@ -102,84 +102,86 @@ export default {
 
 <style scoped>
 .filters-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 0;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) 0;
+  /* Sticks to the top of the scrolling main column (the old top nav is gone) */
   position: sticky;
-  top: 70px;
-  z-index: 90;
+  top: 0;
+  z-index: var(--z-sticky);
 }
 
 .filters-container {
-  max-width: 1600px;
+  max-width: var(--content-max-width);
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 var(--space-5);
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .filters-grid {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   flex: 1;
 }
 
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .filter-group label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
   white-space: nowrap;
 }
 
 .filter-select {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.813rem;
-  color: #0f172a;
-  background: white;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  background: var(--color-surface);
   cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
+  transition: border-color 0.15s ease;
+  font-weight: var(--weight-medium);
   min-width: 140px;
 }
 
 .filter-select:hover {
-  border-color: #94a3b8;
+  border-color: var(--color-text-muted);
 }
 
-.filter-select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+.filter-select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-color: var(--color-accent);
 }
 
 .reset-filters-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  color: #64748b;
+  width: 36px;
+  height: 36px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .reset-filters-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: var(--color-hover);
+  color: var(--color-text);
 }
 
 .reset-filters-btn:disabled {
@@ -190,5 +192,41 @@ export default {
 .reset-filters-btn svg {
   width: 18px;
   height: 18px;
+}
+
+/* Drawer breakpoint: filters wrap into a two-column grid and the bar scrolls with the page */
+@media (max-width: 900px) {
+  .filters-bar {
+    position: static;
+  }
+
+  .filters-container {
+    padding: 0 var(--space-4);
+    align-items: flex-start;
+  }
+
+  .filters-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-1);
+  }
+
+  .filter-select {
+    min-width: 0;
+    width: 100%;
+    height: 44px;
+  }
+
+  .reset-filters-btn {
+    width: 44px;
+    height: 44px;
+    margin-top: calc(var(--text-xs) + var(--space-2));
+  }
 }
 </style>

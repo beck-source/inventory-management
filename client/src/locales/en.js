@@ -7,7 +7,18 @@ export default {
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System'
+    subtitle: 'Inventory Management System',
+    reports: 'Reports',
+    sectionOverview: 'Overview',
+    sectionOperations: 'Operations',
+    sectionFinance: 'Finance',
+    primaryNav: 'Primary navigation',
+    openMenu: 'Open navigation',
+    closeMenu: 'Close navigation',
+    collapse: 'Collapse sidebar',
+    expand: 'Expand sidebar',
+    switchToDark: 'Switch to dark theme',
+    switchToLight: 'Switch to light theme'
   },
 
   // Dashboard

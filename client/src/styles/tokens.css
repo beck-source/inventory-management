@@ -1,0 +1,112 @@
+/*
+ * Design tokens. Single source of truth for spacing, type, color, layout and layering.
+ * Brand accent: --color-accent. Sidebar width: --sidebar-width. Dark theme: :root[data-theme="dark"].
+ */
+:root {
+  /* Spacing (4px grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Radius: controls 6px, cards 8px, modals 14px */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+  /* Shadows are reserved for floating surfaces (menus, drawer, modals); resting cards use a border */
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
+  --shadow-md: 0 4px 12px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 12px 32px rgb(15 23 42 / 0.16);
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans JP', sans-serif;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Color: page and surfaces */
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+  --color-hover: #f1f5f9;
+  --color-border: #e2e8f0;
+  --color-border-subtle: #f1f5f9;
+  --color-border-strong: #cbd5e1;
+  --color-text: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+
+  /* Accent: active states and primary actions only. Never used for status. */
+  --color-accent: #0e7490;
+  --color-accent-soft: #e0f2f7;
+  --color-on-accent: #ffffff;
+
+  /* Status colors (unchanged from the previous palette) */
+  --color-success: #059669;
+  --color-warning: #ea580c;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+  --color-danger-soft: #fef2f2;
+
+  /* Sidebar (dark ink in both themes) */
+  --sidebar-bg: #0b1b24;
+  --sidebar-text: #b4c5cf;
+  --sidebar-text-muted: #86a0ae;
+  --sidebar-text-active: #ffffff;
+  --sidebar-marker: #22b8d8;
+  --sidebar-item-hover: rgb(255 255 255 / 0.06);
+  --sidebar-item-active: rgb(34 184 216 / 0.14);
+  --sidebar-border: rgb(255 255 255 / 0.09);
+
+  /* Layout. Mobile drawer breakpoint is 900px (custom properties cannot be used in @media). */
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 72px;
+  --content-max-width: 1600px;
+
+  /* Layers. Existing modals use 2000/1000, so popovers and the modal layer sit above the drawer. */
+  --z-sticky: 10;
+  --z-sidebar: 30;
+  --z-backdrop: 40;
+  --z-popover: 60;
+  --z-modal: 2000;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #091217;
+  --color-surface: #111e27;
+  --color-surface-muted: #15262f;
+  --color-hover: #1a2d38;
+  --color-border: #243642;
+  --color-border-subtle: #1c2d37;
+  --color-border-strong: #35505f;
+  --color-text: #e6edf2;
+  --color-text-secondary: #c3d0d9;
+  --color-text-muted: #8da3b2;
+
+  --color-accent: #22b8d8;
+  --color-accent-soft: rgb(34 184 216 / 0.14);
+  --color-on-accent: #04202a;
+
+  --color-success: #34d399;
+  --color-warning: #fb923c;
+  --color-danger: #f87171;
+  --color-info: #60a5fa;
+  --color-danger-soft: rgb(248 113 113 / 0.12);
+
+  --sidebar-bg: #050d12;
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 12px rgb(0 0 0 / 0.45);
+  --shadow-lg: 0 12px 32px rgb(0 0 0 / 0.6);
+}
