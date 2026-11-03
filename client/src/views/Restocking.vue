@@ -237,7 +237,7 @@ export default {
 .budget-value {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .budget-body {
@@ -246,12 +246,12 @@ export default {
 
 .budget-slider {
   width: 100%;
-  accent-color: #0f172a;
+  accent-color: var(--text);
 }
 
 .place-order-btn {
   padding: 0.5rem 1rem;
-  background: #0f172a;
+  background: var(--primary-bg);
   color: white;
   border: none;
   border-radius: 6px;
@@ -261,11 +261,11 @@ export default {
 }
 
 .place-order-btn:hover:not(:disabled) {
-  background: #1e293b;
+  background: var(--primary-bg-hover);
 }
 
 .place-order-btn:disabled {
-  background: #cbd5e1;
+  background: var(--border-strong);
   cursor: not-allowed;
 }
 
@@ -277,9 +277,9 @@ export default {
 }
 
 .inline-success {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
+  color: var(--success-text);
 }
 
 .inline-success a {
@@ -289,15 +289,15 @@ export default {
 }
 
 .inline-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-text);
 }
 
 .muted-empty {
   padding: 1rem 1.5rem;
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 </style>

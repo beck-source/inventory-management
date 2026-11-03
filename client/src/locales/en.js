@@ -344,6 +344,13 @@ export default {
     selectLanguage: 'Select Language'
   },
 
+  // Theme
+  theme: {
+    toggle: 'Toggle dark mode',
+    switchToDark: 'Switch to dark mode',
+    switchToLight: 'Switch to light mode'
+  },
+
   // Common
   common: {
     loading: 'Loading...',

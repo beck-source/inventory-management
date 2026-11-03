@@ -139,7 +139,7 @@ const formatDate = (dateString) => {
 }
 
 .modal-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 700px;
@@ -155,20 +155,20 @@ const formatDate = (dateString) => {
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -179,8 +179,8 @@ const formatDate = (dateString) => {
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
 .modal-body {
@@ -194,7 +194,7 @@ const formatDate = (dateString) => {
   align-items: center;
   gap: 1.25rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
   margin-bottom: 1.5rem;
 }
 
@@ -218,13 +218,13 @@ const formatDate = (dateString) => {
 .item-name {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
   margin: 0 0 0.5rem 0;
 }
 
 .item-sku {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   font-family: 'Monaco', 'Courier New', monospace;
 }
 
@@ -239,18 +239,18 @@ const formatDate = (dateString) => {
 }
 
 .priority-badge.high {
-  background: #fecaca;
-  color: #991b1b;
+  background: var(--danger-bg);
+  color: var(--danger-text);
 }
 
 .priority-badge.medium {
-  background: #fed7aa;
-  color: #92400e;
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .priority-badge.low {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--info-bg);
+  color: var(--info-text);
 }
 
 .shortage-summary {
@@ -267,13 +267,13 @@ const formatDate = (dateString) => {
 }
 
 .summary-card.danger {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
 }
 
 .summary-card.warning {
-  border-color: #fed7aa;
-  background: #fffbeb;
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
 }
 
 .summary-label {
@@ -281,14 +281,14 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
 
 .summary-value {
   font-size: 1.875rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .summary-card.danger .summary-value {
@@ -316,12 +316,12 @@ const formatDate = (dateString) => {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--text);
   font-weight: 500;
 }
 
@@ -333,7 +333,7 @@ const formatDate = (dateString) => {
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -341,20 +341,20 @@ const formatDate = (dateString) => {
 
 .btn-secondary {
   padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-weight: 500;
   font-size: 0.875rem;
-  color: #334155;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.15s ease;
   font-family: inherit;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--border);
+  border-color: var(--border-strong);
 }
 
 /* Modal transition animations */

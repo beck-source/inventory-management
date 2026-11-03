@@ -266,7 +266,7 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .modal-container {
-  background: white;
+  background: var(--surface);
   border-radius: 12px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
   max-width: 600px;
@@ -289,20 +289,20 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
   letter-spacing: -0.025em;
 }
 
 .close-button {
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0.5rem;
   display: flex;
@@ -313,8 +313,8 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--surface-alt);
+  color: var(--text);
 }
 
 .modal-body {
@@ -328,8 +328,8 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   grid-template-columns: 2fr 1fr 1fr;
   gap: 1rem;
   padding: 1rem;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 1.5rem;
 }
@@ -358,12 +358,12 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .info-value {
   font-size: 0.938rem;
-  color: #0f172a;
+  color: var(--text);
   font-weight: 500;
   overflow-wrap: anywhere;
 }
@@ -387,25 +387,25 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .form-field input,
 .form-field textarea {
   padding: 0.625rem 0.75rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 0.938rem;
   font-family: inherit;
-  color: #0f172a;
-  background: white;
+  color: var(--text);
+  background: var(--surface);
 }
 
 .form-field input:focus,
 .form-field textarea:focus {
   outline: none;
-  border-color: #64748b;
+  border-color: var(--text-muted);
   box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
 }
 
 .form-field input:disabled,
 .form-field textarea:disabled {
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--surface-alt);
+  color: var(--text-muted);
 }
 
 .total-row {
@@ -414,17 +414,17 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
   align-items: center;
   margin-top: 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border);
 }
 
 .total-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .state-message {
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.938rem;
   text-align: center;
   padding: 1.5rem 0;
@@ -433,16 +433,16 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 .error-message {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 8px;
-  color: #991b1b;
+  color: var(--danger-text);
   font-size: 0.875rem;
 }
 
 .modal-footer {
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
@@ -460,24 +460,24 @@ onBeforeUnmount(() => document.removeEventListener('keydown', onKeydown))
 }
 
 .btn-secondary {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #334155;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
+  background: var(--border);
+  border-color: var(--border-strong);
 }
 
 .btn-primary {
-  background: #0f172a;
-  border: 1px solid #0f172a;
+  background: var(--primary-bg);
+  border: 1px solid var(--primary-bg);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #1e293b;
+  background: var(--primary-bg-hover);
 }
 
 .btn-primary:disabled {

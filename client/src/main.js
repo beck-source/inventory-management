@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import './composables/useTheme' // side effect: applies data-theme before the app mounts
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import Dashboard from './views/Dashboard.vue'
