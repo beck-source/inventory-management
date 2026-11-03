@@ -70,8 +70,10 @@ class TestTasks:
         assert client.patch("/api/tasks/nope").status_code == 404
 
     def test_delete_task(self, client):
-        task_id = make_task(client).json()["id"]
-        assert client.delete(f"/api/tasks/{task_id}").status_code == 200
+        created = make_task(client).json()
+        response = client.delete(f"/api/tasks/{created['id']}")
+        assert response.status_code == 200
+        assert response.json() == created
         assert client.get("/api/tasks").json() == []
 
     def test_delete_task_not_found(self, client):

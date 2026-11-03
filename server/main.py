@@ -528,14 +528,13 @@ def create_task(request: CreateTaskRequest):
         tasks.append(task)
         return task
 
-@app.delete("/api/tasks/{task_id}")
+@app.delete("/api/tasks/{task_id}", response_model=Task)
 def delete_task(task_id: str):
-    """Delete a task"""
+    """Delete a task and return the removed task"""
     with tasks_lock:
         for i, task in enumerate(tasks):
             if task["id"] == task_id:
-                tasks.pop(i)
-                return {"message": "Task deleted"}
+                return tasks.pop(i)
     raise HTTPException(status_code=404, detail="Task not found")
 
 @app.patch("/api/tasks/{task_id}", response_model=Task)
