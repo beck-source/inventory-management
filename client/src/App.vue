@@ -1,5 +1,5 @@
 <template>
-  <div class="app" :class="{ 'drawer-open': drawerOpen }">
+  <div class="app" :class="{ 'drawer-open': drawerOpen, 'sidebar-collapsed': collapsed }">
     <header class="mobile-bar">
       <button
         type="button"
@@ -45,7 +45,7 @@
             :key="item.to"
             :to="item.to"
             class="nav-link"
-            :title="t(item.labelKey)"
+            :title="collapsed ? t(item.labelKey) : null"
             :aria-label="t(item.labelKey)"
             :active-class="item.exact ? '' : 'is-active'"
             exact-active-class="is-active"
@@ -59,6 +59,19 @@
       </nav>
 
       <div class="sidebar-footer">
+        <button
+          type="button"
+          class="nav-link sidebar-toggle"
+          :aria-expanded="!collapsed"
+          :aria-label="toggleLabel"
+          :title="toggleLabel"
+          @click="toggleSidebar"
+        >
+          <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path v-for="d in toggleIcon" :key="d" :d="d" />
+          </svg>
+          <span class="nav-label">{{ toggleLabel }}</span>
+        </button>
         <LanguageSwitcher />
         <ProfileMenu
           @show-profile-details="showProfileDetails = true"
@@ -96,6 +109,7 @@ import { useRoute } from 'vue-router'
 import { api } from './api'
 import { useAuth } from './composables/useAuth'
 import { useI18n } from './composables/useI18n'
+import { useSidebar } from './composables/useSidebar'
 import FilterBar from './components/FilterBar.vue'
 import ProfileMenu from './components/ProfileMenu.vue'
 import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
@@ -115,6 +129,7 @@ export default {
     const { currentUser } = useAuth()
     const { t } = useI18n()
     const route = useRoute()
+    const { collapsed, toggleSidebar } = useSidebar()
     const drawerOpen = ref(false)
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
@@ -259,6 +274,15 @@ export default {
       }
     ]
 
+    const toggleLabel = computed(() =>
+      collapsed.value ? t('nav.expandSidebar') : t('nav.collapseSidebar')
+    )
+    const toggleIcon = computed(() =>
+      collapsed.value
+        ? ['m6 17 5-5-5-5', 'm13 17 5-5-5-5']
+        : ['m11 17-5-5 5-5', 'm18 17-5-5 5-5']
+    )
+
     const brandInitial = computed(() => t('nav.companyName').charAt(0))
 
     const onKeydown = (event) => {
@@ -281,6 +305,10 @@ export default {
     return {
       t,
       drawerOpen,
+      collapsed,
+      toggleSidebar,
+      toggleLabel,
+      toggleIcon,
       navGroups,
       brandInitial,
       showProfileDetails,
@@ -309,7 +337,7 @@ export default {
 
   /* Layout */
   --sidebar-width: 256px;
-  --sidebar-width-collapsed: 72px;
+  --sidebar-width-collapsed: 64px;
   --topbar-height: 56px;
   --content-max-width: 1440px;
 
@@ -422,6 +450,7 @@ body {
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   z-index: var(--z-sidebar);
+  transition: width var(--transition-base);
 }
 
 .sidebar-brand {
@@ -475,6 +504,7 @@ body {
 .sidebar-nav {
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: var(--space-4) var(--space-3);
   display: flex;
@@ -510,6 +540,15 @@ body {
   font-weight: 500;
   text-decoration: none;
   transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+button.nav-link {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
 }
 
 .nav-link:hover {
@@ -582,6 +621,7 @@ body {
 
 .content {
   margin-left: var(--sidebar-width);
+  transition: margin-left var(--transition-base);
   min-width: 0;
   min-height: 100vh;
   display: flex;
@@ -602,33 +642,33 @@ body {
   display: none;
 }
 
-/* Icon-only sidebar */
-@media (max-width: 1023px) {
-  .sidebar {
+/* Icon-only sidebar (user toggle or narrow viewport default; drawer mode below 768px ignores it) */
+@media (min-width: 768px) {
+  .sidebar-collapsed .sidebar {
     width: var(--sidebar-width-collapsed);
   }
 
-  .content {
+  .sidebar-collapsed .content {
     margin-left: var(--sidebar-width-collapsed);
   }
 
-  .brand-text,
-  .nav-label,
-  .nav-group-label {
+  .sidebar-collapsed .brand-text,
+  .sidebar-collapsed .nav-label,
+  .sidebar-collapsed .nav-group-label {
     display: none;
   }
 
-  .sidebar-brand {
+  .sidebar-collapsed .sidebar-brand {
     justify-content: center;
     padding: 0;
   }
 
-  .nav-link {
+  .sidebar-collapsed .nav-link {
     justify-content: center;
     padding: 0;
   }
 
-  .nav-group + .nav-group {
+  .sidebar-collapsed .nav-group + .nav-group {
     padding-top: var(--space-5);
     border-top: 1px solid var(--color-border);
   }
@@ -644,29 +684,16 @@ body {
     z-index: calc(var(--z-backdrop) + 1);
   }
 
-  .brand-text,
-  .nav-label,
-  .nav-group-label {
-    display: revert;
-  }
-
   .brand-text {
     flex: 1;
   }
 
   .sidebar-brand {
-    justify-content: flex-start;
     padding: 0 var(--space-4) 0 var(--space-5);
   }
 
-  .nav-link {
-    justify-content: flex-start;
-    padding: 0 var(--space-3);
-  }
-
-  .nav-group + .nav-group {
-    padding-top: 0;
-    border-top: 0;
+  .sidebar-toggle {
+    display: none;
   }
 
   .drawer-close {

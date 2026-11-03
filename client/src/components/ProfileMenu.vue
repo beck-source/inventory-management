@@ -299,19 +299,19 @@ const handleLogout = () => {
   text-align: center;
 }
 
-/* Collapsed sidebar: avatar only, menu opens to the right of the sidebar edge */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .profile-button {
+/* Collapsed sidebar: avatar only, menu opens over the content area from the sidebar edge */
+@media (min-width: 768px) {
+  .sidebar-collapsed .profile-button {
     justify-content: center;
     padding: var(--space-2) 0;
   }
 
-  .profile-name,
-  .chevron {
+  .sidebar-collapsed .profile-name,
+  .sidebar-collapsed .chevron {
     display: none;
   }
 
-  .dropdown-menu {
+  .sidebar-collapsed .dropdown-menu {
     right: auto;
     width: 280px;
   }

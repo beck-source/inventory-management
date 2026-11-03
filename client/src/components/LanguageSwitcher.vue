@@ -197,19 +197,19 @@ const selectLanguage = (locale) => {
   flex-shrink: 0;
 }
 
-/* Collapsed sidebar: icon only, menu opens to the right of the sidebar edge */
-@media (min-width: 768px) and (max-width: 1023px) {
-  .language-button {
+/* Collapsed sidebar: icon only, menu opens over the content area from the sidebar edge */
+@media (min-width: 768px) {
+  .sidebar-collapsed .language-button {
     justify-content: center;
     padding: 0;
   }
 
-  .language-label,
-  .chevron {
+  .sidebar-collapsed .language-label,
+  .sidebar-collapsed .chevron {
     display: none;
   }
 
-  .dropdown-menu {
+  .sidebar-collapsed .dropdown-menu {
     right: auto;
     width: max-content;
     min-width: 160px;

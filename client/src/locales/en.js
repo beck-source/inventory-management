@@ -14,6 +14,8 @@ export default {
     groupInsights: 'Insights',
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
     primary: 'Primary navigation'
   },
 

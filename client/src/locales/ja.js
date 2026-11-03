@@ -14,6 +14,8 @@ export default {
     groupInsights: 'インサイト',
     openMenu: 'メニューを開く',
     closeMenu: 'メニューを閉じる',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開',
     primary: 'メインナビゲーション'
   },
 
