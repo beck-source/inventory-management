@@ -1,8 +1,9 @@
+from datetime import date
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from typing import List, Optional
-from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from typing import List, Literal, Optional
+from pydantic import BaseModel, Field
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, tasks
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -120,6 +121,22 @@ class CreatePurchaseOrderRequest(BaseModel):
     expected_delivery_date: str
     notes: Optional[str] = None
 
+class Task(BaseModel):
+    id: int
+    title: str
+    priority: Literal["high", "medium", "low"]
+    dueDate: str
+    status: Literal["pending", "completed"]
+
+class CreateTaskRequest(BaseModel):
+    title: str = Field(min_length=1)
+    priority: Literal["high", "medium", "low"] = "medium"
+    dueDate: date
+
+# The client's mock user already owns task ids 1-4 (client/src/composables/useAuth.js) and
+# decides between local and API handling by id, so server-assigned ids must start above 4.
+FIRST_API_TASK_ID = 5
+
 # API endpoints
 @app.get("/")
 def root():
@@ -160,6 +177,41 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get all tasks"""
+    return tasks
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a task; the server assigns id and starts it as pending"""
+    task = {
+        "id": max([t["id"] for t in tasks], default=FIRST_API_TASK_ID - 1) + 1,
+        "title": request.title,
+        "priority": request.priority,
+        "dueDate": request.dueDate.isoformat(),
+        "status": "pending",
+    }
+    tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: int):
+    """Toggle a task between pending and completed"""
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    task["status"] = "pending" if task["status"] == "completed" else "completed"
+    return task
+
+@app.delete("/api/tasks/{task_id}", status_code=204)
+def delete_task(task_id: int):
+    """Delete a task"""
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    tasks.remove(task)
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
