@@ -448,7 +448,6 @@ export default {
     }
 
     const handleTransactionClick = (transaction) => {
-      console.log('Transaction clicked:', transaction)
       alert(`Transaction Details:\n\nID: ${transaction.id}\nDescription: ${transaction.description}\nVendor: ${transaction.vendor}\nDate: ${formatDateShort(transaction.date)}\nAmount: $${transaction.amount.toLocaleString()}`)
     }
 

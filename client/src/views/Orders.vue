@@ -5,6 +5,53 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submitted.title') }} ({{ submittedOrders.length }})</h3>
+      </div>
+      <div v-if="submittedLoading" class="loading">{{ t('common.loading') }}</div>
+      <div v-else-if="submittedError" class="error">{{ submittedError }}</div>
+      <div v-else-if="submittedOrders.length === 0" class="empty-state">{{ t('orders.submitted.empty') }}</div>
+      <div v-else class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+              <th class="col-date">{{ t('orders.table.submittedDate') }}</th>
+              <th class="col-items">{{ t('orders.table.items') }}</th>
+              <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              <th class="col-date">{{ t('orders.table.leadTime') }}</th>
+              <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+              <th class="col-status">{{ t('orders.table.status') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in submittedOrders" :key="order.id">
+              <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+              <td class="col-date">{{ formatDate(order.submitted_at) }}</td>
+              <td class="col-items">
+                <details class="items-details">
+                  <summary class="items-summary">
+                    {{ t('orders.itemsCount', { count: order.items.length }) }}
+                  </summary>
+                  <div class="items-dropdown">
+                    <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                      <span class="item-name">{{ translateProductName(item.name) }}</span>
+                      <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ formatAmount(item.unit_cost) }}</span>
+                    </div>
+                  </div>
+                </details>
+              </td>
+              <td class="col-value"><strong>{{ currencySymbol }}{{ formatAmount(order.total_cost) }}</strong></td>
+              <td class="col-date">{{ order.lead_time_days }}</td>
+              <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+              <td class="col-status"><span class="badge info">{{ t('status.submitted') }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -95,6 +142,9 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const submittedOrders = ref([])
+    const submittedLoading = ref(true)
+    const submittedError = ref(null)
 
     // Use shared filters
     const {
@@ -143,23 +193,51 @@ export default {
       return statusMap[status] || 'info'
     }
 
+    const formatAmount = (value) =>
+      value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
     const formatDate = (dateString) => {
       const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
-      return new Date(dateString).toLocaleDateString(locale, {
+      const dateOnly = typeof dateString === 'string' && /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateString)
+      const date = dateOnly
+        ? new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+        : new Date(dateString)
+      if (isNaN(date.getTime())) return dateString || '-'
+      return date.toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       })
     }
 
-    onMounted(loadOrders)
+    const loadSubmittedOrders = async () => {
+      try {
+        submittedLoading.value = true
+        submittedError.value = null
+        submittedOrders.value = await api.getSubmittedOrders()
+      } catch (err) {
+        submittedError.value = t('orders.submitted.loadFailed')
+        console.error('Load error:', err)
+      } finally {
+        submittedLoading.value = false
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadSubmittedOrders()
+    })
 
     return {
+      formatAmount,
       t,
       loading,
       error,
       orders,
+      submittedOrders,
+      submittedLoading,
+      submittedError,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
@@ -274,6 +352,12 @@ export default {
 
 .item-meta {
   font-size: 0.813rem;
+  color: #64748b;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
   color: #64748b;
 }
 </style>

@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -125,8 +126,54 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
-      actualDelivery: 'Actual Delivery'
+      actualDelivery: 'Actual Delivery',
+      submittedDate: 'Submitted',
+      leadTime: 'Lead Time (days)'
+    },
+    submitted: {
+      title: 'Submitted Orders',
+      empty: 'No restock orders have been submitted yet',
+      loadFailed: 'Failed to load submitted orders'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order the items with the largest forecast shortfall',
+    budget: 'Budget',
+    recommendations: 'Recommended Items',
+    empty: 'No items can be recommended for this budget',
+    loadFailed: 'Failed to load recommendations',
+    orderFailed: 'Failed to place order',
+    table: {
+      select: 'Select',
+      sku: 'SKU',
+      name: 'Item',
+      category: 'Category',
+      trend: 'Trend',
+      stock: 'In Stock',
+      forecast: 'Forecast',
+      shortfall: 'Shortfall',
+      quantity: 'Order Qty',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time (days)'
+    },
+    summary: {
+      selectedTotal: 'Selected Total',
+      budget: 'Budget',
+      remaining: 'Remaining Budget',
+      leadTime: 'Order Lead Time',
+      days: '{count} days',
+      overBudget: 'Selected total exceeds the budget. Reduce quantities or deselect items.',
+      nothingSelected: 'Select at least one item to place an order.',
+      invalidQty: 'Order quantity must be a whole number between 1 and the shortfall for each selected item.'
+    },
+    placeOrder: 'Place Order',
+    placing: 'Placing order...',
+    confirmation: 'Order {number} submitted. Expected delivery: {date}.',
+    viewOrders: 'View in Orders'
   },
 
   // Finance/Spending
@@ -206,7 +253,8 @@ export default {
     backordered: 'Backordered',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
-    adequate: 'Adequate'
+    adequate: 'Adequate',
+    submitted: 'Submitted'
   },
 
   // Trends
