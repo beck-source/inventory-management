@@ -111,7 +111,7 @@ export default {
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
     onTimeDelivery: 'On-Time Delivery',
-    itemsCount: '{count} items',
+    itemsCount: '{count} item | {count} items',
     quantity: 'Qty',
     submitted: {
       title: 'Submitted Orders',
@@ -218,7 +218,7 @@ export default {
     increasingDemand: 'Increasing Demand',
     stableDemand: 'Stable Demand',
     decreasingDemand: 'Decreasing Demand',
-    itemsCount: '{count} items',
+    itemsCount: '{count} item | {count} items',
     more: 'more...',
     demandForecasts: 'Demand Forecasts',
     table: {
