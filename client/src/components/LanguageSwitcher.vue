@@ -1,10 +1,6 @@
 <template>
   <div class="language-switcher">
-    <button
-      class="language-button"
-      @click="toggleDropdown"
-      @blur="handleBlur"
-    >
+    <button class="language-button" @click="toggleDropdown" @blur="handleBlur">
       <svg
         width="20"
         height="20"
@@ -12,10 +8,24 @@
         fill="none"
         class="globe-icon"
       >
-        <circle cx="10" cy="10" r="7.5" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M3 10H17" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17" stroke="currentColor" stroke-width="1.5"/>
+        <circle
+          cx="10"
+          cy="10"
+          r="7.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+        />
+        <path d="M3 10H17" stroke="currentColor" stroke-width="1.5" />
+        <path
+          d="M10 3C10 3 7.5 5.5 7.5 10C7.5 14.5 10 17 10 17"
+          stroke="currentColor"
+          stroke-width="1.5"
+        />
+        <path
+          d="M10 3C10 3 12.5 5.5 12.5 10C12.5 14.5 10 17 10 17"
+          stroke="currentColor"
+          stroke-width="1.5"
+        />
       </svg>
       <span class="language-label">{{ localeName }}</span>
       <svg
@@ -26,7 +36,12 @@
         viewBox="0 0 16 16"
         fill="none"
       >
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path
+          d="M4 6L8 10L12 6"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        />
       </svg>
     </button>
 
@@ -47,7 +62,13 @@
           fill="none"
           class="check-icon"
         >
-          <path d="M4 9L7.5 12.5L14 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path
+            d="M4 9L7.5 12.5L14 6"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
         </svg>
       </button>
     </div>
@@ -55,37 +76,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useI18n } from '../composables/useI18n'
+import { ref } from "vue";
+import { useI18n } from "../composables/useI18n";
 
-const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
+const { currentLocale, setLocale, availableLocales, localeName } = useI18n();
 
-const isDropdownOpen = ref(false)
+const isDropdownOpen = ref(false);
 
 const languageNames = {
-  en: 'English',
-  ja: '日本語'
-}
+  en: "English",
+  ja: "日本語",
+};
 
 const getLanguageName = (locale) => {
-  return languageNames[locale] || locale
-}
+  return languageNames[locale] || locale;
+};
 
 const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
+  isDropdownOpen.value = !isDropdownOpen.value;
+};
 
 const handleBlur = () => {
   // Delay to allow mousedown events on dropdown items to fire first
   setTimeout(() => {
-    isDropdownOpen.value = false
-  }, 200)
-}
+    isDropdownOpen.value = false;
+  }, 200);
+};
 
 const selectLanguage = (locale) => {
-  setLocale(locale)
-  isDropdownOpen.value = false
-}
+  setLocale(locale);
+  isDropdownOpen.value = false;
+};
 </script>
 
 <style scoped>
@@ -98,23 +119,23 @@ const selectLanguage = (locale) => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
   font-family: inherit;
   font-size: 0.875rem;
-  color: #334155;
+  color: var(--text);
 }
 
 .language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
 }
 
 .globe-icon {
-  color: #64748b;
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
@@ -123,7 +144,7 @@ const selectLanguage = (locale) => {
 }
 
 .chevron {
-  color: #64748b;
+  color: var(--text-muted);
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -137,10 +158,10 @@ const selectLanguage = (locale) => {
   top: calc(100% + 0.5rem);
   right: 0;
   min-width: 160px;
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px var(--shadow-a);
   z-index: 1000;
   overflow: hidden;
 }
@@ -160,16 +181,16 @@ const selectLanguage = (locale) => {
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--text);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--surface-muted);
 }
 
 .dropdown-item.active {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
 .language-name {
@@ -177,7 +198,7 @@ const selectLanguage = (locale) => {
 }
 
 .check-icon {
-  color: #2563eb;
+  color: var(--accent);
   flex-shrink: 0;
 }
 </style>
