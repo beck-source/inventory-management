@@ -6,6 +6,12 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
+    reports: 'レポート',
+    mainNavigation: 'メインナビゲーション',
+    // Kept short so the label is not truncated in the 240px expanded sidebar
+    collapseSidebar: 'サイドバーを閉じる',
+    expandSidebar: 'サイドバーを開く',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },

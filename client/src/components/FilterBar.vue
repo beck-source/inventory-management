@@ -106,7 +106,8 @@ export default {
   border-bottom: 1px solid #e2e8f0;
   padding: 0.75rem 0;
   position: sticky;
-  top: 70px;
+  /* Must equal the top bar height (--header-height, defined in App.vue) */
+  top: var(--header-height, 70px);
   z-index: 90;
 }
 
