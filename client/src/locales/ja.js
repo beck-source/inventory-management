@@ -6,9 +6,13 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
+
+  // Shared label used by t('days') in Restocking and Orders views
+  days: '日',
 
   // Dashboard
   dashboard: {
@@ -106,6 +110,9 @@ export default {
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
+    submittedTitle: '送信済み注文',
+    submittedDate: '送信日',
+    leadTime: 'リードタイム',
     totalOrders: '総注文数',
     totalRevenue: '総収益',
     avgOrderValue: '平均注文額',
@@ -188,6 +195,31 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: '補充',
+    description: '予算を設定し、需要予測に基づいて推奨補充品目を注文します',
+    budgetLabel: '利用可能な予算',
+    recommendations: '推奨補充品目',
+    item: '品目',
+    sku: 'SKU',
+    current: '現在の需要',
+    forecasted: '予測需要',
+    shortfall: '注文数量',
+    unitCost: '単価',
+    lineCost: '小計',
+    leadTime: 'リードタイム',
+    days: '日',
+    totalCost: '合計金額',
+    remaining: '残り予算',
+    itemCount: '品目数',
+    placeOrder: '注文する',
+    placing: '注文処理中...',
+    orderPlaced: '補充注文が正常に送信されました',
+    viewInOrders: '注文で表示',
+    noItems: '選択した予算に収まる品目がありません。予算を増やして推奨品目を表示してください。'
+  },
+
   // Filters
   filters: {
     timePeriod: '期間',
@@ -204,6 +236,7 @@ export default {
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
+    submitted: '送信済み',
     inStock: '在庫あり',
     lowStock: '在庫僅少',
     adequate: '適量'

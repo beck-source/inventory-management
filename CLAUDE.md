@@ -1,6 +1,10 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 Factory Inventory Management System Demo with GitHub integration - Full-stack application with Vue 3 frontend, Python FastAPI backend, and in-memory mock data (no database).
+
+> A second, Vue-specific `client/CLAUDE.md` holds detailed frontend conventions (Composition API, reactivity, composables, charts). Read it before non-trivial `.vue` work.
 
 > ⚠️ **This repository and any fork you create are PUBLIC.** Do not commit credentials, internal hostnames, or private registry URLs. `client/.npmrc` pins the public npm registry and `client/package-lock.json` is gitignored to prevent locally-configured registries from leaking into commits — leave both in place.
 
@@ -42,6 +46,26 @@ cd client
 npm install && npm run dev
 ```
 
+Both run via custom slash commands too: `/start` and `/stop` (defined in `.claude/commands/`). On macOS/Linux, `./scripts/start.sh` launches both; those shell scripts do not work on Windows — use the manual commands.
+
+**Without `uv`:** the backend's only runtime deps are `fastapi`, `uvicorn`, `pydantic`, so a plain `python -m venv .venv && pip install fastapi uvicorn pydantic` + `python main.py` works. Tests additionally need `pytest pytest-asyncio httpx`.
+
+## Testing & Build
+
+```bash
+# Backend tests (51 tests, FastAPI TestClient, no server needed)
+cd tests
+uv run pytest -v                                                  # all
+uv run pytest backend/test_inventory.py -v                        # one file
+uv run pytest backend/test_inventory.py::TestInventoryEndpoints::test_get_all_inventory -v  # one test
+uv run pytest --cov=../server --cov-report=html                   # coverage
+
+# Production build
+cd client && npm run build   # output: client/dist/
+```
+
+`tests/conftest.py` injects `server/` onto `sys.path` and imports `main.app`; config lives in `tests/pytest.ini` (`asyncio_mode = auto`, test classes named `Test*`). Also available: the `/test` slash command and the **backend-api-test** skill (use when adding pytest tests in `tests/backend/`).
+
 ## Key Patterns
 
 **Filter System**: 4 filters (Time Period, Warehouse, Category, Order Status) apply to all data via query params
@@ -54,6 +78,9 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+
+## Code Conventions
+- Always document non-obvious logic changes with comments (explain the *why* for edge cases, workarounds, and business rules; skip comments on self-evident code).
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.

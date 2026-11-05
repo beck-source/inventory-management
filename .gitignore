@@ -51,5 +51,11 @@ logs/
 # Playwright MCP artifacts
 .playwright-mcp/
 
+# Playwright test run output
+client/test-results/
+client/playwright-report/
+client/blob-report/
+client/.playwright/
+
 # Environment variables
 .env

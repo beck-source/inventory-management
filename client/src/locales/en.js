@@ -6,9 +6,13 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
+
+  // Shared label used by t('days') in Restocking and Orders views
+  days: 'days',
 
   // Dashboard
   dashboard: {
@@ -106,6 +110,9 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedTitle: 'Submitted Orders',
+    submittedDate: 'Submitted',
+    leadTime: 'Lead Time',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -188,6 +195,31 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and order recommended restock items based on demand forecasts',
+    budgetLabel: 'Available Budget',
+    recommendations: 'Recommended Restock Items',
+    item: 'Item',
+    sku: 'SKU',
+    current: 'Current Demand',
+    forecasted: 'Forecasted Demand',
+    shortfall: 'Qty to Order',
+    unitCost: 'Unit Cost',
+    lineCost: 'Line Cost',
+    leadTime: 'Lead Time',
+    days: 'days',
+    totalCost: 'Total Cost',
+    remaining: 'Remaining Budget',
+    itemCount: 'Items',
+    placeOrder: 'Place Order',
+    placing: 'Placing Order...',
+    orderPlaced: 'Restocking order placed successfully',
+    viewInOrders: 'View in Orders',
+    noItems: 'No items fit within the selected budget. Increase your budget to see recommendations.'
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +236,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

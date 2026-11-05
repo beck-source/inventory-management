@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime, timedelta
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
 app = FastAPI(title="Factory Inventory Management System")
@@ -80,6 +81,9 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    # Days from order_date to expected_delivery; set on restocking orders so the
+    # Orders tab can show lead time directly instead of re-deriving it from dates.
+    lead_time_days: Optional[int] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -89,6 +93,10 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    # Added to support budget-based restock recommendations (forecast SKUs are
+    # not in inventory, so cost/lead time live on the forecast itself).
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +127,20 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class OrderLineItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_price: float
+
+class CreateOrderRequest(BaseModel):
+    items: List[OrderLineItem]
+    total_value: float
+    lead_time_days: int
+    customer: Optional[str] = None
+    warehouse: Optional[str] = None
+    category: Optional[str] = None
 
 # API endpoints
 @app.get("/")
@@ -160,6 +182,49 @@ def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
+
+@app.post("/api/orders", response_model=Order, status_code=201)
+def create_order(request: CreateOrderRequest):
+    """Create a restocking order and store it in the in-memory orders list.
+
+    Used by the Restocking tab. The order is marked "Submitted" so the Orders
+    tab can surface it in a dedicated section. Delivery is estimated from the
+    longest lead time among the ordered items.
+    """
+    now = datetime.now()
+
+    # IDs and order numbers are plain increasing integers in the demo data, so
+    # derive the next value from the current max rather than a fixed counter
+    # (keeps new orders distinct even after multiple submissions).
+    next_id = max((int(o["id"]) for o in orders), default=0) + 1
+    max_number = max(
+        (int(o["order_number"].split("-")[-1]) for o in orders if o.get("order_number", "").startswith("ORD-")),
+        default=0,
+    )
+    order_number = f"ORD-2025-{max_number + 1:04d}"
+
+    expected_delivery = now + timedelta(days=request.lead_time_days)
+
+    new_order = {
+        "id": str(next_id),
+        "order_number": order_number,
+        "customer": request.customer or "Restocking (Internal)",
+        "items": [item.model_dump() for item in request.items],
+        "status": "Submitted",
+        "order_date": now.isoformat(timespec="seconds"),
+        "expected_delivery": expected_delivery.isoformat(timespec="seconds"),
+        "total_value": request.total_value,
+        "actual_delivery": None,
+        "warehouse": request.warehouse,
+        "category": request.category,
+        "lead_time_days": request.lead_time_days,
+    }
+
+    # Mutate the shared list in place so GET /api/orders reflects it immediately.
+    # This is intentional demo persistence (reset on restart) and is distinct
+    # from the "filter on copies" rule, which only applies to read endpoints.
+    orders.append(new_order)
+    return new_order
 
 @app.get("/api/demand", response_model=List[DemandForecast])
 def get_demand_forecasts():
