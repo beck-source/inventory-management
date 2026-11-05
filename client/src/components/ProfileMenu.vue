@@ -1,7 +1,7 @@
 <template>
   <div class="profile-menu">
     <button
-      class="profile-button"
+      class="btn profile-button"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -21,7 +21,7 @@
       </svg>
     </button>
 
-    <div v-if="isDropdownOpen" class="dropdown-menu">
+    <div v-if="isDropdownOpen" class="dropdown dropdown-menu">
       <div class="dropdown-header">
         <div class="avatar-large">
           {{ getInitials(currentUser.name) }}
@@ -121,46 +121,37 @@ const handleLogout = () => {
 }
 
 .profile-button {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-}
-
-.profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) 0 var(--space-1);
 }
 
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: var(--aurora);
+  color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.025em;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
 .profile-name {
-  font-size: 0.875rem;
+  font-size: var(--fs-sm);
   font-weight: 500;
-  color: #0f172a;
+  color: var(--text);
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
+  color: var(--text-muted);
+  transition: transform var(--t-fast) var(--ease);
+  flex-shrink: 0;
 }
 
 .chevron-open {
@@ -169,38 +160,35 @@ const handleLogout = () => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  overflow: hidden;
 }
 
 .dropdown-header {
-  padding: 1rem;
+  padding: var(--space-3);
   display: flex;
-  gap: 0.875rem;
+  gap: var(--space-3);
   align-items: center;
-  background: #f8fafc;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
 }
 
 .avatar-large {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: var(--aurora);
+  color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.025em;
+  font-size: var(--fs-lg);
   flex-shrink: 0;
+  box-shadow: var(--glow-violet);
 }
 
 .user-info {
@@ -210,14 +198,15 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 600;
-  color: #0f172a;
-  font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  color: var(--text);
+  font-size: var(--fs-md);
+  margin-bottom: var(--space-1);
 }
 
 .user-email {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,57 +214,64 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+  background: var(--line);
+  margin: var(--space-2) 0;
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   background: none;
   border: none;
+  border-radius: var(--radius-sm);
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+  font: inherit;
+  font-size: var(--fs-sm);
   font-weight: 500;
-  color: #334155;
+  color: var(--text-muted);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--surface-raised);
+  color: var(--text);
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--cyan);
   flex-shrink: 0;
 }
 
-.dropdown-item.logout {
-  color: #dc2626;
-}
-
+.dropdown-item.logout,
 .dropdown-item.logout svg {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .dropdown-item.logout:hover {
-  background: #fef2f2;
+  background: var(--danger-bg);
 }
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
-  color: white;
-  font-size: 0.75rem;
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
   font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
   min-width: 20px;
   text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .profile-name {
+    display: none;
+  }
 }
 </style>
