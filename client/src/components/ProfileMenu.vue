@@ -1,24 +1,27 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" :class="{ compact: props.compact }">
     <button
       class="profile-button"
+      :class="{ 'compact-button': props.compact }"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
       </div>
-      <span class="profile-name">{{ currentUser.name }}</span>
-      <svg
-        class="chevron"
-        :class="{ 'chevron-open': isDropdownOpen }"
-        width="16"
-        height="16"
-        viewBox="0 0 16 16"
-        fill="none"
-      >
-        <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
+      <template v-if="!props.compact">
+        <span class="profile-name">{{ currentUser.name }}</span>
+        <svg
+          class="chevron"
+          :class="{ 'chevron-open': isDropdownOpen }"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          fill="none"
+        >
+          <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </template>
     </button>
 
     <div v-if="isDropdownOpen" class="dropdown-menu">
@@ -77,6 +80,13 @@
 import { ref, computed } from 'vue'
 import { useAuth } from '../composables/useAuth'
 import { useI18n } from '../composables/useI18n'
+
+const props = defineProps({
+  compact: {
+    type: Boolean,
+    default: false
+  }
+})
 
 const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
@@ -277,5 +287,18 @@ const handleLogout = () => {
   border-radius: 12px;
   min-width: 20px;
   text-align: center;
+}
+
+.profile-menu.compact .dropdown-menu {
+  left: calc(100% + 0.5rem);
+  top: 0;
+  right: auto;
+}
+
+.compact-button {
+  padding: 0.5rem;
+  border-radius: 8px;
+  width: 100%;
+  justify-content: center;
 }
 </style>
