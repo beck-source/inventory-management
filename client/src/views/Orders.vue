@@ -75,6 +75,49 @@
         </div>
       </div>
     </div>
+
+    <div class="card submitted-orders">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submittedOrders.title') }} ({{ restockingOrders.length }})</h3>
+      </div>
+      <div v-if="restockingError" class="error">{{ restockingError }}</div>
+      <div v-else-if="restockingOrders.length === 0" class="empty-state">
+        {{ t('orders.submittedOrders.empty') }}
+      </div>
+      <div v-else class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>{{ t('orders.submittedOrders.orderNumber') }}</th>
+              <th>{{ t('orders.submittedOrders.submittedDate') }}</th>
+              <th>{{ t('orders.submittedOrders.items') }}</th>
+              <th>{{ t('orders.submittedOrders.totalCost') }}</th>
+              <th>{{ t('orders.submittedOrders.status') }}</th>
+              <th>{{ t('orders.submittedOrders.leadTime') }}</th>
+              <th>{{ t('orders.submittedOrders.expectedDelivery') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in restockingOrders" :key="order.id">
+              <td><strong>{{ order.order_number }}</strong></td>
+              <td>{{ formatDate(order.submitted_date) }}</td>
+              <td>
+                <div>{{ t('orders.itemsCount', { count: order.items.length }) }}</div>
+                <div v-for="item in order.items" :key="item.sku" class="submitted-item">
+                  {{ item.name }} &times; {{ item.quantity }}
+                </div>
+              </td>
+              <td><strong>{{ formatCurrency(order.total_cost, currentCurrency) }}</strong></td>
+              <td>
+                <span :class="['badge', submittedStatusClass(order.status)]">{{ order.status }}</span>
+              </td>
+              <td>{{ t('orders.submittedOrders.leadTimeDays', { count: order.lead_time_days }) }}</td>
+              <td>{{ formatDate(order.expected_delivery) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -83,6 +126,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -124,6 +168,28 @@ export default {
       }
     }
 
+    // Submitted restocking orders load independently so a failure never hides regular orders
+    const restockingOrders = ref([])
+    const restockingError = ref(null)
+
+    const loadRestockingOrders = async () => {
+      try {
+        restockingError.value = null
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        restockingError.value = t('orders.submittedOrders.loadError')
+        console.error('Failed to load restocking orders:', err)
+      }
+    }
+
+    const submittedStatusClass = (status) => {
+      const s = String(status || '').toLowerCase()
+      if (s === 'delivered') return 'success'
+      if (s === 'cancelled' || s === 'canceled') return 'danger'
+      if (s === 'shipped') return 'info'
+      return 'warning'
+    }
+
     // Watch for filter changes and reload data
     watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
       loadOrders()
@@ -153,10 +219,18 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
+      currentCurrency,
+      formatCurrency,
+      restockingOrders,
+      restockingError,
+      submittedStatusClass,
       loading,
       error,
       orders,
@@ -273,6 +347,18 @@ export default {
 }
 
 .item-meta {
+  font-size: 0.813rem;
+  color: #64748b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #64748b;
+  font-size: 0.938rem;
+}
+
+.submitted-item {
   font-size: 0.813rem;
   color: #64748b;
 }
