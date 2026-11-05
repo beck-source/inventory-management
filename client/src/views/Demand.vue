@@ -1,7 +1,8 @@
 <template>
   <div class="demand">
     <div class="page-header">
-      <h2>{{ t('demand.title') }}</h2>
+      <div class="page-kicker">{{ t('nav.sector') }} 05 · {{ t('nav.demandForecast') }}</div>
+      <h2 class="page-title">{{ t('demand.title') }}</h2>
       <p>{{ t('demand.description') }}</p>
     </div>
 
@@ -9,7 +10,7 @@
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div class="demand-trend-cards">
-        <div class="trend-card increasing-card">
+        <div class="card trend-card increasing-card">
           <div class="trend-header">
             <div class="trend-icon">↑</div>
             <div>
@@ -20,7 +21,7 @@
           <div class="trend-items">
             <div v-for="item in getForecastsByTrend('increasing').slice(0, 5)" :key="item.id" class="trend-item">
               <span class="item-name">{{ item.item_name }}</span>
-              <span class="item-change">+{{ getChangePercent(item) }}%</span>
+              <span class="item-change tabular">+{{ getChangePercent(item) }}%</span>
             </div>
             <div v-if="getForecastsByTrend('increasing').length > 5" class="more-items">
               +{{ getForecastsByTrend('increasing').length - 5 }} {{ t('demand.more') }}
@@ -28,7 +29,7 @@
           </div>
         </div>
 
-        <div class="trend-card stable-card">
+        <div class="card trend-card stable-card">
           <div class="trend-header">
             <div class="trend-icon">→</div>
             <div>
@@ -39,7 +40,7 @@
           <div class="trend-items">
             <div v-for="item in getForecastsByTrend('stable').slice(0, 5)" :key="item.id" class="trend-item">
               <span class="item-name">{{ item.item_name }}</span>
-              <span class="item-change neutral">{{ getChangePercent(item) }}%</span>
+              <span class="item-change tabular neutral">{{ getChangePercent(item) }}%</span>
             </div>
             <div v-if="getForecastsByTrend('stable').length > 5" class="more-items">
               +{{ getForecastsByTrend('stable').length - 5 }} {{ t('demand.more') }}
@@ -47,7 +48,7 @@
           </div>
         </div>
 
-        <div class="trend-card decreasing-card">
+        <div class="card trend-card decreasing-card">
           <div class="trend-header">
             <div class="trend-icon">↓</div>
             <div>
@@ -58,7 +59,7 @@
           <div class="trend-items">
             <div v-for="item in getForecastsByTrend('decreasing').slice(0, 5)" :key="item.id" class="trend-item">
               <span class="item-name">{{ item.item_name }}</span>
-              <span class="item-change">{{ getChangePercent(item) }}%</span>
+              <span class="item-change tabular">{{ getChangePercent(item) }}%</span>
             </div>
             <div v-if="getForecastsByTrend('decreasing').length > 5" class="more-items">
               +{{ getForecastsByTrend('decreasing').length - 5 }} {{ t('demand.more') }}
@@ -86,11 +87,11 @@
             </thead>
             <tbody>
               <tr v-for="forecast in forecasts" :key="forecast.id">
-                <td><strong>{{ forecast.item_sku }}</strong></td>
+                <td><strong class="sku">{{ forecast.item_sku }}</strong></td>
                 <td>{{ forecast.item_name }}</td>
-                <td>{{ forecast.current_demand }}</td>
-                <td><strong>{{ forecast.forecasted_demand }}</strong></td>
-                <td>
+                <td class="mono-num">{{ forecast.current_demand }}</td>
+                <td class="mono-num"><strong>{{ forecast.forecasted_demand }}</strong></td>
+                <td class="mono-num">
                   <span :style="{ color: getChangeColor(forecast) }">
                     {{ getChangePercent(forecast) }}%
                   </span>
@@ -100,7 +101,7 @@
                     {{ t(`trends.${forecast.trend}`) }}
                   </span>
                 </td>
-                <td>{{ translatePeriod(forecast.period) }}</td>
+                <td class="mono-num">{{ translatePeriod(forecast.period) }}</td>
               </tr>
             </tbody>
           </table>
@@ -181,12 +182,12 @@ export default {
 
       // If change is within ±2%, consider it stable and show blue
       if (changePercent <= 2) {
-        return '#3b82f6' // Blue for stable
+        return 'var(--info)' // Blue for stable
       }
 
-      if (change > 0) return '#10b981' // Green for increasing
-      if (change < 0) return '#ef4444' // Red for decreasing
-      return '#3b82f6' // Blue for no change
+      if (change > 0) return 'var(--success)' // Green for increasing
+      if (change < 0) return 'var(--danger)' // Red for decreasing
+      return 'var(--info)' // Blue for no change
     }
 
     const translatePeriod = (period) => {
@@ -226,42 +227,36 @@ export default {
 <style scoped>
 .demand-trend-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
 }
 
+/* Layout + accent only; surface, border and brackets come from global .card */
 .trend-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.trend-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 0;
+  min-width: 0;
 }
 
 .increasing-card {
-  border-left: 4px solid #10b981;
+  border-left: 3px solid var(--success);
 }
 
 .stable-card {
-  border-left: 4px solid #3b82f6;
+  border-left: 3px solid var(--info);
 }
 
 .decreasing-card {
-  border-left: 4px solid #ef4444;
+  border-left: 3px solid var(--danger);
 }
 
 .trend-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--line);
 }
 
 .trend-icon {
@@ -270,100 +265,119 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  font-size: 1.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xl);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .increasing-card .trend-icon {
-  background: #d1fae5;
-  color: #059669;
+  background: var(--success-bg);
+  color: var(--success);
 }
 
 .stable-card .trend-icon {
-  background: #dbeafe;
-  color: #2563eb;
+  background: var(--info-bg);
+  color: var(--info);
 }
 
 .decreasing-card .trend-icon {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 
 .trend-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.16em;
 }
 
 .trend-count {
-  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xl);
   font-weight: 700;
-  color: #0f172a;
-  margin-top: 0.25rem;
+  color: var(--text);
+  margin-top: var(--space-1);
 }
 
 .trend-items {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-2);
 }
 
 .trend-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  background: #f8fafc;
-  border-radius: 6px;
-  transition: background 0.2s;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  transition: background var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease);
 }
 
 .trend-item:hover {
-  background: #f1f5f9;
+  background: var(--surface-raised);
+  border-color: var(--line-strong);
 }
 
 .item-name {
-  font-size: 0.875rem;
-  color: #0f172a;
+  font-size: var(--fs-sm);
+  color: var(--text);
   font-weight: 500;
   flex: 1;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-right: 1rem;
+  margin-right: var(--space-4);
 }
 
 .item-change {
-  font-size: 0.813rem;
+  font-size: var(--fs-sm);
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .increasing-card .item-change {
-  color: #059669;
+  color: var(--success);
 }
 
 .stable-card .item-change {
-  color: #3b82f6;
+  color: var(--info);
 }
 
 .decreasing-card .item-change {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .item-change.neutral {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .more-items {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-style: italic;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
   text-align: center;
-  padding: 0.5rem;
+  padding: var(--space-2);
+}
+
+.sku {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mono-num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 </style>

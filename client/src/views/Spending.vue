@@ -1,7 +1,8 @@
 <template>
   <div class="spending">
     <div class="page-header">
-      <h2>{{ t('finance.title') }}</h2>
+      <div class="page-kicker">{{ t('nav.sector') }} 04 · {{ t('nav.finance') }}</div>
+      <h2 class="page-title">{{ t('finance.title') }}</h2>
       <p>{{ t('finance.description') }}</p>
     </div>
 
@@ -132,7 +133,7 @@
           <div class="card-header">
             <h3 class="card-title">{{ t('finance.transactions.title') }}</h3>
           </div>
-          <div class="transactions-table-container">
+          <div class="table-container transactions-table-container">
             <table class="transactions-table">
               <thead>
                 <tr>
@@ -493,79 +494,62 @@ export default {
 
 <style scoped>
 .stat-change {
-  margin-top: 0.75rem;
-  font-size: 0.875rem;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--space-1);
 }
 
 .stat-change.positive {
-  color: #059669;
+  color: var(--success);
 }
 
 .stat-change.negative {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .change-icon {
   font-weight: 700;
-  font-size: 1rem;
 }
 
-.chart-card {
-  margin-bottom: 1.75rem;
+.chart-card .card-header {
+  flex-wrap: wrap;
 }
 
 .chart-legend {
   display: flex;
-  gap: 1.5rem;
-  font-size: 0.875rem;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #64748b;
+  gap: var(--space-2);
+  color: var(--text-muted);
 }
 
 .legend-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 3px;
 }
 
-.legend-dot.procurement { background: #3b82f6; }
-.legend-dot.operational { background: #8b5cf6; }
-.legend-dot.labor { background: #10b981; }
-.legend-dot.overhead { background: #f59e0b; }
-.legend-dot.revenue-color { background: #0f172a; }
-.legend-dot.cost-color { background: #ef4444; }
+.legend-dot.procurement { background: var(--series-1); }
+.legend-dot.operational { background: var(--series-2); }
+.legend-dot.labor { background: var(--series-3); }
+.legend-dot.overhead { background: var(--series-4); }
+.legend-dot.revenue-color { background: var(--series-1); box-shadow: 0 0 8px var(--series-1); }
+.legend-dot.cost-color { background: var(--series-2); }
 
 .stats-grid-finance {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.revenue-card {
-  border-left: 4px solid #0f172a;
-}
-
-.cost-card {
-  border-left: 4px solid #ef4444;
-}
-
-.profit-card {
-  border-left: 4px solid #3b82f6;
-}
-
-.stat-meta {
-  margin-top: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
+  gap: var(--space-5);
+  margin-bottom: var(--space-8);
 }
 
 .bar-group-revenue {
@@ -573,6 +557,7 @@ export default {
   flex-direction: column;
   align-items: center;
   flex: 1;
+  min-width: 0;
   height: 100%;
 }
 
@@ -580,42 +565,46 @@ export default {
   width: 100%;
   max-width: 80px;
   display: flex;
-  gap: 6px;
+  gap: var(--space-1);
   justify-content: center;
   align-items: flex-end;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
 }
 
 .revenue-bar, .cost-bar {
   width: 50%;
   max-width: 30px;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.3s ease;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: box-shadow var(--t-fast) var(--ease), filter var(--t-fast) var(--ease);
   cursor: pointer;
   min-height: 4px;
 }
 
+/* Plasma bars: series fade to 30% with a bright 2px cap */
 .revenue-bar {
-  background: #0f172a;
+  background: linear-gradient(to top, color-mix(in srgb, var(--series-1) 30%, transparent), var(--series-1));
+  border-top: 2px solid var(--series-1);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--series-1) 45%, transparent);
 }
 
 .cost-bar {
-  background: #ef4444;
+  background: linear-gradient(to top, color-mix(in srgb, var(--series-2) 30%, transparent), var(--series-2));
+  border-top: 2px solid var(--series-2);
 }
 
 .revenue-bar:hover, .cost-bar:hover {
-  opacity: 0.8;
-  transform: scaleY(1.05);
+  filter: brightness(1.2);
+  box-shadow: var(--glow-cyan);
 }
 
 .chart-container {
-  padding: 1.5rem 0;
+  padding: var(--space-6) 0;
 }
 
 .bar-chart {
   display: flex;
-  gap: 1.5rem;
+  gap: var(--space-4);
   height: 350px;
 }
 
@@ -623,18 +612,21 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
+  padding-right: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--chart-axis);
+  border-right: 1px solid var(--chart-grid);
 }
 
 .chart-area {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .bar-group {
@@ -642,6 +634,7 @@ export default {
   flex-direction: column;
   align-items: center;
   flex: 1;
+  min-width: 0;
   height: 100%;
 }
 
@@ -652,116 +645,121 @@ export default {
   flex-direction: column-reverse;
   align-items: stretch;
   height: 100%;
-  padding-bottom: 2rem;
+  padding-bottom: var(--space-8);
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  border-radius: var(--radius-sm);
+  transition: filter var(--t-fast) var(--ease);
 }
 
 .stacked-bar:hover {
-  opacity: 0.85;
+  filter: brightness(1.2) drop-shadow(0 0 10px color-mix(in srgb, var(--cyan) 45%, transparent));
 }
 
 .bar-segment {
   width: 100%;
-  transition: all 0.3s ease;
   cursor: pointer;
   display: block;
 }
 
 .bar-segment:first-child {
-  border-radius: 0 0 6px 6px;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
 }
 
 .bar-segment:last-child {
-  border-radius: 6px 6px 0 0;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
 }
 
-.bar-segment.procurement { background: #3b82f6; }
-.bar-segment.operational { background: #8b5cf6; }
-.bar-segment.labor { background: #10b981; }
-.bar-segment.overhead { background: #f59e0b; }
-
-.bar-segment:hover {
-  opacity: 0.8;
-}
+.bar-segment.procurement { background: color-mix(in srgb, var(--series-1) 85%, transparent); }
+.bar-segment.operational { background: color-mix(in srgb, var(--series-2) 85%, transparent); }
+.bar-segment.labor { background: color-mix(in srgb, var(--series-3) 85%, transparent); }
+.bar-segment.overhead { background: color-mix(in srgb, var(--series-4) 85%, transparent); }
 
 .bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #64748b;
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--chart-axis);
 }
 
 .two-column-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 1.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(450px, 100%), 1fr));
+  gap: var(--space-5);
 }
 
 .category-list {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-6);
 }
 
 .category-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .category-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: var(--space-3);
 }
 
 .category-name {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .category-amount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
-  color: #2563eb;
-  font-size: 1.125rem;
+  font-size: var(--fs-lg);
+  color: var(--cyan);
 }
 
 .category-bar-container {
   width: 100%;
   height: 8px;
-  background: #f1f5f9;
-  border-radius: 4px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
   overflow: hidden;
 }
 
 .category-bar {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%);
-  border-radius: 4px;
-  transition: width 0.6s ease;
+  background: var(--aurora);
+  border-radius: inherit;
+  transition: width 0.6s var(--ease);
 }
 
 .category-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 0.813rem;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
 }
 
 .percentage {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .change {
   font-weight: 600;
+  color: var(--text-muted);
 }
 
 .change.positive {
-  color: #059669;
+  color: var(--success);
 }
 
 .change.negative {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .transactions-card {
@@ -774,79 +772,69 @@ export default {
   max-height: 400px;
 }
 
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.transactions-table thead {
-  position: sticky;
-  top: 0;
-  background: #f8fafc;
+/* Sticky head needs an opaque-ish surface so rows don't show through */
+.transactions-table thead th {
+  background: var(--surface-strong);
   z-index: 1;
-}
-
-.transactions-table th {
-  text-align: left;
-  padding: 0.625rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .transactions-table th.text-right {
   text-align: right;
 }
 
-.transactions-table td {
-  padding: 0.75rem 0.75rem;
-  border-bottom: 1px solid #f1f5f9;
-  font-size: 0.875rem;
-}
-
 .transactions-table tbody tr {
   cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.transactions-table tbody tr:hover {
-  background: #f8fafc;
-}
-
-.transactions-table tbody tr.clickable-row:hover {
-  background: #eff6ff;
 }
 
 .transaction-id {
-  color: #64748b;
-  font-weight: 500;
-  font-family: 'Monaco', 'Courier New', monospace;
-  font-size: 0.813rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xs);
+  color: var(--cyan);
+  letter-spacing: .04em;
 }
 
 .transaction-description {
-  color: #0f172a;
+  color: var(--text);
   font-weight: 500;
 }
 
 .transaction-vendor {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .transaction-date {
-  color: #64748b;
-  font-size: 0.813rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
 }
 
 .transaction-amount {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
+}
+
+.transaction-id,
+.transaction-date,
+.transaction-amount {
+  white-space: nowrap;
 }
 
 .text-right {
   text-align: right;
+}
+
+/* Narrow screens: keep 12 months legible by scrolling the chart instead of squashing it */
+@media (max-width: 760px) {
+  .chart-container {
+    overflow-x: auto;
+  }
+
+  .bar-chart {
+    min-width: 560px;
+  }
 }
 </style>

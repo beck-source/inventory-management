@@ -2,10 +2,10 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen && inventoryItem" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
+        <div class="modal modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">Inventory Item Details</h3>
-            <button class="close-button" @click="close">
+            <button class="btn btn-icon btn-ghost close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
@@ -23,9 +23,9 @@
               </div>
               <div class="item-title-section">
                 <h4 class="item-name">{{ translateProductName(inventoryItem.name) }}</h4>
-                <div class="item-sku">SKU: {{ inventoryItem.sku }}</div>
+                <div class="item-sku sku">SKU: {{ inventoryItem.sku }}</div>
               </div>
-              <span class="stock-badge" :class="getStockStatusClass()">
+              <span class="badge stock-badge" :class="getStockStatusClass()">
                 {{ getStockStatus() }}
               </span>
             </div>
@@ -61,7 +61,7 @@
               <div class="info-item">
                 <div class="info-label">Units Remaining</div>
                 <div class="info-value">
-                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? '#ef4444' : '#10b981' }">
+                  <span :style="{ color: inventoryItem.quantity_on_hand <= inventoryItem.reorder_point ? 'var(--danger)' : 'var(--success)' }">
                     {{ inventoryItem.quantity_on_hand - inventoryItem.reorder_point }} units
                   </span>
                 </div>
@@ -96,7 +96,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <button class="btn btn-secondary" @click="close">Close</button>
           </div>
         </div>
       </div>
@@ -175,262 +175,190 @@ const getSummaryCardClass = () => {
 </script>
 
 <style scoped>
+/* Overlay, header, body and footer chrome come from theme.css (.modal-*). */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2000;
-  padding: 1rem;
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  max-width: 700px;
-  width: 100%;
+  width: min(700px, 100%);
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
 .close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  flex-shrink: 0;
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: var(--space-8);
+  gap: var(--space-6);
 }
 
 .item-header {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
 }
 
 .item-icon {
   width: 64px;
   height: 64px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid currentColor;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
   flex-shrink: 0;
 }
 
 .item-icon.success-icon {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: var(--success);
+  background: var(--success-bg);
 }
 
 .item-icon.warning-icon {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: var(--warning);
+  background: var(--warning-bg);
 }
 
 .item-icon.danger-icon {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: var(--danger);
+  background: var(--danger-bg);
+  box-shadow: 0 0 18px var(--danger-bg);
 }
 
 .item-title-section {
-  flex: 1;
+  flex: 1 1 180px;
   min-width: 0;
 }
 
 .item-name {
-  font-size: 1.5rem;
+  font-size: var(--fs-xl);
   font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 0.5rem 0;
+  color: var(--text);
+  margin: 0 0 var(--space-2) 0;
+  overflow-wrap: anywhere;
 }
 
 .item-sku {
-  font-size: 0.875rem;
-  color: #64748b;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
 }
 
 .stock-badge {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
   flex-shrink: 0;
-}
-
-.stock-badge.success {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.stock-badge.warning {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.stock-badge.danger {
-  background: #fecaca;
-  color: #991b1b;
 }
 
 .stock-summary {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
 }
 
 .summary-card {
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 2px solid;
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface-sunken);
 }
 
 .summary-card.primary {
-  border-color: #bfdbfe;
-  background: #eff6ff;
+  border-color: var(--line-glow);
 }
 
 .summary-card.success-card {
-  border-color: #a7f3d0;
-  background: #d1fae5;
+  border-color: var(--success);
+  background: var(--success-bg);
 }
 
 .summary-card.warning-card {
-  border-color: #fed7aa;
-  background: #fffbeb;
+  border-color: var(--warning);
+  background: var(--warning-bg);
 }
 
 .summary-card.danger-card {
-  border-color: #fecaca;
-  background: #fef2f2;
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.summary-label,
+.info-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
 }
 
 .summary-label {
-  font-size: 0.813rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
 }
 
 .summary-value {
-  font-size: 1.875rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-2xl);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .summary-subtitle {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-top: var(--space-1);
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  gap: var(--space-4);
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-}
-
-.info-label {
-  font-size: 0.813rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
 }
 
 .info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
+  font-size: var(--fs-md);
+  color: var(--text);
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
 .info-value.total-value {
-  font-size: 1.125rem;
-  color: #2563eb;
+  font-family: var(--font-mono);
+  font-size: var(--fs-lg);
+  color: var(--cyan);
   font-weight: 700;
 }
 
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
+@media (max-width: 520px) {
+  .modal-body {
+    padding: var(--space-5);
+  }
 }
 
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-/* Modal transition animations */
+/* Modal transition animations (disabled by theme.css under reduced motion) */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity var(--t-fast) var(--ease);
 }
 
 .modal-enter-from,
@@ -440,7 +368,7 @@ const getSummaryCardClass = () => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
+  transition: transform var(--t-fast) var(--ease);
 }
 
 .modal-enter-from .modal-container,

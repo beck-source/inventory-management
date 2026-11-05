@@ -1,7 +1,7 @@
 <template>
   <div class="language-switcher">
     <button
-      class="language-button"
+      class="btn language-button"
       @click="toggleDropdown"
       @blur="handleBlur"
     >
@@ -30,7 +30,7 @@
       </svg>
     </button>
 
-    <div v-if="isDropdownOpen" class="dropdown-menu">
+    <div v-if="isDropdownOpen" class="dropdown dropdown-menu">
       <button
         v-for="locale in availableLocales"
         :key="locale"
@@ -94,37 +94,23 @@ const selectLanguage = (locale) => {
 }
 
 .language-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: #334155;
-}
-
-.language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
 }
 
 .globe-icon {
-  color: #64748b;
+  color: var(--cyan);
   flex-shrink: 0;
 }
 
 .language-label {
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
+  color: var(--text-muted);
+  transition: transform var(--t-fast) var(--ease);
   flex-shrink: 0;
 }
 
@@ -134,15 +120,10 @@ const selectLanguage = (locale) => {
 
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 160px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  overflow: hidden;
 }
 
 .dropdown-item {
@@ -150,26 +131,28 @@ const selectLanguage = (locale) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   background: none;
   border: none;
+  border-radius: var(--radius-sm);
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
+  transition: background var(--t-fast) var(--ease), color var(--t-fast) var(--ease);
+  font: inherit;
+  font-size: var(--fs-sm);
   font-weight: 500;
-  color: #334155;
+  color: var(--text-muted);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--surface-raised);
+  color: var(--text);
 }
 
 .dropdown-item.active {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--aurora-soft);
+  color: var(--text);
 }
 
 .language-name {
@@ -177,7 +160,13 @@ const selectLanguage = (locale) => {
 }
 
 .check-icon {
-  color: #2563eb;
+  color: var(--cyan);
   flex-shrink: 0;
+}
+
+@media (max-width: 1100px) {
+  .language-label {
+    display: none;
+  }
 }
 </style>

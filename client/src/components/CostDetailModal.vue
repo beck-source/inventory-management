@@ -2,10 +2,10 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen && costData" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
+        <div class="modal modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">{{ costData.month }} Cost Breakdown</h3>
-            <button class="close-button" @click="close">
+            <button class="btn btn-icon btn-ghost close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
@@ -16,7 +16,7 @@
             <div class="cost-summary">
               <div class="summary-card total">
                 <div class="summary-label">Total Costs</div>
-                <div class="summary-value">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
+                <div class="summary-value text-aurora">{{ currencySymbol }}{{ totalCosts.toLocaleString() }}</div>
               </div>
             </div>
 
@@ -87,7 +87,7 @@
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">Close</button>
+            <button class="btn btn-secondary" @click="close">Close</button>
           </div>
         </div>
       </div>
@@ -150,221 +150,149 @@ const close = () => {
 </script>
 
 <style scoped>
+/* Overlay, header, body and footer chrome come from theme.css (.modal-*). */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2000;
-  padding: 1rem;
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  max-width: 600px;
-  width: 100%;
+  width: min(600px, 100%);
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
 .close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  flex-shrink: 0;
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
-}
-
-.cost-summary {
-  margin-bottom: 2rem;
+  padding: var(--space-8);
+  gap: var(--space-6);
 }
 
 .summary-card {
-  padding: 1.5rem;
-  border-radius: 10px;
+  padding: var(--space-6);
+  border-radius: var(--radius-md);
   text-align: center;
 }
 
 .summary-card.total {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
+  background: var(--aurora-soft);
+  border: 1px solid var(--line-strong);
 }
 
 .summary-label {
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  margin-bottom: var(--space-2);
 }
 
+/* No `color` here: .text-aurora provides the gradient text. */
 .summary-value {
-  font-size: 2.25rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-3xl);
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
 .cost-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
+/* Category accents follow chart series order: series 1-4, matching the Spending chart legend. */
 .cost-item {
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 2px solid;
+  --cost-accent: var(--series-1);
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--cost-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--cost-accent) 8%, transparent);
 }
 
 .cost-item.procurement {
-  border-color: #93c5fd;
-  background: #eff6ff;
+  --cost-accent: var(--series-1);
 }
 
 .cost-item.operational {
-  border-color: #c4b5fd;
-  background: #f5f3ff;
+  --cost-accent: var(--series-2);
 }
 
 .cost-item.labor {
-  border-color: #86efac;
-  background: #f0fdf4;
+  --cost-accent: var(--series-3);
 }
 
 .cost-item.overhead {
-  border-color: #fcd34d;
-  background: #fffbeb;
+  --cost-accent: var(--series-4);
 }
 
 .cost-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: var(--space-4);
+  margin-bottom: var(--space-2);
 }
 
 .cost-icon {
   width: 48px;
   height: 48px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.cost-item.procurement .cost-icon {
-  background: #3b82f6;
-  color: white;
-}
-
-.cost-item.operational .cost-icon {
-  background: #8b5cf6;
-  color: white;
-}
-
-.cost-item.labor .cost-icon {
-  background: #10b981;
-  color: white;
-}
-
-.cost-item.overhead .cost-icon {
-  background: #f59e0b;
-  color: white;
+  color: var(--cost-accent);
+  background: color-mix(in srgb, var(--cost-accent) 16%, transparent);
+  border: 1px solid var(--cost-accent);
 }
 
 .cost-info {
   flex: 1;
+  min-width: 0;
 }
 
 .cost-name {
   font-weight: 600;
-  color: #0f172a;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
+  color: var(--text);
+  font-size: var(--fs-lg);
+  margin-bottom: var(--space-1);
 }
 
 .cost-amount {
-  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-xl);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
 }
 
 .cost-percentage {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
+@media (max-width: 520px) {
+  .modal-body {
+    padding: var(--space-5);
+  }
 }
 
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-/* Modal transition animations */
+/* Modal transition animations (disabled by theme.css under reduced motion) */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity var(--t-fast) var(--ease);
 }
 
 .modal-enter-from,
@@ -374,7 +302,7 @@ const close = () => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
+  transition: transform var(--t-fast) var(--ease);
 }
 
 .modal-enter-from .modal-container,

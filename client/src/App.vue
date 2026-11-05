@@ -1,42 +1,91 @@
 <template>
-  <div class="app">
-    <header class="top-nav">
-      <div class="nav-container">
-        <div class="logo">
-          <h1>{{ t('nav.companyName') }}</h1>
-          <span class="subtitle">{{ t('nav.subtitle') }}</span>
+  <div
+    class="app app-shell"
+    :class="{ 'is-collapsed': collapsed, 'is-mobile-open': mobileOpen }"
+  >
+    <div class="cosmos-horizon" aria-hidden="true"></div>
+
+    <aside id="primary-sidebar" class="sidebar" :aria-label="t('nav.primary')">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="brand-text">
+          <span class="brand-name">{{ t('nav.companyName') }}</span>
+          <span class="brand-sub">{{ t('nav.subtitle') }}</span>
         </div>
-        <nav class="nav-tabs">
-          <router-link to="/" :class="{ active: $route.path === '/' }">
-            {{ t('nav.overview') }}
-          </router-link>
-          <router-link to="/inventory" :class="{ active: $route.path === '/inventory' }">
-            {{ t('nav.inventory') }}
-          </router-link>
-          <router-link to="/orders" :class="{ active: $route.path === '/orders' }">
-            {{ t('nav.orders') }}
-          </router-link>
-          <router-link to="/spending" :class="{ active: $route.path === '/spending' }">
-            {{ t('nav.finance') }}
-          </router-link>
-          <router-link to="/demand" :class="{ active: $route.path === '/demand' }">
-            {{ t('nav.demandForecast') }}
-          </router-link>
-          <router-link to="/reports" :class="{ active: $route.path === '/reports' }">
-            Reports
+      </div>
+
+      <div>
+        <div class="nav-section-label">{{ t('nav.sectionLabel') }}</div>
+        <nav class="side-nav">
+          <router-link
+            v-for="(item, i) in navItems"
+            :key="item.to"
+            :to="item.to"
+            class="nav-item"
+            exact-active-class="is-active"
+            :title="item.label"
+            @click="mobileOpen = false"
+          >
+            <span v-html="item.icon" aria-hidden="true" class="nav-icon"></span>
+            <span class="nav-label">{{ item.label }}</span>
+            <span class="nav-index" aria-hidden="true">{{ String(i + 1).padStart(2, '0') }}</span>
           </router-link>
         </nav>
-        <LanguageSwitcher />
-        <ProfileMenu
-          @show-profile-details="showProfileDetails = true"
-          @show-tasks="showTasks = true"
-        />
       </div>
-    </header>
-    <FilterBar />
-    <main class="main-content">
-      <router-view />
-    </main>
+
+      <div class="sidebar-footer">
+        <div class="system-status" role="status" :title="t('nav.systemStatus')">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span class="status-text">{{ t('nav.systemStatus') }}</span>
+        </div>
+        <button
+          class="collapse-btn"
+          type="button"
+          :aria-label="collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')"
+          :aria-expanded="!collapsed"
+          @click="toggleCollapsed"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+          <span class="nav-label">{{ t('nav.collapse') }}</span>
+        </button>
+      </div>
+    </aside>
+
+    <div
+      v-if="mobileOpen"
+      class="sidebar-scrim"
+      :aria-label="t('nav.closeNavigation')"
+      @click="mobileOpen = false"
+    ></div>
+
+    <div class="shell-main">
+      <header class="topbar">
+        <button
+          class="btn btn-icon btn-ghost menu-toggle"
+          type="button"
+          :aria-label="t('nav.openNavigation')"
+          aria-controls="primary-sidebar"
+          :aria-expanded="mobileOpen"
+          @click="mobileOpen = true"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        </button>
+        <div class="topbar-filters">
+          <FilterBar />
+        </div>
+        <div class="topbar-actions">
+          <LanguageSwitcher />
+          <ProfileMenu
+            @show-profile-details="showProfileDetails = true"
+            @show-tasks="showTasks = true"
+          />
+        </div>
+      </header>
+
+      <main class="main-content">
+        <router-view />
+      </main>
+    </div>
 
     <ProfileDetailsModal
       :is-open="showProfileDetails"
@@ -65,6 +114,17 @@ import ProfileDetailsModal from './components/ProfileDetailsModal.vue'
 import TasksModal from './components/TasksModal.vue'
 import LanguageSwitcher from './components/LanguageSwitcher.vue'
 
+// Static, app-controlled SVG strings (safe for v-html). Stroke = currentColor.
+const svg = (d) => `<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`
+const ICONS = {
+  overview: svg('<circle cx="12" cy="12" r="3"/><circle cx="12" cy="12" r="8" stroke-dasharray="3 3"/><path d="M12 1v3M12 20v3M1 12h3M20 12h3"/>'),
+  inventory: svg('<path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/>'),
+  orders: svg('<path d="M4 4h16v16H4z"/><path d="M8 9h8M8 13h8M8 17h5"/>'),
+  finance: svg('<path d="M3 17l5-5 4 4 8-8"/><path d="M15 8h5v5"/>'),
+  demand: svg('<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>'),
+  reports: svg('<circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.5 6.5"/>')
+}
+
 export default {
   name: 'App',
   components: {
@@ -80,6 +140,23 @@ export default {
     const showProfileDetails = ref(false)
     const showTasks = ref(false)
     const apiTasks = ref([])
+
+    // Sidebar shell state
+    const collapsed = ref(localStorage.getItem('sidebar-collapsed') === '1')
+    const mobileOpen = ref(false)
+    const toggleCollapsed = () => {
+      collapsed.value = !collapsed.value
+      localStorage.setItem('sidebar-collapsed', collapsed.value ? '1' : '0')
+    }
+
+    const navItems = computed(() => [
+      { to: '/', label: t('nav.overview'), icon: ICONS.overview },
+      { to: '/inventory', label: t('nav.inventory'), icon: ICONS.inventory },
+      { to: '/orders', label: t('nav.orders'), icon: ICONS.orders },
+      { to: '/spending', label: t('nav.finance'), icon: ICONS.finance },
+      { to: '/demand', label: t('nav.demandForecast'), icon: ICONS.demand },
+      { to: '/reports', label: t('nav.reports'), icon: ICONS.reports }
+    ])
 
     // Merge mock tasks from currentUser with API tasks
     const tasks = computed(() => {
@@ -150,6 +227,10 @@ export default {
 
     return {
       t,
+      collapsed,
+      mobileOpen,
+      toggleCollapsed,
+      navItems,
       showProfileDetails,
       showTasks,
       tasks,
@@ -162,325 +243,137 @@ export default {
 </script>
 
 <style>
+/*
+  Global layer on top of styles/theme.css (Orbital Command design system).
+  theme.css owns tokens, shell, cards, tables, badges, controls and states.
+  Only rules that views depend on and that theme.css does not provide live here.
+*/
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Icon wrapper for v-html nav icons: let the inner svg be the flex child */
+.nav-icon {
+  display: contents;
 }
 
-.app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+/*
+  theme.css declares .menu-toggle { display: none } before .btn { display: inline-flex },
+  so .btn wins at equal specificity. Re-assert with higher specificity.
+*/
+.topbar .menu-toggle {
+  display: none;
+  flex-shrink: 0;
 }
 
-.top-nav {
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+@media (max-width: 760px) {
+  .topbar .menu-toggle {
+    display: inline-flex;
+  }
+
+  .topbar .topbar-actions {
+    margin-left: auto;
+  }
+
+  /* Filters drop to their own full-width row under the toggle and actions */
+  .topbar .topbar-filters {
+    order: 3;
+    flex-basis: 100%;
+  }
 }
 
-.nav-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  padding: 0 2rem;
-  height: 70px;
+/* Translated status text keeps the telemetry look */
+.system-status .status-text {
+  text-transform: uppercase;
 }
 
-.nav-container > .nav-tabs {
-  margin-left: auto;
-  margin-right: 1rem;
+.brand-name {
+  letter-spacing: 0.08em;
 }
 
-.nav-container > .language-switcher {
-  margin-right: 1rem;
+.brand-sub {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.75rem;
+/* theme.css restores the drawer brand with display: revert, which drops its flex column */
+@media (max-width: 760px) {
+  .app-shell.is-mobile-open .brand-text {
+    display: flex;
+  }
 }
 
-.logo h1 {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
+/*
+  Views place kicker / title / subtitle directly inside .page-header (no wrapper div),
+  so give each its own row of the wrapping flex container.
+*/
+.page-header > .page-kicker,
+.page-header > .page-title,
+.page-header > h2,
+.page-header > p {
+  flex-basis: 100%;
 }
 
-.subtitle {
-  font-size: 0.813rem;
-  color: #64748b;
-  font-weight: 400;
-  padding-left: 0.75rem;
-  border-left: 1px solid #e2e8f0;
+.page-header > h2,
+.page-header > p {
+  margin-top: 0;
 }
 
-.nav-tabs {
-  display: flex;
-  gap: 0.25rem;
+.page-header > .page-kicker {
+  margin-bottom: 0;
 }
 
-.nav-tabs a {
-  padding: 0.625rem 1.25rem;
-  color: #64748b;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.938rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.nav-tabs a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
-}
-
-.nav-tabs a.active {
-  color: #2563eb;
-  background: #eff6ff;
-}
-
-.nav-tabs a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #2563eb;
-}
-
-.main-content {
-  flex: 1;
-  max-width: 1600px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 1.5rem 2rem;
-}
-
+/* Vertical rhythm the views rely on (they stack siblings without gaps) */
 .page-header {
-  margin-bottom: 1.5rem;
-}
-
-.page-header h2 {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.375rem;
-  letter-spacing: -0.025em;
-}
-
-.page-header p {
-  color: #64748b;
-  font-size: 0.938rem;
+  margin-bottom: var(--space-8);
+  row-gap: var(--space-2);
 }
 
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
-}
-
-.stat-card {
-  background: white;
-  padding: 1.25rem;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-}
-
-.stat-label {
-  color: #64748b;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.625rem;
-}
-
-.stat-value {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.stat-card.warning .stat-value {
-  color: #ea580c;
-}
-
-.stat-card.success .stat-value {
-  color: #059669;
-}
-
-.stat-card.danger .stat-value {
-  color: #dc2626;
-}
-
-.stat-card.info .stat-value {
-  color: #2563eb;
+  margin-bottom: var(--space-8);
+  /* 220px (theme) wraps 4 KPIs to 3 + 1 on the 1024px icon-rail layout */
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .card {
-  background: white;
-  border-radius: 10px;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 1.25rem;
+  margin-bottom: var(--space-5);
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-  padding-bottom: 0.875rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.card-title {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
-.table-container {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background: #f8fafc;
-  border-top: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-th {
-  text-align: left;
-  padding: 0.5rem 0.75rem;
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-td {
-  padding: 0.5rem 0.75rem;
-  border-top: 1px solid #f1f5f9;
-  color: #334155;
-  font-size: 0.875rem;
-}
-
-tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-tbody tr:hover {
-  background: #f8fafc;
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.313rem 0.75rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.badge.success {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge.warning {
-  background: #fed7aa;
-  color: #92400e;
-}
-
-.badge.danger {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.badge.info {
-  background: #dbeafe;
-  color: #1e40af;
+/* Status variants not covered by theme.css */
+.stat-card.info .stat-value {
+  background: none;
+  color: var(--info);
 }
 
 .badge.increasing {
-  background: #d1fae5;
-  color: #065f46;
+  color: var(--success);
+  background: var(--success-bg);
 }
 
 .badge.decreasing {
-  background: #fecaca;
-  color: #991b1b;
+  color: var(--danger);
+  background: var(--danger-bg);
 }
 
 .badge.stable {
-  background: #e0e7ff;
-  color: #3730a3;
-}
-
-.badge.high {
-  background: #fecaca;
-  color: #991b1b;
-}
-
-.badge.medium {
-  background: #fed7aa;
-  color: #92400e;
+  color: var(--neutral);
+  background: var(--neutral-bg);
 }
 
 .badge.low {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 0.938rem;
+  color: var(--info);
+  background: var(--info-bg);
 }
 
 .error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-  font-size: 0.938rem;
+  margin: var(--space-4) 0;
+}
+
+/* Flex-column modals would otherwise shrink theme.css's 2px aurora top edge to 0 */
+.modal::before,
+.modal-content::before {
+  flex-shrink: 0;
 }
 </style>

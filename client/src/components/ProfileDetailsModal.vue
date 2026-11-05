@@ -2,10 +2,10 @@
   <Teleport to="body">
     <Transition name="modal">
       <div v-if="isOpen" class="modal-overlay" @click="close">
-        <div class="modal-container" @click.stop>
+        <div class="modal modal-container" @click.stop>
           <div class="modal-header">
             <h3 class="modal-title">{{ t('profileDetails.title') }}</h3>
-            <button class="close-button" @click="close">
+            <button class="btn btn-icon btn-ghost close-button" @click="close">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
@@ -25,7 +25,7 @@
               <div class="info-grid">
                 <div class="info-item">
                   <div class="info-label">{{ t('profileDetails.email') }}</div>
-                  <div class="info-value">{{ currentUser.email }}</div>
+                  <div class="info-value mono">{{ currentUser.email }}</div>
                 </div>
 
                 <div class="info-item">
@@ -40,24 +40,24 @@
 
                 <div class="info-item">
                   <div class="info-label">{{ t('profileDetails.phone') }}</div>
-                  <div class="info-value">{{ currentUser.phone }}</div>
+                  <div class="info-value mono">{{ currentUser.phone }}</div>
                 </div>
 
                 <div class="info-item">
                   <div class="info-label">{{ t('profileDetails.joinDate') }}</div>
-                  <div class="info-value">{{ formatDate(currentUser.joinDate) }}</div>
+                  <div class="info-value mono">{{ formatDate(currentUser.joinDate) }}</div>
                 </div>
 
                 <div class="info-item">
                   <div class="info-label">{{ t('profileDetails.employeeId') }}</div>
-                  <div class="info-value">CC-{{ currentUser.id.toString().padStart(5, '0') }}</div>
+                  <div class="info-value mono">CC-{{ currentUser.id.toString().padStart(5, '0') }}</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="modal-footer">
-            <button class="btn-secondary" @click="close">{{ t('profileDetails.close') }}</button>
+            <button class="btn btn-secondary" @click="close">{{ t('profileDetails.close') }}</button>
           </div>
         </div>
       </div>
@@ -97,170 +97,108 @@ const formatDate = (dateString) => {
 </script>
 
 <style scoped>
+/* Overlay, header, body and footer chrome come from theme.css (.modal-*). */
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 2000;
-  padding: 1rem;
 }
 
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-  max-width: 600px;
-  width: 100%;
+  width: min(600px, 100%);
   max-height: 90vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.modal-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.025em;
-}
-
 .close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-
-.close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  flex-shrink: 0;
 }
 
 .modal-body {
   flex: 1;
   overflow-y: auto;
-  padding: 2rem;
+  padding: var(--space-8);
 }
 
 .profile-section {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-8);
 }
 
 .avatar-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  gap: var(--space-3);
+  padding-bottom: var(--space-6);
+  border-bottom: 1px solid var(--line);
 }
 
 .avatar-xl {
   width: 96px;
   height: 96px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: var(--aurora);
+  color: var(--text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-mono);
   font-weight: 700;
-  font-size: 2rem;
-  letter-spacing: 0.025em;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  font-size: var(--fs-3xl);
+  box-shadow: var(--glow-violet);
 }
 
 .profile-name {
-  font-size: 1.5rem;
+  font-size: var(--fs-2xl);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
   margin: 0;
 }
 
 .profile-job-title {
-  font-size: 1rem;
-  color: #64748b;
+  font-size: var(--fs-lg);
+  color: var(--text-muted);
   margin: 0;
 }
 
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-6);
 }
 
 .info-item {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
 }
 
 .info-label {
-  font-size: 0.813rem;
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 500;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
+  letter-spacing: 0.14em;
+  color: var(--text-faint);
 }
 
 .info-value {
-  font-size: 0.938rem;
-  color: #0f172a;
+  font-size: var(--fs-md);
+  color: var(--text);
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-}
-
-.btn-secondary {
-  padding: 0.625rem 1.25rem;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 0.875rem;
-  color: #334155;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.btn-secondary:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-}
-
-/* Modal transition animations */
+/* Modal transition animations (disabled by theme.css under reduced motion) */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity var(--t-fast) var(--ease);
 }
 
 .modal-enter-from,
@@ -270,7 +208,7 @@ const formatDate = (dateString) => {
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.2s ease;
+  transition: transform var(--t-fast) var(--ease);
 }
 
 .modal-enter-from .modal-container,
