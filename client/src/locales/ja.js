@@ -6,8 +6,44 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
+  },
+
+  // Reports
+  reports: {
+    title: 'パフォーマンスレポート',
+    description: '四半期ごとの業績指標と月次トレンドを表示します',
+    loadError: 'レポートの読み込みに失敗しました',
+    quarterly: {
+      title: '四半期業績',
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総売上',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '出荷完了率'
+    },
+    trend: {
+      title: '月次売上トレンド',
+      chartLabel: '月次売上の棒グラフ'
+    },
+    mom: {
+      title: '前月比分析',
+      month: '月',
+      orders: '注文数',
+      revenue: '売上',
+      change: '増減',
+      growthRate: '成長率',
+      notAvailable: '該当なし'
+    },
+    summary: {
+      totalRevenue: '総売上',
+      avgMonthlyRevenue: '月平均売上',
+      totalOrders: '総注文数',
+      bestQuarter: '最高業績の四半期'
+    }
   },
 
   // Dashboard
@@ -126,7 +162,61 @@ export default {
       status: 'ステータス',
       expectedDelivery: '予定配達日',
       actualDelivery: '実際の配達日'
+    },
+    submittedOrders: {
+      title: '送信済み注文',
+      empty: '送信済みの補充注文はまだありません。',
+      orderNumber: '注文番号',
+      submittedDate: '送信日',
+      items: '品目',
+      totalCost: '合計コスト',
+      status: 'ステータス',
+      leadTime: 'リードタイム',
+      expectedDelivery: '予定配達日',
+      leadTimeDays: '{count}日',
+      loadError: '送信済み注文の読み込みに失敗しました。'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: '補充発注',
+    description: '需要予測と予算に基づいて補充注文を計画します',
+    budget: '予算',
+    budgetHint: '予算を調整して発注可能な品目を確認します',
+    recommendations: '推奨品目',
+    table: {
+      sku: 'SKU',
+      name: '品目',
+      category: 'カテゴリ',
+      trend: 'トレンド',
+      onHand: '在庫数',
+      forecastedDemand: '予測需要',
+      quantity: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム（日）'
+    },
+    summary: {
+      budget: '予算',
+      totalSpend: '合計支出',
+      remaining: '残額',
+      itemCount: '品目数',
+      leadTime: '全体のリードタイム'
+    },
+    days: '{count}日',
+    partial: '一部のみ',
+    partialHint: '不足数の一部のみ発注対象です',
+    notFunded: '予算内で発注できない品目',
+    notFundedDescription: '在庫不足の{count}品目は、この予算では発注できません。',
+    placeOrder: '注文する',
+    submitting: '送信中...',
+    success: '注文 {orderNumber} を送信しました。',
+    viewOrders: '送信済み注文を表示',
+    submitError: '注文の送信に失敗しました。',
+    loadError: '需要データの読み込みに失敗しました。',
+    emptyNoBudget: 'この予算では推奨できる品目がありません。予算を増やしてください。',
+    emptyNoGap: '現在の予測では補充が必要な品目はありません。'
   },
 
   // Finance/Spending

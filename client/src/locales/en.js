@@ -6,8 +6,44 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    loadError: 'Failed to load reports',
+    quarterly: {
+      title: 'Quarterly Performance',
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate'
+    },
+    trend: {
+      title: 'Monthly Revenue Trend',
+      chartLabel: 'Monthly revenue bar chart'
+    },
+    mom: {
+      title: 'Month-over-Month Analysis',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate',
+      notAvailable: 'N/A'
+    },
+    summary: {
+      totalRevenue: 'Total Revenue',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrders: 'Total Orders',
+      bestQuarter: 'Best Performing Quarter'
+    }
   },
 
   // Dashboard
@@ -126,7 +162,61 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    },
+    submittedOrders: {
+      title: 'Submitted Orders',
+      empty: 'No restocking orders have been submitted yet.',
+      orderNumber: 'Order Number',
+      submittedDate: 'Submitted',
+      items: 'Items',
+      totalCost: 'Total Cost',
+      status: 'Status',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      leadTimeDays: '{count} days',
+      loadError: 'Failed to load submitted orders.'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan a restocking order based on forecasted demand and your budget',
+    budget: 'Budget',
+    budgetHint: 'Adjust the budget to see which items can be funded',
+    recommendations: 'Recommended Items',
+    table: {
+      sku: 'SKU',
+      name: 'Item',
+      category: 'Category',
+      trend: 'Trend',
+      onHand: 'On Hand',
+      forecastedDemand: 'Forecasted Demand',
+      quantity: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time (days)'
+    },
+    summary: {
+      budget: 'Budget',
+      totalSpend: 'Total Spend',
+      remaining: 'Remaining',
+      itemCount: 'Items',
+      leadTime: 'Overall Lead Time'
+    },
+    days: '{count} days',
+    partial: 'Partial',
+    partialHint: 'Funded for fewer units than the full gap',
+    notFunded: 'Not funded within budget',
+    notFundedDescription: '{count} items with a stock gap cannot be funded within this budget.',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    success: 'Order {orderNumber} was placed successfully.',
+    viewOrders: 'View submitted orders',
+    submitError: 'Failed to place the order.',
+    loadError: 'Failed to load demand data.',
+    emptyNoBudget: 'No items can be recommended with this budget. Increase the budget to see recommendations.',
+    emptyNoGap: 'No items need restocking based on current forecasts.'
   },
 
   // Finance/Spending
