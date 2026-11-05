@@ -1,0 +1,50 @@
+name: Claude Code Review
+
+# Automatic code review on every new or updated PR.
+# Same Foundry configuration as claude.yml (secret ANTHROPIC_FOUNDRY_API_KEY,
+# variables ANTHROPIC_FOUNDRY_RESOURCE and optional CLAUDE_MODEL).
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+
+jobs:
+  claude-review:
+    # Skip PRs from forks: GitHub does not expose repo secrets to them, so the run would fail.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        env:
+          ANTHROPIC_FOUNDRY_RESOURCE: ${{ vars.ANTHROPIC_FOUNDRY_RESOURCE }}
+          ANTHROPIC_FOUNDRY_API_KEY: ${{ secrets.ANTHROPIC_FOUNDRY_API_KEY }}
+        with:
+          use_foundry: "true"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          track_progress: true
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Review this pull request. Follow the conventions in CLAUDE.md.
+            Focus on:
+            - Correctness bugs and edge cases
+            - Security issues (this repo is public: flag any committed credentials or internal hostnames)
+            - Vue 3 / FastAPI best practices and consistency with existing patterns
+            - Missing or inadequate tests
+
+            Use inline comments for specific issues and one top-level comment for the summary.
+            Be concise; do not comment on things that are fine.
+          claude_args: >-
+            ${{ vars.CLAUDE_MODEL && format('--model {0}', vars.CLAUDE_MODEL) || '' }}
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
