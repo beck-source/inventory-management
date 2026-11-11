@@ -1,0 +1,11 @@
+[
+  {"item_sku": "WDG-001", "unit_cost": 12.50, "supplier_name": "Apex Industrial Supply", "lead_time_days": 7},
+  {"item_sku": "BRG-102", "unit_cost": 38.00, "supplier_name": "Meridian Bearings", "lead_time_days": 10},
+  {"item_sku": "GSK-203", "unit_cost": 8.75, "supplier_name": "ThermoSeal Corp", "lead_time_days": 14},
+  {"item_sku": "MTR-304", "unit_cost": 420.00, "supplier_name": "Northwind Motors", "lead_time_days": 21},
+  {"item_sku": "FLT-405", "unit_cost": 6.40, "supplier_name": "ClearFlow Filters", "lead_time_days": 5},
+  {"item_sku": "VLV-506", "unit_cost": 64.00, "supplier_name": "Keystone Valves", "lead_time_days": 12},
+  {"item_sku": "PSU-501", "unit_cost": 19.50, "supplier_name": "VoltEdge Electronics", "lead_time_days": 9},
+  {"item_sku": "SNR-420", "unit_cost": 15.25, "supplier_name": "SensorWorks", "lead_time_days": 8},
+  {"item_sku": "CTL-330", "unit_cost": 88.00, "supplier_name": "VoltEdge Electronics", "lead_time_days": 16}
+]

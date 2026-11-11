@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,16 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No submitted orders yet',
+    startRestocking: 'Plan a restock order',
+    submittedLoadError: 'Failed to load submitted orders',
+    leadTimeDays: '{count} days',
+    submittedTable: {
+      submittedDate: 'Submitted Date',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery'
+    },
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -126,6 +137,44 @@ export default {
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
       actualDelivery: 'Actual Delivery'
+    }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan a restock order based on forecasted demand and your budget',
+    budget: 'Budget',
+    budgetSlider: 'Restocking budget',
+    spent: 'Spent',
+    remaining: 'Remaining',
+    itemsRecommended: 'Items Recommended',
+    leadTime: 'Order Lead Time',
+    recommendations: 'Recommendations',
+    days: '{count} days',
+    table: {
+      sku: 'SKU',
+      name: 'Item',
+      trend: 'Trend',
+      growth: 'Growth',
+      quantity: 'Quantity',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      supplier: 'Supplier',
+      leadTime: 'Lead Time (days)'
+    },
+    empty: 'No items can be recommended within this budget. Increase the budget to see recommendations.',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    loadError: 'Failed to load restocking data',
+    submitError: 'Failed to place the restock order',
+    confirmation: {
+      title: 'Restock order submitted',
+      orderNumber: 'Order Number',
+      total: 'Total',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      viewOrders: 'View in Orders'
     }
   },
 
@@ -200,6 +249,7 @@ export default {
 
   // Statuses
   status: {
+    submitted: 'Submitted',
     delivered: 'Delivered',
     shipped: 'Shipped',
     processing: 'Processing',

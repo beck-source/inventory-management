@@ -35,5 +35,14 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Restocking: supplier cost/lead-time catalog keyed by demand-forecast SKU.
+# Needed because most forecast SKUs have no inventory record to take a cost from.
+restock_catalog = load_json_file('restock_catalog.json')
+
+# Submitted restocking orders. Mutated in place by POST /api/restocking/orders and
+# intentionally not persisted: it resets on restart like the rest of the mock data.
+# Always mutate (append/clear) rather than rebind, since main.py imports this same list object.
+restock_orders = []
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
