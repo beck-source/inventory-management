@@ -11,19 +11,19 @@
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Delivered').length }}</div>
+          <div class="stat-value">{{ statusCounts.Delivered }}</div>
         </div>
         <div class="stat-card info">
           <div class="stat-label">{{ t('status.shipped') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Shipped').length }}</div>
+          <div class="stat-value">{{ statusCounts.Shipped }}</div>
         </div>
         <div class="stat-card warning">
           <div class="stat-label">{{ t('status.processing') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Processing').length }}</div>
+          <div class="stat-value">{{ statusCounts.Processing }}</div>
         </div>
         <div class="stat-card danger">
           <div class="stat-label">{{ t('status.backordered') }}</div>
-          <div class="stat-value">{{ getOrdersByStatus('Backordered').length }}</div>
+          <div class="stat-value">{{ statusCounts.Backordered }}</div>
         </div>
       </div>
 
@@ -99,7 +99,8 @@
                       {{ t('orders.itemsCount', { count: order.items.length }) }}
                     </summary>
                     <div class="items-dropdown">
-                      <div v-for="(item, idx) in order.items" :key="idx" class="item-entry">
+                      <!-- sku alone is not unique: the same SKU can repeat within one order, so combine with idx -->
+                      <div v-for="(item, idx) in order.items" :key="`${item.sku}-${idx}`" class="item-entry">
                         <span class="item-name">{{ translateProductName(item.name) }}</span>
                         <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
                       </div>
@@ -133,7 +134,7 @@ import { formatCurrency } from '../utils/currency'
 export default {
   name: 'Orders',
   setup() {
-    const { t, currentCurrency, translateProductName, translateCustomerName } = useI18n()
+    const { t, currentLocale, currentCurrency, translateProductName, translateCustomerName } = useI18n()
 
     const currencySymbol = computed(() => {
       return currentCurrency.value === 'JPY' ? '¥' : '$'
@@ -176,9 +177,14 @@ export default {
       loadOrders()
     })
 
-    const getOrdersByStatus = (status) => {
-      return orders.value.filter(order => order.status === status)
-    }
+    // Count orders per status in a single pass (cached) instead of filtering once per stat card
+    const statusCounts = computed(() => {
+      const counts = { Delivered: 0, Shipped: 0, Processing: 0, Backordered: 0 }
+      for (const order of orders.value) {
+        counts[order.status] = (counts[order.status] ?? 0) + 1
+      }
+      return counts
+    })
 
     const getOrderStatusClass = (status) => {
       const statusMap = {
@@ -191,7 +197,6 @@ export default {
     }
 
     const formatDate = (dateString) => {
-      const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
       return new Date(dateString).toLocaleDateString(locale, {
         year: 'numeric',
@@ -222,7 +227,7 @@ export default {
       submittedOrders,
       currentCurrency,
       formatCurrency,
-      getOrdersByStatus,
+      statusCounts,
       getOrderStatusClass,
       formatDate,
       currencySymbol,
