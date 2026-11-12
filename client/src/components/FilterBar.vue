@@ -4,7 +4,7 @@
       <div class="filters-grid">
         <div class="filter-group">
           <label>{{ t('filters.timePeriod') }}</label>
-          <select v-model="selectedPeriod" class="filter-select">
+          <BaseSelect v-model="selectedPeriod" class="filter-select">
             <option value="all">{{ t('filters.allMonths') }}</option>
             <option value="2025-01">{{ t('months.january') }}</option>
             <option value="2025-02">{{ t('months.february') }}</option>
@@ -18,40 +18,40 @@
             <option value="2025-10">{{ t('months.october') }}</option>
             <option value="2025-11">{{ t('months.november') }}</option>
             <option value="2025-12">{{ t('months.december') }}</option>
-          </select>
+          </BaseSelect>
         </div>
 
         <div class="filter-group">
           <label>{{ t('filters.location') }}</label>
-          <select v-model="selectedLocation" class="filter-select">
+          <BaseSelect v-model="selectedLocation" class="filter-select">
             <option value="all">{{ t('filters.all') }}</option>
             <option value="San Francisco">{{ t('warehouses.sanFrancisco') }}</option>
             <option value="London">{{ t('warehouses.london') }}</option>
             <option value="Tokyo">{{ t('warehouses.tokyo') }}</option>
-          </select>
+          </BaseSelect>
         </div>
 
         <div class="filter-group">
           <label>{{ t('filters.category') }}</label>
-          <select v-model="selectedCategory" class="filter-select">
+          <BaseSelect v-model="selectedCategory" class="filter-select">
             <option value="all">{{ t('filters.all') }}</option>
             <option value="circuit boards">{{ t('categories.circuitBoards') }}</option>
             <option value="sensors">{{ t('categories.sensors') }}</option>
             <option value="actuators">{{ t('categories.actuators') }}</option>
             <option value="controllers">{{ t('categories.controllers') }}</option>
             <option value="power supplies">{{ t('categories.powerSupplies') }}</option>
-          </select>
+          </BaseSelect>
         </div>
 
         <div class="filter-group">
           <label>{{ t('filters.orderStatus') }}</label>
-          <select v-model="selectedStatus" class="filter-select">
+          <BaseSelect v-model="selectedStatus" class="filter-select">
             <option value="all">{{ t('filters.all') }}</option>
             <option value="delivered">{{ t('status.delivered') }}</option>
             <option value="shipped">{{ t('status.shipped') }}</option>
             <option value="processing">{{ t('status.processing') }}</option>
             <option value="backordered">{{ t('status.backordered') }}</option>
-          </select>
+          </BaseSelect>
         </div>
       </div>
 
@@ -70,11 +70,13 @@
 </template>
 
 <script>
+import BaseSelect from './BaseSelect.vue'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'FilterBar',
+  components: { BaseSelect },
   setup() {
     const {
       selectedPeriod,
@@ -138,21 +140,8 @@ export default {
   white-space: nowrap;
 }
 
-.filter-select {
-  height: var(--control-height);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  color: var(--text);
-  background: var(--surface);
-  cursor: pointer;
-  transition: border-color var(--duration) var(--ease);
-  font-weight: 500;
-  min-width: 140px;
-}
-.filter-select:hover { border-color: var(--text-subtle); }
-.filter-select:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--focus-ring); }
+/* Visual styling lives in BaseSelect; only layout sizing here */
+.filter-select { min-width: 140px; }
 
 .reset-filters-btn {
   display: flex;
