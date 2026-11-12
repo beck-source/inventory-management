@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,21 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submitted: {
+      title: 'Submitted Orders',
+      empty: 'No restocking orders have been submitted yet.',
+      loadError: 'Failed to load submitted orders',
+      days: '{count} days',
+      table: {
+        orderNumber: 'Order Number',
+        items: 'Items',
+        submittedDate: 'Submitted',
+        leadTime: 'Lead Time',
+        estimatedDelivery: 'Estimated Delivery',
+        totalValue: 'Total Value',
+        status: 'Status'
+      }
+    },
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -198,8 +214,47 @@ export default {
     allMonths: 'All Months'
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan restocking orders from demand forecasts within a budget',
+    budget: 'Budget',
+    budgetHint: 'Items are added in priority order while they fit within the budget',
+    itemsSelected: 'Items Selected',
+    totalCost: 'Total Cost',
+    budgetRemaining: 'Budget Remaining',
+    leadTime: 'Order Lead Time',
+    days: '{count} days',
+    recommendedItems: 'Recommended Items',
+    noneSelected: 'No items fit within the current budget. Increase the budget to add items.',
+    noCandidates: 'No items currently need restocking.',
+    notRecommended: 'Not Recommended',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    submitError: 'Failed to submit restocking order',
+    loadError: 'Failed to load restocking data',
+    orderPlaced: 'Order {orderNumber} submitted',
+    orderPlacedDetail: 'Total {total}, estimated delivery {date}',
+    viewOrders: 'View Orders',
+    reasons: {
+      decreasing: 'Decreasing demand',
+      sufficient: 'Sufficient stock',
+      overBudget: 'Exceeds remaining budget'
+    },
+    table: {
+      sku: 'SKU',
+      itemName: 'Item Name',
+      trend: 'Trend',
+      quantity: 'Qty',
+      unitCost: 'Unit Cost',
+      lineCost: 'Line Cost',
+      leadTime: 'Lead Time'
+    }
+  },
+
   // Statuses
   status: {
+    submitted: 'Submitted',
     delivered: 'Delivered',
     shipped: 'Shipped',
     processing: 'Processing',

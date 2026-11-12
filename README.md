@@ -17,6 +17,7 @@ A full-stack demo application for a Claude Code workshop — inventory managemen
 - Order management with status tracking
 - Demand forecasting with trend analysis
 - Backlog monitoring
+- Budget-based restocking recommendations with order submission
 - Spending analytics
 
 ## Quick Start
@@ -56,6 +57,8 @@ All endpoints support optional filtering via query params: `warehouse`, `categor
 - `GET /api/backlog` - Backlog items
 - `GET /api/dashboard/summary` - Summary statistics
 - `GET /api/spending/*` - Spending data
+- `GET /api/restocking-orders` - Submitted restocking orders
+- `POST /api/restocking-orders` - Submit a restocking order (in-memory; resets on server restart)
 
 ## Demo Data
 
