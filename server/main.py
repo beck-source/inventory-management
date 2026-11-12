@@ -106,6 +106,8 @@ class BacklogItem(BaseModel):
     days_delayed: int
     priority: str
     has_purchase_order: Optional[bool] = False
+    # Set when has_purchase_order is True; the Dashboard uses it to show "View PO"
+    purchase_order_id: Optional[str] = None
 
 class PurchaseOrder(BaseModel):
     id: str
@@ -120,11 +122,26 @@ class PurchaseOrder(BaseModel):
 
 class CreatePurchaseOrderRequest(BaseModel):
     backlog_item_id: str
-    supplier_name: str
-    quantity: int
-    unit_cost: float
-    expected_delivery_date: str
-    notes: Optional[str] = None
+    supplier_name: str = Field(min_length=1, max_length=200)
+    quantity: int = Field(gt=0)
+    unit_cost: float = Field(ge=0)
+    expected_delivery_date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    notes: Optional[str] = Field(default=None, max_length=1000)
+
+class Task(BaseModel):
+    # String ids ("TASK-n") so API tasks never collide with the numeric ids of the
+    # mock tasks in client/src/composables/useAuth.js, which App.vue checks first.
+    id: str
+    title: str
+    priority: str
+    dueDate: str
+    status: str
+
+class CreateTaskRequest(BaseModel):
+    # camelCase dueDate matches the payload TasksModal.vue already sends
+    title: str = Field(min_length=1, max_length=200)
+    priority: str = Field(pattern=r"^(high|medium|low)$")
+    dueDate: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
 
 class RestockItem(BaseModel):
     sku: str
@@ -334,14 +351,84 @@ def submit_restock_order(request: SubmitRestockRequest):
 def get_backlog():
     """Get backlog items with purchase order status"""
     # Add has_purchase_order flag to each backlog item
+    po_by_backlog = {po["backlog_item_id"]: po["id"] for po in purchase_orders}
     result = []
     for item in backlog_items:
         item_dict = dict(item)
-        # Check if this backlog item has a purchase order
-        has_po = any(po["backlog_item_id"] == item["id"] for po in purchase_orders)
-        item_dict["has_purchase_order"] = has_po
+        po_id = po_by_backlog.get(item["id"])
+        item_dict["has_purchase_order"] = po_id is not None
+        item_dict["purchase_order_id"] = po_id
         result.append(item_dict)
     return result
+
+_po_lock = threading.Lock()
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order for a backlog item (one PO per backlog item).
+    Stored in memory only, like the rest of the mock data."""
+    if not any(b["id"] == request.backlog_item_id for b in backlog_items):
+        raise HTTPException(status_code=404, detail=f"Backlog item {request.backlog_item_id} not found")
+    with _po_lock:
+        if any(po["backlog_item_id"] == request.backlog_item_id for po in purchase_orders):
+            raise HTTPException(status_code=409, detail=f"Backlog item {request.backlog_item_id} already has a purchase order")
+        # max+1 rather than len+1 so ids stay unique if purchase_orders.json was hand-edited
+        next_num = max((_order_seq(po) for po in purchase_orders), default=0) + 1
+        po = {
+            "id": f"PO-{next_num}",
+            **request.model_dump(),
+            "status": "Pending",
+            "created_date": datetime.now().replace(microsecond=0).isoformat(),
+        }
+        purchase_orders.append(po)
+    return po
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order attached to a backlog item."""
+    for po in purchase_orders:
+        if po["backlog_item_id"] == backlog_item_id:
+            return po
+    raise HTTPException(status_code=404, detail=f"No purchase order for backlog item {backlog_item_id}")
+
+_task_lock = threading.Lock()
+
+def _find_task(task_id: str) -> dict:
+    for task in mock_data.tasks:
+        if task["id"] == task_id:
+            return task
+    raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get tasks created through the API (newest first). Mock profile tasks live client-side."""
+    return list(reversed(mock_data.tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a pending task. Stored in memory only."""
+    with _task_lock:
+        next_num = max((_order_seq(t) for t in mock_data.tasks), default=0) + 1
+        task = {"id": f"TASK-{next_num}", **request.model_dump(), "status": "pending"}
+        mock_data.tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task between pending and completed. The client sends no body,
+    so PATCH here means "flip status" rather than a partial update."""
+    with _task_lock:
+        task = _find_task(task_id)
+        task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.delete("/api/tasks/{task_id}", response_model=Task)
+def delete_task(task_id: str):
+    """Delete a task and return it."""
+    with _task_lock:
+        task = _find_task(task_id)
+        mock_data.tasks.remove(task)
+    return task
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(
