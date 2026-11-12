@@ -1,9 +1,13 @@
 <template>
-  <div class="profile-menu">
+  <div class="profile-menu" :class="{ compact }">
     <button
       class="profile-button"
       @click="toggleDropdown"
       @blur="handleBlur"
+      :title="compact ? currentUser.name : undefined"
+      :aria-label="currentUser.name"
+      aria-haspopup="menu"
+      :aria-expanded="isDropdownOpen"
     >
       <div class="avatar">
         {{ getInitials(currentUser.name) }}
@@ -82,6 +86,8 @@ const { currentUser, logout, getInitials } = useAuth()
 const { t } = useI18n()
 
 const isDropdownOpen = ref(false)
+// compact: icon-rail mode in the sidebar (avatar only)
+defineProps({ compact: { type: Boolean, default: false } })
 const emit = defineEmits(['show-profile-details', 'show-tasks'])
 
 const pendingTaskCount = computed(() => {
@@ -116,165 +122,133 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-.profile-menu {
-  position: relative;
-}
+.profile-menu { position: relative; }
 
 .profile-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-active);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  text-align: left;
+  transition: background-color var(--duration) var(--ease);
 }
-
-.profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
+.profile-button:hover { background: var(--sidebar-item-hover); }
+.compact .profile-button { justify-content: center; padding: var(--space-2) 0; }
+.compact .profile-name, .compact .chevron { display: none; }
 
 .avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  flex-shrink: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  font-size: 0.75rem;
-  letter-spacing: 0.025em;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
 }
 
 .profile-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
-}
-
-.chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
-}
-
-.chevron-open {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
-  min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.dropdown-header {
-  padding: 1rem;
-  display: flex;
-  gap: 0.875rem;
-  align-items: center;
-  background: #f8fafc;
-}
-
-.avatar-large {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: 0.025em;
-  flex-shrink: 0;
-}
-
-.user-info {
   flex: 1;
   min-width: 0;
-}
-
-.user-name {
-  font-weight: 600;
-  color: #0f172a;
-  font-size: 0.938rem;
-  margin-bottom: 0.25rem;
-}
-
-.user-email {
-  font-size: 0.813rem;
-  color: #64748b;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: var(--text-base);
+  font-weight: 500;
 }
 
-.dropdown-divider {
-  height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+.chevron { color: var(--sidebar-text); flex-shrink: 0; transition: transform var(--duration) var(--ease); }
+/* Sidebar sits at the left edge, so the chevron points toward the content area */
+.chevron-open { transform: rotate(-90deg); }
+
+/* Opens toward the content area (right of the sidebar), anchored to the bottom */
+.dropdown-menu {
+  position: absolute;
+  left: calc(100% + var(--space-2));
+  bottom: 0;
+  min-width: 264px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  overflow: hidden;
+  color: var(--text);
 }
+/* Drawer (below 1024px) is narrow: open upward, matching the drawer width */
+@media (max-width: 1023px) {
+  .dropdown-menu { left: 0; right: 0; bottom: calc(100% + var(--space-2)); min-width: 0; }
+}
+
+.dropdown-header {
+  padding: var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  background: var(--surface-subtle);
+}
+
+.avatar-large {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-base);
+  flex-shrink: 0;
+}
+
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-weight: 600; color: var(--text); font-size: var(--text-md); margin-bottom: var(--space-1); }
+.user-email { font-size: var(--text-sm); color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.dropdown-divider { height: 1px; background: var(--border); margin: var(--space-2) 0; }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
+  transition: background-color var(--duration) var(--ease);
+  font-size: var(--text-base);
   font-weight: 500;
-  color: #334155;
+  color: var(--text-secondary);
 }
-
-.dropdown-item:hover {
-  background: #f8fafc;
-}
-
-.dropdown-item svg {
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.dropdown-item.logout {
-  color: #dc2626;
-}
-
-.dropdown-item.logout svg {
-  color: #dc2626;
-}
-
-.dropdown-item.logout:hover {
-  background: #fef2f2;
-}
+.dropdown-item:hover { background: var(--surface-muted); }
+.dropdown-item svg { color: var(--text-muted); flex-shrink: 0; }
+.dropdown-item.logout, .dropdown-item.logout svg { color: var(--danger); }
+.dropdown-item.logout:hover { background: var(--danger-soft); }
 
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
   min-width: 20px;
   text-align: center;
 }

@@ -1,9 +1,13 @@
 <template>
-  <div class="language-switcher">
+  <div class="language-switcher" :class="{ compact }">
     <button
       class="language-button"
       @click="toggleDropdown"
       @blur="handleBlur"
+      :title="compact ? localeName : undefined"
+      :aria-label="localeName"
+      aria-haspopup="menu"
+      :aria-expanded="isDropdownOpen"
     >
       <svg
         width="20"
@@ -58,6 +62,9 @@
 import { ref } from 'vue'
 import { useI18n } from '../composables/useI18n'
 
+// compact: icon-rail mode in the sidebar (globe icon only)
+defineProps({ compact: { type: Boolean, default: false } })
+
 const { currentLocale, setLocale, availableLocales, localeName } = useI18n()
 
 const isDropdownOpen = ref(false)
@@ -89,60 +96,47 @@ const selectLanguage = (locale) => {
 </script>
 
 <style scoped>
-.language-switcher {
-  position: relative;
-}
+.language-switcher { position: relative; }
 
 .language-button {
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
-  color: #334155;
+  transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  font-size: var(--text-base);
+  color: var(--sidebar-text);
 }
+.language-button:hover { background: var(--sidebar-item-hover); color: var(--sidebar-text-active); }
+.compact .language-button { justify-content: center; }
+.compact .language-label, .compact .chevron { display: none; }
 
-.language-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
+.globe-icon { flex-shrink: 0; }
+.language-label { flex: 1; text-align: left; font-weight: 500; }
+.chevron { flex-shrink: 0; transition: transform var(--duration) var(--ease); }
+.chevron-open { transform: rotate(-90deg); }
 
-.globe-icon {
-  color: #64748b;
-  flex-shrink: 0;
-}
-
-.language-label {
-  font-weight: 500;
-}
-
-.chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.chevron-open {
-  transform: rotate(180deg);
-}
-
+/* Opens toward the content area, anchored to the bottom of the trigger */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 0;
+  left: calc(100% + var(--space-2));
+  bottom: 0;
   min-width: 160px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   z-index: 1000;
   overflow: hidden;
+}
+/* Drawer (below 1024px): open upward within the drawer width */
+@media (max-width: 1023px) {
+  .dropdown-menu { left: 0; right: 0; bottom: calc(100% + var(--space-2)); min-width: 0; }
 }
 
 .dropdown-item {
@@ -150,34 +144,19 @@ const selectLanguage = (locale) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
-  font-family: inherit;
-  font-size: 0.875rem;
+  transition: background-color var(--duration) var(--ease);
+  font-size: var(--text-base);
   font-weight: 500;
-  color: #334155;
+  color: var(--text-secondary);
 }
-
-.dropdown-item:hover {
-  background: #f8fafc;
-}
-
-.dropdown-item.active {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.language-name {
-  flex: 1;
-}
-
-.check-icon {
-  color: #2563eb;
-  flex-shrink: 0;
-}
+.dropdown-item:hover { background: var(--surface-muted); }
+.dropdown-item.active { background: var(--accent-soft); color: var(--text); }
+.language-name { flex: 1; }
+.check-icon { color: var(--accent-hover); flex-shrink: 0; }
 </style>

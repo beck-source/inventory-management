@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8001/api'
+// Override with VITE_API_URL to run the backend on a non-default port
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api'
 
 export const api = {
   async getInventory(filters = {}) {
@@ -101,6 +102,22 @@ export const api = {
 
   async getPurchaseOrderByBacklogItem(backlogItemId) {
     const response = await axios.get(`${API_BASE_URL}/purchase-orders/${backlogItemId}`)
+    return response.data
+  },
+
+  // Budget is always sent in USD, regardless of display currency
+  async getRestockRecommendations(budget) {
+    const response = await axios.get(`${API_BASE_URL}/restocking/recommendations`, { params: { budget } })
+    return response.data
+  },
+
+  async submitRestockOrder(items) {
+    const response = await axios.post(`${API_BASE_URL}/restocking/orders`, { items })
+    return response.data
+  },
+
+  async getSubmittedOrders() {
+    const response = await axios.get(`${API_BASE_URL}/restocking/orders`)
     return response.data
   }
 }

@@ -1,0 +1,96 @@
+/* Design tokens: "Industrial precision" (factory control room).
+   Every color, space, radius, shadow and layer used in the app is defined here. */
+:root {
+  /* Spacing: 4px base scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Type */
+  --font-display: 'Archivo', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 22px;
+  --text-3xl: 28px;
+  --text-4xl: 36px;
+  --leading: 1.5;
+  --label-tracking: 0.08em;
+
+  /* Surfaces and text (slate) */
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-subtle: #f8fafc;   /* table header, inputs */
+  --surface-muted: #f1f5f9;    /* hover, progress tracks */
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  --grid-line: rgba(15, 23, 42, 0.035);   /* blueprint grid */
+  --overlay: rgba(15, 23, 42, 0.45);
+
+  /* Sidebar */
+  --sidebar-bg: #0f172a;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-active: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-item-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-item-active: rgba(255, 255, 255, 0.09);
+  --sidebar-width-expanded: 240px;
+  --sidebar-width-collapsed: 64px;
+  --header-height: 56px;
+
+  /* Single accent: signal amber (dark text on amber) */
+  --accent: #f59e0b;
+  --accent-hover: #d98a06;
+  --accent-ink: #0f172a;
+  --accent-soft: #fffbeb;
+
+  /* Status: green / blue / yellow / red, with soft tints */
+  --success: #10b981;  --success-ink: #047857;  --success-soft: #ecfdf5;  --success-border: #a7f3d0;
+  --info:    #2563eb;  --info-ink:    #1e40af;  --info-soft:    #eff6ff;  --info-border:    #bfdbfe;
+  --warning: #eab308;  --warning-ink: #854d0e;  --warning-soft: #fefce8;  --warning-border: #fde68a;
+  --danger:  #dc2626;  --danger-ink:  #991b1b;  --danger-soft:  #fef2f2;  --danger-border:  #fecaca;
+  --violet:  #8b5cf6;  --violet-soft: #f5f3ff;  /* extra chart series only */
+
+  /* Shape and depth */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 999px;
+  --shadow-sm: 0 1px 1px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.16);
+  --focus-ring: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+  --card-padding: var(--space-5);
+  --control-height: 36px;
+
+  /* Motion */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --duration: 180ms;
+
+  /* Layering: sidebar < header < drawer backdrop < drawer < modals.
+     Modal components use their own fixed overlays at 2000 (kept). */
+  --z-sidebar: 20;
+  --z-header: 30;
+  --z-backdrop: 40;
+  --z-drawer: 50;
+  --z-modal: 2000;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --duration: 0ms; }
+}

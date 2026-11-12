@@ -18,18 +18,18 @@
             <thead>
               <tr>
                 <th>Quarter</th>
-                <th>Total Orders</th>
-                <th>Total Revenue</th>
-                <th>Avg Order Value</th>
+                <th class="num">Total Orders</th>
+                <th class="num">Total Revenue</th>
+                <th class="num">Avg Order Value</th>
                 <th>Fulfillment Rate</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="(q, index) in quarterlyData" :key="index">
                 <td><strong>{{ q.quarter }}</strong></td>
-                <td>{{ q.total_orders }}</td>
-                <td>${{ formatNumber(q.total_revenue) }}</td>
-                <td>${{ formatNumber(q.avg_order_value) }}</td>
+                <td class="num">{{ q.total_orders }}</td>
+                <td class="num">${{ formatNumber(q.total_revenue) }}</td>
+                <td class="num">${{ formatNumber(q.avg_order_value) }}</td>
                 <td>
                   <span :class="getFulfillmentClass(q.fulfillment_rate)">
                     {{ q.fulfillment_rate }}%
@@ -72,8 +72,8 @@
             <thead>
               <tr>
                 <th>Month</th>
-                <th>Orders</th>
-                <th>Revenue</th>
+                <th class="num">Orders</th>
+                <th class="num">Revenue</th>
                 <th>Change</th>
                 <th>Growth Rate</th>
               </tr>
@@ -81,8 +81,8 @@
             <tbody>
               <tr v-for="(month, index) in monthlyData" :key="index">
                 <td><strong>{{ formatMonth(month.month) }}</strong></td>
-                <td>{{ month.order_count }}</td>
-                <td>${{ formatNumber(month.revenue) }}</td>
+                <td class="num">{{ month.order_count }}</td>
+                <td class="num">${{ formatNumber(month.revenue) }}</td>
                 <td>
                   <span v-if="index > 0" :class="getChangeClass(month.revenue, monthlyData[index - 1].revenue)">
                     {{ getChangeValue(month.revenue, monthlyData[index - 1].revenue) }}
@@ -321,50 +321,8 @@ export default {
   padding: 0;
 }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  margin-bottom: 1.5rem;
-}
-
-.card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin: 0;
-}
-
-.reports-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.reports-table th {
-  background: #f8fafc;
-  padding: 0.75rem;
-  text-align: left;
-  font-weight: 600;
-  color: #64748b;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.reports-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.reports-table tr:hover {
-  background: #f8fafc;
-}
-
 .chart-container {
-  padding: 2rem 1rem;
+  padding: var(--space-8) var(--space-4);
   min-height: 300px;
 }
 
@@ -373,7 +331,7 @@ export default {
   align-items: flex-end;
   justify-content: space-around;
   height: 250px;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .bar-wrapper {
@@ -393,96 +351,34 @@ export default {
 
 .bar {
   width: 100%;
-  background: linear-gradient(to top, #3b82f6, #60a5fa);
-  border-radius: 4px 4px 0 0;
+  background: var(--info);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   transition: all 0.3s;
   cursor: pointer;
 }
 
 .bar:hover {
-  background: linear-gradient(to top, #2563eb, #3b82f6);
+  background: var(--info);
 }
 
 .bar-label {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: #64748b;
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
   text-align: center;
   transform: rotate(-45deg);
   white-space: nowrap;
-  margin-top: 1.5rem;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #3b82f6;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin-bottom: 0.5rem;
-}
-
-.stat-value {
-  font-size: 1.875rem;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.badge.success {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.badge.warning {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge.danger {
-  background: #fee2e2;
-  color: #991b1b;
+  margin-top: var(--space-6);
 }
 
 .positive-change {
-  color: #16a34a;
+  color: var(--success-ink);
   font-weight: 600;
 }
 
 .negative-change {
-  color: #dc2626;
+  color: var(--danger);
   font-weight: 600;
 }
 
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #64748b;
-}
-
-.error {
-  background: #fee2e2;
-  color: #991b1b;
-  padding: 1rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
 </style>
