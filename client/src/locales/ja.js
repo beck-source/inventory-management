@@ -32,10 +32,10 @@ export default {
       totalOrders: '注文総数',
       totalRevenue: '総売上',
       avgOrderValue: '平均注文額',
-      fulfillmentRate: '出荷達成率'
+      fulfillmentRate: '出荷達成率',
     },
     trend: {
-      title: '月次売上トレンド'
+      title: '月次売上トレンド',
     },
     mom: {
       title: '前月比分析',
@@ -43,14 +43,14 @@ export default {
       orders: '注文数',
       revenue: '売上',
       change: '増減',
-      growthRate: '成長率'
+      growthRate: '成長率',
     },
     stats: {
       totalRevenue: '総売上',
       avgMonthlyRevenue: '月平均売上',
       totalOrders: '注文総数',
-      bestQuarter: '最高業績の四半期'
-    }
+      bestQuarter: '最高業績の四半期',
+    },
   },
 
   // Dashboard
@@ -422,6 +422,9 @@ export default {
     },
   },
   common: {
+    loadError: 'データの読み込みに失敗しました。',
+    retry: '再試行',
+    updating: '更新中...',
     days: '{n}日',
     loading: '読み込み中...',
     error: 'エラー',

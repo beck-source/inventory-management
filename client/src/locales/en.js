@@ -32,10 +32,10 @@ export default {
       totalOrders: 'Total Orders',
       totalRevenue: 'Total Revenue',
       avgOrderValue: 'Avg Order Value',
-      fulfillmentRate: 'Fulfillment Rate'
+      fulfillmentRate: 'Fulfillment Rate',
     },
     trend: {
-      title: 'Monthly Revenue Trend'
+      title: 'Monthly Revenue Trend',
     },
     mom: {
       title: 'Month-over-Month Analysis',
@@ -43,14 +43,14 @@ export default {
       orders: 'Orders',
       revenue: 'Revenue',
       change: 'Change',
-      growthRate: 'Growth Rate'
+      growthRate: 'Growth Rate',
     },
     stats: {
       totalRevenue: 'Total Revenue',
       avgMonthlyRevenue: 'Avg Monthly Revenue',
       totalOrders: 'Total Orders',
-      bestQuarter: 'Best Performing Quarter'
-    }
+      bestQuarter: 'Best Performing Quarter',
+    },
   },
 
   // Dashboard
@@ -422,6 +422,9 @@ export default {
     },
   },
   common: {
+    loadError: 'Failed to load data.',
+    retry: 'Retry',
+    updating: 'Updating...',
     days: '{n} days',
     loading: 'Loading...',
     error: 'Error',

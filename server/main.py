@@ -1,4 +1,5 @@
 import math
+import os
 import threading
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException, Query
@@ -50,13 +51,22 @@ def apply_filters(items: list, warehouse: Optional[str] = None, category: Option
 
     return filtered
 
-# CORS middleware
+# CORS: only the Vite dev server may call the API from a browser. A wildcard origin let
+# any website the developer visited drive the write endpoints (orders, POs, tasks) on
+# localhost. Override with CORS_ORIGINS="https://a.example,https://b.example".
+# No cookies or auth headers are used, so credentials stay off: with them on, Starlette
+# reflects the caller's Origin, which would undo the allow-list once auth is added.
+CORS_ORIGINS = [
+    o.strip()
+    for o in os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+    if o.strip()
+]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=["Content-Type"],
 )
 
 # Data models
@@ -182,6 +192,13 @@ MAX_RESTOCK_BUDGET = 100_000_000
 
 # Serializes order numbering + append + file write across FastAPI's threadpool workers
 _submit_lock = threading.Lock()
+
+# Caps on what the unauthenticated write endpoints can accumulate. Each restock submission
+# rewrites the whole JSON file under _submit_lock, so an unbounded list makes every POST
+# slower (~290ms at 10k orders) and lets a script fill the disk. Tasks and POs live in
+# memory only, but are capped for the same reason.
+MAX_SUBMITTED_ORDERS = 1_000
+MAX_TASKS = 500
 
 # Trend rank used for restock priority: rising demand is the most urgent to cover.
 TREND_PRIORITY = {'increasing': 0, 'stable': 1, 'decreasing': 2}
@@ -330,6 +347,8 @@ def submit_restock_order(request: SubmitRestockRequest):
     # The order arrives complete only when its slowest item arrives.
     lead_time = max(l['lead_time_days'] for l in lines)
     with _submit_lock:
+        if len(mock_data.submitted_orders) >= MAX_SUBMITTED_ORDERS:
+            raise HTTPException(status_code=409, detail="Submitted order limit reached")
         now = datetime.now().replace(microsecond=0)
         # max+1 rather than len+1 so ids stay unique even if the JSON file was hand-edited
         next_num = max((_order_seq(o) for o in mock_data.submitted_orders), default=0) + 1
@@ -408,6 +427,8 @@ def get_tasks():
 def create_task(request: CreateTaskRequest):
     """Create a pending task. Stored in memory only."""
     with _task_lock:
+        if len(mock_data.tasks) >= MAX_TASKS:
+            raise HTTPException(status_code=409, detail="Task limit reached")
         next_num = max((_order_seq(t) for t in mock_data.tasks), default=0) + 1
         task = {"id": f"TASK-{next_num}", **request.model_dump(), "status": "pending"}
         mock_data.tasks.append(task)
@@ -566,4 +587,6 @@ def get_monthly_trends(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    # Loopback only by default: 0.0.0.0 exposed the unauthenticated write endpoints to
+    # anyone on the same network. Set HOST=0.0.0.0 to opt in (e.g. inside a container).
+    uvicorn.run(app, host=os.environ.get("HOST", "127.0.0.1"), port=8001)
