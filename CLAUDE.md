@@ -55,6 +55,9 @@ npm install && npm run dev
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
 
+## Code Conventions
+- Always document non-obvious logic changes with comments
+
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
 2. Validate dates before `.getMonth()` calls
@@ -68,6 +71,7 @@ npm install && npm run dev
 - Backend: `server/main.py`, `server/mock_data.py`
 - Data: `server/data/*.json`
 - Styles: `client/src/App.vue`
+- Architecture overview: `docs/architecture.html` (system architecture, tech stack, data flow, endpoints, known gaps). Read it first when you need codebase context, and update it when the architecture changes.
 
 ## Design System
 - Colors: Slate/gray (#0f172a, #64748b, #e2e8f0)

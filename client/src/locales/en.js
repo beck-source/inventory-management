@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,8 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No restocking orders have been submitted yet',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -125,8 +128,38 @@ export default {
       totalValue: 'Total Value',
       status: 'Status',
       expectedDelivery: 'Expected Delivery',
+      submittedDate: 'Submitted',
+      leadTime: 'Lead Time',
       actualDelivery: 'Actual Delivery'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Choose a budget and review the recommended restock quantities for each item',
+    budget: 'Budget',
+    plannedSpend: 'Planned Spend',
+    remaining: 'Remaining',
+    items: 'Items',
+    budgetControl: 'Restocking Budget',
+    budgetInput: 'Exact budget (USD)',
+    recommendations: 'Recommendations',
+    sku: 'SKU',
+    name: 'Name',
+    trend: 'Trend',
+    quantity: 'Qty',
+    unitCost: 'Unit Cost',
+    lineTotal: 'Line Total',
+    leadTime: 'Lead Time',
+    empty: 'The budget is too small to restock any items. Increase the budget to see recommendations.',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    orderPlaced: 'Order {orderNumber} submitted',
+    orderSummary: 'Total {total}, lead time {leadTime}, expected delivery {delivery}',
+    viewOrders: 'View in Orders',
+    loadFailed: 'Failed to load recommendations',
+    submitFailed: 'Failed to submit order'
   },
 
   // Finance/Spending
@@ -201,6 +234,7 @@ export default {
   // Statuses
   status: {
     delivered: 'Delivered',
+    submitted: 'Submitted',
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
@@ -313,6 +347,7 @@ export default {
 
   // Common
   common: {
+    days: '{n} days',
     loading: 'Loading...',
     error: 'Error',
     noData: 'No data available',

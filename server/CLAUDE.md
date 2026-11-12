@@ -137,7 +137,7 @@ def get_item(item_id: str):
 **Pattern:**
 - Load all data from JSON files at startup
 - Data lives in memory during server runtime
-- Changes don't persist (restart reloads from files)
+- Changes don't persist (restart reloads from files) - except `submitted_orders.json`, which restocking orders are written back to via `save_submitted_orders()`
 - Keep JSON files well-formatted and validated
 
 **Adding New Data:**
