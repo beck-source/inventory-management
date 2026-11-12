@@ -55,6 +55,7 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/reports/quarterly`, `/api/reports/monthly-trends` - Filters: warehouse, category, status, month
 
 ## Code Conventions
 - Always document non-obvious logic changes with comments
