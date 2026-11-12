@@ -93,7 +93,7 @@
       <div class="sub">FastAPI + Uvicorn, port 8001</div>
       <div class="box"><b>Routes</b><span><code>main.py</code>: read-only GET endpoints under <code>/api</code></span></div>
       <div class="box"><b>Filter helpers</b><span><code>apply_filters()</code> (warehouse, category, status), <code>filter_by_month()</code> (month or quarter)</span></div>
-      <div class="box"><b>Pydantic models</b><span>InventoryItem, Order, DemandForecast, BacklogItem, PurchaseOrder</span></div>
+      <div class="box"><b>Pydantic models</b><span>InventoryItem, Order, DemandForecast, BacklogItem, PurchaseOrder, Task</span></div>
       <div class="box"><b>CORS</b><span>Allows all origins</span></div>
     </div>
     <div class="arrow">
@@ -104,7 +104,7 @@
       <h3>Data</h3>
       <div class="sub">In memory, from <code>server/data/*.json</code></div>
       <div class="box"><b>mock_data.py</b><span>Reads every JSON file into module-level lists on import</span></div>
-      <div class="box"><b>Datasets</b><span>orders (250), inventory (32), transactions (56), demand (9), backlog (4), purchase orders (0), spending summaries</span></div>
+      <div class="box"><b>Datasets</b><span>orders (250), inventory (32), transactions (56), demand (9), backlog (4), purchase orders (0), tasks (0), spending summaries</span></div>
       <div class="box"><b>generate_data.py</b><span>Regenerates the sample JSON</span></div>
     </div>
   </div>
@@ -162,15 +162,17 @@
     <tr><td><code>GET /api/orders</code>, <code>/{id}</code></td><td>warehouse, category, status, month</td><td>Customer orders</td></tr>
     <tr><td><code>GET /api/dashboard/summary</code></td><td>all four</td><td>Inventory value, low stock count, pending orders, backlog count</td></tr>
     <tr><td><code>GET /api/demand</code></td><td>none</td><td>Demand forecasts</td></tr>
-    <tr><td><code>GET /api/backlog</code></td><td>none</td><td>Backlog items, each with a <code>has_purchase_order</code> flag</td></tr>
+    <tr><td><code>GET /api/backlog</code></td><td>none</td><td>Backlog items, each with a <code>has_purchase_order</code> flag and <code>purchase_order_id</code></td></tr>
+    <tr><td><code>POST /api/purchase-orders</code>, <code>GET /{backlog_item_id}</code></td><td>none</td><td>Create (one per backlog item; 409 on duplicate) or fetch a purchase order. In memory only.</td></tr>
+    <tr><td><code>GET/POST /api/tasks</code>, <code>PATCH/DELETE /{id}</code></td><td>none</td><td>"My Tasks" created in the UI. PATCH toggles pending/completed. In memory only.</td></tr>
     <tr><td><code>GET /api/spending/*</code></td><td>none</td><td>summary, monthly, categories, transactions</td></tr>
     <tr><td><code>GET /api/reports/*</code></td><td>none</td><td>quarterly, monthly-trends</td></tr>
   </table>
   </div>
 
   <h2>Things to know</h2>
-  <div class="note"><strong>The client calls endpoints the server doesn't have.</strong> <code>api.js</code> defines calls to <code>/api/tasks</code> (GET, POST, PATCH, DELETE) and <code>/api/purchase-orders</code> (POST, GET), but <code>main.py</code> has no routes for them. These calls return 404 or 405. <code>CreatePurchaseOrderRequest</code> is defined but never used.</div>
-  <div class="note"><strong>Changes to data are not saved.</strong> The data lives in memory, so any write you add would be lost when the server restarts.</div>
+  <div class="note"><strong>Two kinds of task coexist.</strong> The profile's sample tasks (numeric ids) come from <code>useAuth.js</code> and live only in the browser. Tasks added in the UI go to <code>/api/tasks</code> and get string ids like <code>TASK-1</code>, so <code>App.vue</code> can tell them apart.</div>
+  <div class="note"><strong>Most changes to data are not saved.</strong> The data lives in memory, so tasks and purchase orders are lost when the server restarts. Only restocking orders are written back, to <code>submitted_orders.json</code>.</div>
   <div class="note info"><strong>The API URL is hard-coded.</strong> <code>api.js</code> points at <code>http://localhost:8001/api</code>, and the Vite config sets no proxy.</div>
 
   <footer>Generated from the source on the <code>new_features</code> branch, November 2026.</footer>

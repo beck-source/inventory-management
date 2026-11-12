@@ -36,6 +36,9 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Tasks created from the "My Tasks" modal (in memory only; restart reloads tasks.json)
+tasks = load_json_file('tasks.json')
+
 # Load restocking orders submitted from the Restocking tab.
 # Unlike the other datasets this one is written back to disk (see save_submitted_orders)
 # so submitted orders survive server restarts.
