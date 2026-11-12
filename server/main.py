@@ -1,10 +1,15 @@
+import threading
+from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
-from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from pydantic import BaseModel, Field
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restocking_orders
 
 app = FastAPI(title="Factory Inventory Management System")
+
+# Guards id/order-number assignment for restocking orders (see create_restocking_order)
+_restocking_lock = threading.Lock()
 
 # Quarter mapping for date filtering
 QUARTER_MAP = {
@@ -89,6 +94,35 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
+
+class RestockingLineRequest(BaseModel):
+    sku: str
+    quantity: int = Field(gt=0, le=1_000_000)
+
+class CreateRestockingOrderRequest(BaseModel):
+    # Only SKU + quantity are accepted from the client; any extra fields
+    # (e.g. a client-supplied price) are ignored by Pydantic's default behaviour.
+    items: List[RestockingLineRequest] = Field(min_length=1)
+
+class RestockingOrderLine(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    lead_time_days: int
+    line_total: float
+
+class RestockingOrder(BaseModel):
+    id: str
+    order_number: str
+    status: str
+    submitted_date: str
+    estimated_delivery: str
+    lead_time_days: int
+    total_value: float
+    items: List[RestockingOrderLine]
 
 class BacklogItem(BaseModel):
     id: str
@@ -165,6 +199,62 @@ def get_order(order_id: str):
 def get_demand_forecasts():
     """Get demand forecasts"""
     return demand_forecasts
+
+@app.get("/api/restocking-orders", response_model=List[RestockingOrder])
+def get_restocking_orders():
+    """Get submitted restocking orders, newest first"""
+    # Stored in submission order; reverse a copy so the shared list isn't mutated
+    return list(reversed(restocking_orders))
+
+@app.post("/api/restocking-orders", response_model=RestockingOrder, status_code=201)
+def create_restocking_order(request: CreateRestockingOrderRequest):
+    """Submit a restocking order built from demand-forecast items"""
+    forecasts_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+
+    # Merge duplicate SKUs so one order never lists the same item twice.
+    # dict preserves insertion order, so lines keep the client's ranking.
+    quantities = {}
+    for line in request.items:
+        if line.sku not in forecasts_by_sku:
+            raise HTTPException(status_code=400, detail=f"Unknown SKU {line.sku}: not in demand forecast")
+        quantities[line.sku] = quantities.get(line.sku, 0) + line.quantity
+
+    # Prices, names and lead times are re-derived from server data rather than
+    # trusted from the request, so the client can't change what an order costs.
+    lines = []
+    for sku, quantity in quantities.items():
+        forecast = forecasts_by_sku[sku]
+        lines.append({
+            "sku": sku,
+            "name": forecast["item_name"],
+            "quantity": quantity,
+            "unit_cost": forecast["unit_cost"],
+            "lead_time_days": forecast["lead_time_days"],
+            "line_total": round(quantity * forecast["unit_cost"], 2),
+        })
+
+    # The order arrives only when its slowest item does, so order lead time = max line lead time
+    lead_time_days = max(line["lead_time_days"] for line in lines)
+    submitted = datetime.now().replace(microsecond=0)
+
+    # This is a sync endpoint, so FastAPI runs it in a thread pool. Reading the length and
+    # appending must happen under one lock, otherwise two concurrent submits can both read
+    # the same length and get a duplicate id / order number (which also breaks Vue :key="order.id").
+    with _restocking_lock:
+        sequence = len(restocking_orders) + 1
+        order = {
+            "id": str(sequence),
+            "order_number": f"RST-{submitted.year}-{sequence:04d}",
+            "status": "Submitted",
+            "submitted_date": submitted.isoformat(),
+            "estimated_delivery": (submitted + timedelta(days=lead_time_days)).isoformat(),
+            "lead_time_days": lead_time_days,
+            "total_value": round(sum(line["line_total"] for line in lines), 2),
+            "items": lines,
+        }
+        # Append in place (not reassign) so the list object shared with mock_data stays the same
+        restocking_orders.append(order)
+    return order
 
 @app.get("/api/backlog", response_model=List[BacklogItem])
 def get_backlog():

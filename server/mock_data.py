@@ -37,3 +37,10 @@ purchase_orders = load_json_file('purchase_orders.json')
 
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
+
+# Restocking orders submitted from the Restocking tab.
+# Runtime-only state: deliberately NOT loaded from or written to a JSON file,
+# so submitted orders reset whenever the server restarts (matches the no-database design
+# and keeps tracked data files unchanged). Mutated in place by main.py, so other modules
+# that imported this list (and test fixtures that .clear() it) see the same object.
+restocking_orders = []
