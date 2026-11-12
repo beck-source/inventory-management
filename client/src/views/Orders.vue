@@ -41,7 +41,7 @@
                 <th class="col-status">{{ t('orders.table.status') }}</th>
                 <th class="col-date">{{ t('orders.table.orderDate') }}</th>
                 <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
-                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+                <th class="col-value numeric">{{ t('orders.table.totalValue') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -68,7 +68,7 @@
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td class="col-value numeric"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
               </tr>
             </tbody>
           </table>
@@ -176,32 +176,16 @@ export default {
 .orders-table {
   table-layout: fixed;
   width: 100%;
+  min-width: 856px;
 }
 
-/* Column widths */
-.col-order-number {
-  width: 130px;
-}
-
-.col-customer {
-  width: 180px;
-}
-
-.col-items {
-  width: 200px;
-}
-
-.col-status {
-  width: 130px;
-}
-
-.col-date {
-  width: 140px;
-}
-
-.col-value {
-  width: 120px;
-}
+/* Column widths (no token fits table column widths) */
+.col-order-number { width: 160px; white-space: nowrap; }
+.col-customer { width: 192px; }
+.col-items { width: 168px; }
+.col-status { width: 128px; }
+.col-date { width: 136px; }
+.col-value { width: 128px; }
 
 /* Items details styling */
 .items-details {
@@ -210,8 +194,8 @@ export default {
 
 .items-summary {
   cursor: pointer;
-  color: #3b82f6;
-  font-weight: 500;
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
   list-style: none;
   user-select: none;
   display: inline-block;
@@ -224,9 +208,9 @@ export default {
 .items-summary::before {
   content: '▶';
   display: inline-block;
-  margin-right: 0.375rem;
-  font-size: 0.75rem;
-  transition: transform 0.2s;
+  margin-right: var(--space-2);
+  font-size: var(--text-xs);
+  transition: transform var(--transition-base);
 }
 
 .items-details[open] .items-summary::before {
@@ -234,7 +218,7 @@ export default {
 }
 
 .items-summary:hover {
-  color: #2563eb;
+  color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
@@ -243,23 +227,23 @@ export default {
   position: absolute;
   top: 100%;
   left: 0;
-  margin-top: 0.5rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  padding: 0.75rem;
-  z-index: 10;
-  min-width: 300px;
+  margin-top: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-3);
+  z-index: 10; /* above table rows, below topbar/sidebar tokens */
+  min-width: 300px; /* no token fits dropdown width */
   max-width: 400px;
 }
 
 .item-entry {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .item-entry:last-child {
@@ -267,13 +251,13 @@ export default {
 }
 
 .item-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #0f172a;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text);
 }
 
 .item-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
 }
 </style>

@@ -1,0 +1,124 @@
+/*
+ * Design tokens: the single source of truth for the redesign.
+ * Every color, spacing, radius, shadow and font size in the app should come from here.
+ * Adjust values here (not in components) to retheme.
+ */
+:root {
+  /* ---- Neutrals ---- */
+  --color-bg: #f5f6f8;            /* app background behind content */
+  --color-surface: #ffffff;       /* cards, tables, top bar */
+  --color-surface-muted: #f9fafb; /* table headers, subtle fills */
+  --color-surface-hover: #f3f4f6;
+  --color-border: #e5e7eb;
+  --color-border-strong: #d1d5db;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-text-subtle: #9ca3af;
+  --color-text-inverse: #ffffff;
+
+  /* ---- Accent ---- */
+  --color-primary: #4f46e5;
+  --color-primary-hover: #4338ca;
+  --color-primary-soft: #eef2ff;
+  --color-primary-text: #3730a3;
+
+  /* ---- Status (solid / soft background / text on soft) ---- */
+  --color-success: #16a34a;
+  --color-success-soft: #dcfce7;
+  --color-success-text: #166534;
+  --color-warning: #d97706;
+  --color-warning-soft: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fee2e2;
+  --color-danger-text: #991b1b;
+  --color-info: #2563eb;
+  --color-info-soft: #dbeafe;
+  --color-info-text: #1e40af;
+
+  /* ---- Sidebar ---- */
+  --sidebar-bg: #0f172a;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-hover: #e2e8f0;
+  --sidebar-heading: #64748b;
+  --sidebar-item-hover-bg: rgba(255, 255, 255, 0.06);
+  --sidebar-item-active-bg: rgba(129, 140, 248, 0.16);
+  --sidebar-item-active-text: #ffffff;
+  --sidebar-accent: #818cf8;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-width: 248px;
+  --sidebar-width-collapsed: 72px;
+
+  /* ---- Layout ---- */
+  --topbar-height: 60px;
+  --content-max-width: 1440px;
+  --page-padding: var(--space-8);
+
+  /* ---- Spacing (4px scale) ---- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---- Radius ---- */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* ---- Elevation ---- */
+  --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-lg: 0 16px 40px rgba(16, 24, 40, 0.14);
+
+  /* ---- Typography ---- */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 18px;
+  --text-xl: 22px;
+  --text-2xl: 28px;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- Motion & focus ---- */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.35);
+
+  /* ---- Layers ---- */
+  --z-sidebar: 40;
+  --z-topbar: 30;
+  --z-backdrop: 45;
+  --z-drawer: 50;
+  --z-modal: 100;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --page-padding: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+  }
+}

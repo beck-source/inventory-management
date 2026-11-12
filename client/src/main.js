@@ -1,4 +1,6 @@
 import { createApp } from 'vue'
+import './styles/tokens.css'
+import './styles/components.css'
 import { createRouter, createWebHistory } from 'vue-router'
 import App from './App.vue'
 import Dashboard from './views/Dashboard.vue'
@@ -7,6 +9,7 @@ import Orders from './views/Orders.vue'
 import Demand from './views/Demand.vue'
 import Spending from './views/Spending.vue'
 import Reports from './views/Reports.vue'
+import Backlog from './views/Backlog.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -14,6 +17,7 @@ const router = createRouter({
     { path: '/', component: Dashboard },
     { path: '/inventory', component: Inventory },
     { path: '/orders', component: Orders },
+    { path: '/backlog', component: Backlog },
     { path: '/demand', component: Demand },
     { path: '/spending', component: Spending },
     { path: '/reports', component: Reports }

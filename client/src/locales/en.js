@@ -4,10 +4,15 @@ export default {
     overview: 'Overview',
     inventory: 'Inventory',
     orders: 'Orders',
+    backlog: 'Backlog',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    reports: 'Reports',
     companyName: 'Catalyst Components',
-    subtitle: 'Inventory Management System'
+    subtitle: 'Inventory Management System',
+    collapseSidebar: 'Collapse sidebar',
+    expandSidebar: 'Expand sidebar',
+    openMenu: 'Open menu'
   },
 
   // Dashboard
@@ -309,6 +314,63 @@ export default {
     english: 'English',
     japanese: 'Japanese',
     selectLanguage: 'Select Language'
+  },
+
+  // Reports
+  reports: {
+    title: 'Performance Reports',
+    description: 'View quarterly performance metrics and monthly trends',
+    loading: 'Loading reports...',
+    loadError: 'Failed to load reports: {message}',
+    quarterlyPerformance: 'Quarterly Performance',
+    monthlyRevenueTrend: 'Monthly Revenue Trend',
+    monthOverMonth: 'Month-over-Month Analysis',
+    monthLabel: '{month} {year}',
+    notAvailable: 'N/A',
+    table: {
+      quarter: 'Quarter',
+      totalOrders: 'Total Orders',
+      totalRevenue: 'Total Revenue',
+      avgOrderValue: 'Avg Order Value',
+      fulfillmentRate: 'Fulfillment Rate',
+      month: 'Month',
+      orders: 'Orders',
+      revenue: 'Revenue',
+      change: 'Change',
+      growthRate: 'Growth Rate'
+    },
+    stats: {
+      totalRevenueYTD: 'Total Revenue (YTD)',
+      avgMonthlyRevenue: 'Avg Monthly Revenue',
+      totalOrdersYTD: 'Total Orders (YTD)',
+      bestQuarter: 'Best Performing Quarter'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: 'Backlog Management',
+    description: 'Track and resolve inventory shortages',
+    loading: 'Loading backlog...',
+    loadError: 'Failed to load backlog: {message}',
+    highPriority: 'High Priority',
+    mediumPriority: 'Medium Priority',
+    lowPriority: 'Low Priority',
+    totalItems: 'Total Backlog Items',
+    backlogItems: 'Backlog Items',
+    noItems: 'No backlog items - all orders can be fulfilled!',
+    unitsShort: '{count} units short',
+    days: '{count} days',
+    table: {
+      orderId: 'Order ID',
+      sku: 'SKU',
+      itemName: 'Item Name',
+      quantityNeeded: 'Quantity Needed',
+      quantityAvailable: 'Quantity Available',
+      shortage: 'Shortage',
+      daysDelayed: 'Days Delayed',
+      priority: 'Priority'
+    }
   },
 
   // Common

@@ -4,10 +4,15 @@ export default {
     overview: '概要',
     inventory: '在庫',
     orders: '注文',
+    backlog: '受注残',
     finance: '財務',
     demandForecast: '需要予測',
+    reports: 'レポート',
     companyName: '触媒コンポーネンツ',
-    subtitle: '在庫管理システム'
+    subtitle: '在庫管理システム',
+    collapseSidebar: 'サイドバーを折りたたむ',
+    expandSidebar: 'サイドバーを展開',
+    openMenu: 'メニューを開く'
   },
 
   // Dashboard
@@ -309,6 +314,63 @@ export default {
     english: 'English',
     japanese: '日本語',
     selectLanguage: '言語を選択'
+  },
+
+  // Reports
+  reports: {
+    title: '業績レポート',
+    description: '四半期ごとの業績指標と月次推移の確認',
+    loading: 'レポートを読み込み中...',
+    loadError: 'レポートの読み込みに失敗しました: {message}',
+    quarterlyPerformance: '四半期業績',
+    monthlyRevenueTrend: '月次収益推移',
+    monthOverMonth: '前月比分析',
+    monthLabel: '{year}年{month}',
+    notAvailable: '該当なし',
+    table: {
+      quarter: '四半期',
+      totalOrders: '総注文数',
+      totalRevenue: '総収益',
+      avgOrderValue: '平均注文額',
+      fulfillmentRate: '履行率',
+      month: '月',
+      orders: '注文数',
+      revenue: '収益',
+      change: '増減',
+      growthRate: '成長率'
+    },
+    stats: {
+      totalRevenueYTD: '総収益（年初来）',
+      avgMonthlyRevenue: '月平均収益',
+      totalOrdersYTD: '総注文数（年初来）',
+      bestQuarter: '最高業績の四半期'
+    }
+  },
+
+  // Backlog
+  backlog: {
+    title: '受注残管理',
+    description: '在庫不足の追跡と解消',
+    loading: '受注残を読み込み中...',
+    loadError: '受注残の読み込みに失敗しました: {message}',
+    highPriority: '優先度：高',
+    mediumPriority: '優先度：中',
+    lowPriority: '優先度：低',
+    totalItems: '受注残の総数',
+    backlogItems: '受注残一覧',
+    noItems: '受注残はありません - すべての注文を履行できます！',
+    unitsShort: '{count}個不足',
+    days: '{count}日',
+    table: {
+      orderId: '注文ID',
+      sku: 'SKU',
+      itemName: '品目名',
+      quantityNeeded: '必要数量',
+      quantityAvailable: '在庫数量',
+      shortage: '不足',
+      daysDelayed: '遅延日数',
+      priority: '優先度'
+    }
   },
 
   // Common
