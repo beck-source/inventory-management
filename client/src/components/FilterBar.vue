@@ -101,94 +101,116 @@ export default {
 </script>
 
 <style scoped>
+/*
+ * Toolbar sits directly under the sticky topbar (--topbar-h) and one z-level
+ * below it, so the topbar always stays on top when both are stuck.
+ */
 .filters-bar {
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
-  padding: 0.75rem 0;
   position: sticky;
-  top: 70px;
-  z-index: 90;
+  top: var(--topbar-h);
+  z-index: calc(var(--z-topbar) - 1);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-6);
 }
 
+/* No max-width container: horizontal padding matches .main-content so the
+   toolbar and the page content share the same left/right edges. */
 .filters-container {
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: 0 2rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
 }
 
 .filters-grid {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-4);
   flex: 1;
+  min-width: 0;
 }
 
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .filter-group label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--color-muted);
   white-space: nowrap;
 }
 
+/* Bordered pill selects */
 .filter-select {
-  padding: 0.4rem 0.75rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  font-size: 0.813rem;
-  color: #0f172a;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 500;
   min-width: 140px;
+  padding: var(--space-1) var(--space-4) var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .filter-select:hover {
-  border-color: #94a3b8;
+  border-color: var(--color-muted);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--color-primary-accent);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
+/* Reset: square icon button, same border treatment as the selects */
 .reset-filters-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.4rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  color: #64748b;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .reset-filters-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background: var(--color-subtle);
+  border-color: var(--color-muted);
+  color: var(--color-text);
+}
+
+.reset-filters-btn:focus-visible {
+  outline: 2px solid var(--color-primary-accent);
+  outline-offset: 2px;
 }
 
 .reset-filters-btn:disabled {
-  opacity: 0.3;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 .reset-filters-btn svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 639px) {
+  .filters-bar {
+    padding: var(--space-3) var(--space-4);
+  }
 }
 </style>

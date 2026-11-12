@@ -120,80 +120,102 @@ const handleLogout = () => {
   position: relative;
 }
 
+/* 36px high to match the other topbar controls (menu button, language switcher). */
 .profile-button {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.5rem 0.875rem;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
   font-family: inherit;
 }
 
 .profile-button:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
+  background: var(--color-subtle);
+  border-color: var(--color-border-strong);
 }
 
+.profile-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 24px avatar leaves 5px of breathing room inside the 36px button. Flat fill, no gradient. */
 .avatar {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.625rem;
   letter-spacing: 0.025em;
 }
 
 .profile-name {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #0f172a;
+  color: var(--color-text);
+  white-space: nowrap;
 }
 
 .chevron {
-  color: #64748b;
-  transition: transform 0.2s ease;
+  color: var(--color-muted);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
 }
 
 .chevron-open {
   transform: rotate(180deg);
 }
 
+/* Below 640px only the avatar and chevron remain, so the topbar fits on phones. */
+@media (max-width: 639px) {
+  .profile-name {
+    display: none;
+  }
+}
+
+/* Right-aligned to the button so it grows leftwards, away from the viewport edge.
+   max-width caps it to the viewport minus the topbar gutters on very narrow screens.
+   z-index is local to the topbar stacking context. */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + var(--space-2));
   right: 0;
   min-width: 280px;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: calc(100vw - 2 * var(--space-4));
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
   overflow: hidden;
 }
 
 .dropdown-header {
-  padding: 1rem;
+  padding: var(--space-4);
   display: flex;
-  gap: 0.875rem;
+  gap: var(--space-3);
   align-items: center;
-  background: #f8fafc;
+  background: var(--color-bg);
 }
 
 .avatar-large {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,14 +232,17 @@ const handleLogout = () => {
 
 .user-name {
   font-weight: 600;
-  color: #0f172a;
-  font-size: 0.938rem;
-  margin-bottom: 0.25rem;
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  margin-bottom: var(--space-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-email {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -225,56 +250,59 @@ const handleLogout = () => {
 
 .dropdown-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 0.5rem 0;
+  background: var(--color-border);
+  margin: var(--space-2) 0;
 }
 
 .dropdown-item {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   background: none;
   border: none;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background-color var(--transition-fast);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #334155;
+  color: var(--color-text-soft);
 }
 
 .dropdown-item:hover {
-  background: #f8fafc;
+  background: var(--color-bg);
 }
 
 .dropdown-item svg {
-  color: #64748b;
+  color: var(--color-muted);
   flex-shrink: 0;
 }
 
 .dropdown-item.logout {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .dropdown-item.logout svg {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
+/* Pale red hover tint has no token (same value App.vue uses for .error), so it stays literal. */
 .dropdown-item.logout:hover {
   background: #fef2f2;
 }
 
+/* Pill count badge. line-height fixes the height at 20px; the radius is large enough to round it fully. */
 .task-badge {
   margin-left: auto;
-  background: #2563eb;
-  color: white;
+  background: var(--color-primary);
+  color: var(--color-surface);
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.125rem 0.5rem;
-  border-radius: 12px;
+  line-height: 20px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-lg);
   min-width: 20px;
   text-align: center;
 }

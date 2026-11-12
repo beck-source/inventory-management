@@ -1,0 +1,80 @@
+/*
+ * Design tokens for a SaaS-style Vue 3 shell.
+ * Copy to src/styles/tokens.css and import it once in main.js before App.vue.
+ * Replace the color values with the app's own dominant colors; keep the names.
+ */
+:root {
+  /* Text and surfaces */
+  --color-text: #0f172a;
+  --color-text-soft: #334155;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
+  --color-surface: #ffffff;
+  --color-bg: #f8fafc;
+  --color-subtle: #f1f5f9;
+
+  /* Brand */
+  --color-primary: #2563eb;
+  --color-primary-accent: #3b82f6;
+  --color-primary-soft: #eff6ff;
+
+  /* Status: strong color for text and values, soft color for badge backgrounds */
+  --color-success: #059669;
+  --color-success-soft: #d1fae5;
+  --color-warning: #ea580c;
+  --color-warning-soft: #fed7aa;
+  --color-danger: #dc2626;
+  --color-danger-soft: #fecaca;
+
+  /* Sidebar (dark surface) */
+  --sidebar-bg: #0f172a;
+  --sidebar-text: #94a3b8;
+  --sidebar-text-hover: #e2e8f0;
+  --sidebar-hover-bg: rgba(148, 163, 184, 0.1);
+  --sidebar-active-text: #ffffff;
+  --sidebar-active-bg: rgba(59, 130, 246, 0.18);
+  --sidebar-accent: #3b82f6;
+  --sidebar-divider: rgba(148, 163, 184, 0.15);
+
+  /* Spacing (4px scale). Use only these values for padding, margin and gap. */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Shape */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  /* Layout */
+  --sidebar-w: 240px;
+  --sidebar-w-collapsed: 72px;
+  --topbar-h: 64px;
+  --content-max-w: 1400px;
+  --transition-fast: 0.2s ease;
+
+  /* Z-index. All shell layers stay below the app's modal overlays (usually 1000+).
+     The backdrop sits between the topbar and the sidebar, so it dims the page
+     but not the open drawer. */
+  --z-topbar: 90;
+  --z-drawer-backdrop: 95;
+  --z-sidebar: 100;
+
+  /* Breakpoints, for reference only: CSS variables can't be used inside @media.
+     >= 1024px  full sidebar, user can collapse it to the icon rail
+     640-1023px icon rail always (icons only, labels as tooltips)
+     < 640px    off-canvas drawer opened from the topbar */
+}

@@ -224,31 +224,37 @@ export default {
 </script>
 
 <style scoped>
+/* Trend summary cards share the stat-card look (surface, border, radius, shadow).
+   min(100%, 280px) stops the minimum from overflowing a phone-width column. */
 .demand-trend-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
 }
 
 .trend-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .trend-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-md);
 }
 
+/* Left accents: green and red keep the exact hex values getChangeColor() returns
+   for the table's change column (#10b981 / #ef4444), which have no tokens. */
 .increasing-card {
   border-left: 4px solid #10b981;
 }
 
 .stable-card {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid var(--color-primary-accent);
 }
 
 .decreasing-card {
@@ -258,10 +264,10 @@ export default {
 .trend-header {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #f1f5f9;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .trend-icon {
@@ -270,31 +276,32 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 1.75rem;
   font-weight: 700;
   flex-shrink: 0;
 }
 
 .increasing-card .trend-icon {
-  background: #d1fae5;
-  color: #059669;
+  background: var(--color-success-soft);
+  color: var(--color-success);
 }
 
+/* #dbeafe and #fee2e2 are soft tints with no token (danger-soft is a darker red). */
 .stable-card .trend-icon {
   background: #dbeafe;
-  color: #2563eb;
+  color: var(--color-primary);
 }
 
 .decreasing-card .trend-icon {
   background: #fee2e2;
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .trend-label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #64748b;
+  color: var(--color-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -302,39 +309,41 @@ export default {
 .trend-count {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0f172a;
-  margin-top: 0.25rem;
+  color: var(--color-text);
+  margin-top: var(--space-1);
 }
 
 .trend-items {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .trend-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0.75rem;
-  background: #f8fafc;
-  border-radius: 6px;
-  transition: background 0.2s;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
 }
 
 .trend-item:hover {
-  background: #f1f5f9;
+  background: var(--color-subtle);
 }
 
 .item-name {
   font-size: 0.875rem;
-  color: #0f172a;
+  color: var(--color-text);
   font-weight: 500;
+  /* min-width: 0 so the ellipsis can actually kick in inside the flex row. */
+  min-width: 0;
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-right: 1rem;
+  margin-right: var(--space-4);
 }
 
 .item-change {
@@ -344,26 +353,26 @@ export default {
 }
 
 .increasing-card .item-change {
-  color: #059669;
+  color: var(--color-success);
 }
 
 .stable-card .item-change {
-  color: #3b82f6;
+  color: var(--color-primary-accent);
 }
 
 .decreasing-card .item-change {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
 .item-change.neutral {
-  color: #64748b;
+  color: var(--color-muted);
 }
 
 .more-items {
   font-size: 0.813rem;
-  color: #64748b;
+  color: var(--color-muted);
   font-style: italic;
   text-align: center;
-  padding: 0.5rem;
+  padding: var(--space-2);
 }
 </style>

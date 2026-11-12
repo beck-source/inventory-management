@@ -245,119 +245,153 @@ export default {
 </script>
 
 <style scoped>
+/* Overlay: position, top/left and z-index (1000) are unchanged so the modal stays
+   above the sidebar (100) and topbar (90). Padding is the viewport gutter, which
+   keeps the panel off the screen edges at 390px. */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(15, 23, 42, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: var(--space-4);
 }
 
+/* Panel. 900px is the wide tasks variant (the old 90% width is replaced by the
+   overlay gutter). overflow: hidden clips the children to the rounded corners. */
 .modal-container {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  width: 90%;
-  max-width: 700px;
-  max-height: 85vh;
+  width: min(700px, 100%);
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  /* Deeper than --shadow-md on purpose: the panel floats over the dimmed page. */
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
 }
 
 .tasks-modal-container {
-  max-width: 900px;
+  width: min(900px, 100%);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem 2rem;
-  border-bottom: 2px solid #e2e8f0;
+  gap: var(--space-4);
+  flex-shrink: 0;
+  padding: var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .modal-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0f172a;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  letter-spacing: -0.025em;
   margin: 0;
 }
 
 .close-button {
-  background: none;
-  border: none;
-  color: #64748b;
-  cursor: pointer;
-  padding: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  padding: var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .close-button:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--color-subtle);
+  color: var(--color-text);
+}
+
+.close-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .modal-body {
-  padding: 2rem;
-  overflow-y: auto;
   flex: 1;
+  /* min-height: 0 lets the body shrink inside the max-height panel, so it
+     scrolls and the header and footer stay in view. */
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-6);
 }
 
 .modal-footer {
-  padding: 1.5rem 2rem;
-  border-top: 2px solid #e2e8f0;
+  flex-shrink: 0;
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border-top: 1px solid var(--color-border);
 }
 
+/* Secondary button: bordered surface, so it reads as an action without competing with primary. */
 .btn-secondary {
-  padding: 0.75rem 1.5rem;
-  background: #f1f5f9;
-  color: #475569;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-soft);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
+  background: var(--color-bg);
+  border-color: var(--color-border-strong);
+}
+
+.btn-secondary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* Task Form */
 .task-form {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
 }
 
+/* flex-wrap lets priority, due date and the Add button stack on a 390px screen. */
 .form-row {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .form-row:last-child {
   margin-bottom: 0;
 }
 
+/* The 140px basis is what triggers the wrap above; min-width: 0 stops inputs from overflowing. */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  flex: 1;
+  gap: var(--space-2);
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
 .form-group.flex-1 {
@@ -372,45 +406,60 @@ export default {
 label {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--color-text-soft);
 }
 
 .task-input,
 .task-select {
-  padding: 0.75rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease;
+  width: 100%;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: 0.9375rem;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   font-family: inherit;
 }
 
 .task-input:focus,
 .task-select:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--color-primary);
+  /* Ring replaces the removed outline; 3px is the conventional focus-ring width, not a spacing value. */
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
 }
 
 .task-select {
   cursor: pointer;
-  background: white;
 }
 
+/* Primary button: flat brand colour, no gradient or lift animation. */
 .task-add-btn {
-  padding: 0.75rem 1.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  min-height: 40px;
+  padding: var(--space-2) var(--space-5);
+  background: var(--color-primary);
+  color: var(--color-surface);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: opacity var(--transition-fast), box-shadow var(--transition-fast);
   white-space: nowrap;
   height: fit-content;
 }
 
+/* Hover darkens via a filter because the tokens have no darker primary. */
 .task-add-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+  filter: brightness(0.92);
+}
+
+.task-add-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .task-add-btn:disabled {
@@ -420,39 +469,40 @@ label {
 
 .tasks-divider {
   height: 1px;
-  background: #e2e8f0;
-  margin: 2rem 0;
+  background: var(--color-border);
+  margin: var(--space-6) 0;
 }
 
 .no-tasks {
   text-align: center;
-  padding: 3rem;
-  color: #64748b;
-  font-size: 1.1rem;
+  padding: var(--space-12);
+  color: var(--color-muted);
+  font-size: 1rem;
   font-style: italic;
 }
 
 .tasks-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .task-item {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
-  transition: all 0.2s ease;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .task-item:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-sm);
 }
 
+/* The 4px left bar encodes priority; the amber has no token, so it stays literal. */
 .task-item.priority-high {
-  border-left: 4px solid #dc2626;
+  border-left: 4px solid var(--color-danger);
 }
 
 .task-item.priority-medium {
@@ -460,7 +510,7 @@ label {
 }
 
 .task-item.priority-low {
-  border-left: 4px solid #2563eb;
+  border-left: 4px solid var(--color-primary);
 }
 
 .task-item.completed {
@@ -471,35 +521,39 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 0.75rem;
-  gap: 1rem;
+  margin-bottom: var(--space-3);
+  gap: var(--space-4);
 }
 
 .task-check-title {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--space-3);
   flex: 1;
+  min-width: 0;
 }
 
 .task-checkbox {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--color-primary);
   flex-shrink: 0;
 }
 
 .task-title {
   flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
   cursor: pointer;
   user-select: none;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.4;
 }
 
+/* Muted slate for finished tasks; #94a3b8 is lighter than any text token, which is the point. */
 .task-item.completed .task-title {
   text-decoration: line-through;
   color: #94a3b8;
@@ -508,14 +562,14 @@ label {
 .task-delete-btn {
   width: 28px;
   height: 28px;
-  background: #ef4444;
-  color: white;
+  background: var(--color-danger);
+  color: var(--color-surface);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: filter var(--transition-fast);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -524,32 +578,40 @@ label {
 }
 
 .task-delete-btn:hover {
-  background: #dc2626;
-  transform: scale(1.1);
+  filter: brightness(0.92);
 }
 
+.task-delete-btn:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+/* wrap so the badges drop to a second line on narrow screens instead of overflowing. */
 .task-footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-3) var(--space-4);
 }
 
 .priority-badge {
-  font-size: 0.688rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   text-transform: uppercase;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
   letter-spacing: 0.025em;
 }
 
+/* Badge text colours (#991b1b, #92400e, #1e40af, #065f46) and the light blue
+   (#dbeafe) have no token, so they stay literal. */
 .priority-badge.high {
-  background: #fecaca;
+  background: var(--color-danger-soft);
   color: #991b1b;
 }
 
 .priority-badge.medium {
-  background: #fed7aa;
+  background: var(--color-warning-soft);
   color: #92400e;
 }
 
@@ -561,30 +623,31 @@ label {
 .task-due-date {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.813rem;
-  color: #64748b;
+  gap: var(--space-2);
+  font-size: 0.8125rem;
+  color: var(--color-muted);
 }
 
 .task-due-date svg {
   color: #94a3b8;
 }
 
+/* margin-left: auto pushes the status to the right edge when it shares a line. */
 .status-badge {
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.25rem 0.625rem;
-  border-radius: 4px;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
   margin-left: auto;
 }
 
 .status-badge.overdue {
-  background: #fecaca;
+  background: var(--color-danger-soft);
   color: #991b1b;
 }
 
 .status-badge.urgent {
-  background: #fed7aa;
+  background: var(--color-warning-soft);
   color: #92400e;
 }
 
@@ -594,19 +657,19 @@ label {
 }
 
 .status-badge.completed {
-  background: #d1fae5;
+  background: var(--color-success-soft);
   color: #065f46;
 }
 
 /* Modal transitions */
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--transition-fast);
 }
 
 .modal-enter-active .modal-container,
 .modal-leave-active .modal-container {
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-fast);
 }
 
 .modal-enter-from,
@@ -616,6 +679,6 @@ label {
 
 .modal-enter-from .modal-container,
 .modal-leave-to .modal-container {
-  transform: scale(0.9);
+  transform: scale(0.95);
 }
 </style>
