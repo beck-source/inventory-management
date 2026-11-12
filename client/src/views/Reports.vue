@@ -25,7 +25,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(q, index) in quarterlyData" :key="index">
+              <!-- Key by unique quarter string, not array index -->
+              <tr v-for="q in quarterlyData" :key="q.quarter">
                 <td><strong>{{ q.quarter }}</strong></td>
                 <td class="num">{{ q.total_orders }}</td>
                 <td class="num">${{ formatNumber(q.total_revenue) }}</td>
@@ -48,7 +49,8 @@
         </div>
         <div class="chart-container">
           <div class="bar-chart">
-            <div v-for="(month, index) in monthlyData" :key="index" class="bar-wrapper">
+            <!-- Key by unique month, not array index -->
+            <div v-for="month in monthlyData" :key="month.month" class="bar-wrapper">
               <div class="bar-container">
                 <div
                   class="bar"
@@ -79,7 +81,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(month, index) in monthlyData" :key="index">
+              <!-- Key by unique month; index alias kept for monthlyData[index - 1] lookups -->
+              <tr v-for="(month, index) in monthlyData" :key="month.month">
                 <td><strong>{{ formatMonth(month.month) }}</strong></td>
                 <td class="num">{{ month.order_count }}</td>
                 <td class="num">${{ formatNumber(month.revenue) }}</td>
