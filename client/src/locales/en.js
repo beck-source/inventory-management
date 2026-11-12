@@ -11,6 +11,8 @@ export default {
     collapse: 'Collapse sidebar',
     expand: 'Expand sidebar',
     openMenu: 'Open menu',
+    themeToDark: 'Switch to dark theme',
+    themeToLight: 'Switch to light theme',
     closeMenu: 'Close menu',
     mainNav: 'Main navigation',
     companyName: 'Catalyst Components',
