@@ -6,7 +6,10 @@
     "current_demand": 300,
     "forecasted_demand": 450,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 185.0,
+    "supplier_name": "Apex Industrial Supply",
+    "lead_time_days": 12
   },
   {
     "id": "2",
@@ -15,7 +18,10 @@
     "current_demand": 150,
     "forecasted_demand": 152,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 96.0,
+    "supplier_name": "Meridian Components",
+    "lead_time_days": 9
   },
   {
     "id": "3",
@@ -24,7 +30,10 @@
     "current_demand": 500,
     "forecasted_demand": 600,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 240.0,
+    "supplier_name": "Apex Industrial Supply",
+    "lead_time_days": 7
   },
   {
     "id": "4",
@@ -33,7 +42,10 @@
     "current_demand": 50,
     "forecasted_demand": 35,
     "trend": "decreasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 310.0,
+    "supplier_name": "Northgate Motion",
+    "lead_time_days": 21
   },
   {
     "id": "5",
@@ -42,7 +54,10 @@
     "current_demand": 800,
     "forecasted_demand": 950,
     "trend": "increasing",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 410.0,
+    "supplier_name": "Clearflow Systems",
+    "lead_time_days": 14
   },
   {
     "id": "6",
@@ -51,7 +66,10 @@
     "current_demand": 120,
     "forecasted_demand": 121,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 145.0,
+    "supplier_name": "Clearflow Systems",
+    "lead_time_days": 10
   },
   {
     "id": "7",
@@ -60,7 +78,10 @@
     "current_demand": 250,
     "forecasted_demand": 252,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 130.0,
+    "supplier_name": "Northgate Motion",
+    "lead_time_days": 18
   },
   {
     "id": "8",
@@ -69,7 +90,10 @@
     "current_demand": 180,
     "forecasted_demand": 182,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 88.0,
+    "supplier_name": "Meridian Components",
+    "lead_time_days": 15
   },
   {
     "id": "9",
@@ -78,6 +102,9 @@
     "current_demand": 95,
     "forecasted_demand": 96,
     "trend": "stable",
-    "period": "Next 30 days"
+    "period": "Next 30 days",
+    "unit_cost": 275.0,
+    "supplier_name": "Northgate Motion",
+    "lead_time_days": 20
   }
 ]

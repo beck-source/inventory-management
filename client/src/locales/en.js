@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -112,6 +113,20 @@ export default {
     onTimeDelivery: 'On-Time Delivery',
     itemsCount: '{count} items',
     quantity: 'Qty',
+    submittedOrders: 'Submitted Orders',
+    noSubmittedOrders: 'No restock orders have been submitted yet.',
+    submittedError: 'Failed to load submitted orders.',
+    submitted: {
+      orderId: 'Order ID',
+      submitted: 'Submitted',
+      items: 'Items',
+      total: 'Total',
+      leadTime: 'Lead Time',
+      expectedDelivery: 'Expected Delivery',
+      status: 'Status',
+      days: '{count} days',
+      status_submitted: 'Submitted'
+    },
     table: {
       orderNumber: 'Order Number',
       orderId: 'Order ID',
@@ -186,6 +201,44 @@ export default {
       trend: 'Trend',
       period: 'Period'
     }
+  },
+
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan purchase orders for items with rising demand within your budget',
+    budget: 'Budget',
+    budgetLabel: 'Restocking budget',
+    plannedSpend: 'Planned Spend',
+    remaining: 'Remaining',
+    longestLeadTime: 'Longest Lead Time',
+    daysValue: '{count} days',
+    recommendations: 'Recommended Restock',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Trend',
+      gap: 'Forecast Gap',
+      quantity: 'Order Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time (days)'
+    },
+    empty: 'No items can be recommended at this budget.',
+    placeOrder: 'Place Order',
+    confirmTitle: 'Confirm Restock Order',
+    total: 'Total',
+    itemCount: 'Items',
+    estimatedDelivery: 'Estimated Delivery',
+    confirm: 'Confirm',
+    cancel: 'Cancel',
+    submitting: 'Submitting...',
+    submitFailed: 'Failed to place order',
+    successTitle: 'Order Placed',
+    orderId: 'Order ID',
+    expectedDelivery: 'Expected Delivery',
+    viewOrders: 'View in Orders',
+    loadFailed: 'Failed to load demand forecasts'
   },
 
   // Filters

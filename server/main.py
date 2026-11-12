@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime, timedelta
 from typing import List, Optional
 from pydantic import BaseModel
-from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders, restock_orders
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +90,9 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: Optional[float] = None
+    supplier_name: Optional[str] = None
+    lead_time_days: Optional[int] = None
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +123,33 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockLine(BaseModel):
+    item_sku: str
+    quantity: int
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockLine]
+
+class RestockOrderLine(BaseModel):
+    item_sku: str
+    item_name: str
+    supplier_name: Optional[str] = None
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class RestockOrder(BaseModel):
+    id: str
+    submitted_at: str
+    budget: float
+    items: List[RestockOrderLine]
+    total_cost: float
+    lead_time_days: int
+    expected_delivery: str
+    status: str
 
 # API endpoints
 @app.get("/")
@@ -303,6 +334,56 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.post("/api/restock-orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order. Prices and lead times come from the demand forecast data."""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Order must contain at least one item")
+    if request.budget < 0:
+        raise HTTPException(status_code=400, detail="Budget cannot be negative")
+
+    forecasts = {f['item_sku']: f for f in demand_forecasts}
+    lines = []
+    for line in request.items:
+        if line.quantity <= 0:
+            raise HTTPException(status_code=400, detail=f"Quantity for {line.item_sku} must be greater than zero")
+        forecast = forecasts.get(line.item_sku)
+        if not forecast or forecast.get('unit_cost') is None or forecast.get('lead_time_days') is None:
+            raise HTTPException(status_code=400, detail=f"Unknown or non-orderable SKU: {line.item_sku}")
+        lines.append({
+            'item_sku': line.item_sku,
+            'item_name': forecast['item_name'],
+            'supplier_name': forecast.get('supplier_name'),
+            'quantity': line.quantity,
+            'unit_cost': forecast['unit_cost'],
+            'line_total': round(line.quantity * forecast['unit_cost'], 2),
+            'lead_time_days': forecast['lead_time_days'],
+        })
+
+    total_cost = round(sum(l['line_total'] for l in lines), 2)
+    if total_cost > request.budget:
+        raise HTTPException(status_code=400, detail=f"Order total {total_cost:.2f} exceeds budget {request.budget:.2f}")
+
+    lead_time_days = max(l['lead_time_days'] for l in lines)
+    now = datetime.now()
+    order = {
+        'id': f"RST-{len(restock_orders) + 1:04d}",
+        'submitted_at': now.isoformat(timespec='seconds'),
+        'budget': request.budget,
+        'items': lines,
+        'total_cost': total_cost,
+        'lead_time_days': lead_time_days,
+        'expected_delivery': (now + timedelta(days=lead_time_days)).date().isoformat(),
+        'status': 'Submitted',
+    }
+    restock_orders.append(order)
+    return order
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get submitted restocking orders, newest first."""
+    return list(reversed(restock_orders))
 
 if __name__ == "__main__":
     import uvicorn
