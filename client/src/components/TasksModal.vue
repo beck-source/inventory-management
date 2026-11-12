@@ -32,15 +32,15 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="task-priority">{{ t('tasks.priority') }}</label>
-                  <select
+                  <BaseSelect
                     id="task-priority"
                     v-model="newTask.priority"
-                    class="task-select"
+                    size="lg"
                   >
                     <option value="high">{{ t('priority.high') }}</option>
                     <option value="medium">{{ t('priority.medium') }}</option>
                     <option value="low">{{ t('priority.low') }}</option>
-                  </select>
+                  </BaseSelect>
                 </div>
 
                 <div class="form-group">
@@ -120,10 +120,12 @@
 
 <script>
 import { ref, computed } from 'vue'
+import BaseSelect from './BaseSelect.vue'
 import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'TasksModal',
+  components: { BaseSelect },
   props: {
     isOpen: {
       type: Boolean,
@@ -375,8 +377,7 @@ label {
   color: var(--text-secondary);
 }
 
-.task-input,
-.task-select {
+.task-input {
   padding: var(--space-3);
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
@@ -385,15 +386,9 @@ label {
   font-family: inherit;
 }
 
-.task-input:focus,
-.task-select:focus {
+.task-input:focus {
   outline: none;
   border-color: var(--accent);
-}
-
-.task-select {
-  cursor: pointer;
-  background: var(--surface);
 }
 
 .task-add-btn {
