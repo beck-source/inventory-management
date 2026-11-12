@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './styles/tokens.css'
 import './styles/base.css'
+import { useTheme } from './composables/useTheme'
 import App from './App.vue'
 import Dashboard from './views/Dashboard.vue'
 import Inventory from './views/Inventory.vue'
@@ -23,6 +24,9 @@ const router = createRouter({
     { path: '/reports', component: Reports }
   ]
 })
+
+// Apply saved/system theme before mount to avoid a light flash
+useTheme()
 
 const app = createApp(App)
 app.use(router)

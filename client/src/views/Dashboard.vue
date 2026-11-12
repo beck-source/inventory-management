@@ -409,7 +409,8 @@ export default {
       const categoryMap = {}
 
       // Use a single neutral slate/gray color for all categories
-      const singleColor = 'var(--text-muted)' // Neutral slate gray color
+      // Dedicated token: --text-muted lightens in dark mode, washing out the white labels
+      const singleColor = 'var(--chart-bar)'
 
       // Get SKUs from orders in the filtered time period
       const orderedSkus = new Set()

@@ -11,6 +11,8 @@ export default {
     collapse: 'サイドバーを折りたたむ',
     expand: 'サイドバーを展開',
     openMenu: 'メニューを開く',
+    themeToDark: 'ダークテーマに切り替え',
+    themeToLight: 'ライトテーマに切り替え',
     closeMenu: 'メニューを閉じる',
     mainNav: 'メインナビゲーション',
     companyName: '触媒コンポーネンツ',
