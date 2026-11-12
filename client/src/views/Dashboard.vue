@@ -4,9 +4,7 @@
       <h2>{{ t('dashboard.title') }}</h2>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else>
+    <AsyncStatus :loading="loading" :error="error" :loaded="loaded" @retry="reload">
       <!-- Key Performance Indicators -->
       <div class="kpi-section">
         <h3 class="section-title">{{ t('dashboard.kpi.title') }}</h3>
@@ -354,7 +352,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </AsyncStatus>
 
     <ProductDetailModal :is-open="showProductModal" :product="selectedProduct" @close="showProductModal = false" />
 
@@ -375,6 +373,8 @@
 </template>
 
 <script>
+import AsyncStatus from '../components/AsyncStatus.vue'
+import { useAsyncData } from '../composables/useAsyncData'
 import { ref, onMounted, computed, watch } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
@@ -387,14 +387,13 @@ import PurchaseOrderModal from '../components/PurchaseOrderModal.vue'
 export default {
   name: 'Dashboard',
   components: {
+    AsyncStatus,
     ProductDetailModal,
     BacklogDetailModal,
     PurchaseOrderModal,
   },
   setup() {
     const { t, currentLocale, currentCurrency, translateProductName, translateWarehouse } = useI18n()
-    const loading = ref(true)
-    const error = ref(null)
     const summary = ref({})
     const allOrders = ref([])
     const inventoryItems = ref([])
@@ -641,28 +640,33 @@ export default {
       return allBacklogItems.value.filter((b) => validSkus.has(b.item_sku))
     })
 
-    const loadData = async () => {
-      try {
-        loading.value = true
+    // Filtered data reloads on filter change; previous data stays visible meanwhile
+    const { loading, error, loaded, reload } = useAsyncData(
+      async ({ signal }) => {
         const filters = getCurrentFilters()
-
-        const [summaryData, ordersData, inventoryData, backlogData] = await Promise.all([
-          api.getDashboardSummary(filters),
-          api.getOrders(filters),
-          api.getInventory(filters),
-          api.getBacklog(),
+        const [summaryData, ordersData, inventoryData] = await Promise.all([
+          api.getDashboardSummary(filters, { signal }),
+          api.getOrders(filters, { signal }),
+          api.getInventory(filters, { signal }),
         ])
-
-        summary.value = summaryData
-        allOrders.value = ordersData
-        inventoryItems.value = inventoryData
-        allBacklogItems.value = backlogData
-      } catch (err) {
-        error.value = 'Failed to load dashboard data: ' + err.message
-      } finally {
-        loading.value = false
+        return { summaryData, ordersData, inventoryData }
+      },
+      {
+        watchSources: [selectedPeriod, selectedLocation, selectedCategory, selectedStatus],
+        onSuccess: ({ summaryData, ordersData, inventoryData }) => {
+          summary.value = summaryData
+          allOrders.value = ordersData
+          inventoryItems.value = inventoryData
+        },
       }
-    }
+    )
+
+    // The backlog endpoint takes no filters, so fetch it once; its failure must not blank the dashboard
+    useAsyncData(({ signal }) => api.getBacklog({ signal }), {
+      onSuccess: (backlogData) => {
+        allBacklogItems.value = backlogData
+      },
+    })
 
     const calculatePercentage = (value, goal) => {
       return ((value / goal) * 100).toFixed(2)
@@ -764,17 +768,12 @@ export default {
       }
     }
 
-    // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadData()
-    })
-
-    onMounted(loadData)
-
     return {
       t,
       loading,
       error,
+      loaded,
+      reload,
       summary,
       ordersData,
       fillRate,

@@ -5,9 +5,7 @@
       <p>{{ t('demand.description') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else>
+    <AsyncStatus :loading="loading" :error="error" :loaded="loaded" @retry="reload">
       <div class="demand-trend-cards">
         <div class="trend-card increasing-card">
           <div class="trend-header">
@@ -86,14 +84,16 @@
             </thead>
             <tbody>
               <tr v-for="forecast in forecasts" :key="forecast.id">
-                <td class="mono"><strong>{{ forecast.item_sku }}</strong></td>
+                <td class="mono">
+                  <strong>{{ forecast.item_sku }}</strong>
+                </td>
                 <td>{{ forecast.item_name }}</td>
                 <td class="num">{{ forecast.current_demand }}</td>
-                <td class="num"><strong>{{ forecast.forecasted_demand }}</strong></td>
+                <td class="num">
+                  <strong>{{ forecast.forecasted_demand }}</strong>
+                </td>
                 <td>
-                  <span :style="{ color: getChangeColor(forecast) }">
-                    {{ getChangePercent(forecast) }}%
-                  </span>
+                  <span :style="{ color: getChangeColor(forecast) }"> {{ getChangePercent(forecast) }}% </span>
                 </td>
                 <td>
                   <span :class="['badge', forecast.trend]">
@@ -106,11 +106,13 @@
           </table>
         </div>
       </div>
-    </div>
+    </AsyncStatus>
   </div>
 </template>
 
 <script>
+import AsyncStatus from '../components/AsyncStatus.vue'
+import { useAsyncData } from '../composables/useAsyncData'
 import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
@@ -118,10 +120,9 @@ import { useI18n } from '../composables/useI18n'
 
 export default {
   name: 'Demand',
+  components: { AsyncStatus },
   setup() {
     const { t, currentLocale } = useI18n()
-    const loading = ref(true)
-    const error = ref(null)
     const allForecasts = ref([])
     const inventoryItems = ref([])
 
@@ -135,36 +136,34 @@ export default {
       }
 
       // Get SKUs of items that match the filters
-      const validSkus = new Set(inventoryItems.value.map(item => item.sku))
-      return allForecasts.value.filter(f => validSkus.has(f.item_sku))
+      const validSkus = new Set(inventoryItems.value.map((item) => item.sku))
+      return allForecasts.value.filter((f) => validSkus.has(f.item_sku))
     })
 
-    const loadForecasts = async () => {
-      try {
-        loading.value = true
+    // Reloads on filter change; previous forecasts stay visible meanwhile
+    const { loading, error, loaded, reload } = useAsyncData(
+      async ({ signal }) => {
         const filters = getCurrentFilters()
-
         const [forecastsData, inventoryData] = await Promise.all([
-          api.getDemandForecasts(),
-          api.getInventory({
-            warehouse: filters.warehouse,
-            category: filters.category
-          })
+          api.getDemandForecasts({ signal }),
+          api.getInventory(
+            {
+              warehouse: filters.warehouse,
+              category: filters.category,
+            },
+            { signal }
+          ),
         ])
-
-        allForecasts.value = forecastsData
-        inventoryItems.value = inventoryData
-      } catch (err) {
-        error.value = 'Failed to load demand forecasts: ' + err.message
-      } finally {
-        loading.value = false
+        return { forecastsData, inventoryData }
+      },
+      {
+        watchSources: [selectedLocation, selectedCategory],
+        onSuccess: ({ forecastsData, inventoryData }) => {
+          allForecasts.value = forecastsData
+          inventoryItems.value = inventoryData
+        },
       }
-    }
-
-    // Watch for filter changes and reload data
-    watch([selectedLocation, selectedCategory], () => {
-      loadForecasts()
-    })
+    )
 
     // Group forecasts by trend in a single pass (cached) instead of re-filtering per card/usage
     const forecastsByTrend = computed(() => {
@@ -176,7 +175,9 @@ export default {
     })
 
     const getChangePercent = (forecast) => {
-      const change = ((forecast.forecasted_demand - forecast.current_demand) / forecast.current_demand * 100).toFixed(1)
+      const change = (((forecast.forecasted_demand - forecast.current_demand) / forecast.current_demand) * 100).toFixed(
+        1
+      )
       return change > 0 ? `+${change}` : change
     }
 
@@ -211,19 +212,19 @@ export default {
       return period
     }
 
-    onMounted(loadForecasts)
-
     return {
       t,
       loading,
       error,
+      loaded,
+      reload,
       forecasts,
       forecastsByTrend,
       getChangePercent,
       getChangeColor,
-      translatePeriod
+      translatePeriod,
     }
-  }
+  },
 }
 </script>
 

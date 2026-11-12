@@ -5,9 +5,7 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
-    <div v-else-if="error" class="error">{{ error }}</div>
-    <div v-else>
+    <AsyncStatus :loading="loading" :error="error" :loaded="loaded" @retry="reload">
       <div class="stats-grid">
         <div class="stat-card success">
           <div class="stat-label">{{ t('status.delivered') }}</div>
@@ -47,7 +45,9 @@
             </thead>
             <tbody>
               <tr v-for="order in submittedOrders" :key="order.id">
-                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-order-number">
+                  <strong>{{ order.order_number }}</strong>
+                </td>
                 <td class="col-date">{{ formatDate(order.submitted_date) }}</td>
                 <td class="col-items">
                   <details class="items-details">
@@ -57,13 +57,20 @@
                     <div class="items-dropdown">
                       <div v-for="item in order.items" :key="item.sku" class="item-entry">
                         <span class="item-name">{{ translateProductName(item.name) }}</span>
-                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ formatCurrency(item.unit_cost, currentCurrency) }}</span>
+                        <span class="item-meta"
+                          >{{ t('orders.quantity') }}: {{ item.quantity }} @
+                          {{ formatCurrency(item.unit_cost, currentCurrency) }}</span
+                        >
                       </div>
                     </div>
                   </details>
                 </td>
-                <td class="col-value num"><strong>{{ formatCurrency(order.total_cost, currentCurrency) }}</strong></td>
-                <td class="col-status"><span class="badge info">{{ t('status.submitted') }}</span></td>
+                <td class="col-value num">
+                  <strong>{{ formatCurrency(order.total_cost, currentCurrency) }}</strong>
+                </td>
+                <td class="col-status">
+                  <span class="badge info">{{ t('status.submitted') }}</span>
+                </td>
                 <td class="col-date">{{ t('common.days', { n: order.lead_time_days }) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
               </tr>
@@ -91,7 +98,9 @@
             </thead>
             <tbody>
               <tr v-for="order in orders" :key="order.id">
-                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-order-number">
+                  <strong>{{ order.order_number }}</strong>
+                </td>
                 <td class="col-customer">{{ translateCustomerName(order.customer) }}</td>
                 <td class="col-items">
                   <details class="items-details">
@@ -102,7 +111,10 @@
                       <!-- sku alone is not unique: the same SKU can repeat within one order, so combine with idx -->
                       <div v-for="(item, idx) in order.items" :key="`${item.sku}-${idx}`" class="item-entry">
                         <span class="item-name">{{ translateProductName(item.name) }}</span>
-                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_price }}</span>
+                        <span class="item-meta"
+                          >{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol
+                          }}{{ item.unit_price }}</span
+                        >
                       </div>
                     </div>
                   </details>
@@ -114,17 +126,21 @@
                 </td>
                 <td class="col-date">{{ formatDate(order.order_date) }}</td>
                 <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
-                <td class="col-value num"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+                <td class="col-value num">
+                  <strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong>
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
-    </div>
+    </AsyncStatus>
   </div>
 </template>
 
 <script>
+import AsyncStatus from '../components/AsyncStatus.vue'
+import { useAsyncData } from '../composables/useAsyncData'
 import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
@@ -133,49 +149,34 @@ import { formatCurrency } from '../utils/currency'
 
 export default {
   name: 'Orders',
+  components: { AsyncStatus },
   setup() {
     const { t, currentLocale, currentCurrency, translateProductName, translateCustomerName } = useI18n()
 
     const currencySymbol = computed(() => {
       return currentCurrency.value === 'JPY' ? '¥' : '$'
     })
-    const loading = ref(true)
-    const error = ref(null)
     const orders = ref([])
     const submittedOrders = ref([])
 
     // Use shared filters
-    const {
-      selectedPeriod,
-      selectedLocation,
-      selectedCategory,
-      selectedStatus,
-      getCurrentFilters
-    } = useFilters()
+    const { selectedPeriod, selectedLocation, selectedCategory, selectedStatus, getCurrentFilters } = useFilters()
 
-    const loadOrders = async () => {
-      try {
-        loading.value = true
-        const filters = getCurrentFilters()
-        const fetchedOrders = await api.getOrders(filters)
-
-        // Sort orders by order_date (earliest first)
-        orders.value = fetchedOrders.sort((a, b) => {
-          const dateA = new Date(a.order_date)
-          const dateB = new Date(b.order_date)
-          return dateA - dateB
-        })
-      } catch (err) {
-        error.value = 'Failed to load orders: ' + err.message
-      } finally {
-        loading.value = false
+    // Reloads on filter change; previous orders stay visible meanwhile
+    const { loading, error, loaded, reload } = useAsyncData(
+      ({ signal }) => api.getOrders(getCurrentFilters(), { signal }),
+      {
+        watchSources: [selectedPeriod, selectedLocation, selectedCategory, selectedStatus],
+        onSuccess: (fetchedOrders) => {
+          // Sort orders by order_date (earliest first)
+          orders.value = fetchedOrders.sort((a, b) => {
+            const dateA = new Date(a.order_date)
+            const dateB = new Date(b.order_date)
+            return dateA - dateB
+          })
+        },
       }
-    }
-
-    // Watch for filter changes and reload data
-    watch([selectedPeriod, selectedLocation, selectedCategory, selectedStatus], () => {
-      loadOrders()
-    })
+    )
 
     // Count orders per status in a single pass (cached) instead of filtering once per stat card
     const statusCounts = computed(() => {
@@ -188,10 +189,10 @@ export default {
 
     const getOrderStatusClass = (status) => {
       const statusMap = {
-        'Delivered': 'success',
-        'Shipped': 'info',
-        'Processing': 'warning',
-        'Backordered': 'danger'
+        Delivered: 'success',
+        Shipped: 'info',
+        Processing: 'warning',
+        Backordered: 'danger',
       }
       return statusMap[status] || 'info'
     }
@@ -201,7 +202,7 @@ export default {
       return new Date(dateString).toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       })
     }
 
@@ -215,7 +216,6 @@ export default {
     }
 
     onMounted(() => {
-      loadOrders()
       loadSubmittedOrders()
     })
 
@@ -223,6 +223,8 @@ export default {
       t,
       loading,
       error,
+      loaded,
+      reload,
       orders,
       submittedOrders,
       currentCurrency,
@@ -232,9 +234,9 @@ export default {
       formatDate,
       currencySymbol,
       translateProductName,
-      translateCustomerName
+      translateCustomerName,
     }
-  }
+  },
 }
 </script>
 

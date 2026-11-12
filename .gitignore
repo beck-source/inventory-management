@@ -53,3 +53,7 @@ logs/
 
 # Environment variables
 .env
+
+# Runtime data written by the API (restocking submissions). Created on first submit;
+# kept out of git so local test orders never land in this public repo.
+server/data/submitted_orders.json

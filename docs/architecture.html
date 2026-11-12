@@ -94,7 +94,7 @@
       <div class="box"><b>Routes</b><span><code>main.py</code>: read-only GET endpoints under <code>/api</code></span></div>
       <div class="box"><b>Filter helpers</b><span><code>apply_filters()</code> (warehouse, category, status), <code>filter_by_month()</code> (month or quarter)</span></div>
       <div class="box"><b>Pydantic models</b><span>InventoryItem, Order, DemandForecast, BacklogItem, PurchaseOrder, Task</span></div>
-      <div class="box"><b>CORS</b><span>Allows all origins</span></div>
+      <div class="box"><b>CORS</b><span>Only the dev frontend (<code>CORS_ORIGINS</code>); binds to 127.0.0.1 (<code>HOST</code>)</span></div>
     </div>
     <div class="arrow">
       <svg viewBox="0 0 40 24" aria-hidden="true"><path d="M38 12H8M14 7l-6 5 6 5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
@@ -172,7 +172,7 @@
 
   <h2>Things to know</h2>
   <div class="note"><strong>Two kinds of task coexist.</strong> The profile's sample tasks (numeric ids) come from <code>useAuth.js</code> and live only in the browser. Tasks added in the UI go to <code>/api/tasks</code> and get string ids like <code>TASK-1</code>, so <code>App.vue</code> can tell them apart.</div>
-  <div class="note"><strong>Most changes to data are not saved.</strong> The data lives in memory, so tasks and purchase orders are lost when the server restarts. Only restocking orders are written back, to <code>submitted_orders.json</code>.</div>
+  <div class="note"><strong>Most changes to data are not saved.</strong> The data lives in memory, so tasks and purchase orders are lost when the server restarts. Only restocking orders are written back, to <code>submitted_orders.json</code>, which is gitignored and created on first submit (capped at 1,000 orders).</div>
   <div class="note info"><strong>The API URL is hard-coded.</strong> <code>api.js</code> points at <code>http://localhost:8001/api</code>, and the Vite config sets no proxy.</div>
 
   <footer>Generated from the source on the <code>new_features</code> branch, November 2026.</footer>
