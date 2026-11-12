@@ -5,9 +5,44 @@ export default {
     inventory: 'Inventory',
     orders: 'Orders',
     finance: 'Finance',
+    restocking: 'Restocking',
     demandForecast: 'Demand Forecast',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
+  },
+
+  restocking: {
+    title: 'Restocking',
+    description: 'Set a budget and get ranked restock recommendations',
+    budget: 'Budget',
+    budgetSlider: 'Restocking budget',
+    plannedSpend: 'Planned Spend',
+    remainingBudget: 'Remaining Budget',
+    leadTime: 'Est. Delivery Lead Time',
+    days: '{count} days',
+    recommendedItems: 'Recommended Items',
+    updating: 'Updating...',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    emptyTitle: 'No recommendations for this budget',
+    emptyHint: 'Increase the budget to see items that can be restocked.',
+    loadError: 'Failed to load recommendations',
+    orderError: 'Failed to place order',
+    orderPlaced: 'Order {id} placed',
+    orderPlacedDetail: 'Estimated delivery in {days} days.',
+    viewOrders: 'View in Orders',
+    partial: 'Partial',
+    trend: { rising: 'Rising', increasing: 'Rising', stable: 'Stable', decreasing: 'Falling', falling: 'Falling' },
+    table: {
+      sku: 'SKU',
+      name: 'Name',
+      trend: 'Trend',
+      shortfall: 'Shortfall',
+      quantity: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
+    }
   },
 
   // Dashboard
@@ -103,6 +138,9 @@ export default {
 
   // Orders
   orders: {
+    submittedOrders: 'Submitted Orders',
+    submittedTable: { orderId: 'Order ID', items: 'Items', totalCost: 'Total Cost', submitted: 'Submitted', leadTime: 'Lead Time', expected: 'Expected Delivery', status: 'Status' },
+    submittedStatus: { submitted: 'Submitted' },
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',

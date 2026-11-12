@@ -89,6 +89,55 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    # Restocking fields (optional so older data without them still validates)
+    unit_cost: Optional[float] = None
+    category: Optional[str] = None
+    quantity_on_hand: Optional[int] = None
+    lead_time_days: Optional[int] = None
+
+class RestockOrderLine(BaseModel):
+    sku: str
+    quantity: int
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockOrderLine]
+
+class RestockRecommendationItem(BaseModel):
+    sku: str
+    name: str
+    trend: str
+    shortfall: int
+    quantity: int
+    unit_cost: float
+    total_cost: float
+    lead_time_days: int
+    fully_covered: bool
+
+class RestockRecommendations(BaseModel):
+    budget: float
+    total_cost: float
+    remaining_budget: float
+    lead_time_days: int
+    items: List[RestockRecommendationItem]
+
+class RestockOrderItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    total_cost: float
+    lead_time_days: int
+
+class RestockOrder(BaseModel):
+    id: str
+    items: List[RestockOrderItem]
+    total_cost: float
+    budget: float
+    submitted_date: str
+    lead_time_days: int
+    expected_delivery: str
+    status: str
 
 class BacklogItem(BaseModel):
     id: str
@@ -303,6 +352,116 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+# --- Restocking ---------------------------------------------------------
+# Submitted restocking orders live in memory only (no database); they reset on restart.
+restock_orders: list = []
+
+# Lower number = restocked first. Rising demand is the most urgent to cover.
+TREND_PRIORITY = {"increasing": 0, "stable": 1, "decreasing": 2}
+
+def build_recommendations(budget: float) -> dict:
+    """Greedy, priority-ranked restocking plan that fits within the budget."""
+    candidates = []
+    for f in demand_forecasts:
+        if f.get("unit_cost") is None:
+            continue
+        # Shortfall = what we expect to need minus what is already on the shelf
+        shortfall = f["forecasted_demand"] - f.get("quantity_on_hand", 0)
+        if shortfall > 0:
+            candidates.append((f, shortfall))
+
+    # Rising trends first, then the largest shortfall within each trend
+    candidates.sort(key=lambda c: (TREND_PRIORITY.get(c[0]["trend"], 3), -c[1]))
+
+    remaining = budget
+    items = []
+    for f, shortfall in candidates:
+        # Buy as many units as the remaining budget allows, capped at the shortfall.
+        # A partial fill is intentional so the last affordable item still gets funded.
+        qty = min(shortfall, int(remaining // f["unit_cost"]))
+        if qty <= 0:
+            continue
+        cost = round(qty * f["unit_cost"], 2)
+        remaining -= cost
+        items.append({
+            "sku": f["item_sku"],
+            "name": f["item_name"],
+            "trend": f["trend"],
+            "shortfall": shortfall,
+            "quantity": qty,
+            "unit_cost": f["unit_cost"],
+            "total_cost": cost,
+            "lead_time_days": f["lead_time_days"],
+            "fully_covered": qty == shortfall,
+        })
+
+    total = round(sum(i["total_cost"] for i in items), 2)
+    return {
+        "budget": budget,
+        "total_cost": total,
+        "remaining_budget": round(budget - total, 2),
+        # An order arrives when its slowest item does
+        "lead_time_days": max((i["lead_time_days"] for i in items), default=0),
+        "items": items,
+    }
+
+@app.get("/api/restocking/recommendations", response_model=RestockRecommendations)
+def get_restock_recommendations(budget: float = 0):
+    """Recommend forecast items to restock within the given budget"""
+    if budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must not be negative")
+    return build_recommendations(budget)
+
+@app.post("/api/restocking/orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order. Prices and lead times come from the server data, not the client."""
+    from datetime import datetime, timedelta
+
+    forecasts = {f["item_sku"]: f for f in demand_forecasts}
+    lines = []
+    for line in request.items:
+        f = forecasts.get(line.sku)
+        if f is None or f.get("unit_cost") is None:
+            raise HTTPException(status_code=400, detail=f"Unknown SKU: {line.sku}")
+        if line.quantity <= 0:
+            raise HTTPException(status_code=400, detail=f"Invalid quantity for {line.sku}")
+        lines.append({
+            "sku": line.sku,
+            "name": f["item_name"],
+            "quantity": line.quantity,
+            "unit_cost": f["unit_cost"],
+            "total_cost": round(line.quantity * f["unit_cost"], 2),
+            "lead_time_days": f["lead_time_days"],
+        })
+
+    if not lines:
+        raise HTTPException(status_code=400, detail="Order has no items")
+
+    total = round(sum(l["total_cost"] for l in lines), 2)
+    # Re-check the budget on the server so a stale or tampered client cannot overspend
+    if total > request.budget:
+        raise HTTPException(status_code=400, detail="Order total exceeds budget")
+
+    now = datetime.now()
+    lead = max(l["lead_time_days"] for l in lines)
+    order = {
+        "id": f"RST-{len(restock_orders) + 1:04d}",
+        "items": lines,
+        "total_cost": total,
+        "budget": request.budget,
+        "submitted_date": now.isoformat(timespec="seconds"),
+        "lead_time_days": lead,
+        "expected_delivery": (now + timedelta(days=lead)).isoformat(timespec="seconds"),
+        "status": "Submitted",
+    }
+    restock_orders.append(order)
+    return order
+
+@app.get("/api/restocking/orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """List submitted restocking orders, newest first"""
+    return list(reversed(restock_orders))
 
 if __name__ == "__main__":
     import uvicorn

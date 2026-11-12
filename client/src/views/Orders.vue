@@ -27,6 +27,48 @@
         </div>
       </div>
 
+      <div v-if="restockOrders.length > 0" class="card submitted-card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ restockOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ t('orders.submittedTable.orderId') }}</th>
+                <th>{{ t('orders.submittedTable.items') }}</th>
+                <th>{{ t('orders.submittedTable.totalCost') }}</th>
+                <th>{{ t('orders.submittedTable.submitted') }}</th>
+                <th>{{ t('orders.submittedTable.leadTime') }}</th>
+                <th>{{ t('orders.submittedTable.expected') }}</th>
+                <th>{{ t('orders.submittedTable.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockOrders" :key="order.id">
+                <td><strong>{{ order.id }}</strong></td>
+                <td>
+                  <details class="items-details">
+                    <summary class="items-summary">{{ t('orders.itemsCount', { count: order.items.length }) }}</summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ item.sku }} - {{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td><strong>{{ formatMoney(order.total_cost) }}</strong></td>
+                <td>{{ formatDateSafe(order.submitted_date) }}</td>
+                <td>{{ t('restocking.days', { count: order.lead_time_days }) }}</td>
+                <td>{{ formatDateSafe(order.expected_delivery) }}</td>
+                <td><span class="badge info">{{ restockStatusLabel(order.status) }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -83,6 +125,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrency } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -95,6 +138,27 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockOrders = ref([])
+
+    const formatMoney = (v) => formatCurrency(v, currentCurrency.value)
+    const restockStatusLabel = (status) => {
+      const key = `orders.submittedStatus.${String(status).toLowerCase()}`
+      const label = t(key)
+      return label === key ? status : label
+    }
+    // Independent of filters; a failure here must not break the main orders list.
+    const loadRestockOrders = async () => {
+      try {
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        restockOrders.value = []
+        console.error('Failed to load submitted orders:', err)
+      }
+    }
+    const formatDateSafe = (dateString) => {
+      const d = new Date(dateString)
+      return isNaN(d.getTime()) ? '-' : formatDate(dateString)
+    }
 
     // Use shared filters
     const {
@@ -153,7 +217,10 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
@@ -163,6 +230,10 @@ export default {
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,
+      formatDateSafe,
+      formatMoney,
+      restockOrders,
+      restockStatusLabel,
       currencySymbol,
       translateProductName,
       translateCustomerName
@@ -172,6 +243,11 @@ export default {
 </script>
 
 <style scoped>
+/* Spacing between the submitted-orders card and the list below */
+.submitted-card {
+  margin-bottom: 1.5rem;
+}
+
 /* Fixed table layout to prevent column shifting */
 .orders-table {
   table-layout: fixed;

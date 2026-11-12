@@ -5,9 +5,44 @@ export default {
     inventory: '在庫',
     orders: '注文',
     finance: '財務',
+    restocking: '補充発注',
     demandForecast: '需要予測',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
+  },
+
+  restocking: {
+    title: '補充発注',
+    description: '予算を設定して、優先順位付きの補充提案を確認します',
+    budget: '予算',
+    budgetSlider: '補充予算',
+    plannedSpend: '予定支出',
+    remainingBudget: '残り予算',
+    leadTime: '推定納期',
+    days: '{count}日',
+    recommendedItems: '推奨アイテム',
+    updating: '更新中...',
+    placeOrder: '発注する',
+    submitting: '送信中...',
+    emptyTitle: 'この予算では提案がありません',
+    emptyHint: '予算を増やすと、補充可能なアイテムが表示されます。',
+    loadError: '提案の読み込みに失敗しました',
+    orderError: '発注に失敗しました',
+    orderPlaced: '注文 {id} を受け付けました',
+    orderPlacedDetail: '納品予定まで約{days}日です。',
+    viewOrders: '注文ページで確認',
+    partial: '一部のみ',
+    trend: { rising: '上昇', increasing: '上昇', stable: '安定', decreasing: '下降', falling: '下降' },
+    table: {
+      sku: 'SKU',
+      name: '名称',
+      trend: 'トレンド',
+      shortfall: '不足数',
+      quantity: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム'
+    }
   },
 
   // Dashboard
@@ -103,6 +138,9 @@ export default {
 
   // Orders
   orders: {
+    submittedOrders: '発注済み注文',
+    submittedTable: { orderId: '注文ID', items: 'アイテム', totalCost: '合計金額', submitted: '発注日', leadTime: 'リードタイム', expected: '納品予定日', status: 'ステータス' },
+    submittedStatus: { submitted: '発注済み' },
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
