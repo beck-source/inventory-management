@@ -85,19 +85,19 @@
               <!-- Left: Donut Chart -->
               <div class="order-health-chart">
                 <svg viewBox="0 0 200 200" class="donut-svg-compact">
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#e2e8f0" stroke-width="25"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#10b981" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--border)" stroke-width="25"/>
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--success)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.delivered)} 408`"
                     stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#3b82f6" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--info)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.shipped)} 408`"
                     :stroke-dashoffset="`-${getCircleSegment(statusData.delivered)}`"
                     transform="rotate(-90 100 100)"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#f59e0b" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--warning)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.processing)} 408`"
                     :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped)}`"
                     transform="rotate(-90 100 100)"/>
-                  <circle cx="100" cy="100" r="65" fill="none" stroke="#ef4444" stroke-width="25"
+                  <circle cx="100" cy="100" r="65" fill="none" stroke="var(--danger)" stroke-width="25"
                     :stroke-dasharray="`${getCircleSegment(statusData.backordered)} 408`"
                     :stroke-dashoffset="`-${getCircleSegment(statusData.delivered) + getCircleSegment(statusData.shipped) + getCircleSegment(statusData.processing)}`"
                     transform="rotate(-90 100 100)"/>
@@ -105,10 +105,10 @@
                   <text x="100" y="120" text-anchor="middle" class="donut-center-value">{{ orderHealthMetrics.totalOrders }}</text>
                 </svg>
                 <div class="donut-legend-compact">
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #10b981"></span>{{ t('status.delivered') }}</div>
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #3b82f6"></span>{{ t('status.shipped') }}</div>
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #f59e0b"></span>{{ t('status.processing') }}</div>
-                  <div class="legend-item-compact"><span class="legend-dot" style="background: #ef4444"></span>{{ t('status.backordered') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot" style="background: var(--success)"></span>{{ t('status.delivered') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot" style="background: var(--info)"></span>{{ t('status.shipped') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot" style="background: var(--warning)"></span>{{ t('status.processing') }}</div>
+                  <div class="legend-item-compact"><span class="legend-dot" style="background: var(--danger)"></span>{{ t('status.backordered') }}</div>
                 </div>
               </div>
 
@@ -175,10 +175,10 @@
                   <th>{{ t('dashboard.inventoryShortages.orderId') }}</th>
                   <th>{{ t('dashboard.inventoryShortages.sku') }}</th>
                   <th>{{ t('dashboard.inventoryShortages.itemName') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.quantityNeeded') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.quantityAvailable') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.shortage') }}</th>
-                  <th>{{ t('dashboard.inventoryShortages.daysDelayed') }}</th>
+                  <th class="num">{{ t('dashboard.inventoryShortages.quantityNeeded') }}</th>
+                  <th class="num">{{ t('dashboard.inventoryShortages.quantityAvailable') }}</th>
+                  <th class="num">{{ t('dashboard.inventoryShortages.shortage') }}</th>
+                  <th class="num">{{ t('dashboard.inventoryShortages.daysDelayed') }}</th>
                   <th>{{ t('dashboard.inventoryShortages.priority') }}</th>
                   <th>Actions</th>
                 </tr>
@@ -191,15 +191,15 @@
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.order_id }}</strong></td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;"><strong>{{ item.item_sku }}</strong></td>
                   <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ translateProductName(item.item_name) }}</td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_needed }}</td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_available }}</td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">
+                  <td class="num" @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_needed }}</td>
+                  <td class="num" @click="showBacklogDetail(item)" style="cursor: pointer;">{{ item.quantity_available }}</td>
+                  <td class="num" @click="showBacklogDetail(item)" style="cursor: pointer;">
                     <span class="badge danger">
                       {{ Math.abs(item.quantity_needed - item.quantity_available) }} {{ t('dashboard.inventoryShortages.unitsShort') }}
                     </span>
                   </td>
-                  <td @click="showBacklogDetail(item)" style="cursor: pointer;">
-                    <span :style="{ color: item.days_delayed > 7 ? '#ef4444' : '#f59e0b', fontWeight: 600 }">
+                  <td class="num" @click="showBacklogDetail(item)" style="cursor: pointer;">
+                    <span :style="{ color: item.days_delayed > 7 ? 'var(--danger)' : 'var(--warning)', fontWeight: 600 }">
                       {{ item.days_delayed }} {{ t('dashboard.inventoryShortages.days') }}
                     </span>
                   </td>
@@ -242,8 +242,8 @@
                   <th>{{ t('dashboard.topProducts.product') }}</th>
                   <th>{{ t('dashboard.topProducts.sku') }}</th>
                   <th>{{ t('dashboard.topProducts.category') }}</th>
-                  <th>{{ t('dashboard.topProducts.unitsOrdered') }}</th>
-                  <th>{{ t('dashboard.topProducts.revenue') }}</th>
+                  <th class="num">{{ t('dashboard.topProducts.unitsOrdered') }}</th>
+                  <th class="num">{{ t('dashboard.topProducts.revenue') }}</th>
                   <th>{{ t('dashboard.topProducts.firstOrder') }}</th>
                   <th>{{ t('dashboard.topProducts.stockStatus') }}</th>
                 </tr>
@@ -258,8 +258,8 @@
                   <td><strong>{{ translateProductName(item.name) }}</strong></td>
                   <td>{{ item.sku }}</td>
                   <td>{{ translateCategory(item.category) }}</td>
-                  <td>{{ item.unitsOrdered }}</td>
-                  <td><strong>{{ formatCurrency(item.revenue, selectedCurrency) }}</strong></td>
+                  <td class="num">{{ item.unitsOrdered }}</td>
+                  <td class="num"><strong>{{ formatCurrency(item.revenue, selectedCurrency) }}</strong></td>
                   <td>{{ formatDate(item.firstOrderDate) }}</td>
                   <td>
                     <span :class="['badge', getStockBadge(item.stockLevel)]">
@@ -409,7 +409,7 @@ export default {
       const categoryMap = {}
 
       // Use a single neutral slate/gray color for all categories
-      const singleColor = '#64748b' // Neutral slate gray color
+      const singleColor = 'var(--text-muted)' // Neutral slate gray color
 
       // Get SKUs from orders in the filtered time period
       const orderedSkus = new Set()
@@ -727,94 +727,59 @@ export default {
 </script>
 
 <style scoped>
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
 .header-meta {
-  font-size: 0.813rem;
-  color: #64748b;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .kpi-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
 }
 
 .section-title {
-  font-size: 1rem;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
   font-weight: 600;
-  color: #475569;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-
-.kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-}
-
-.kpi-card {
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 1rem;
+  margin-bottom: var(--space-4);
 }
 
 .kpi-header {
-  margin-bottom: 0.75rem;
-}
-
-.kpi-label {
-  font-size: 0.813rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-}
-
-.kpi-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.025em;
+  margin-bottom: var(--space-3);
 }
 
 .kpi-goal {
-  font-size: 0.813rem;
-  color: #64748b;
-  margin-bottom: 0.75rem;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-3);
 }
 
 .kpi-progress-bar {
   width: 100%;
   height: 6px;
-  background: #f1f5f9;
-  border-radius: 3px;
+  background: var(--surface-muted);
+  border-radius: var(--radius-sm);
   overflow: hidden;
 }
 
 .kpi-progress {
   height: 100%;
-  background: #3b82f6;
-  border-radius: 3px;
+  background: var(--info);
+  border-radius: var(--radius-sm);
   transition: width 0.6s ease;
 }
 
 .kpi-progress.success {
-  background: #10b981;
+  background: var(--success);
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-5);
+  margin-bottom: var(--space-6);
 }
 
 .chart-card.full-width {
@@ -822,14 +787,14 @@ export default {
 }
 
 .chart-content {
-  padding: 1rem;
+  padding: var(--space-4);
 }
 
 .donut-chart {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 3rem;
+  gap: var(--space-12);
 }
 
 .donut-svg {
@@ -840,30 +805,30 @@ export default {
 .donut-legend {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-3);
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  font-size: 0.875rem;
-  color: #475569;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
 }
 
 .legend-dot {
   width: 10px;
   height: 10px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 /* Order Health Dashboard Styles */
 .order-health-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
+  gap: var(--space-6);
   align-items: center;
-  padding: 1rem;
+  padding: var(--space-4);
   min-height: 240px;
 }
 
@@ -872,8 +837,8 @@ export default {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 0 1rem;
+  gap: var(--space-4);
+  padding: 0 var(--space-4);
 }
 
 .donut-svg-compact {
@@ -882,38 +847,38 @@ export default {
 }
 
 .donut-center-label {
-  font-size: 12px;
-  fill: #64748b;
+  font-size: var(--text-xs);
+  fill: var(--text-muted);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .donut-center-value {
-  font-size: 36px;
-  fill: #0f172a;
+  font-size: var(--text-4xl);
+  fill: var(--text);
   font-weight: 700;
 }
 
 .donut-legend-compact {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0.625rem 1.25rem;
+  gap: var(--space-2) var(--space-5);
 }
 
 .legend-item-compact {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: #475569;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
 .order-health-metrics {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: var(--space-5);
   justify-content: center;
   align-items: center;
 }
@@ -921,65 +886,65 @@ export default {
 .health-metric {
   display: flex;
   flex-direction: column;
-  gap: 0.375rem;
+  gap: var(--space-1);
   text-align: center;
   width: 100%;
 }
 
 .health-metric-label {
-  font-size: 0.688rem;
-  color: #64748b;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .health-metric-value {
-  font-size: 1.75rem;
+  font-size: var(--text-3xl);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text);
   letter-spacing: -0.025em;
 }
 
 .metric-good {
-  color: #10b981;
+  color: var(--success);
 }
 
 .metric-warning {
-  color: #f59e0b;
+  color: var(--warning);
 }
 
 .metric-bad {
-  color: #ef4444;
+  color: var(--danger);
 }
 
 .horizontal-bar-chart {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  padding: 0 1rem;
+  gap: var(--space-6);
+  padding: 0 var(--space-4);
 }
 
 .h-bar-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .h-bar-label {
   width: 120px;
   min-width: 120px;
-  font-size: 0.875rem;
+  font-size: var(--text-base);
   font-weight: 600;
-  color: #475569;
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
 .h-bar-container {
   flex: 1;
   height: 32px;
-  background: #f8fafc;
-  border-radius: 6px;
+  background: var(--surface-subtle);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -988,19 +953,19 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding-right: 0.75rem;
+  padding-right: var(--space-3);
   transition: width 0.6s ease;
 }
 
 .h-bar-value {
-  font-size: 0.813rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   color: white;
 }
 
 .line-chart {
   display: flex;
-  gap: 1.5rem;
+  gap: var(--space-6);
   height: 280px;
 }
 
@@ -1008,10 +973,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 1rem;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  border-right: 1px solid #e2e8f0;
+  padding-right: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  border-right: 1px solid var(--border);
 }
 
 .line-chart-area {
@@ -1019,7 +984,7 @@ export default {
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .line-bar-group {
@@ -1028,7 +993,7 @@ export default {
   align-items: center;
   flex: 1;
   max-width: 80px;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .line-bar-wrapper {
@@ -1044,116 +1009,107 @@ export default {
   width: 100%;
   max-width: 60px;
   min-height: 8px;
-  background: #3b82f6;
-  border-radius: 6px 6px 0 0;
+  background: var(--info);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .line-bar.empty-bar {
-  background: #e2e8f0;
+  background: var(--border);
   box-shadow: none;
   min-height: 4px;
 }
 
 .line-bar:hover {
-  background: #2563eb;
+  background: var(--info);
   transform: scaleY(1.05);
 }
 
 .line-bar.empty-bar:hover {
-  background: #cbd5e1;
+  background: var(--border-strong);
   transform: none;
 }
 
 .line-bar-label {
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
 .no-data {
-  padding: 2rem;
+  padding: var(--space-8);
   text-align: center;
-  color: #94a3b8;
-  font-size: 0.875rem;
+  color: var(--text-subtle);
+  font-size: var(--text-base);
 }
 
 .no-backlog {
-  padding: 3rem;
+  padding: var(--space-12);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .success-icon {
   width: 48px;
   height: 48px;
-  color: #10b981;
+  color: var(--success);
 }
 
 .no-backlog-text {
-  font-size: 1.125rem;
-  color: #10b981;
+  font-size: var(--text-xl);
+  color: var(--success);
   font-weight: 600;
   margin: 0;
 }
 
-.clickable-row {
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.clickable-row:hover {
-  background: #eff6ff !important;
-}
-
 /* Tasks Card Styles */
 .tasks-card {
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-8);
 }
 
 .tasks-content {
-  padding: 1.5rem;
+  padding: var(--space-6);
 }
 
 .task-input-container {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .task-input {
   flex: 1;
-  padding: 0.75rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color 0.2s ease;
+  padding: var(--space-3);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-md);
+  transition: border-color var(--duration) var(--ease);
 }
 
 .task-input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: var(--accent);
 }
 
 .task-add-btn {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  padding: var(--space-3) var(--space-6);
+  background: var(--accent);
+  color: var(--accent-ink);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform var(--duration) var(--ease), opacity var(--duration) var(--ease);
 }
 
 .task-add-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
+  transform: none;
 }
 
 .task-add-btn:disabled {
@@ -1163,31 +1119,31 @@ export default {
 
 .no-tasks {
   text-align: center;
-  padding: 2rem;
-  color: #64748b;
+  padding: var(--space-8);
+  color: var(--text-muted);
   font-style: italic;
 }
 
 .tasks-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .task-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem;
-  background: #f8fafc;
-  border-radius: 8px;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface-subtle);
+  border-radius: var(--radius-lg);
   border: 2px solid transparent;
-  transition: all 0.2s ease;
+  transition: all var(--duration) var(--ease);
 }
 
 .task-item:hover {
-  border-color: #e2e8f0;
-  background: white;
+  border-color: var(--border);
+  background: var(--surface);
 }
 
 .task-item.completed {
@@ -1196,35 +1152,35 @@ export default {
 
 .task-item.completed .task-text {
   text-decoration: line-through;
-  color: #94a3b8;
+  color: var(--text-subtle);
 }
 
 .task-checkbox {
   width: 20px;
   height: 20px;
   cursor: pointer;
-  accent-color: #667eea;
+  accent-color: var(--accent);
 }
 
 .task-text {
   flex: 1;
   cursor: pointer;
   user-select: none;
-  color: #0f172a;
-  font-size: 0.95rem;
+  color: var(--text);
+  font-size: var(--text-md);
 }
 
 .task-delete-btn {
   width: 28px;
   height: 28px;
-  background: #ef4444;
+  background: var(--danger);
   color: white;
   border: none;
-  border-radius: 6px;
-  font-size: 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: var(--text-xl);
   line-height: 1;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration) var(--ease);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1232,40 +1188,40 @@ export default {
 }
 
 .task-delete-btn:hover {
-  background: #dc2626;
+  background: var(--danger);
   transform: scale(1.1);
 }
 
 .po-button {
-  padding: 0.5rem 1rem;
+  padding: var(--space-2) var(--space-4);
   border: none;
-  border-radius: 6px;
-  font-size: 0.813rem;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration) var(--ease);
   white-space: nowrap;
 }
 
 .po-button.create {
-  background: #3b82f6;
+  background: var(--info);
   color: white;
 }
 
 .po-button.create:hover {
-  background: #2563eb;
+  background: var(--info);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .po-button.view {
-  background: #64748b;
+  background: var(--text-muted);
   color: white;
 }
 
 .po-button.view:hover {
-  background: #475569;
+  background: var(--text-secondary);
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(100, 116, 139, 0.3);
+  box-shadow: var(--shadow-md);
 }
 </style>

@@ -97,7 +97,7 @@
           </thead>
           <tbody>
             <tr v-for="item in items" :key="item.sku">
-              <td><strong>{{ item.sku }}</strong></td>
+              <td class="mono"><strong>{{ item.sku }}</strong></td>
               <td>{{ translateProductName(item.name) }}</td>
               <td>
                 <span :class="['badge', item.trend]">{{ t(`trends.${item.trend}`) }}</span>
@@ -257,76 +257,55 @@ export default {
 .budget-control {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding: 0.5rem 1.5rem 1.5rem;
+  gap: var(--space-6);
+  padding: var(--space-2) var(--space-6) var(--space-6);
 }
 
 .budget-slider {
   flex: 1;
-  accent-color: #0f172a;
+  accent-color: var(--text);
 }
 
 .budget-input-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  font-size: 0.813rem;
-  color: #64748b;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .budget-number {
   width: 140px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  color: #0f172a;
-  font-size: 0.875rem;
-}
-
-.btn-primary {
-  padding: 0.5rem 1rem;
-  background: #0f172a;
-  color: white;
-  border: 1px solid #0f172a;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #1e293b;
-}
-
-.btn-primary:disabled {
-  background: #94a3b8;
-  border-color: #94a3b8;
-  cursor: not-allowed;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: var(--text-base);
 }
 
 .confirmation {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0 1.5rem 1rem;
-  padding: 0.75rem 1rem;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 6px;
-  color: #0f172a;
-  font-size: 0.875rem;
+  gap: var(--space-3);
+  margin: 0 var(--space-6) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--success-soft);
+  border: 1px solid var(--success-border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: var(--text-base);
 }
 
 .confirmation-link {
-  color: #3b82f6;
+  color: var(--info);
   font-weight: 500;
 }
 
 .empty-note {
-  padding: 1.5rem;
-  color: #64748b;
-  font-size: 0.875rem;
+  padding: var(--space-6);
+  color: var(--text-muted);
+  font-size: var(--text-base);
 }
 
 th.num,

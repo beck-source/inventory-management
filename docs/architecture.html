@@ -77,9 +77,11 @@
     <div class="tier fe">
       <h3>Frontend</h3>
       <div class="sub">Vue 3 SPA, Vite dev server, port 3000</div>
-      <div class="box"><b>Views (vue-router)</b><span>Dashboard, Inventory, Orders, Demand, Spending, Reports</span></div>
-      <div class="box"><b>Components</b><span>FilterBar, detail modals, ProfileMenu, TasksModal, LanguageSwitcher</span></div>
-      <div class="box"><b>Composables (shared state)</b><span>useFilters, useI18n (en / ja), useAuth (mock user)</span></div>
+      <div class="box"><b>Views (vue-router)</b><span>Dashboard, Inventory, Orders, Demand, Restocking, Spending, Reports</span></div>
+      <div class="box"><b>App shell</b><span><code>App.vue</code> grid: <code>AppSidebar</code> (240px, collapses to a 64px icon rail, slide-in drawer below 1024px; nav from <code>navItems.js</code>, icons in <code>NavIcon</code>, language switcher and profile menu in its footer), <code>AppHeader</code> (hamburger and page title) with <code>FilterBar</code> as a sticky row beneath it</span></div>
+      <div class="box"><b>Design tokens</b><span><code>src/styles/tokens.css</code> (colors, 4px spacing, type, radii, z-index layers) and <code>src/styles/base.css</code> (shared card, KPI, table and badge classes)</span></div>
+      <div class="box"><b>Components</b><span>FilterBar, AppSidebar, AppHeader, detail modals, ProfileMenu, TasksModal, LanguageSwitcher</span></div>
+      <div class="box"><b>Composables (shared state)</b><span>useFilters, useI18n (en / ja), useAuth (mock user), useSidebar (collapsed and drawer state, collapse saved in <code>localStorage</code>)</span></div>
       <div class="box"><b>API client</b><span><code>src/api.js</code> (axios)</span></div>
     </div>
     <div class="arrow">
@@ -113,6 +115,7 @@
       <h3>Frontend</h3>
       <span class="tag t-blue">Vue 3.4</span><span class="tag t-blue">Composition API</span><span class="tag t-blue">Vue Router 4</span><span class="tag t-blue">Axios</span><span class="tag t-blue">Vite 8</span>
       <ul>
+        <li>The UI uses an "industrial precision" design: Archivo, IBM Plex Sans and IBM Plex Mono from Google Fonts, a slate palette with one amber accent, all defined as CSS custom properties.</li>
         <li>Charts are custom SVG and layouts use CSS Grid. There is no chart or UI library.</li>
         <li>Shared state lives in composables with module-level refs. There is no Pinia or Vuex.</li>
         <li>i18n is handled in-house, and the chosen locale is saved in <code>localStorage</code>.</li>

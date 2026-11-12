@@ -7,6 +7,12 @@ export default {
     finance: '財務',
     demandForecast: '需要予測',
     restocking: '補充発注',
+    reports: 'レポート',
+    collapse: 'サイドバーを折りたたむ',
+    expand: 'サイドバーを展開',
+    openMenu: 'メニューを開く',
+    closeMenu: 'メニューを閉じる',
+    mainNav: 'メインナビゲーション',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },

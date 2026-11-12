@@ -40,10 +40,10 @@
                 <th>{{ t('inventory.table.sku') }}</th>
                 <th>{{ t('inventory.table.itemName') }}</th>
                 <th>{{ t('inventory.table.category') }}</th>
-                <th>{{ t('inventory.table.quantityOnHand') }}</th>
-                <th>{{ t('inventory.table.reorderPoint') }}</th>
-                <th>{{ t('inventory.table.unitCost') }}</th>
-                <th>{{ t('inventory.table.totalValue') }}</th>
+                <th class="num">{{ t('inventory.table.quantityOnHand') }}</th>
+                <th class="num">{{ t('inventory.table.reorderPoint') }}</th>
+                <th class="num">{{ t('inventory.table.unitCost') }}</th>
+                <th class="num">{{ t('inventory.table.totalValue') }}</th>
                 <th>{{ t('inventory.table.location') }}</th>
                 <th>{{ t('inventory.table.status') }}</th>
               </tr>
@@ -55,13 +55,13 @@
                 class="clickable-row"
                 @click="showItemDetail(item)"
               >
-                <td><strong>{{ item.sku }}</strong></td>
+                <td class="mono"><strong>{{ item.sku }}</strong></td>
                 <td>{{ translateProductName(item.name) }}</td>
                 <td>{{ translateCategory(item.category) }}</td>
-                <td><strong>{{ item.quantity_on_hand }}</strong></td>
-                <td>{{ item.reorder_point }}</td>
-                <td>{{ currencySymbol }}{{ item.unit_cost.toFixed(2) }}</td>
-                <td><strong>{{ currencySymbol }}{{ (item.quantity_on_hand * item.unit_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}</strong></td>
+                <td class="num"><strong>{{ item.quantity_on_hand }}</strong></td>
+                <td class="num">{{ item.reorder_point }}</td>
+                <td class="num">{{ currencySymbol }}{{ item.unit_cost.toFixed(2) }}</td>
+                <td class="num"><strong>{{ currencySymbol }}{{ (item.quantity_on_hand * item.unit_cost).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}</strong></td>
                 <td>{{ translateWarehouse(item.location) }}</td>
                 <td>
                   <span :class="['badge', getStockStatusClass(item)]">
@@ -225,35 +225,6 @@ export default {
 </script>
 
 <style scoped>
-.page-header {
-  margin-bottom: 1.5rem;
-}
-
-.page-header h2 {
-  margin-bottom: 0.25rem;
-}
-
-.page-header p {
-  color: #64748b;
-  font-size: 0.875rem;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #0f172a;
-  margin: 0;
-}
-
 .search-box {
   position: relative;
   display: flex;
@@ -263,53 +234,53 @@ export default {
 
 .search-icon {
   position: absolute;
-  left: 0.75rem;
+  left: var(--space-3);
   width: 18px;
   height: 18px;
-  color: #94a3b8;
+  color: var(--text-subtle);
   pointer-events: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.5rem 2.5rem 0.5rem 2.5rem;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  color: #0f172a;
-  background: #f8fafc;
-  transition: all 0.2s;
+  padding: var(--space-2) var(--space-10) var(--space-2) var(--space-10);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  color: var(--text);
+  background: var(--surface-subtle);
+  transition: all var(--duration) var(--ease);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--info);
+  background: var(--surface);
+  box-shadow: var(--focus-ring);
 }
 
 .search-input::placeholder {
-  color: #94a3b8;
+  color: var(--text-subtle);
 }
 
 .clear-search {
   position: absolute;
-  right: 0.5rem;
+  right: var(--space-2);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
+  padding: var(--space-1);
   background: transparent;
   border: none;
-  border-radius: 4px;
-  color: #94a3b8;
+  border-radius: var(--radius-sm);
+  color: var(--text-subtle);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--duration) var(--ease);
 }
 
 .clear-search:hover {
-  background: #e2e8f0;
-  color: #64748b;
+  background: var(--border);
+  color: var(--text-muted);
 }
 
 .clear-search svg {
@@ -319,21 +290,13 @@ export default {
 
 .loading,
 .error {
-  padding: 2rem;
+  padding: var(--space-8);
   text-align: center;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .error {
-  color: #ef4444;
+  color: var(--danger);
 }
 
-.clickable-row {
-  cursor: pointer;
-  transition: background-color 0.15s ease;
-}
-
-.clickable-row:hover {
-  background: #eff6ff !important;
-}
 </style>

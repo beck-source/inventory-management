@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8001/api'
+// Override with VITE_API_URL to run the backend on a non-default port
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api'
 
 export const api = {
   async getInventory(filters = {}) {
