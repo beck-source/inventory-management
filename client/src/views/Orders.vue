@@ -74,6 +74,54 @@
           </table>
         </div>
       </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ restockOrders.length }})</h3>
+        </div>
+        <div v-if="restockError" class="error">{{ restockError }}</div>
+        <div v-else-if="restockOrders.length === 0" class="empty-restock">{{ t('orders.noSubmittedOrders') }}</div>
+        <div v-else class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.submitted.orderId') }}</th>
+                <th class="col-date">{{ t('orders.submitted.submitted') }}</th>
+                <th class="col-items">{{ t('orders.submitted.items') }}</th>
+                <th class="col-value">{{ t('orders.submitted.total') }}</th>
+                <th class="col-date">{{ t('orders.submitted.leadTime') }}</th>
+                <th class="col-date">{{ t('orders.submitted.expectedDelivery') }}</th>
+                <th class="col-status">{{ t('orders.submitted.status') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ro in restockOrders" :key="ro.id">
+                <td class="col-order-number"><strong>{{ ro.id }}</strong></td>
+                <td class="col-date">{{ formatDate(ro.submitted_at) }}</td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: ro.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in ro.items" :key="item.item_sku" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.item_name) }}</span>
+                        <span class="item-meta">{{ item.item_sku }} &times; {{ item.quantity }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ ro.total_cost.toLocaleString() }}</strong></td>
+                <td class="col-date">{{ t('orders.submitted.days', { count: ro.lead_time_days }) }}</td>
+                <td class="col-date">{{ formatDate(ro.expected_delivery) }}</td>
+                <td class="col-status">
+                  <span class="badge info">{{ restockStatusLabel(ro.status) }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -146,16 +194,41 @@ export default {
     const formatDate = (dateString) => {
       const { currentLocale } = useI18n()
       const locale = currentLocale.value === 'ja' ? 'ja-JP' : 'en-US'
-      return new Date(dateString).toLocaleDateString(locale, {
+      const isDateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateString)
+      return new Date(isDateOnly ? `${dateString}T00:00:00` : dateString).toLocaleDateString(locale, {
         year: 'numeric',
         month: 'short',
         day: 'numeric'
       })
     }
 
-    onMounted(loadOrders)
+    const restockOrders = ref([])
+    const restockError = ref(null)
+
+    // Independent of the filters; failure must not affect the main orders list
+    const loadRestockOrders = async () => {
+      try {
+        restockError.value = null
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        console.error('Failed to load restock orders:', err)
+        restockError.value = t('orders.submittedError')
+      }
+    }
+
+    const restockStatusLabel = (status) => {
+      return status === 'Submitted' ? t('orders.submitted.status_submitted') : status
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
+      restockOrders,
+      restockError,
+      restockStatusLabel,
       t,
       loading,
       error,
@@ -201,6 +274,12 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.empty-restock {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
 }
 
 /* Items details styling */
