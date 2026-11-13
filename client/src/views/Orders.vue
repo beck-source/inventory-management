@@ -5,6 +5,58 @@
       <p>{{ t('orders.description') }}</p>
     </div>
 
+    <!-- Rendered outside the main loading/error block so filter reloads or a getOrders failure never hide it. Restock orders have no warehouse/category, so this card ignores the global filters. -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">{{ t('orders.submittedOrders.title') }} ({{ restockOrders.length }})</h3>
+      </div>
+      <div v-if="restockLoading" class="loading">{{ t('common.loading') }}</div>
+      <div v-else-if="restockError" class="error">{{ restockError }}</div>
+      <div v-else-if="restockOrders.length === 0" class="empty-state">
+        {{ t('orders.submittedOrders.empty') }}
+      </div>
+      <div v-else class="table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th class="col-order-number">{{ t('orders.submittedOrders.orderNumber') }}</th>
+              <th class="col-items">{{ t('orders.submittedOrders.items') }}</th>
+              <th class="col-value">{{ t('orders.submittedOrders.total') }}</th>
+              <th class="col-date">{{ t('orders.submittedOrders.submitted') }}</th>
+              <th class="col-lead">{{ t('orders.submittedOrders.leadTime') }}</th>
+              <th class="col-date">{{ t('orders.submittedOrders.expectedDelivery') }}</th>
+              <th class="col-status">{{ t('orders.submittedOrders.status') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="order in restockOrders" :key="order.id">
+              <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+              <td class="col-items">
+                <details class="items-details">
+                  <summary class="items-summary">
+                    {{ t('orders.itemsCount', { count: order.items.length }) }}
+                  </summary>
+                  <div class="items-dropdown">
+                    <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                      <span class="item-name">{{ translateProductName(item.name) }}</span>
+                      <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }}</span>
+                    </div>
+                  </div>
+                </details>
+              </td>
+              <td class="col-value"><strong>{{ formatCurrencyWithDecimals(order.total_cost, currentCurrency, 2) }}</strong></td>
+              <td class="col-date">{{ formatDate(order.submitted_date) }}</td>
+              <td class="col-lead">{{ t('restocking.days', { count: order.lead_time_days }) }}</td>
+              <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+              <td class="col-status">
+                <span class="badge info">{{ t('orders.submittedOrders.statusSubmitted') }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div v-if="loading" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
@@ -83,6 +135,7 @@ import { ref, onMounted, watch, computed } from 'vue'
 import { api } from '../api'
 import { useFilters } from '../composables/useFilters'
 import { useI18n } from '../composables/useI18n'
+import { formatCurrencyWithDecimals } from '../utils/currency'
 
 export default {
   name: 'Orders',
@@ -95,6 +148,9 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockOrders = ref([])
+    const restockError = ref(null)
+    const restockLoading = ref(true)
 
     // Use shared filters
     const {
@@ -153,7 +209,23 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    // Loaded separately from loadOrders: restock orders are not filterable, so
+    // filter changes must not trigger a refetch and a failure must not hide the main table.
+    const loadRestockOrders = async () => {
+      try {
+        restockOrders.value = await api.getRestockOrders()
+      } catch (err) {
+        restockError.value = t('orders.submittedOrders.loadError')
+        console.error('Failed to load restock orders:', err)
+      } finally {
+        restockLoading.value = false
+      }
+    }
+
+    onMounted(() => {
+      loadOrders()
+      loadRestockOrders()
+    })
 
     return {
       t,
@@ -164,6 +236,11 @@ export default {
       getOrderStatusClass,
       formatDate,
       currencySymbol,
+      currentCurrency,
+      formatCurrencyWithDecimals,
+      restockOrders,
+      restockError,
+      restockLoading,
       translateProductName,
       translateCustomerName
     }
@@ -201,6 +278,16 @@ export default {
 
 .col-value {
   width: 120px;
+}
+
+.col-lead {
+  width: 110px;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
 }
 
 /* Items details styling */

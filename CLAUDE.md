@@ -54,6 +54,16 @@ npm install && npm run dev
 - `GET /api/dashboard/summary` - All filters
 - `GET /api/demand`, `/api/backlog` - No filters
 - `GET /api/spending/*` - Summary, monthly, categories, transactions
+- `GET /api/restock/recommendations?budget=` - Deterministic budget-greedy restock list (demand forecasts)
+- `POST /api/restock/ai-recommendations` - Claude Haiku 5.5 restock plan from stock + order history; needs `ANTHROPIC_AWS_API_KEY` + `AWS_REGION` + `ANTHROPIC_AWS_WORKSPACE_ID` (Claude Platform on AWS) or `ANTHROPIC_API_KEY` in root `.env` (503 if unset; see `.env.example`). Server re-validates SKUs, quantities, prices and budget
+- `GET/POST /api/restock-orders` - Restock orders (accepts forecast or inventory SKUs)
+- `/api/tasks`, `/api/purchase-orders` - Tasks CRUD; one PO per backlog item
+
+## GitHub Workflow
+- `.github/workflows/claude.yml`: OWNER/MEMBER/COLLABORATOR `@claude` comments on PRs run the Claude Code CLI (Haiku 5.5) on Claude Platform on AWS and post the reply
+- Uses the CLI, not `claude-code-action`, because the action doesn't support Claude Platform on AWS
+- Repo secrets: `ANTHROPIC_AWS_API_KEY` (long-lived workspace key), `ANTHROPIC_AWS_WORKSPACE_ID`; repo variable: `AWS_REGION`
+- Checks out the default branch only and gives Claude the PR diff with read-only tools, so PR-supplied `.claude/` settings/hooks never run while secrets are present
 
 ## Common Issues
 1. Use unique keys in v-for (not `index`) - use `sku`, `month`, etc.
@@ -61,6 +71,9 @@ npm install && npm run dev
 3. Update Pydantic models when changing JSON data structure
 4. Inventory filters don't support month (no time dimension)
 5. Revenue goals: $800K/month single, $9.6M YTD all months
+
+## Code Conventions
+- Always document non-obvious logic changes with comments explaining *why* (edge cases, workarounds, filter/date quirks) — don't just restate what the code does
 
 ## File Locations
 - Views: `client/src/views/*.vue`

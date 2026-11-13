@@ -7,6 +7,8 @@ dependencies = [
     "fastapi>=0.110.0",
     "uvicorn>=0.24.0",
     "pydantic>=2.5.0",
+    "anthropic>=2.8.0",
+    "python-dotenv>=1.2.4",
 ]
 
 [tool.uv]
