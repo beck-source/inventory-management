@@ -150,7 +150,15 @@ export default {
     budget: {
       title: 'Restocking Budget',
       selected: 'Selected budget',
-      max: 'Maximum useful budget'
+      max: 'Maximum useful budget',
+      input: 'Budget amount',
+      presets: {
+        quarter: '25%',
+        half: '50%',
+        threeQuarters: '75%',
+        max: 'Max'
+      },
+      utilization: '{percent}% of budget used'
     },
     recommendations: 'Recommended Purchases',
     table: {
@@ -171,7 +179,9 @@ export default {
     empty: 'This budget does not cover any recommended purchases. Increase the budget to see items.',
     noGaps: 'No restocking is needed at the moment.',
     placeOrder: 'Place Order',
-    placing: 'Placing order...',
+    placing: 'Placing order…',
+    updatingHint: 'Updating recommendations…',
+    noItemsHint: 'No items to order',
     orderPlaced: 'Order {orderNumber} was placed successfully.',
     viewOrders: 'View in Orders',
     loadError: 'Failed to load restocking recommendations',
@@ -187,7 +197,9 @@ export default {
       error: 'Failed to generate AI recommendations',
       empty: 'No restocking needed right now.',
       total: 'Total',
-      placeOrder: 'Place order',
+      placeOrder: 'Place Order',
+      loadingStatus: 'Generating plan…',
+      readyStatus: 'Plan ready: {count} items, total {amount}',
       placing: 'Placing order…',
       orderPlaced: 'Order {orderNumber} was placed successfully.',
       orderError: 'Failed to place order',

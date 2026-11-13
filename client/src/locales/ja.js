@@ -150,7 +150,15 @@ export default {
     budget: {
       title: '補充予算',
       selected: '選択した予算',
-      max: '有効な予算の上限'
+      max: '有効な予算の上限',
+      input: '予算額',
+      presets: {
+        quarter: '25%',
+        half: '50%',
+        threeQuarters: '75%',
+        max: '最大'
+      },
+      utilization: '予算の{percent}%を使用'
     },
     recommendations: '推奨購入品目',
     table: {
@@ -171,7 +179,9 @@ export default {
     empty: 'この予算では推奨品目を購入できません。予算を増やしてください。',
     noGaps: '現在、補充の必要はありません。',
     placeOrder: '発注する',
-    placing: '発注中...',
+    placing: '発注中…',
+    updatingHint: '推奨内容を更新中…',
+    noItemsHint: '発注する品目がありません',
     orderPlaced: '注文 {orderNumber} を受け付けました。',
     viewOrders: '注文一覧で確認',
     loadError: '補充の推奨データの読み込みに失敗しました',
@@ -188,6 +198,8 @@ export default {
       empty: '現在、補充の必要はありません。',
       total: '合計',
       placeOrder: '発注する',
+      loadingStatus: 'プランを生成中…',
+      readyStatus: 'プランが完成しました: {count}品目、合計 {amount}',
       placing: '発注中…',
       orderPlaced: '注文 {orderNumber} を受け付けました。',
       orderError: '発注に失敗しました',

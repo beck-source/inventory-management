@@ -155,6 +155,62 @@ const onBudgetInput = () => {
   debounceTimer = setTimeout(() => fetchRecommendations(budget.value), DEBOUNCE_MS)
 }
 
+const PRESETS = [
+  { key: 'quarter', pct: 0.25 },
+  { key: 'half', pct: 0.5 },
+  { key: 'threeQuarters', pct: 0.75 },
+  { key: 'max', pct: 1 }
+]
+const presetValue = (pct) => Math.round(sliderMax.value * pct / STEP) * STEP
+
+// Single entry point for slider, number input and presets so every path clamps,
+// snaps to STEP and triggers the same debounce/seq/placedOrder reset.
+const setBudget = (raw) => {
+  // Number('') is 0, which would silently zero the budget on an empty field.
+  if (raw === '' || raw === null || raw === undefined) return false
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return false
+  const next = Math.min(sliderMax.value, Math.max(0, Math.round(n / STEP) * STEP))
+  if (next === budget.value) return true
+  budget.value = next
+  onBudgetInput()
+  return true
+}
+
+// Commit on change/blur (not per keystroke) so partial typing like "1" doesn't fire requests;
+// always rewrite the DOM value because a clamped/unchanged budget won't re-render the input.
+const commitBudgetInput = (event) => {
+  setBudget(event.target.value)
+  event.target.value = budget.value
+}
+
+const activePreset = computed(() =>
+  PRESETS.find(p => presetValue(p.pct) === budget.value)?.key ?? null
+)
+
+// total_cost can never exceed the budget server-side, but guard budget 0 and clamp defensively.
+const utilizationPercent = computed(() => {
+  const r = recommendation.value
+  if (!r || !r.budget) return 0
+  return Math.min(100, Math.max(0, Math.round((r.total_cost / r.budget) * 100)))
+})
+
+const orderHint = computed(() => {
+  if (refreshing.value) return t('restocking.updatingHint')
+  if (items.value.length === 0) return t('restocking.noItemsHint')
+  return ''
+})
+
+// Text for the visually-hidden live region.
+const aiStatus = computed(() => {
+  if (aiLoading.value) return t('restocking.ai.loadingStatus')
+  if (aiError.value) return aiError.value
+  if (aiPlan.value) {
+    return t('restocking.ai.readyStatus', { count: aiItems.value.length, amount: fmtExact(aiPlan.value.total_cost) })
+  }
+  return ''
+})
+
 const init = async () => {
   try {
     loading.value = true
@@ -222,50 +278,100 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
             <strong>{{ fmt(budget) }}</strong>
           </div>
           <input
-            v-model.number="budget"
+            :value="budget"
             type="range"
             class="budget-slider"
             min="0"
             :max="sliderMax"
             :step="STEP"
             :aria-label="t('restocking.budget.selected')"
-            @input="onBudgetInput"
+            :aria-valuetext="fmt(budget)"
+            @input="setBudget($event.target.value)"
           />
           <div class="budget-scale">
             <span>{{ fmt(0) }}</span>
             <span>{{ t('restocking.budget.max') }}: {{ fmt(sliderMax) }}</span>
+          </div>
+          <div class="budget-controls">
+            <input
+              :value="budget"
+              type="number"
+              class="budget-number"
+              min="0"
+              :max="sliderMax"
+              :step="STEP"
+              inputmode="numeric"
+              :aria-label="t('restocking.budget.input')"
+              @change="commitBudgetInput"
+            />
+            <div class="preset-group">
+              <button
+                v-for="p in PRESETS"
+                :key="p.key"
+                type="button"
+                class="btn btn-secondary"
+                :aria-pressed="activePreset === p.key"
+                @click="setBudget(presetValue(p.pct))"
+              >
+                {{ t(`restocking.budget.presets.${p.key}`) }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       <div v-if="error" class="error">{{ error }}</div>
 
-      <div v-if="recommendation" class="stats-grid">
-        <div class="stat-card info">
-          <div class="stat-label">{{ t('restocking.summary.totalCost') }}</div>
-          <div class="stat-value">{{ fmtExact(recommendation.total_cost) }}</div>
+      <template v-if="recommendation">
+        <div class="stats-grid">
+          <div class="stat-card info">
+            <div class="stat-label">{{ t('restocking.summary.totalCost') }}</div>
+            <div class="stat-value">{{ fmtExact(recommendation.total_cost) }}</div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-label">{{ t('restocking.summary.remainingBudget') }}</div>
+            <div class="stat-value">{{ fmtExact(recommendation.remaining_budget) }}</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-label">{{ t('restocking.summary.estimatedDelivery') }}</div>
+            <div class="stat-value">{{ items.length ? t('restocking.days', { count: estimatedDeliveryDays }) : '-' }}</div>
+          </div>
         </div>
-        <div class="stat-card success">
-          <div class="stat-label">{{ t('restocking.summary.remainingBudget') }}</div>
-          <div class="stat-value">{{ fmtExact(recommendation.remaining_budget) }}</div>
+
+        <div class="utilization">
+          <div
+            class="meter-track"
+            role="meter"
+            :aria-valuenow="utilizationPercent"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            :aria-valuetext="t('restocking.budget.utilization', { percent: utilizationPercent })"
+            :aria-label="t('restocking.budget.utilization', { percent: utilizationPercent })"
+          >
+            <div
+              :class="['meter-fill', utilizationPercent >= 90 ? 'meter-warn' : 'meter-ok']"
+              :style="{ width: utilizationPercent + '%' }"
+            ></div>
+          </div>
+          <span class="meter-label">{{ t('restocking.budget.utilization', { percent: utilizationPercent }) }}</span>
         </div>
-        <div class="stat-card warning">
-          <div class="stat-label">{{ t('restocking.summary.estimatedDelivery') }}</div>
-          <div class="stat-value">{{ items.length ? t('restocking.days', { count: estimatedDeliveryDays }) : '-' }}</div>
-        </div>
-      </div>
+      </template>
 
       <div class="card">
         <div class="card-header header-row">
           <h3 class="card-title">{{ t('restocking.recommendations') }} ({{ items.length }})</h3>
-          <button
-            type="button"
-            class="place-order-btn"
-            :disabled="!canPlaceOrder"
-            @click="placeOrder"
-          >
-            {{ placing ? t('restocking.placing') : t('restocking.placeOrder') }}
-          </button>
+          <div class="action-group">
+            <span v-if="orderHint" id="place-order-hint" class="hint">{{ orderHint }}</span>
+            <button
+              type="button"
+              class="btn btn-primary"
+              :disabled="!canPlaceOrder"
+              :aria-describedby="orderHint ? 'place-order-hint' : null"
+              @click="placeOrder"
+            >
+              {{ placing ? t('restocking.placing') : t('restocking.placeOrder') }}
+            </button>
+          </div>
         </div>
 
         <div v-if="placedOrder" class="notice notice-success" role="status">
@@ -277,103 +383,113 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
         <div v-if="items.length === 0" class="empty-state">
           {{ sliderMax === 0 ? t('restocking.noGaps') : t('restocking.empty') }}
         </div>
-        <div v-else class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>{{ t('restocking.table.sku') }}</th>
-                <th>{{ t('restocking.table.name') }}</th>
-                <th>{{ t('restocking.table.trend') }}</th>
-                <th class="num">{{ t('restocking.table.quantity') }}</th>
-                <th class="num">{{ t('restocking.table.unitCost') }}</th>
-                <th class="num">{{ t('restocking.table.lineTotal') }}</th>
-                <th class="num">{{ t('restocking.table.leadTime') }}</th>
+        <div v-else :class="['table-container', { 'is-refreshing': refreshing }]" :aria-busy="refreshing">
+          <!-- Explicit roles: the mobile card layout uses display:block, which strips native table semantics. -->
+          <table class="stack-table" role="table">
+            <thead role="rowgroup">
+              <tr role="row">
+                <th role="columnheader">{{ t('restocking.table.sku') }}</th>
+                <th role="columnheader">{{ t('restocking.table.name') }}</th>
+                <th role="columnheader">{{ t('restocking.table.trend') }}</th>
+                <th role="columnheader" class="num">{{ t('restocking.table.quantity') }}</th>
+                <th role="columnheader" class="num">{{ t('restocking.table.unitCost') }}</th>
+                <th role="columnheader" class="num">{{ t('restocking.table.lineTotal') }}</th>
+                <th role="columnheader" class="num">{{ t('restocking.table.leadTime') }}</th>
               </tr>
             </thead>
-            <tbody>
-              <tr v-for="item in items" :key="item.sku">
-                <td><strong>{{ item.sku }}</strong></td>
-                <td>{{ translateProductName(item.name) }}</td>
-                <td>
+            <tbody role="rowgroup">
+              <tr v-for="item in items" :key="item.sku" role="row">
+                <td role="cell" class="c-sku" :data-label="t('restocking.table.sku')"><strong>{{ item.sku }}</strong></td>
+                <td role="cell" class="c-name" :data-label="t('restocking.table.name')">{{ translateProductName(item.name) }}</td>
+                <td role="cell" class="c-badge" :data-label="t('restocking.table.trend')">
                   <span v-if="trendBySku[item.sku]" :class="['badge', trendBySku[item.sku]]">
                     {{ t(`trends.${trendBySku[item.sku]}`) }}
                   </span>
                   <span v-else>-</span>
                 </td>
-                <td class="num">{{ item.quantity.toLocaleString() }}</td>
-                <td class="num">{{ fmtExact(item.unit_cost) }}</td>
-                <td class="num"><strong>{{ fmtExact(item.line_total) }}</strong></td>
-                <td class="num">{{ t('restocking.days', { count: item.lead_time_days }) }}</td>
+                <td role="cell" class="num" :data-label="t('restocking.table.quantity')">{{ item.quantity.toLocaleString() }}</td>
+                <td role="cell" class="num" :data-label="t('restocking.table.unitCost')">{{ fmtExact(item.unit_cost) }}</td>
+                <td role="cell" class="num" :data-label="t('restocking.table.lineTotal')"><strong>{{ fmtExact(item.line_total) }}</strong></td>
+                <td role="cell" class="num" :data-label="t('restocking.table.leadTime')">{{ t('restocking.days', { count: item.lead_time_days }) }}</td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <div class="card ai-card">
+      <div class="card ai-card" :aria-busy="aiLoading">
         <div class="card-header">
           <h3 class="card-title">{{ t('restocking.ai.title') }}</h3>
-          <p v-if="aiPlan" class="ai-note">{{ t('restocking.ai.note', { model: aiPlan.model }) }}</p>
         </div>
 
         <div class="ai-controls">
           <span class="ai-budget">{{ t('restocking.ai.usesBudget', { amount: fmt(budget) }) }}</span>
-          <button type="button" class="place-order-btn" :disabled="aiLoading" @click="generateAI">
+          <button type="button" class="btn btn-primary" :disabled="aiLoading" @click="generateAI">
+            <span v-if="aiLoading" class="spinner" aria-hidden="true"></span>
             {{ aiLoading ? t('restocking.ai.analyzing') : t('restocking.ai.generate') }}
           </button>
         </div>
-        <div v-if="aiBudgetChanged" class="notice" role="status">
-          {{ t('restocking.ai.budgetChanged', { amount: fmt(aiPlan.budget) }) }}
-        </div>
+        <p v-if="aiPlan" class="ai-note">{{ t('restocking.ai.note', { model: aiPlan.model }) }}</p>
+
+        <!-- Announces progress/result to screen readers; the visual states are the skeleton and table. -->
+        <div class="sr-only" aria-live="polite" role="status">{{ aiStatus }}</div>
+
         <div v-if="aiError" class="notice notice-error" role="alert">{{ aiError }}</div>
+
+        <div v-if="aiLoading" class="skeleton-list" aria-hidden="true">
+          <div v-for="n in 4" :key="n" class="skeleton-row"></div>
+        </div>
 
         <template v-if="aiPlan">
           <p v-if="aiPlan.summary" class="ai-summary">{{ aiPlan.summary }}</p>
 
           <div v-if="aiItems.length === 0" class="empty-state">{{ t('restocking.ai.empty') }}</div>
           <template v-else>
+            <div v-if="aiBudgetChanged" class="notice" role="status">
+              {{ t('restocking.ai.budgetChanged', { amount: fmt(aiPlan.budget) }) }}
+            </div>
             <div class="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>{{ t('restocking.ai.table.sku') }}</th>
-                    <th>{{ t('restocking.ai.table.name') }}</th>
-                    <th class="num">{{ t('restocking.ai.table.onHand') }}</th>
-                    <th class="num">{{ t('restocking.ai.table.reorderPoint') }}</th>
-                    <th class="num">{{ t('restocking.ai.table.daysOfCover') }}</th>
-                    <th class="num">{{ t('restocking.ai.table.quantity') }}</th>
-                    <th class="num">{{ t('restocking.ai.table.lineTotal') }}</th>
-                    <th>{{ t('restocking.ai.table.priority') }}</th>
-                    <th class="ai-reason-col">{{ t('restocking.ai.table.reason') }}</th>
+              <table class="stack-table ai-table" role="table">
+                <thead role="rowgroup">
+                  <tr role="row">
+                    <th role="columnheader">{{ t('restocking.ai.table.sku') }}</th>
+                    <th role="columnheader">{{ t('restocking.ai.table.name') }}</th>
+                    <th role="columnheader" class="num">{{ t('restocking.ai.table.onHand') }}</th>
+                    <th role="columnheader" class="num">{{ t('restocking.ai.table.reorderPoint') }}</th>
+                    <th role="columnheader" class="num">{{ t('restocking.ai.table.daysOfCover') }}</th>
+                    <th role="columnheader" class="num">{{ t('restocking.ai.table.quantity') }}</th>
+                    <th role="columnheader" class="num">{{ t('restocking.ai.table.lineTotal') }}</th>
+                    <th role="columnheader">{{ t('restocking.ai.table.priority') }}</th>
+                    <th role="columnheader" class="ai-reason-col">{{ t('restocking.ai.table.reason') }}</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr v-for="item in aiItems" :key="item.sku">
-                    <td><strong>{{ item.sku }}</strong></td>
-                    <td>{{ translateProductName(item.name) }}</td>
-                    <td class="num">{{ item.quantity_on_hand.toLocaleString() }}</td>
-                    <td class="num">{{ item.reorder_point.toLocaleString() }}</td>
-                    <td class="num">{{ formatDaysOfCover(item.days_of_cover) }}</td>
-                    <td class="num">{{ item.quantity.toLocaleString() }}</td>
-                    <td class="num"><strong>{{ fmtExact(item.line_total) }}</strong></td>
-                    <td>
+                <tbody role="rowgroup">
+                  <tr v-for="item in aiItems" :key="item.sku" role="row">
+                    <td role="cell" class="c-sku" :data-label="t('restocking.ai.table.sku')"><strong>{{ item.sku }}</strong></td>
+                    <td role="cell" class="c-name" :data-label="t('restocking.ai.table.name')">{{ translateProductName(item.name) }}</td>
+                    <td role="cell" class="num" :data-label="t('restocking.ai.table.onHand')">{{ item.quantity_on_hand.toLocaleString() }}</td>
+                    <td role="cell" class="num" :data-label="t('restocking.ai.table.reorderPoint')">{{ item.reorder_point.toLocaleString() }}</td>
+                    <td role="cell" class="num" :data-label="t('restocking.ai.table.daysOfCover')">{{ formatDaysOfCover(item.days_of_cover) }}</td>
+                    <td role="cell" class="num" :data-label="t('restocking.ai.table.quantity')">{{ item.quantity.toLocaleString() }}</td>
+                    <td role="cell" class="num" :data-label="t('restocking.ai.table.lineTotal')"><strong>{{ fmtExact(item.line_total) }}</strong></td>
+                    <td role="cell" class="c-badge" :data-label="t('restocking.ai.table.priority')">
                       <span :class="['badge', item.priority]">{{ t(`restocking.ai.priority.${item.priority}`) }}</span>
                     </td>
-                    <td class="ai-reason">{{ item.reason }}</td>
+                    <td role="cell" class="ai-reason" :data-label="t('restocking.ai.table.reason')">{{ item.reason }}</td>
                   </tr>
                 </tbody>
-                <tfoot>
-                  <tr>
-                    <td colspan="6" class="num"><strong>{{ t('restocking.ai.total') }}</strong></td>
-                    <td class="num"><strong>{{ fmtExact(aiPlan.total_cost) }}</strong></td>
-                    <td colspan="2"></td>
+                <tfoot role="rowgroup">
+                  <tr role="row" class="tfoot-row">
+                    <td role="cell" colspan="6" class="num tfoot-label"><strong>{{ t('restocking.ai.total') }}</strong></td>
+                    <td role="cell" class="num"><strong>{{ fmtExact(aiPlan.total_cost) }}</strong></td>
+                    <td role="cell" colspan="2" class="tfoot-spacer"></td>
                   </tr>
                 </tfoot>
               </table>
             </div>
 
             <div class="ai-footer">
-              <button type="button" class="place-order-btn" :disabled="!canPlaceAIOrder" @click="placeAIOrder">
+              <button type="button" class="btn btn-primary" :disabled="!canPlaceAIOrder" @click="placeAIOrder">
                 {{ aiPlacing ? t('restocking.ai.placing') : t('restocking.ai.placeOrder') }}
               </button>
             </div>
@@ -411,11 +527,18 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
   font-size: 1.75rem;
   color: #0f172a;
   letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
 }
 
 .budget-slider {
   width: 100%;
   accent-color: #2563eb;
+}
+
+.budget-slider:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .budget-scale {
@@ -424,36 +547,175 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
   margin-top: 0.25rem;
   font-size: 0.813rem;
   color: #64748b;
+  font-variant-numeric: tabular-nums;
+}
+
+.budget-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.budget-number {
+  width: 9rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #0f172a;
+  font-variant-numeric: tabular-nums;
+}
+
+.budget-number:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+.preset-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.utilization {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  margin: -0.5rem 0 1.5rem;
+}
+
+.meter-track {
+  flex: 1 1 12rem;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.2s ease;
+}
+
+.meter-ok { background: #16a34a; }
+.meter-warn { background: #eab308; }
+
+.meter-label {
+  font-size: 0.813rem;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
 }
 
 .header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
 }
 
-.place-order-btn {
+.action-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+}
+
+.hint {
+  font-size: 0.813rem;
+  color: #64748b;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: #2563eb;
-  color: white;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 6px;
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
 }
 
-.place-order-btn:hover:not(:disabled) {
+.btn:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
   background: #1d4ed8;
 }
 
-.place-order-btn:disabled {
+.btn-primary:disabled {
   background: #cbd5e1;
-  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: white;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.btn-secondary[aria-pressed='true'] {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: white;
+}
+
+.spinner {
+  width: 0.875rem;
+  height: 0.875rem;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .num {
   text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.c-sku { white-space: nowrap; }
+
+.stat-value { font-variant-numeric: tabular-nums; }
+
+.table-container.is-refreshing tbody tr {
+  opacity: 0.5;
+  transition: opacity 0.15s ease;
 }
 
 .notice {
@@ -490,7 +752,8 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
 .ai-card { margin-top: 1.5rem; }
 
 .ai-note {
-  margin: 0.25rem 0 0;
+  margin: 0;
+  padding: 0 1.25rem 0.75rem;
   font-size: 0.813rem;
   color: #64748b;
 }
@@ -498,6 +761,7 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
 .ai-controls {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
   padding: 1rem 1.25rem;
@@ -506,6 +770,7 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
 .ai-budget {
   font-size: 0.875rem;
   color: #64748b;
+  font-variant-numeric: tabular-nums;
 }
 
 .ai-summary {
@@ -513,6 +778,31 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
   padding: 0 1.25rem 1rem;
   color: #0f172a;
   line-height: 1.5;
+}
+
+.skeleton-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.5rem 1.25rem 1.25rem;
+}
+
+.skeleton-row {
+  height: 2.5rem;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-row { animation: none; }
+  .spinner { animation-duration: 2.4s; }
+  .meter-fill, .table-container.is-refreshing tbody tr { transition: none; }
 }
 
 /* Table scrolls horizontally on narrow screens instead of squeezing the reason text. */
@@ -538,5 +828,85 @@ onBeforeUnmount(() => clearTimeout(debounceTimer))
 .badge.medium {
   background: #fef3c7;
   color: #92400e;
+}
+
+/* Mobile: each row becomes a card. display:block/grid strips native table roles,
+   hence the explicit role attributes in the template. */
+@media (max-width: 639px) {
+  .stack-table,
+  .stack-table tbody,
+  .stack-table tfoot {
+    display: block;
+    width: 100%;
+  }
+
+  /* Visually hidden (not display:none) so column headers stay in the a11y tree. */
+  .stack-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .stack-table tbody tr {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem 1rem;
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .stack-table tbody td {
+    display: block;
+    padding: 0;
+    border: none;
+    text-align: left;
+    min-width: 0;
+  }
+
+  .stack-table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 0.125rem;
+  }
+
+  /* Head of the card: SKU left, badge right, name below; no labels needed there. */
+  .stack-table td.c-sku { grid-column: 1; grid-row: 1; }
+  .stack-table td.c-badge { grid-column: 2; grid-row: 1; justify-self: end; }
+  .stack-table td.c-name { grid-column: 1 / -1; grid-row: 2; }
+  .stack-table td.c-sku::before,
+  .stack-table td.c-name::before,
+  .stack-table td.c-badge::before { display: none; }
+
+  .stack-table td.num { text-align: left; }
+
+  .stack-table td.ai-reason {
+    grid-column: 1 / -1;
+    min-width: 0;
+  }
+
+  .stack-table tfoot tr {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.875rem 1rem;
+  }
+
+  .stack-table tfoot td {
+    display: block;
+    padding: 0;
+    border-top: none;
+  }
+
+  .stack-table tfoot td.tfoot-spacer { display: none; }
+  .ai-card tfoot tr { border-top: 2px solid #e2e8f0; }
+  .ai-card tfoot td { border-top: none; }
+
+  .ai-footer .btn,
+  .action-group .btn { width: 100%; }
+  .action-group { width: 100%; }
 }
 </style>
