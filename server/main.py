@@ -80,6 +80,13 @@ class Order(BaseModel):
     actual_delivery: Optional[str] = None
     warehouse: Optional[str] = None
     category: Optional[str] = None
+    source: Optional[str] = None
+    lead_time_days: Optional[int] = None
+
+class RestockingOrderRequest(BaseModel):
+    items: List[dict]
+    total_value: float
+    warehouse: Optional[str] = None
 
 class DemandForecast(BaseModel):
     id: str
@@ -303,6 +310,85 @@ def get_monthly_trends():
     result = list(months.values())
     result.sort(key=lambda x: x['month'])
     return result
+
+@app.get("/api/restocking/recommendations")
+def get_restocking_recommendations():
+    """Return all demand forecast items enriched with inventory cost data, sorted by priority.
+    Frontend applies budget filtering so the slider doesn't require a round-trip per move."""
+    inventory_map = {item['sku']: item for item in inventory_items}
+
+    recommendations = []
+    for forecast in demand_forecasts:
+        sku = forecast['item_sku']
+        inv = inventory_map.get(sku)
+        if not inv:
+            continue
+
+        # Suggest enough units to cover the forecasted demand gap above current stock
+        demand_gap = forecast['forecasted_demand'] - forecast['current_demand']
+        # At minimum, restock up to the reorder point if below it
+        suggested_qty = max(demand_gap, inv['reorder_point'] - inv['quantity_on_hand'], 1)
+        unit_cost = inv['unit_cost']
+
+        recommendations.append({
+            'sku': sku,
+            'name': forecast['item_name'],
+            'trend': forecast['trend'],
+            'current_demand': forecast['current_demand'],
+            'forecasted_demand': forecast['forecasted_demand'],
+            'demand_gap': demand_gap,
+            'quantity_on_hand': inv['quantity_on_hand'],
+            'unit_cost': unit_cost,
+            'suggested_quantity': suggested_qty,
+            'subtotal': round(suggested_qty * unit_cost, 2),
+            'warehouse': inv['warehouse'],
+            'category': inv['category']
+        })
+
+    # Increasing trend first, then highest demand gap
+    trend_order = {'increasing': 0, 'stable': 1, 'decreasing': 2}
+    recommendations.sort(key=lambda x: (trend_order.get(x['trend'], 3), -x['demand_gap']))
+    return recommendations
+
+
+@app.post("/api/restocking/orders", response_model=Order)
+def place_restocking_order(request: RestockingOrderRequest):
+    """Create a restocking order and append it to the shared orders list so it appears in the Orders tab."""
+    from datetime import datetime, timedelta
+
+    LEAD_TIME_DAYS = 14
+    now = datetime.utcnow()
+    delivery_date = now + timedelta(days=LEAD_TIME_DAYS)
+
+    restocking_count = sum(1 for o in orders if o.get('source') == 'restocking')
+    new_order = {
+        'id': f"rst-{restocking_count + 1:04d}",
+        'order_number': f"RST-{now.strftime('%Y')}-{restocking_count + 1:04d}",
+        'customer': 'Internal Restocking',
+        'items': [
+            {'name': item['name'], 'quantity': item['quantity'], 'unit_price': item['unit_cost']}
+            for item in request.items
+        ],
+        'status': 'Processing',
+        'order_date': now.isoformat(),
+        'expected_delivery': delivery_date.isoformat(),
+        'total_value': round(request.total_value, 2),
+        'actual_delivery': None,
+        'warehouse': request.warehouse or 'San Francisco',
+        'category': 'Restocking',
+        'source': 'restocking',
+        'lead_time_days': LEAD_TIME_DAYS
+    }
+
+    orders.append(new_order)
+    return new_order
+
+
+@app.get("/api/restocking/orders", response_model=List[Order])
+def get_restocking_orders():
+    """Return only orders that originated from the restocking workflow."""
+    return [o for o in orders if o.get('source') == 'restocking']
+
 
 if __name__ == "__main__":
     import uvicorn
