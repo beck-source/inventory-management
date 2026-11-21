@@ -58,6 +58,7 @@ Define these once on `:root`. If the project already has a palette, keep its hue
 
   /* Layout */
   --sidebar-width: 240px;
+  --sidebar-width-collapsed: 64px;  /* icon (18px) plus nav padding, centered */
   --content-max: 1280px;
   --focus-ring: 0 0 0 3px rgb(37 99 235 / 0.35);
 }

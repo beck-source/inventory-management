@@ -15,7 +15,7 @@ Reference files (read them when you reach the matching step):
 ## Rules that always apply
 
 1. **Project rules win.** Read `CLAUDE.md` (root and client) and any token or theme file first. If the project already defines a palette, status colors, icon policy (for example "no emojis") or says certain files must be edited by a specific agent, follow that. Use this skill's defaults only where the project is silent.
-2. **Visual only.** Do not change `<script>` logic, props, emits, composables, API calls, router config, route paths or locale keys. Do not rename or remove existing `router-link` targets, event handlers or `v-model` bindings. If a change needs logic, stop and tell the user instead.
+2. **Visual only.** Do not change `<script>` logic, props, emits, composables, API calls, router config, route paths or locale keys. The one exception is the sidebar's open and collapsed state described in step 3. Do not rename or remove existing `router-link` targets, event handlers or `v-model` bindings. If a change needs logic, stop and tell the user instead.
 3. **Keep the framework conventions already in use.** If the project uses the Composition API, stay in it. Keep `v-for` keys unique and stable.
 4. **No new dependencies.** Use CSS custom properties and inline SVG icons. Do not add a UI library or icon package unless the user asks.
 5. **Tokens, not literals.** Every color, space, radius and shadow in new or touched CSS comes from a token. Add a short comment wherever a value is non-obvious (for example why a z-index or a breakpoint was chosen).
@@ -40,8 +40,10 @@ Read `references/design-tokens.md`. Add the tokens once, on `:root`, in the shel
 Read `references/sidebar-layout.md`. Replace the top nav with a two-column shell: a fixed-width sidebar and a scrollable main column.
 - Sidebar contents: brand at the top, nav links in the middle, language and profile controls at the bottom.
 - Reuse the existing `router-link` elements and label expressions. Active state uses `router-link-active` or the project's existing `$route` check.
-- Give each nav item an inline SVG icon and a visible label.
-- On narrow screens the sidebar becomes an off-canvas drawer opened by a menu button. Use a small amount of template state for the toggle only if the shell has none; this is the one place a new `ref` is acceptable, and note it in the summary.
+- Give each nav item an inline SVG icon and a visible label, with the same label as a `title` tooltip.
+- The sidebar is collapsible. At 1200px and up it starts expanded and a toggle collapses it to an icons-only rail (about 64px). From 901px to 1199px it starts as the rail. At 900px and below it becomes an off-canvas drawer opened by a menu button, always with labels. The collapsed choice is saved in `localStorage`, inside try/catch.
+- Hidden labels stay in the DOM, visually hidden, so screen readers keep each link's name.
+- The shell state is two refs, `sidebarOpen` (drawer) and `sidebarCollapsed` (icons-only), plus a `watch` to save the choice. These are the only script changes the skill makes; reuse existing flags if the shell has them, and list them in the summary.
 - Move a page-level filter bar into a sticky toolbar at the top of the main column.
 
 ### 4. Restyle the views
@@ -49,7 +51,7 @@ Read `references/component-patterns.md`. Go view by view, editing scoped CSS and
 
 ### 5. Verify
 - Run the project's build (for example `npm run build`) and fix any errors you introduced.
-- Start the dev server and open every route at about 1440px and about 390px wide. Prefer Playwright if the session provides it.
+- Start the dev server and open every route at about 1440px (expanded), about 1000px (icons-only rail) and about 390px (drawer) wide. At 1440px also click the collapse toggle and reload to confirm the choice persists. Prefer Playwright if the session provides it.
 - Check: no horizontal page scroll, no clipped text, the active nav item matches the route, the drawer opens and closes on phone width, no new console errors.
 - Run `git diff --stat` and confirm no changes to router, API client, composables or locale files, and that `<script>` blocks are unchanged apart from the drawer toggle if you added one.
 
