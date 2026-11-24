@@ -6,6 +6,7 @@ export default {
     orders: '注文',
     finance: '財務',
     demandForecast: '需要予測',
+    restocking: '補充発注',
     companyName: '触媒コンポーネンツ',
     subtitle: '在庫管理システム'
   },
@@ -103,6 +104,19 @@ export default {
 
   // Orders
   orders: {
+    submittedOrders: {
+      title: '送信済み注文',
+      empty: '送信済みの補充注文はまだありません',
+      table: {
+        orderNumber: '注文番号',
+        items: '商品',
+        submittedDate: '送信日',
+        leadTime: 'リードタイム（日）',
+        expectedDelivery: '予定配達日',
+        total: '合計',
+        status: 'ステータス'
+      }
+    },
     title: '注文',
     description: '顧客注文の表示と管理',
     allOrders: 'すべての注文',
@@ -168,6 +182,34 @@ export default {
   },
 
   // Demand Forecast
+  // 補充発注
+  restocking: {
+    title: '補充発注',
+    description: '予測需要に基づき、予算内での補充推奨を表示します',
+    budget: '予算',
+    allocated: '配分済み',
+    remaining: '残り予算',
+    longestLeadTime: '最長リードタイム',
+    days: '日',
+    recommendationsTitle: '推奨補充アイテム',
+    noRecommendations: 'この予算内で補充が必要なアイテムはありません',
+    placeOrder: '発注する',
+    placing: '発注中...',
+    success: '補充注文 {orderNumber} を送信しました。',
+    viewOrders: '注文を表示',
+    error: '補充注文の送信に失敗しました',
+    table: {
+      sku: 'SKU',
+      item: '商品',
+      trend: '傾向',
+      gap: '需要ギャップ',
+      quantity: '推奨数量',
+      unitCost: '単価',
+      lineTotal: '小計',
+      leadTime: 'リードタイム（日）'
+    }
+  },
+
   demand: {
     title: '需要予測',
     description: '需要動向の分析と将来のニーズの予測',
@@ -201,6 +243,7 @@ export default {
   // Statuses
   status: {
     delivered: '配達済み',
+    submitted: '発注済み',
     shipped: '出荷済み',
     processing: '処理中',
     backordered: 'バックオーダー',
@@ -302,6 +345,29 @@ export default {
     dueDate: '期限',
     addTask: 'タスクを追加',
     noTasks: 'タスクがありません。上記からタスクを追加してください！'
+  },
+
+  // Purchase Order Modal
+  purchaseOrder: {
+    createTitle: '発注書を作成',
+    viewTitle: '発注書',
+    sku: 'SKU',
+    shortage: '不足数',
+    units: '個',
+    supplierName: '仕入先名',
+    quantity: '数量',
+    unitCost: '単価 (USD)',
+    expectedDelivery: '納品予定日',
+    notes: '備考 (任意)',
+    total: '合計',
+    submit: '発注書を作成',
+    submitting: '作成中...',
+    poId: '発注番号',
+    status: 'ステータス',
+    createdDate: '作成日',
+    noNotes: 'なし',
+    createFailed: '発注書の作成に失敗しました',
+    loadFailed: '発注書の読み込みに失敗しました'
   },
 
   // Language
