@@ -2,8 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import itertools
 import math
-from datetime import datetime, timedelta
-from typing import List, Optional
+import threading
+from datetime import date, datetime, timedelta
+from typing import List, Literal, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
 
@@ -13,6 +14,13 @@ restock_orders: list = []
 # A counter rather than len(restock_orders) + 1, so concurrent requests (FastAPI runs
 # sync endpoints in a threadpool) can't be handed the same order ID.
 _restock_id_counter = itertools.count(1)
+
+# Tasks created from the header's Tasks modal, in memory like restock orders.
+tasks: list = []
+_task_id_counter = itertools.count(1)
+# Start after any purchase orders loaded from purchase_orders.json so new IDs don't repeat them.
+_po_id_counter = itertools.count(len(purchase_orders) + 1)
+_po_lock = threading.Lock()
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -112,6 +120,9 @@ class BacklogItem(BaseModel):
     days_delayed: int
     priority: str
     has_purchase_order: Optional[bool] = False
+    # The Dashboard decides between "Create PO" and "View PO" from this ID, so it
+    # must be sent; has_purchase_order alone isn't enough after a page reload.
+    purchase_order_id: Optional[str] = None
 
 class PurchaseOrder(BaseModel):
     id: str
@@ -131,6 +142,19 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class Task(BaseModel):
+    id: str
+    title: str
+    priority: Literal["high", "medium", "low"]
+    # camelCase to match the task objects TasksModal.vue and useAuth already use.
+    dueDate: str
+    status: Literal["pending", "completed"]
+
+class CreateTaskRequest(BaseModel):
+    title: str
+    priority: Literal["high", "medium", "low"] = "medium"
+    dueDate: str
 
 class RestockLineItem(BaseModel):
     sku: str
@@ -209,14 +233,114 @@ def get_demand_forecasts():
 def get_backlog():
     """Get backlog items with purchase order status"""
     # Add has_purchase_order flag to each backlog item
+    po_by_backlog = {po["backlog_item_id"]: po for po in purchase_orders}
     result = []
     for item in backlog_items:
         item_dict = dict(item)
-        # Check if this backlog item has a purchase order
-        has_po = any(po["backlog_item_id"] == item["id"] for po in purchase_orders)
-        item_dict["has_purchase_order"] = has_po
+        po = po_by_backlog.get(item["id"])
+        item_dict["has_purchase_order"] = po is not None
+        item_dict["purchase_order_id"] = po["id"] if po else None
         result.append(item_dict)
     return result
+
+def _parse_iso_date(value: str, field: str) -> date:
+    """Parse a YYYY-MM-DD string, turning bad input into a 400 instead of a 500."""
+    try:
+        return date.fromisoformat(value)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail=f"{field} must be a date in YYYY-MM-DD format")
+
+@app.post("/api/purchase-orders", response_model=PurchaseOrder, status_code=201)
+def create_purchase_order(request: CreatePurchaseOrderRequest):
+    """Create a purchase order to cover an inventory shortage (backlog item)"""
+    if not any(item["id"] == request.backlog_item_id for item in backlog_items):
+        raise HTTPException(status_code=404, detail=f"Backlog item {request.backlog_item_id} not found")
+    supplier_name = request.supplier_name.strip()
+    if not supplier_name:
+        raise HTTPException(status_code=400, detail="Supplier name is required")
+    if request.quantity <= 0:
+        raise HTTPException(status_code=400, detail="Quantity must be greater than 0")
+    # Same NaN/Infinity guard as restock orders: JSON allows them and NaN fails every comparison.
+    if not math.isfinite(request.unit_cost) or request.unit_cost < 0:
+        raise HTTPException(status_code=400, detail="Unit cost must be a finite, non-negative number")
+    delivery = _parse_iso_date(request.expected_delivery_date, "Expected delivery date")
+    # One day of slack: the browser limits the date picker by the user's local date,
+    # which can be a day ahead of the server's (e.g. a ja-locale user in UTC+9).
+    if delivery < date.today() - timedelta(days=1):
+        raise HTTPException(status_code=400, detail="Expected delivery date cannot be in the past")
+
+    # Check-then-append under a lock: sync endpoints run in a threadpool, so two
+    # concurrent requests (e.g. a double-click) could otherwise both pass the
+    # duplicate check and leave two POs for one backlog item.
+    with _po_lock:
+        if any(po["backlog_item_id"] == request.backlog_item_id for po in purchase_orders):
+            raise HTTPException(status_code=409, detail="This backlog item already has a purchase order")
+        po = _build_purchase_order(request, supplier_name, delivery)
+        purchase_orders.append(po)
+    return po
+
+def _build_purchase_order(request: CreatePurchaseOrderRequest, supplier_name: str, delivery: date) -> dict:
+    return {
+        "id": f"PO-{next(_po_id_counter):04d}",
+        "backlog_item_id": request.backlog_item_id,
+        "supplier_name": supplier_name,
+        "quantity": request.quantity,
+        "unit_cost": request.unit_cost,
+        "expected_delivery_date": delivery.isoformat(),
+        "status": "Pending",
+        "created_date": datetime.now().replace(microsecond=0).isoformat(),
+        "notes": request.notes.strip() if request.notes and request.notes.strip() else None,
+    }
+
+@app.get("/api/purchase-orders/{backlog_item_id}", response_model=PurchaseOrder)
+def get_purchase_order_by_backlog_item(backlog_item_id: str):
+    """Get the purchase order raised for a backlog item"""
+    po = next((po for po in purchase_orders if po["backlog_item_id"] == backlog_item_id), None)
+    if not po:
+        raise HTTPException(status_code=404, detail=f"No purchase order for backlog item {backlog_item_id}")
+    return po
+
+def _find_task(task_id: str) -> dict:
+    task = next((t for t in tasks if t["id"] == task_id), None)
+    if not task:
+        raise HTTPException(status_code=404, detail=f"Task {task_id} not found")
+    return task
+
+@app.get("/api/tasks", response_model=List[Task])
+def get_tasks():
+    """Get tasks created through the API, newest first"""
+    return list(reversed(tasks))
+
+@app.post("/api/tasks", response_model=Task, status_code=201)
+def create_task(request: CreateTaskRequest):
+    """Create a task for the current user"""
+    title = request.title.strip()
+    if not title:
+        raise HTTPException(status_code=400, detail="Task title is required")
+    due = _parse_iso_date(request.dueDate, "Due date")
+    task = {
+        # String IDs with a prefix so they can't clash with the numeric IDs of the
+        # mock tasks App.vue merges in from useAuth.
+        "id": f"task-{next(_task_id_counter)}",
+        "title": title,
+        "priority": request.priority,
+        "dueDate": due.isoformat(),
+        "status": "pending",
+    }
+    tasks.append(task)
+    return task
+
+@app.patch("/api/tasks/{task_id}", response_model=Task)
+def toggle_task(task_id: str):
+    """Toggle a task between pending and completed"""
+    task = _find_task(task_id)
+    task["status"] = "completed" if task["status"] == "pending" else "pending"
+    return task
+
+@app.delete("/api/tasks/{task_id}", status_code=204)
+def delete_task(task_id: str):
+    """Delete a task"""
+    tasks.remove(_find_task(task_id))
 
 @app.get("/api/restock-orders", response_model=List[RestockOrder])
 def get_restock_orders():
