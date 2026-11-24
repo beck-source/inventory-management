@@ -1,8 +1,18 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+import itertools
+import math
+from datetime import datetime, timedelta
 from typing import List, Optional
 from pydantic import BaseModel
 from mock_data import inventory_items, orders, demand_forecasts, backlog_items, spending_summary, monthly_spending, category_spending, recent_transactions, purchase_orders
+
+# Restocking orders submitted via the Restocking tab. Held in memory only, like
+# the rest of the mock data, so they reset when the server restarts.
+restock_orders: list = []
+# A counter rather than len(restock_orders) + 1, so concurrent requests (FastAPI runs
+# sync endpoints in a threadpool) can't be handed the same order ID.
+_restock_id_counter = itertools.count(1)
 
 app = FastAPI(title="Factory Inventory Management System")
 
@@ -89,6 +99,8 @@ class DemandForecast(BaseModel):
     forecasted_demand: int
     trend: str
     period: str
+    unit_cost: float
+    lead_time_days: int
 
 class BacklogItem(BaseModel):
     id: str
@@ -119,6 +131,33 @@ class CreatePurchaseOrderRequest(BaseModel):
     unit_cost: float
     expected_delivery_date: str
     notes: Optional[str] = None
+
+class RestockLineItem(BaseModel):
+    sku: str
+    name: str
+    quantity: int
+    unit_cost: float
+    line_total: float
+    lead_time_days: int
+
+class RestockOrder(BaseModel):
+    id: str
+    order_number: str
+    items: List[RestockLineItem]
+    total_value: float
+    budget: float
+    status: str
+    submitted_date: str
+    lead_time_days: int
+    expected_delivery: str
+
+class RestockItemRequest(BaseModel):
+    sku: str
+    quantity: int
+
+class CreateRestockOrderRequest(BaseModel):
+    budget: float
+    items: List[RestockItemRequest]
 
 # API endpoints
 @app.get("/")
@@ -178,6 +217,69 @@ def get_backlog():
         item_dict["has_purchase_order"] = has_po
         result.append(item_dict)
     return result
+
+@app.get("/api/restock-orders", response_model=List[RestockOrder])
+def get_restock_orders():
+    """Get submitted restocking orders, newest first"""
+    return list(reversed(restock_orders))
+
+@app.post("/api/restock-orders", response_model=RestockOrder, status_code=201)
+def create_restock_order(request: CreateRestockOrderRequest):
+    """Submit a restocking order for demand-forecast items within a budget"""
+    if not request.items:
+        raise HTTPException(status_code=400, detail="Restock order must contain at least one item")
+    # JSON allows NaN/Infinity and pydantic accepts them as floats. NaN compares False
+    # against everything, so without this check it would silently pass the budget check below.
+    if not math.isfinite(request.budget) or request.budget < 0:
+        raise HTTPException(status_code=400, detail="Budget must be a finite, non-negative number")
+
+    forecasts_by_sku = {f["item_sku"]: f for f in demand_forecasts}
+    line_items = []
+    seen_skus = set()
+    for item in request.items:
+        forecast = forecasts_by_sku.get(item.sku)
+        if not forecast:
+            raise HTTPException(status_code=400, detail=f"Unknown SKU: {item.sku}")
+        if item.sku in seen_skus:
+            raise HTTPException(status_code=400, detail=f"Duplicate SKU in order: {item.sku}")
+        seen_skus.add(item.sku)
+        if item.quantity <= 0:
+            raise HTTPException(status_code=400, detail=f"Quantity for {item.sku} must be greater than 0")
+        # Price from server-side data, never from the client, so the budget check can't be bypassed.
+        line_items.append({
+            "sku": item.sku,
+            "name": forecast["item_name"],
+            "quantity": item.quantity,
+            "unit_cost": forecast["unit_cost"],
+            "line_total": round(item.quantity * forecast["unit_cost"], 2),
+            "lead_time_days": forecast["lead_time_days"],
+        })
+
+    total_value = round(sum(li["line_total"] for li in line_items), 2)
+    if total_value > request.budget:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Order total {total_value:.2f} exceeds budget {request.budget:.2f}"
+        )
+
+    # An order is only complete once its slowest item arrives, so the order's lead
+    # time is the longest line lead time rather than an average.
+    lead_time_days = max(li["lead_time_days"] for li in line_items)
+    submitted = datetime.now().replace(microsecond=0)
+    next_id = next(_restock_id_counter)
+    order = {
+        "id": f"RST-{next_id}",
+        "order_number": f"RST-{submitted.year}-{next_id:04d}",
+        "items": line_items,
+        "total_value": total_value,
+        "budget": request.budget,
+        "status": "Submitted",
+        "submitted_date": submitted.isoformat(),
+        "lead_time_days": lead_time_days,
+        "expected_delivery": (submitted + timedelta(days=lead_time_days)).isoformat(),
+    }
+    restock_orders.append(order)
+    return order
 
 @app.get("/api/dashboard/summary")
 def get_dashboard_summary(

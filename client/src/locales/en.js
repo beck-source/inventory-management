@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -103,6 +104,19 @@ export default {
 
   // Orders
   orders: {
+    submittedOrders: {
+      title: 'Submitted Orders',
+      empty: 'No restock orders have been submitted yet',
+      table: {
+        orderNumber: 'Order Number',
+        items: 'Items',
+        submittedDate: 'Submitted',
+        leadTime: 'Lead Time (days)',
+        expectedDelivery: 'Expected Delivery',
+        total: 'Total',
+        status: 'Status'
+      }
+    },
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
@@ -168,6 +182,34 @@ export default {
   },
 
   // Demand Forecast
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Get budget-based restock recommendations from forecasted demand',
+    budget: 'Budget',
+    allocated: 'Allocated',
+    remaining: 'Remaining',
+    longestLeadTime: 'Longest Lead Time',
+    days: 'days',
+    recommendationsTitle: 'Recommended Restock Items',
+    noRecommendations: 'No items need restocking within this budget',
+    placeOrder: 'Place Order',
+    placing: 'Placing Order...',
+    success: 'Restock order {orderNumber} was submitted.',
+    viewOrders: 'View Orders',
+    error: 'Failed to place restock order',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Trend',
+      gap: 'Demand Gap',
+      quantity: 'Recommended Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time (days)'
+    }
+  },
+
   demand: {
     title: 'Demand Forecast',
     description: 'Analyze demand trends and forecasts',
@@ -201,6 +243,7 @@ export default {
   // Statuses
   status: {
     delivered: 'Delivered',
+    submitted: 'Submitted',
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
